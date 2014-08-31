@@ -1,0 +1,376 @@
+<div ng-controller="formSubmissionController" class="frontoffice-tab frontoffice-tab-formsForReview">
+    <legend>Forms for Review</legend>
+
+    <style>
+
+        .highlight {
+            background-color: #f2dede;
+        }
+
+
+    </style>
+
+    <table class="table table-bordered" ng-show="formSubmissions.submissions != undefined && formSubmissions.submissions.length > 0">
+        <thead class="appointments">
+        <tr>
+            <th>
+		            <span class="dropdown">
+		                Form Name
+		                <a class="dropdown-toggle btn btn-mini" style="float: right;" ng-show="formNames && formNames.length > 1"><b class="caret"></b></a>
+		                <ul class="dropdown-menu">
+                            <li><a ng-click="onFilterByFormName()" ng-show="formName.length > 0" prevent-default>All Forms</a></li>
+                            <li ng-repeat="value in formNames">
+                                <a ng-click="onFilterByFormName(value)" prevent-default>{{value}}</a>
+                            </li>
+                        </ul>
+		            </span>
+                <div ng-show="formName.length > 0" class="table-filter-value"><span class="label label-info">{{formName}}</span></div>
+            </th>
+            <th>
+		            <span class="dropdown">
+		                Assertions
+		                <a class="dropdown-toggle btn btn-mini dropdown-toggle-assertions" style="float: right;" ng-show="assertionNames && assertionNames.length > 1"><b class="caret"></b></a>
+		                <ul class="dropdown-menu dropdown-menu-extended">
+                            <div class="dropdown-menu-extended-container" ui-keyup="{13: 'acceptAssertionFilter($event)', 27: 'cancelAssertionFilter($event)'}">
+                                <div class="control-group">
+                                    <label class="control-label">Selector:</label>
+                                    <div class="controls">
+                                        <select
+                                                ng-model="assertionName"
+                                                ng-options="value as value for value in assertionNames"
+                                                ng-change="assertionValue = ''">
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="control-group">
+                                    <label class="control-label">Value:</label>
+                                    <div class="controls">
+                                        <input type="text" ng-model="assertionValue" style="width: 100px;" />
+                                    </div>
+                                </div>
+                                <input type="button" value="Filter" class="btn btn-mini btn-primary" ng-click="onFilterAssertion(assertionName, assertionValue)" />
+                                <input type="button" value="Clear" class="btn btn-mini" ng-click="clearFilterAssertion()" />
+                            </div>
+                        </ul>
+		            </span>
+                <div ng-show="assertionName.length > 0" class="table-filter-value"><span class="label label-info">{{assertionName}}: {{assertionValue}}*</span></div>
+            </th>
+            <th>
+		            <span class="dropdown">
+		                Identifiers
+		                <a class="dropdown-toggle btn btn-mini dropdown-toggle-identifiers" style="float: right;" ng-show="identifierSchemas && identifierSchemas.length > 1"><b class="caret"></b></a>
+		                <ul class="dropdown-menu dropdown-menu-extended">
+                            <div class="dropdown-menu-extended-container" ui-keyup="{13: 'acceptIdentifierFilter($event)', 27: 'cancelIdentifierFilter($event)'}">
+                                <div class="control-group">
+                                    <label class="control-label">Schema:</label>
+                                    <div class="controls">
+                                        <select
+                                                ng-model="identifierSchema"
+                                                ng-options="value as value for value in identifierSchemas"
+                                                ng-change="identifierId = ''">
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="control-group">
+                                    <label class="control-label">ID:</label>
+                                    <div class="controls">
+                                        <input type="text" ng-model="identifierId" style="width: 100px;" />
+                                    </div>
+                                </div>
+                                <input type="button" value="Filter" class="btn btn-mini btn-primary" ng-click="onFilterIdentifiers(identifierSchema, identifierId)" />
+                                <input type="button" value="Clear" class="btn btn-mini" ng-click="clearFilterIdentifiers()" />
+                            </div>
+                        </ul>
+		            </span>
+                <div ng-show="identifierSchema.length > 0" class="table-filter-value"><span class="label label-info">{{identifierSchema}}: {{identifierId}}*</span></div>
+            </th>
+            <th>Date Completed</th>
+            <th>Appointment Info</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tr ng-repeat='formSubmission in formSubmissions.submissions | filter: formSubmissionFilter' class="frontoffice-form-submission" ng-class="{'highlight': formSubmission.instanceId == idSelectedFormSubmission}" >
+            <td>{{formSubmission.formTitle}}</td>
+            <td>
+                <table>
+                    <tr ng-repeat="assertion in formSubmission.assertions" class="table-no-borders">
+                        <td style="text-align: left; font-weight: bold;">{{assertion.name}}:</td>
+                        <td>{{assertion.value}}</td>
+                    </tr>
+                </table>
+            </td>
+            <td>
+                <table>
+                    <tr ng-repeat="identifier in formSubmission.identifiers" class="table-no-borders">
+                        <td style="text-align: left; font-weight: bold;">{{identifier.schema}}:</td>
+                        <td>{{identifier.identifier}}</td>
+                    </tr>
+                </table>
+            </td>
+            <td>{{formSubmission.submissionDate | date:'short'}}</td>
+            <td>
+                <table>
+                    <tr class="table-no-borders">
+                        <td style="text-align: left; font-weight: bold;">ID:</td>
+                        <td>{{formSubmission.appointment.appointmentId}}</td>
+                    </tr>
+                    <tr class="table-no-borders">
+                        <td style="text-align: left; font-weight: bold;">Date/Time:</td>
+                        <td>{{formSubmission.appointment.appointmentTime | date:'short'}}</td>
+                    </tr>
+                    <tr class="table-no-borders">
+                        <td style="text-align: left; font-weight: bold;">Practice:</td>
+                        <td>{{formSubmission.appointment.practiceName}}</td>
+                    </tr>
+                    <tr class="table-no-borders">
+                        <td style="text-align: left; font-weight: bold;">Provider:</td>
+                        <td>{{formSubmission.appointment.providerName}}</td>
+                    </tr>
+                </table>
+            </td>
+            <td>
+                <input type="button" value="View Form" class="btn btn-block" ng-click="onViewForm(formSubmission.identifiers, formSubmission.instanceId)" />
+                <input type="button" value="Verify" class="btn btn-block" ng-class="{'btn-primary': !formSubmission.verified}" ng-click="onVerificationModal(formSubmission.assertions, formSubmission.identifiers, formSubmission.instanceId)" ng-hide="formSubmission.verified"/>
+                <input type="button" value="Send to LMR" class="btn btn-block" ng-class="{'btn-primary': formSubmission.verified}" ng-click="onViewPushEMRModal(formSubmission)" ng-show="formSubmission.verified" />
+                <input type="button" value="Delete" class="btn btn-block" ng-click="onReturnToSender(formSubmission)" />
+            </td>
+        </tr>
+    </table>
+
+    <div ng-show="formSubmissions == undefined" class="alert alert-info">
+        <h5>Loading Form Submissions.  Please wait...</h5>
+    </div>
+
+    <div ng-show="formSubmissions != undefined && (formSubmissions.submissions == undefined || formSubmissions.submissions.length == 0)" class="alert alert-warning">
+        <h5>Sorry, no Form Submissions found.</h5>
+    </div>
+
+    <div modal="patientVerificationModal" close="closePatientVerificationModal()" >
+        <div class="modal-header">
+            <h4>Patient Verification</h4>
+        </div>
+        <div class="modal-body modal-body-tall">
+            <div ng-show="syncPatientIdentifiersRunning" class="alert alert-info">
+                Saving Patient Verification...
+            </div>
+
+            <div ng-show="syncPatientIdentifiersError" class="alert alert-error">
+                Failed to save Patient Verification.
+            </div>
+
+            <div class="row" ng-hide="syncPatientIdentifiersRunning || syncPatientIdentifiersError">
+                <div ng-show="verificationPage == 1">
+                    <div class="span2 well" style="width: 42%; min-height: 450px;">
+                        <h4>Patient Entered Information:</h4>
+                        <div style="margin-top: 20px;">
+                            <table class="table table-condensed" style="background-color: #ffffff;">
+                                <tr ng-repeat="assertion in verificationAssertionsOrig" ng-class="{enablerow: (assertion.identifierInd)}">
+                                    <td>{{assertion.label}}:</td>
+                                    <td>{{assertion.value}}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="span2 well" style="width: 42%; min-height: 450px;">
+                        <div style="width: 100%;">
+                            <h4>Partners Patient Information:</h4>
+                            <div style="margin-top: 20px;" ng-show="patientMatches.length == undefined">
+                                Loading patients. Please wait....
+                            </div>
+                            <div ng-show="patientMatches != undefined && patientMatches.length == 1" style="margin-top: 20px;">
+                                <table class="table table-condensed" style="background-color: #ffffff;">
+                                    <tr style="font-weight: bold;"><td>MRN:</td><td>{{patientMatches[0].mrn}}</td></tr>
+                                    <tr><td>First Name:</td><td>{{patientMatches[0].firstName}}</td></tr>
+                                    <tr><td>Last Name:</td><td>{{patientMatches[0].lastName}}</td></tr>
+                                    <tr><td>Address:</td><td>{{patientMatches[0].address1}} {{patientMatches[0].address2}}</td></tr>
+                                    <tr><td>City, State, Zip:</td><td>{{patientMatches[0].city}}, {{patientMatches[0].state}} {{patientMatches[0].zip}}</td></tr>
+                                    <tr><td>Date of Birth:</td><td>{{patientMatches[0].dobPretty}}</td></tr>
+                                    <tr><td>Gender:</td><td>{{patientMatches[0].sex}}</td></tr>
+                                </table>
+                                <div class="btn-toolbar" style="text-align: center;">
+                                    <div class="btn-group btn-group-horizontal">
+                                        <button class="btn btn-primary btn-fixed-width" ng-click="onVerificationMatch(patientMatches[0])">Match</button>
+                                        <button class="btn btn-danger btn-fixed-width" ng-click="onVerificationNoMatch(patientMatches[0])">Don't Match</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div ng-show="patientMatches != undefined && patientMatches.length == 0" style="margin-top: 20px;">
+                                <div>No Matching MRN records found.</div>
+                                <div style="margin-top: 20px;">
+                                    <button class="btn btn-danger btn-xlarge" ng-click="onVerificationNoMatch(patientMatches[0])">Lookup Patients by Name</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+
+                <div ng-show="verificationPage == 2">
+                    <div class="span2 well" style="width: 42%; min-height: 450px;">
+                        <h4>Search Criteria:</h4>
+                        <div style="margin-top: 20px;">
+                            <form class="">
+                                <table class="table table-condensed" style="background-color: #ffffff;">
+                                    <tr ng-repeat="assertion in verificationAssertions" ng-class="{enablerow: (assertion.identifierInd)}" ng-show="assertion.searchOn">
+                                        <td>{{assertion.label}}:</td>
+                                        <td><input type="text" ng-model="assertion.lookupValue" ng-change="enableSearch(assertion)" /></td>
+                                        <!-- <td><button class="btn" ng-click="toggleSearch(assertion)" ng-class="{'btn-primary': (assertion.searchOn)}"><i ng-class="{'icon-white ': (assertion.searchOn)}" class="icon-search"></i></button> </td> -->
+                                    </tr>
+                                </table>
+                                <div ng-show="hasSearchOn == false">
+                                    Search: <input type="text" ng-model="freeformSearch" ng-change="updateFreeformSearch()"/>
+                                </div>
+                                <div class="btn-toolbar" style="text-align: center;">
+                                    <div class="btn-group btn-group-horizontal">
+                                        <button class="btn btn-primary btn-fixed-width" ng-click="onPatientLookup()">Search</button>
+                                        <button class="btn btn-fixed-width" ng-click="clearVerificationAssertions()">Clear</button>
+                                    </div>
+                                </div>
+                            </form>
+
+                            <div class="alert alert-info" >
+                                <h4>Patient Entered Information:</h4>
+                                <table class="table table-condensed" style="background-color: #ffffff; font-size: 0.9em;">
+                                    <tr ng-repeat="assertion in verificationAssertionsOrig">
+                                        <td>{{assertion.label}}:</td>
+                                        <td>{{assertion.value}}</td>
+                                    </tr>
+                                </table>
+                            </div>
+
+
+                        </div>
+                    </div>
+                    <div class="span2 well" style="width: 42%; min-height: 450px;">
+                        <div style="width: 100%;">
+                            <h4>Partners Search Results:</h4>
+
+                            <div style="margin-top: 20px;" ng-show="patientMatches.length == undefined">
+                                Loading patients. Please wait...
+                            </div>
+                            <div style="margin-top: 20px;" ng-show="patientMatches.length == 0">
+                                No Matching patient records found.
+                            </div>
+                            <div class="patient-verification-search-results" style="margin-top: 20px;" ng-show="patientMatches != undefined">
+                                <table style="width: 100%;" class="table">
+                                    <tr ng-repeat="patient in patientMatches" style="background-color: #ffffff;">
+                                        <td>
+                                            <table class="table table-condensed">
+                                                <tr style="font-weight: bold;"><td>MRN:</td><td>{{patient.mrn}}</td></tr>
+                                                <tr><td>First Name:</td><td>{{patient.firstName}}</td></tr>
+                                                <tr><td>Last Name:</td><td>{{patient.lastName}}</td></tr>
+                                                <tr><td>Address:</td><td>{{patient.address1}} {{patient.address2}}</td></tr>
+                                                <tr><td>City, State, Zip:</td><td>{{patient.city}}, {{patient.state}} {{patient.zip}}</td></tr>
+                                                <tr><td>Date of Birth:</td><td>{{patient.dobPretty}}</td></tr>
+                                                <tr><td>Gender:</td><td>{{patient.sex}}</td></tr>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-primary" ng-click="onVerificationChoice(patient)">Choose</button>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="btn-toolbar" style="text-align: center;">
+                                <div class="btn-group btn-group-horizontal">
+                                    <button ng-click="onPreviousPage()" class="btn" ng-show="page > 0">Previous</button>
+                                    <button ng-click="onNextPage()" class="btn btn-primary" ng-hide="patientMatches.length < 10 || patientMatches.length == null" >Next</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div ng-show="verificationPage == 3">
+                    <div class="span2 well" style="width: 42%; min-height: 450px;">
+                        <div style="width: 100%;">
+                            <h4>Patient Entered Information:</h4>
+                            <div style="margin-top: 20px;">
+                                <table class="table table-condensed" style="background-color: #ffffff;">
+                                    <tr ng-repeat="assertion in verificationAssertionsOrig" ng-class="{enablerow: (assertion.identifierInd)}">
+                                        <td>{{assertion.label}}:</td>
+                                        <td>{{assertion.value}}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="span2 well alert-error" style="width: 42%; min-height: 450px;">
+                        <div style="width: 100%;">
+                            <h4>Update To:</h4>
+                            <div ng-show="selectedPatient != undefined" style="margin-top: 20px;">
+                                <table class="table table-condensed" style="background-color: #ffffff;">
+                                    <tr style="font-weight: bold;"><td>MRN:</td><td>{{selectedPatient.mrn}}</td></tr>
+                                    <tr><td>First Name:</td><td>{{selectedPatient.firstName}}</td></tr>
+                                    <tr><td>Last Name:</td><td>{{selectedPatient.lastName}}</td></tr>
+                                    <!--<tr><td>Address:</td><td>{{selectedPatient.address1}} {{selectedPatient.address2}}</td></tr>-->
+                                    <!--<tr><td>City, State, Zip:</td><td>{{selectedPatient.city}}, {{selectedPatient.state}} {{selectedPatient.zip}}</td></tr>-->
+                                    <tr><td>Date of Birth:</td><td>{{selectedPatient.dobPretty}}</td></tr>
+                                    <tr><td>Gender:</td><td>{{selectedPatient.sex}}</td></tr>
+                                </table>
+                                <div class="btn-toolbar" style="text-align: center;">
+                                    <div class="btn-group btn-group-horizontal">
+                                        <button class="btn btn-primary btn-fixed-width" ng-click="onVerificationMatch(selectedPatient)" ng-disabled="assertedIdentifier == undefined">Confirm</button>
+                                        <button class="btn btn-danger btn-fixed-width" ng-click="onVerificationNoMatch()">Go Back</button>
+                                    </div>
+                                </div>
+                                <div ng-show="assertedIdentifier == undefined" class="alert alert-error">
+                                    Note, you may not verify a patient without an identity assertion.  This must be declared in the form declaration.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+        </div>
+        <div class="modal-footer">
+            <button class="btn cancel" ng-click="closePatientVerificationModal()">Cancel</button>
+        </div>
+    </div>
+
+
+    <div modal="pushEMRModal" close="closePushEMRModal()" options="pushEMROpts">
+
+        <div class="modal-header">
+            <h4>Push to EMR</h4>
+        </div>
+
+        <div class="modal-body modal-body-short" >
+
+            <div class="control-group" ng-show="activationResponse == undefined">
+                <label class="control-label" for="ihsProvider">Select Provider:</label>
+                <div class="controls">
+                    <select id="ihsProvider" ng-model="formSubmission.ihsProvider" ng-options="provider.name for provider in ihsProviders"></select>
+                </div>
+            </div>
+
+            <div class="emr-push-div" ng-show="pushResponse != undefined && pushResponse == -1">
+                <div class="alert alert-info">Pushing Form to EMR...please wait...</div>
+            </div>
+            <div class="emr-push-error-div" ng-show="pushResponse != undefined && pushResponse == 0">
+                <div class="alert alert-error">Push to EMR failed.</div>
+            </div>
+            <div class="emr-push-div" ng-show="pushResponse != undefined && pushResponse == 1">
+                <div class="alert alert-success">Push to EMR completed successfully.</div>
+            </div>
+
+        </div>
+        <div class="modal-footer">
+            <input type="button" class="btn btn-primary" value="Push to EMR"  ng-show="pushResponse == undefined" ng-disabled="formSubmission.ihsProvider == undefined" ng-click="onPush(formSubmission)" />
+            <input type="button" class="btn btn-primary" value="Close" ng-disabled="pushResponse == -1" ng-click="closePushEMRModal()" />
+        </div>
+    </div>
+
+
+
+
+
+    <ng-include src="appPath + 'views/viewFormModal.html'"></ng-include>
+
+
+</div>

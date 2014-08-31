@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<smooks-resource-list xmlns="http://www.milyn.org/xsd/smooks-1.1.xsd" xmlns:jb="http://www.milyn.org/xsd/smooks/javabean-1.2.xsd">
+
+    <jb:bean beanId="identities" class="java.util.ArrayList" createOnElement="identities">
+        <jb:wiring beanIdRef="identity" />
+    </jb:bean>
+
+    <jb:bean beanId="assertions" class="java.util.ArrayList" createOnElement="assertions">
+        <jb:wiring beanIdRef="assertion" />
+    </jb:bean>
+
+    <jb:bean beanId="parameters" class="java.util.ArrayList" createOnElement="instance">
+        <jb:wiring beanIdRef="parameter" />
+    </jb:bean>
+
+    <jb:bean beanId="identity" class="edu.harvard.mgh.lcs.sprout.forms.study.to.IdentityTO" createOnElement="identity">
+        <jb:value property="schema" data="identity/@schema" />
+        <jb:value property="scope" data="identity/@domain" />
+        <jb:value property="identifier" data="identity" />
+    </jb:bean>
+    
+    <jb:bean beanId="assertion" class="edu.harvard.mgh.lcs.sprout.forms.study.to.AssertionTO" createOnElement="assertion">
+		<jb:value property="name" data="assertion/name" />
+        <jb:value property="value" data="assertion/value" />
+        <jb:value property="label" data="assertion/label" />
+        <jb:value property="variableName" data="assertion/variableName" />
+        <jb:value property="searchField" data="assertion/searchField" />
+        <jb:value property="identity" decoder="Boolean" data="assertion/identityInd" />
+    </jb:bean>
+
+    <jb:bean beanId="parameter" class="edu.harvard.mgh.lcs.sprout.forms.study.to.ParameterTO" createOnElement="parameter">
+		<jb:value property="name" data="parameter/@name" />
+        <jb:value property="value" data="parameter" />
+    </jb:bean>
+
+    <jb:bean beanId="model" class="edu.harvard.mgh.lcs.sprout.forms.study.to.ModelTO" createOnElement="model">
+		<jb:value property="model" data="model" />
+    </jb:bean>
+
+    <jb:bean beanId="submission" class="edu.harvard.mgh.lcs.sprout.forms.study.to.SubmissionTO" createOnElement="meta">
+		<jb:value property="publicationKey" data="meta/publication/@id" />
+		<jb:value property="formTitle" data="meta/publication/title" />
+		<jb:value property="formDescription" data="meta/publication/description" />
+		<jb:value property="instanceId" data="meta/instance/@id" />
+		<jb:value property="timestamp" data="meta/timestamp" />
+		<jb:value property="deliveryKey" data="meta/instance/deliveryKey" />
+    </jb:bean>
+
+    <resource-config selector="model">
+        <resource>org.milyn.delivery.DomModelCreator</resource>
+    </resource-config>
+
+</smooks-resource-list>

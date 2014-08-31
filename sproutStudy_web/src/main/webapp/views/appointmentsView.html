@@ -1,0 +1,157 @@
+<!--[if lte IE 8]>
+    <script>
+      document.createElement('forms');
+      document.createElement('forms');
+    </script>
+<![endif]-->
+
+<div ng-controller="AppointmentCtrl" class="frontoffice-tab frontoffice-tab-default frontoffice-tab-appointments">
+    <legend>Schedule View!!!</legend>
+
+    <!--[if lte IE 8]>
+    <script>
+        document.createElement('forms');
+        document.createElement('forms');
+        document.createElement('forms');
+    </script>
+    <![endif]-->
+
+    <table class="table table-bordered" ng-show="scheduleResult.appointments.length > 0">
+        <thead class="appointments">
+        <tr>
+            <th>Patient Name</th>
+            <th>MRN</th>
+            <th>
+		            <span class="dropdown">
+		                Practice (Visit Type)
+		                <a class="dropdown-toggle btn btn-mini" style="float: right;"><b class="caret"></b></a>
+		                <ul class="dropdown-menu">
+                            <li><a ng-click="onFilterByPractice()" ng-show="practiceName.length > 0" prevent-default>ALL PRACTICES</a></li>
+                            <li ng-repeat="value in practices">
+                                <a ng-click="onFilterByPractice(value)" prevent-default>{{value.name}}</a>
+                            </li>
+                        </ul>
+		            </span>
+                <div ng-show="practiceName.length > 0" class="table-filter-value"><span class="label label-info">{{practiceName}}</span></div>
+            </th>
+            <th>
+		            <span class="dropdown">
+		                Provider
+		                <a class="dropdown-toggle btn btn-mini" style="float: right;"><b class="caret"></b></a>
+		                <ul class="dropdown-menu">
+                            <li><a ng-click="onFilterByProvider()" ng-show="provider.length > 0" prevent-default>ALL PROVIDERS</a></li>
+                            <li ng-repeat="value in providers">
+                                <a ng-click="onFilterByProvider(value)" prevent-default>{{value.name}}</a>
+                            </li>
+                        </ul>
+		            </span>
+                <div ng-show="provider.length > 0" class="table-filter-value"><span class="label label-info">{{providerName}}</span></div>
+            </th>
+            <th>
+		            <span class="dropdown">
+		                <span style="display: inline-block;">{{prettyDate}}</span>
+                        <span style="float: right;">
+                            <input type="text" class="input-small date" ng-model="startDate" ng-change="resetAppointments()" data-date-format="mm/dd/yyyy" style="display: none;" bs-datepicker>
+                                <button  type="button" class="btn btn-mini" data-toggle="datepicker"><i class="icon-calendar"></i></button>
+                            </input>
+                        </span>
+
+		            </span>
+            </th>
+            <th>
+                <span class="dropdown">
+		                Status
+		                <a class="dropdown-toggle btn btn-mini" style="float: right;"><b class="icon-question-sign"></b></a>
+		                <ul class="dropdown-menu" style="padding: 10px; font-weight: normal;">This list is updated on a nightly basis. Changes to appointments made today will not be reflected in this view.</ul>
+		            </span>
+
+            </th>
+            <th>Activate</th>
+            <th>Forms</th>
+        </tr>
+        </thead>
+        <tr ng-repeat='appointment in scheduleResult.appointments | filter: appointmentFilter | orderBy:"appointmentTime":false' ng-controller="badgeCtrl" forms='{"appointment": {{appointment}}, "index": {{$index}}}'>
+            <td>
+                <span style="padding-right: 5px;">
+                    <a target="iframe-ENROLLMENT" ng-href="/saEnrollmentModule/enrollment.html#/expressPatientHistory/{{appointment.mrn}}/MGH" class="enrollment-quick-link"><img ng-src="{{appointment.badge}}"/></a>
+                </span>{{appointment.patientName}}
+            </td>
+            <td>{{appointment.mrn}}</td>
+            <td>{{appointment.practiceName}} ({{appointment.appointmentType}})</td>
+            <td>{{appointment.providerName}}</td>
+            <td>{{appointment.appointmentTimePretty}}</td>
+            <td>{{appointment.appointmentStatus}}</td>
+            <td style="text-align: center;">
+                <button class="btn btn-mini" ng-click="onActivateIhs(appointment)" ng-class="{'btn-primary': appointment.activateInd}" style="display: none;" ng-show="appointment.activateInd != undefined" ng-disabled="appointment.activateInd == false">Activate</button>
+            </td>
+            <td style="text-align: center;">
+                <button class="btn btn-mini" ng-click="onViewForms(appointment)" ng-class="{'btn-primary': appointment.formCount > 0}" style="display: none;" ng-show="appointment.formCount > -1" ng-disabled="appointment.formCount == 0">View</button>
+            </td>
+        </tr>
+    </table>
+
+    <div ng-show="scheduleResult.appointments == undefined" class="alert alert-info">
+        <h5>Loading appointments for {{formatDate(startDate, "view1")}}.  Please wait...</h5>
+    </div>
+
+
+    <div ng-show="scheduleResult.appointments.length == 0" class="alert alert-warning">
+        <h4>Sorry, no appointments found for {{formatDate(startDate, "view2")}}.</h4>
+        <p>
+        <div class="control-group">
+            <label class="control-label" for="startDate">Please choose another date:</label>
+            <div class="controls">
+                <input type="text" id="startDate" class="input-small date" ng-model="startDate" ng-change="resetAppointments()" data-date-format="mm/dd/yyyy" style="display: none;" bs-datepicker>
+                    <button  type="button" class="btn" data-toggle="datepicker"><i class="icon-calendar"></i></button>
+                </input>
+            </div>
+        </div>
+        </p>
+    </div>
+
+    <div modal="activateIhsModal" close="closeActivateIhsModal()" options="iHSEnrollmentOpts">
+        <div class="modal-header">
+            <h4>Activate iHealthSpace Account</h4>
+        </div>
+
+        <div class="modal-body">
+            <div class="activate-ihs-form-div" ng-show="enrollmentDataResponse == undefined">
+                <form name="ihsEnrollmentForm">
+                    <div id="container">
+                        <strong>To invite this patient or his/her caregiver into iHealthSpace, please review the patient information below and complete the next steps:</strong><br/><br/>
+                        <table class="table table-condensed">
+                            <tr style="font-weight: bold;"><td>Name:</td><td>{{patient.firstName}} {{patient.lastName}}</td></tr>
+                            <tr style="font-weight: bold;"><td>MRN:</td><td>{{patient.mrn}}</td></tr>
+                            <tr><td>Address:</td><td>{{patient.address1}} {{patient.address2}}</td></tr>
+                            <tr><td>City, State, Zip:</td><td>{{patient.city}}, {{patient.state}} {{patient.zip}}</td></tr>
+                            <tr><td>Date of Birth:</td><td>{{patient.dobPretty}}</td></tr>
+                            <tr><td>Gender:</td><td>{{patient.sex}}</td></tr>
+                        </table>
+                    </div>
+                </form>
+            </div>
+
+            <div class="control-group" ng-show="activationResponse == undefined">
+                <label class="control-label" for="ihsProvider">Select Provider:</label>
+                <div class="controls">
+                    <select id="ihsProvider" ng-model="appointment.ihsProvider" ng-options="provider.prettyName for provider in ihsProviders"></select>
+                </div>
+            </div>
+
+            <input type="button" class="btn btn-primary" value="Activate iHealthSpace Enrollment"  ng-show="activationResponse == undefined" ng-disabled="appointment.ihsProvider == undefined" ng-click="activateIhsAccount(appointment)" />
+
+            <div class="ihs-activating-div" ng-show="activationResponse != undefined && activationResponse == -1">
+                <div class="alert alert-info">Activating iHealthSpace Enrollment...please wait...</div>
+            </div>
+            <div class="ihs-activating-error-div" ng-show="activationResponse != undefined && activationResponse == 0">
+                <div class="alert alert-error">iHealthSpace Enrollment Activation failed.</div>
+            </div>
+            <div class="ihs-activation-div" ng-show="activationResponse != undefined && activationResponse == 1">
+                <div class="alert alert-success">iHealthSpace Enrollment Activation completed successfully.</div>
+            </div>
+        </div>
+    </div>
+
+    <ng-include src="appPath + 'views/viewFormsModal.html'"></ng-include>
+    <ng-include src="appPath + 'views/viewFormModal.html'"></ng-include>
+</div>

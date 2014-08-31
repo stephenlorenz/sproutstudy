@@ -1,0 +1,67 @@
+<div class="container">
+    <h1>Add User Authorization</h1>
+    <form method="post" id="user" name="addUserFormPage1" novalidate autocomplete="false">
+
+        <legend>Authorization Information</legend>
+
+        <div class="control-group">
+            <label class="control-label" for="cn">Partners Username</label>
+            <div class="controls">
+                <input ng-model="cn" id="cn" required  autocomplete="false"
+                       class="field-label message-text" ng-change="getUser()" type="text" style="width: 20em;" />
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="application">Application</label>
+            <div class="controls">
+                <select id="application" data-ng-options="applicationAuthority.description for applicationAuthority in applicationAuthorities" data-ng-model="applicationAuthority"></select>
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="manager">Manager</label>
+            <div class="controls">
+                <input ng-model="manager" id="manager" required  autocomplete="false"
+                       class="field-label message-text" type="checkbox" />
+            </div>
+        </div>
+
+
+
+        <div class="control-group">
+            <label class="control-label" for="displayName">Display Name</label>
+            <div class="controls">
+                <input ng-model="user.displayName" id="displayName" disabled
+                       class="field-label message-text" type="text" style="width: 20em;" />
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="firstName">First Name</label>
+            <div class="controls">
+                <input ng-model="user.givenName" id="firstName" disabled
+                       class="field-label message-text" type="text" style="width: 20em;" />
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="sn">Last Name</label>
+            <div class="controls">
+                <input ng-model="user.sn" id="sn" disabled
+                       class="field-label message-text" type="text" style="width: 20em;" />
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="email">Email</label>
+            <div class="controls">
+                <input ng-model="user.email" id="email" disabled
+                       class="field-label message-text" type="text" style="width: 20em;" />
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button class="btn btn-primary" ng-click="submit()" ng-disabled="user == undefined || user.sn == null || applicationAuthority == null || submittedInd == true">Submit</button>
+            <a ng-href="#/admin" class="btn">Cancel</a>
+
+        </div>
+
+    </form>
+
+</div>

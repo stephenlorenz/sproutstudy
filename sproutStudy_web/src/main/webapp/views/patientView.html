@@ -1,0 +1,109 @@
+<div ng-controller="patientController" class="frontoffice-tab frontoffice-tab-patient">
+
+    <div>
+        <legend>
+            <span>Patient Forms</span>
+            <span style="float: right;">
+
+                <span ng-show="patient.lastName != null">
+                    {{patient.firstName}} {{patient.lastName}} ({{patient.mrn}})
+
+                    <button ng-click="enableSearch()" class="btn btn-primary btn-mini" title="New Patient Search"><i class="icon-search icon-white"></i></button>
+                    <button ng-click="openDeliverFormModal()" class="btn btn-primary btn-mini" title="Deliver Form" ng-disabled="ihsMrn == false"><i class="icon-envelope icon-white"></i></button>
+                </span>
+
+
+            </span>
+        </legend>
+
+    </div>
+
+    <form class="form-horizontal" ng-show="searchEnabled == true">
+        <div class="control-group">
+            <label class="control-label" for="patientSearch">Search for Patient</label>
+            <div class="controls">
+                <input type="text" class="input-medium search-query" ng-model="query" id="patientSearch"></input>
+                <button type="submit" class="btn" ng-disabled="query.length == 0" ng-class="{'btn-primary': query.length > 0}" ng-click="onPatientLookup()"><i class="icon-search icon-white"></i></button>
+            </div>
+        </div>
+    </form>
+
+    <div class="span10 well" ng-show="patientMatches != undefined">
+        <div style="width: 100%;">
+            <h4>Patient Search Results:</h4>
+            <div style="margin-top: 20px;" ng-show="patientMatches.length == undefined">
+                Loading patients. Please wait...
+            </div>
+            <div class="patient-verification-search-results" style="margin-top: 20px;" ng-show="patientMatches != undefined">
+                <table style="width: 100%;" class="table">
+                    <tr ng-repeat="patient in patientMatches" style="background-color: #ffffff;">
+                        <td>
+                            <table class="table table-condensed">
+                                <tr style="font-weight: bold;"><td>MRN:</td><td>{{patient.mrn}}</td></tr>
+                                <tr><td>First Name:</td><td>{{patient.firstName}}</td></tr>
+                                <tr><td>Last Name:</td><td>{{patient.lastName}}</td></tr>
+                                <tr><td>Address:</td><td>{{patient.address1}} {{patient.address2}}</td></tr>
+                                <tr><td>City, State, Zip:</td><td>{{patient.city}}, {{patient.state}} {{patient.zip}}</td></tr>
+                                <tr><td>Date of Birth:</td><td>{{patient.dobPretty}}</td></tr>
+                                <tr><td>Gender:</td><td>{{patient.sex}}</td></tr>
+                            </table>
+                        </td>
+                        <td>
+                            <button class="btn btn-primary" ng-click="choosePatient(patient)">Choose</button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="btn-toolbar" style="text-align: center;">
+                <div class="btn-group btn-group-horizontal">
+                    <button ng-click="onPreviousPage()" class="btn" ng-show="page > 0">Previous</button>
+                    <button ng-click="onNextPage()" class="btn btn-primary" ng-hide="patientMatches.length < 10">Next</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div style="margin-top: 20px;" class="alert alert-success" ng-show="inbox == 1">
+        <h4>Loading patient forms. Please wait...</h4>
+    </div>
+
+    <div style="margin-top: 20px;" class="alert alert-info" ng-show="inbox.length == 0">
+        <h4>No forms found for this patient.</h4>
+    </div>
+
+    <div class="" ng-show="inbox.length > 0">
+        <table class="table table-bordered" >
+            <thead class="inbox">
+            <tr>
+                <th>Form</th>
+                <th>Delivery Date</th>
+                <th>
+                    <span class="dropdown">
+		                Status
+		                <a class="dropdown-toggle btn btn-mini" style="float: right;"><b class="caret"></b></a>
+		                <ul class="dropdown-menu">
+                            <li><a ng-click="onFilterByStatus()" ng-show="statuses.length > 0" prevent-default>ALL STATUSES</a></li>
+                            <li ng-repeat="value in statuses">
+                                <a ng-click="onFilterByStatus(value)" prevent-default>{{value}}</a>
+                            </li>
+                        </ul>
+		            </span>
+                </th>
+                <th>Status Date</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tr ng-repeat='form in inbox | filter: formFilter | orderBy:"appointmentTime":false' >
+                <td>{{form.title}}</td>
+                <td>{{form.deliveryDate | date:'medium' }}</td>
+                <td>{{form.inboxStatus}}</td>
+                <td>{{form.statusDate | date:'medium' }}</td>
+                <td><button class="btn btn-primary btn-mini" ng-click="onViewForm(patient.mrn, form.instanceId)">View</button></td>
+            </tr>
+        </table>
+    </div>
+
+
+
+</div>

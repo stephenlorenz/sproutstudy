@@ -1,0 +1,187 @@
+<div modal="patientVerificationModal" close="closePatientVerificationModal()" >
+    <div class="modal-header">
+        <h4>Patient Verification</h4>
+    </div>
+    <div class="modal-body modal-body-tall">
+        <div ng-show="syncPatientIdentifiersRunning" class="alert alert-info">
+            Saving Patient Verification...
+        </div>
+
+        <div ng-show="syncPatientIdentifiersError" class="alert alert-error">
+            Failed to save Patient Verification.
+        </div>
+
+        <div class="row" ng-hide="syncPatientIdentifiersRunning || syncPatientIdentifiersError">
+            <div ng-show="verificationPage == 1">
+                <div class="span2 well" style="width: 42%; min-height: 450px;">
+                    <h4>Patient Entered Information:</h4>
+                    <div style="margin-top: 20px;">
+                        <table class="table table-condensed" style="background-color: #ffffff;">
+                            <tr ng-repeat="assertion in verificationAssertionsOrig" ng-class="{enablerow: (assertion.identifierInd)}">
+                                <td>{{assertion.label}}:</td>
+                                <td>{{assertion.value}}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="span2 well" style="width: 42%; min-height: 450px;">
+                    <div style="width: 100%;">
+                        <h4>Partners Patient Information:</h4>
+                        <div style="margin-top: 20px;" ng-show="patientMatches.length == undefined">
+                            Loading patients. Please wait....
+                        </div>
+                        <div ng-show="patientMatches != undefined && patientMatches.length == 1" style="margin-top: 20px;">
+                            <table class="table table-condensed" style="background-color: #ffffff;">
+                                <tr style="font-weight: bold;"><td>MRN:</td><td>{{patientMatches[0].mrn}}</td></tr>
+                                <tr><td>First Name:</td><td>{{patientMatches[0].firstName}}</td></tr>
+                                <tr><td>Last Name:</td><td>{{patientMatches[0].lastName}}</td></tr>
+                                <tr><td>Address:</td><td>{{patientMatches[0].address1}} {{patientMatches[0].address2}}</td></tr>
+                                <tr><td>City, State, Zip:</td><td>{{patientMatches[0].city}}, {{patientMatches[0].state}} {{patientMatches[0].zip}}</td></tr>
+                                <tr><td>Date of Birth:</td><td>{{patientMatches[0].dobPretty}}</td></tr>
+                                <tr><td>Gender:</td><td>{{patientMatches[0].sex}}</td></tr>
+                            </table>
+                            <div class="btn-toolbar" style="text-align: center;">
+                                <div class="btn-group btn-group-horizontal">
+                                    <button class="btn btn-primary btn-fixed-width" ng-click="onVerificationMatch(patientMatches[0])">Match</button>
+                                    <button class="btn btn-danger btn-fixed-width" ng-click="onVerificationNoMatch(patientMatches[0])">Don't Match</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div ng-show="patientMatches != undefined && patientMatches.length == 0" style="margin-top: 20px;">
+							<div>No Matching MRN records found.</div>
+                            <div style="margin-top: 20px;">
+                                <button class="btn btn-danger btn-xlarge" ng-click="onVerificationNoMatch(patientMatches[0])">Lookup Patients by Name</button>
+                            </div>
+						</div>
+
+                    </div>
+                </div>
+            </div>
+
+
+            <div ng-show="verificationPage == 2">
+                <div class="span2 well" style="width: 42%; min-height: 450px;">
+                    <h4>Search Criteria:</h4>
+                    <div style="margin-top: 20px;">
+                        <form class="">
+                            <table class="table table-condensed" style="background-color: #ffffff;">
+                                <tr ng-repeat="assertion in verificationAssertions" ng-class="{enablerow: (assertion.identifierInd)}" ng-show="assertion.searchOn">
+                                    <td>{{assertion.label}}:</td>
+                                    <td><input type="text" ng-model="assertion.lookupValue" ng-change="enableSearch(assertion)" /></td>
+                                    <!-- <td><button class="btn" ng-click="toggleSearch(assertion)" ng-class="{'btn-primary': (assertion.searchOn)}"><i ng-class="{'icon-white ': (assertion.searchOn)}" class="icon-search"></i></button> </td> -->
+                                </tr>
+                            </table>
+                            <div ng-show="hasSearchOn == false">
+                                Search: <input type="text" ng-model="freeformSearch" ng-change="updateFreeformSearch()"/>
+                            </div>
+	                        <div class="btn-toolbar" style="text-align: center;">
+	                            <div class="btn-group btn-group-horizontal">
+		                            <button class="btn btn-primary btn-fixed-width" ng-click="onPatientLookup()">Search</button>
+		                            <button class="btn btn-fixed-width" ng-click="clearVerificationAssertions()">Clear</button>
+	                            </div>
+	                        </div>
+                        </form>
+
+						<div class="alert alert-info" >
+							<h4>Patient Entered Information:</h4>
+	                        <table class="table table-condensed" style="background-color: #ffffff; font-size: 0.9em;">
+	                            <tr ng-repeat="assertion in verificationAssertionsOrig">
+	                                <td>{{assertion.label}}:</td>
+	                                <td>{{assertion.value}}</td>
+	                            </tr>
+	                        </table>
+						</div>
+
+
+                    </div>
+                </div>
+                <div class="span2 well" style="width: 42%; min-height: 450px;">
+                    <div style="width: 100%;">
+                        <h4>Partners Search Results:</h4>
+
+                        <div style="margin-top: 20px;" ng-show="patientMatches.length == undefined">
+                            Loading patients. Please wait...
+                        </div>
+                        <div style="margin-top: 20px;" ng-show="patientMatches.length == 0">
+                            No Matching patient records found.
+                        </div>
+                        <div class="patient-verification-search-results" style="margin-top: 20px;" ng-show="patientMatches != undefined">
+                            <table style="width: 100%;" class="table">
+                                <tr ng-repeat="patient in patientMatches" style="background-color: #ffffff;">
+                                    <td>
+                                        <table class="table table-condensed">
+                                            <tr style="font-weight: bold;"><td>MRN:</td><td>{{patient.mrn}}</td></tr>
+                                            <tr><td>First Name:</td><td>{{patient.firstName}}</td></tr>
+                                            <tr><td>Last Name:</td><td>{{patient.lastName}}</td></tr>
+                                            <tr><td>Address:</td><td>{{patient.address1}} {{patient.address2}}</td></tr>
+                                            <tr><td>City, State, Zip:</td><td>{{patient.city}}, {{patient.state}} {{patient.zip}}</td></tr>
+                                            <tr><td>Date of Birth:</td><td>{{patient.dobPretty}}</td></tr>
+                                            <tr><td>Gender:</td><td>{{patient.sex}}</td></tr>
+                                        </table>
+                                    </td>
+                                    <td>
+										<button class="btn btn-primary" ng-click="onVerificationChoice(patient)">Choose</button>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="btn-toolbar" style="text-align: center;">
+                            <div class="btn-group btn-group-horizontal">
+	                            <button ng-click="onPreviousPage()" class="btn" ng-show="page > 0">Previous</button>
+	                            <button ng-click="onNextPage()" class="btn btn-primary" ng-hide="patientMatches.length < 10 || patientMatches.length == null" >Next</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+			<div ng-show="verificationPage == 3">
+                <div class="span2 well" style="width: 42%; min-height: 450px;">
+                    <div style="width: 100%;">
+                        <h4>Patient Entered Information:</h4>
+                        <div style="margin-top: 20px;">
+                            <table class="table table-condensed" style="background-color: #ffffff;">
+                                <tr ng-repeat="assertion in verificationAssertionsOrig" ng-class="{enablerow: (assertion.identifierInd)}">
+                                    <td>{{assertion.label}}:</td>
+                                    <td>{{assertion.value}}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="span2 well alert-error" style="width: 42%; min-height: 450px;">
+                    <div style="width: 100%;">
+                        <h4>Update To:</h4>
+                        <div ng-show="selectedPatient != undefined" style="margin-top: 20px;">
+                            <table class="table table-condensed" style="background-color: #ffffff;">
+                                <tr style="font-weight: bold;"><td>MRN:</td><td>{{selectedPatient.mrn}}</td></tr>
+                                <tr><td>First Name:</td><td>{{selectedPatient.firstName}}</td></tr>
+                                <tr><td>Last Name:</td><td>{{selectedPatient.lastName}}</td></tr>
+                                <!--<tr><td>Address:</td><td>{{selectedPatient.address1}} {{selectedPatient.address2}}</td></tr>-->
+                                <!--<tr><td>City, State, Zip:</td><td>{{selectedPatient.city}}, {{selectedPatient.state}} {{selectedPatient.zip}}</td></tr>-->
+                                <tr><td>Date of Birth:</td><td>{{selectedPatient.dobPretty}}</td></tr>
+                                <tr><td>Gender:</td><td>{{selectedPatient.sex}}</td></tr>
+                            </table>
+                            <div class="btn-toolbar" style="text-align: center;">
+                                <div class="btn-group btn-group-horizontal">
+                                    <button class="btn btn-primary btn-fixed-width" ng-click="onVerificationMatch(selectedPatient)" ng-disabled="assertedIdentifier == undefined">Confirm</button>
+                                    <button class="btn btn-danger btn-fixed-width" ng-click="onVerificationNoMatch()">Go Back</button>
+                                </div>
+                            </div>
+                            <div ng-show="assertedIdentifier == undefined" class="alert alert-error">
+                                Note, you may not verify a patient without an identity assertion.  This must be declared in the form declaration.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+    </div>
+    <div class="modal-footer">
+        <button class="btn cancel" ng-click="closePatientVerificationModal()">Cancel</button>
+    </div>
+</div>

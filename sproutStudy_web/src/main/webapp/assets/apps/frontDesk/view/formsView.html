@@ -1,0 +1,8 @@
+<table class="table table-bordered">
+	<tr ng-repeat='form in forms | orderBy:"title":false' >
+		<td>{{form.id}}</td>
+		<td>{{form.title}}</td>
+		<td><button class="btn btn-mini" ng-click='onPush(form.id)' >Push</button></td>
+	</tr>
+</table>
+

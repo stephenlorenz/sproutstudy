@@ -1,0 +1,162 @@
+<div modal="ihsEnrollentModal" close="closeIhsEnrollment()" options="iHSEnrollmentOpts">
+    <div class="modal-header">
+        <h4>iHealthSpace Enrollment</h4>
+    </div>
+    
+    <div class="modal-body">
+        <div class="ihs-enrollment-form-div" ng-show="enrollmentDataResponse == undefined">
+            <form name="ihsEnrollentForm">
+                <div class="alert alert-info" ng-show="oncallEnrollmentInfo.optOut">
+                    This patient has elected to opt out from receiving printed invitations to join iHealthSpace.
+                    <br/>To invite this patient (or his/her caregiver) to iHealthSpace,
+                    click <input type="button" class="btn btn-info" value="undo opt out" ng-click="updateOptOutStatus(patient.mrn, false)" />.
+                </div>
+
+                <div id="container" ng-hide="oncallEnrollmentInfo.optOut">
+                    <strong>To invite this patient or his/her caregiver into iHealthSpace, please review the patient information below and complete the next steps:</strong><br/><br/>
+                    <table class="table table-condensed">
+                        <tr style="font-weight: bold;"><td>Name:</td><td>{{patient.firstName}} {{patient.lastName}}</td></tr>
+                        <tr style="font-weight: bold;"><td>MRN:</td><td>{{patient.mrn}}</td></tr>
+                        <tr><td>Address:</td><td>{{patient.address1}} {{patient.address2}}</td></tr>
+                        <tr><td>City, State, Zip:</td><td>{{patient.city}}, {{patient.state}} {{patient.zip}}</td></tr>
+                        <tr><td>Date of Birth:</td><td>{{patient.dobPretty}}</td></tr>
+                        <tr><td>Gender:</td><td>{{patient.sex}}</td></tr>
+                    </table>
+
+                    <div ng-show="ihsEnrollmentDetail.length">
+                        <h4>Enrollment History</h4>
+                        <table class="table table-condensed">
+                            <tr><th>Group name</th><th>Username</th><th>User email</th><th>Date invited</th><th>Type</th><th>Action</th></tr>
+                            <tr ng-repeat="enrollment in ihsEnrollmentDetail">
+                                <td>{{enrollment.groupName}}</td>
+                                <td>{{enrollment.userUsername}}</td>
+                                <td>{{enrollment.userEmailaddress}}</td>
+                                <td>{{enrollment.membershipDatePretty}}</td>
+                                <td>{{enrollment.type}}</td>
+                                <td>
+                                    <span ng-show="enrollment.active == true">Activated</span>
+                                    <span ng-show="enrollment.active == false"><a href="#reenroll" ng-click="onReenroll(enrollment.membershipEnrollmentId, enrollment.type)" prevent-default>Re-enroll</a></span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="control-group">
+                        <label class="control-label" for="locale">Step 1. Select Patient Language:</label>
+                        <div class="controls">
+                            <select name="locale"
+                                    ng-model="locale"
+                                    ng-options="locale.code as locale.name for locale in locales"
+                                    required>
+                                <option>--</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="control-group" ng-show="locale.length > 0">
+                        <label class="control-label" for="groupOwner">Step 2. Select Provider:</label>
+                        <div class="controls">
+                            <input type="text" id="groupOwner" name="groupOwner" ng-model="patient.groupOwner" placeholder="Provider Search (last name only, minimum 2 chars)" ui-validate="'validateProvider($value)'" typeahead="value.groupOwner as value.providerName for value in providerSearch($viewValue)" required />
+                        </div>
+                    </div>
+
+                    <div class="control-group" ng-show="ihsEnrollentForm.groupOwner.$valid">
+                        <label class="control-label" for="userType">Step 3. Would you like to enroll the <strong>patient</strong> or <strong>caregiver</strong>?</label>
+                        <div class="controls">
+                            <label class="radio">
+                                <input ng-model="patient.userType" value="patient" type="radio" ng-click="changeUserType()" />
+                                Patient
+                            </label>
+                            <label class="radio">
+                                <input ng-model="patient.userType" value="caregiver" type="radio" ng-click="changeUserType()" />
+                                Caregiver
+                            </label>
+                        </div>
+                    </div>
+
+                    <div ng-switch="patient.userType">
+                        <div ng-switch-when="patient">
+                            <div ng-show="patient.username != null && patient.username.trim().length() > 0">
+                                Patient already has username: {{patient.username}}
+                            </div>
+                            <div ng-show="patient.username == null || patient.username.trim().length() == 0">
+                                <div class="control-group">
+                                    <label class="control-label" for="patientUsername">Step 4. Please enter patient's <strong>email</strong> or <strong>username</strong>:</label>
+                                    <div class="controls">
+                                        Email: <input type="text" ng-model="patient.email" placeholder="enter email address" /><br/>
+                                        Verify Email: <input type="text" ng-model="patient.emailVerify" placeholder="verify email address" />
+                                        <div style="margin: 5px 0 5px 0; font-weight: bold;">or</div>
+                                        Username: <input type="text" ng-model="patient.username" placeholder="enter username" /><br/>
+                                        Verify Username: <input type="text" ng-model="patient.usernameVerify" placeholder="verify username" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div ng-switch-when="caregiver">
+                            <div class="control-group">
+                                <label class="control-label" for="custodialEmail">Step 4. Please enter caregiver's <strong>email</strong> or <strong>username</strong>:</label>
+                                <div class="controls">
+                                    Email: <input type="text" ng-model="patient.email" placeholder="enter email address" /><br/>
+                                    Verify Email: <input type="text" ng-model="patient.emailVerify" placeholder="verify email address" />
+                                    <div style="margin: 5px 0 5px 0; font-weight: bold;">or</div>
+                                    Username: <input type="text" ng-model="patient.username" placeholder="enter username" /><br/>
+                                    Verify Username: <input type="text" ng-model="patient.usernameVerify" placeholder="verify username" />
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label class="control-label" for="custodialUsername">Step 5. Ask patient to sign caregiver agreement (<strong>required</strong>):</label>
+                                <div class="controls">
+                                    <a href="#" ng-click="printCaregiverAgreement()" prevent-default>Print Caregiver Agreement</a>
+                                    <br/>
+                                    <input type='checkbox' ng-model="custodianAgreementConfirm"/>Agreement signed by Patient.
+                                    <br/>Caregiver's first name: <input ng-model='custodianFirstNameConfirm' size='15' />
+                                    <br/>Caregiver's last name: <input ng-model='custodianLastNameConfirm' size='15' />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </form>
+            <div class="well well-small" ng-hide="oncallEnrollmentInfo.optOut">
+                Click <a href="#" ng-click="updateOptOutStatus(patient.mrn, true)" prevent-default>opt out</a> if the patient does
+                not wish to receive printed invitations to join iHealthSpace.  You may undo this later.
+            </div>
+        </div>
+
+        <div class="ihs-enrollment-running-div" ng-show="enrollmentDataResponse != undefined && enrollmentDataResponse.patientstatus == undefined">
+            <div class="alert alert-block">Running iHealthSpace Enrollment...please wait...</div>
+        </div>
+        <div class="ihs-enrollment-complete-div" ng-show="enrollmentDataResponse.patientstatus != undefined">
+            <div ng-switch="enrollmentDataResponse.patientstatus" class="alert alert-info">
+                <span ng-switch-when="PatientAlreadyActivated">
+                    This patient has already been enrolled to this caregroup; no action is necessary.
+                </span>
+                <span ng-switch-when="Registered">
+                    Enrollment has been successful and an email invitation has been sent to {{patient.fullName}}. Please print the following letter containing the patient's personal enrollment code and either send via U.S. Mail to the patient or hand the letter to the patient or his/her caregiver. Important: For security purposes, do NOT share this this enrollment code over the telephone with anyone (including the patient) under any circumstances.
+                </span>
+                <span ng-switch-when="NotRegistered">
+                    Enrollment has been successful and an email invitation has been sent to {{patient.fullName}}. Please print the following letter containing the patient's personal enrollment code and either send via U.S. Mail to the patient or hand the letter to the patient or his/her caregiver. Important: For security purposes, do NOT share this this enrollment code over the telephone with anyone (including the patient) under any circumstances.
+                </span>
+                <span ng-switch-when="RegisteredAndEnrolled">
+                    Enrollment has been successful and an email invitation has been sent to {{patient.fullName}}. Instructions to follow in email invitation. Patient is already enrolled with another MGH practice in iHealthSpace and does not need an enrollment code to be printed.
+                </span>
+            </div>
+
+            <div class="well" ng-show="enrollmentDataResponse.patientstatus == 'Registered' || enrollmentDataResponse.patientstatus == 'NotRegistered' || enrollmentDataResponse.patientstatus == 'NotRegistered'">
+                <h4>Copy of Enrollment Letter</h4>
+                <div style="width: 700px; height: 180px; top: 0; bottom: 180; border: 1px; background-color: #fff; overflow: auto;">
+                    <ng-include src="'views/enrollmentLetter.html'"></ng-include>
+                </div>
+                <iframe name="enrollmentLetterFrame" id="enrollmentLetterFrame" src="about:blank" height="0" width="0" frameborder="0" style="background-color: #fff; border: 0px;"></iframe>
+            </div>
+
+        </div>
+    </div>
+    <div class="modal-footer" ng-hide="oncallEnrollmentInfo.optOut">
+        <button class="btn cancel" ng-click="closeIhsEnrollment()">Close</button>
+        <button class="btn btn-primary" ng-click="onCreateEnrollment()" ng-show="enrollmentDataResponse == undefined" ng-disabled="!ihsEnrollentForm.$valid">Email Invitation</button>
+        <button class="btn btn-primary" ng-click="printEnrollmentLetter()" ng-show="enrollmentDataResponse.patientstatus == 'Registered' || enrollmentDataResponse.patientstatus == 'NotRegistered' || enrollmentDataResponse.patientstatus == 'NotRegistered'">Print Enrollment Letter</button>
+    </div>
+</div>
+<ng-include src="appPath + 'views/custodialAgreement.html'"></ng-include>

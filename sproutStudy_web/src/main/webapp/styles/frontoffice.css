@@ -1,0 +1,92 @@
+div.container-sproutstudy {
+    min-width: 1024px;
+}
+
+tr.appointment {cursor: pointer; color: blue; text-decoration: underline;}
+tr.appointment:hover {background-color: #efefef;}
+
+input.date {width: 90px;}
+
+label.control-label {font-weight: bold;}
+
+.btn-fixed-width {
+    width: 150px;
+}
+
+div.modal {
+    width: 1024px;
+    min-height: 600px;
+    margin-left: -482px;
+}
+
+div.modal-small {
+    width: 400px;
+    min-height: 200px;
+    margin-left: -200px;
+}
+
+div.modal-body {
+    min-height: 440px;
+}
+
+div.modal-body-short {
+    min-height: 100px;
+}
+
+div.modal-body-tall {
+    min-height: 510px;
+}
+
+span.custodialAgreementForm {
+    font-family: arial;
+    font-size: 12px;
+}
+
+thead.appointments {
+    background-color: #efefef;
+}
+
+.table-filter-value {
+    font-size: 0.75em;
+}
+
+tr.frontoffice-form-submission {
+    font-size: 0.85em;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+div.dropdown-menu-extended-container {
+    margin: 20px;
+}
+
+.table-no-borders td {
+    text-align: left;
+    border: none;
+    margin: 0px;
+    padding: 3px;
+    line-height: 15px;
+}
+
+tr.disablerow {
+    background-color: #efefef;
+    color: #191919;
+    border: none;
+    font-weight: normal;
+}
+tr.enablerow {
+    font-weight: bold;
+}
+tr.formrow {
+    vertical-align: middle;
+}
+
+div.patient-verification-search-results {
+    max-height: 320px;
+    padding: 5px;
+    overflow-y: auto;
+}

@@ -1,0 +1,35 @@
+<div modal="viewFormsModal" close="closeViewForms()">
+    <div class="modal-header">
+        <h4>View Forms</h4>
+    </div>
+    <div class="modal-body">
+        <table class="table" >
+            <thead class="inbox">
+            <tr>
+                <th>Form</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tr ng-repeat='form in forms | orderBy:"appointmentTime":false' >
+                <td>{{form.title}}</td>
+                <td>{{form.inboxStatus}}</td>
+                <td>{{form.statusDate | date:'medium' }}</td>
+                <td>
+                    <div class="btn-toolbar" >
+                        <div class="btn-group">
+                            <!--<a class="btn" ng-disabled="appointment.iHealthSpaceStatus == 'ENROLLED'" target="saEnrollment" ng-href="/saEnrollmentModule/enrollment.html#/expressPatientHistory/{{appointment.mrn}}/MGH">iHealthSpace Activation</a>-->
+                            <button class="btn btn-mini btn-primary" ng-click="onViewForm(appointment.mrn, form.instanceId)">View Form</button>
+                            <button class="btn btn-mini" ng-click="onPush($index, appointment, form.instanceId)" ng-disabled="form.adminStatus != 'NEW'">Push to EMR</button>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+    </div>
+    <div class="modal-footer">
+        <button class="btn cancel" ng-click="closeViewForms()">Close</button>
+    </div>
+</div>

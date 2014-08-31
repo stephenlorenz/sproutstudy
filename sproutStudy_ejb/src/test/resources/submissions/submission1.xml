@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<submission>
+    <meta>
+        <timestamp>2013-04-23T14:41:55.483-04:00</timestamp>
+        <user>
+            <identities>
+                <identity schema="ihsid" scope="domain">1234</identity>
+                <identity schema="bwh" scope="domain">5124</identity>
+                <assertions>
+                    <assertion>
+                        <name>mrn</name>
+                        <value>4392752</value>
+                        <identityInd>true</identityInd>
+                        <label>MGH Medical Record Number</label>
+                        <variableName>FRM113_mrn_123</variableName>
+                        <searchField>mrn</searchField>
+                    </assertion>
+                    <assertion>
+                        <name>first_name</name>
+                        <value>Raul</value>
+                        <identityInd>false</identityInd>
+                        <label>First Name</label>
+                        <variableName>FRM113_first_name_123</variableName>
+                        <searchField>firstName</searchField>
+                    </assertion>
+                    <assertion>
+                        <name>last_name</name>
+                        <value>Perez</value>
+                        <identityInd>false</identityInd>
+                        <label>Last Name</label>
+                        <variableName>FRM113_last_name_123</variableName>
+                        <searchField>lastName</searchField>
+                    </assertion>
+                    <assertion>
+                        <name>gender</name>
+                        <value>M</value>
+                        <identityInd>false</identityInd>
+                        <label>Gender</label>
+                        <variableName>FRM113_gender_123</variableName>
+                        <searchField>sex</searchField>
+                    </assertion>
+                </assertions>
+            </identities>
+        </user>
+        <instance id="ABCDEFG3-3B38-446E-92B1-0BD183B23244">
+            <deliveryKey>30059559</deliveryKey>
+            <parameter name="appointmentId">30059559</parameter>
+            <parameter name="provider">ZIMMERMAN,ANDREW W</parameter>
+            <parameter name="practice">Lurie Center</parameter>
+            <parameter name="visitType">NEW</parameter>
+        </instance>
+        <publication id="459DAB68-9F65-4614-8884-3300F0667364">
+            <title>Demo Library Test Form</title>
+            <description>Form to test Demographic Library</description>
+        </publication>
+    </meta>
+</submission>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<submission>
+    <meta>
+        <timestamp>2013-05-19T10:40:55.483-04:00</timestamp>
+        <user>
+            <identities>
+                <identity schema="ihsid" scope="domain">1235</identity>
+                <assertions>
+                    <assertion>
+                        <name>mrn</name>
+                        <value>5227735</value>
+                        <identityInd>true</identityInd>
+                        <label>MGH Medical Record Number</label>
+                        <variableName>FRM113_mrn_123</variableName>
+                        <searchField>mrn</searchField>
+                    </assertion>
+                    <assertion>
+                        <name>first_name</name>
+                        <value>Robert</value>
+                        <identityInd>false</identityInd>
+                        <label>First Name</label>
+                        <variableName>FRM113_first_name_123</variableName>
+                        <searchField>firstName</searchField>
+                    </assertion>
+                    <assertion>
+                        <name>last_name</name>
+                        <value>Seagal</value>
+                        <identityInd>false</identityInd>
+                        <label>Last Name</label>
+                        <variableName>FRM113_last_name_123</variableName>
+                        <searchField>lastName</searchField>
+                    </assertion>
+                    <assertion>
+                        <name>gender</name>
+                        <value>M</value>
+                        <identityInd>false</identityInd>
+                        <label>Gender</label>
+                        <variableName>FRM113_gender_123</variableName>
+                        <searchField>sex</searchField>
+                    </assertion>
+                </assertions>
+            </identities>
+        </user>
+        <instance id="ABCDEFG2-3B38-446E-92B1-0BD183B23244">
+            <deliveryKey>31889226</deliveryKey>
+            <parameter name="appointmentId">31889226</parameter>
+            <parameter name="provider">BAUMAN MD,MARGARET L</parameter>
+            <parameter name="practice">Lurie Center</parameter>
+            <parameter name="visitType">NEW</parameter>
+        </instance>
+        <publication id="459DAB68-9F65-4614-8884-3300F0667364">
+            <title>Demo Library Test Form</title>
+            <description>Form to test Demographic Library</description>
+        </publication>
+    </meta>
+</submission>

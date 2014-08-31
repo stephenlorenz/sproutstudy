@@ -1,0 +1,201 @@
+<div id="enrollmentLetterTemplate">
+    <style>
+        .sent {
+            font-family: arial;
+            font-size: 15px;
+            margin-left: 25px;
+        }
+    </style>
+
+
+    <div class="sent">
+
+        <div align="center">
+            <img src="images/mgh2.gif" /><br/><br/>
+        </div>
+
+        <hr/>
+
+
+        {{patient.fullName}}<br/>
+        {{patient.address1}} {{patient.address2}}<br/>
+        {{patient.city}}, {{patient.state}} {{patient.zip}}<br/><br/><br/>
+
+        <div ng-switch="patient.userType">
+            <div ng-switch-when="patient">
+                <div ng-switch="enrollmentDataResponse.patientstatus">
+                    <div ng-switch-when="NotRegistered">
+                        <p>Dear {{patient.firstNamePretty}},</p>
+
+                        Thank you for accepting our invitation to join us in iHealthSpace--a project sponsored by the
+                        Massachusetts General Hospital designed to help you connect with your care providers and manage
+                        your health information on the web.<br/><br/>
+
+                        An invitation to iHealthSpace has just been emailed to you. <strong>Please activate your account
+                        as soon as possible. Your email invitation will expire in 30 days. </strong><br/><br/>
+
+                        <strong>Next Steps:</strong><br/><br/>
+
+                        1. Open the invitation we emailed you. Check your Spam folder if the invitation is not in your
+                        Inbox. The sender will be 'iHealthSpace' and the subject line will read: 'MGH | An invitation
+                        from your Mass General provider'.<br/><br/>
+
+                        2. Click the link in the invitation. A special registration window in iHealthSpace will
+                        open.<br/><br/>
+
+                        3. Enter the enrollment code listed below where indicated. Type it in exactly as it
+                        appears:<br/><br/>
+
+                        <div align="center">
+                            Enrollment Code for {{patient.firstNamePretty}}:
+                            <strong>{{oncallEnrollmentInfo.ihealthspacePin}}</strong>
+                        </div><br/>
+
+                        4. Complete the next three steps to verify your registration information, select a username and
+                        password and review the Terms of Use and Privacy Policy.<br/><br/>
+
+                        5. Click 'I agree. Create my account' and you're done!<br/><br/>
+
+                        <strong>Important:</strong> This letter contains your personal enrollment code. Please keep this
+                        code in a safe place until you have registered with iHealthSpace. For security purposes, your
+                        enrollment code can only be handed to you in the office, or be mailed to your home address on
+                        record at the Massachusetts General Hospital.
+                        <br/><br/>
+
+                        If you lose this code, did not receive your email invitation or your invitation has expired,
+                        please call your doctor's office, or use the Contact Us link at www.ihealthspace.org to request
+                        a new code and/or invitation. For consistent email delivery, add "ihealthspace@partners.org" to
+                        your email address book.<br/><br/>
+                    </div>
+                    <div ng-switch-when="Registered">
+                        <p>Dear {{patient.firstNamePretty}},</p>
+
+                        Thank you for accepting our invitation to join us in iHealthSpace--a project sponsored by the
+                        Massachusetts General Hospital designed to help you connect with your care providers and manage
+                        your health information on the web.<br/><br/>
+
+                        An invitation to iHealthSpace has just been emailed to you. <strong>Please activate your account
+                        as soon as possible. Your email invitation will expire in 30 days. </strong><br/><br/>
+
+                        <strong>Next Steps:</strong><br/><br/>
+
+                        1. Open the invitation we emailed you. Check your Spam folder if the invitation is not in your
+                        Inbox. The sender will be 'iHealthSpace' and the subject line will read: 'MGH | An invitation
+                        from your Mass General provider'.<br/><br/>
+
+                        2. Click the link in the invitation. A special login window in iHealthSpace will open.<br/><br/>
+
+                        3. Log-in to your iHealthSpace account as usual with your username and password.<br/><br/>
+
+                        4. Enter the enrollment code listed below where indicated. Type it in exactly as it
+                        appears:<br/><br/>
+
+                        <div align="center">
+                            Enrollment Code for {{patient.firstNamePretty}}: <strong>{{oncallEnrollmentInfo.ihealthspacePin}}</strong>
+                        </div><br/>
+
+                        5. Click 'Activate' and you're done!<br/><br/>
+
+                        <strong>Important:</strong> This letter contains your personal enrollment code. Please keep this
+                        code in a safe place until you have registered with iHealthSpace. For security purposes, your
+                        enrollment code can only be handed to you in the office, or be mailed to your home address on
+                        record at the Massachusetts General Hospital.
+                        <br/><br/>
+                        If you lose this code, did not receive your email invitation or your invitation has expired,
+                        please call your doctor's office, or use the Contact Us link at www.ihealthspace.org to request
+                        a new code and/or invitation. For consistent email delivery, add "ihealthspace@partners.org" to
+                        your email address book.<br/><br/>
+                    </div>
+                </div>
+            </div>
+            <div ng-switch-when="caregiver">
+                <div ng-switch="enrollmentDataResponse.patientstatus">
+                    <div ng-switch-when="NotRegistered">
+                        Dear Caregiver for {{patient.firstNamePretty}},<br/><br/>
+
+                        Thank you for accepting our invitation to join us in iHealthSpace!<br/><br/>
+
+                        You have been invited to act as a caregiver on behalf of {{patient.firstNamePretty}}. An invitation to
+                        iHealthSpace has just been emailed to you. <strong>Please activate your account as soon as
+                        possible. Your email invitation will expire in 30 days. </strong><br/><br/>
+
+                        <strong>Next Steps:</strong><br/><br/>
+
+                        1. Open the invitation we emailed you. Check your Spam folder if the invitation is not in your
+                        Inbox. The sender will be 'iHealthSpace' and the subject line will read: 'MGH | An invitation
+                        from your Mass General provider'.<br/><br/>
+
+                        2. Click the link in the invitation. A special registration window in iHealthSpace will
+                        open.<br/><br/>
+
+                        3. Enter the enrollment code listed below where indicated. Type it in exactly as it
+                        appears:<br/><br/>
+
+                        <div align="center">
+                            Enrollment Code for {{patient.firstNamePretty}}: <strong>{{oncallEnrollmentInfo.ihealthspacePin}}</strong>
+                        </div><br/>
+
+                        4. Enter your information in the registration section, select a username and password and review
+                        the Terms of Use.<br/><br/>
+
+                        5. Click 'I agree. Create my account' and you're done!<br/><br/>
+
+                        <strong>Important:</strong> This letter contains the patient's personal enrollment code. Please
+                        keep this code in a safe place until you have registered with iHealthSpace. For security
+                        purposes, this enrollment code can only be handed to to the patient in the office, or be mailed
+                        to the patient's home address on record at the Massachusetts General Hospital.
+                        <br/><br/>
+
+                        If you lose this code, did not receive your email invitation or your invitation has expired,
+                        please call your doctor's office, or use the Contact Us link at www.ihealthspace.org to request
+                        a new code and/or invitation. For consistent email delivery, add "ihealthspace@partners.org" to
+                        your email address book.<br/><br/>
+                    </div>
+                    <div ng-switch-when="Registered">
+                        Dear Caregiver for {{patient.firstNamePretty}},<br/><br/>
+
+                        Thank you for accepting our invitation to join us in iHealthSpace!<br/><br/>
+
+                        You have been invited to act as a caregiver on behalf of {{patient.firstNamePretty}}. An invitation to
+                        iHealthSpace has just been emailed to you. <strong>Please activate your account as soon as
+                        possible. Your email invitation will expire in 30 days. </strong><br/><br/>
+
+                        <strong>Next Steps:</strong><br/><br/>
+
+                        1. Open the invitation we emailed you. Check your Spam folder if the invitation is not in your
+                        Inbox. The sender will be 'iHealthSpace' and the subject line will read: 'MGH | An invitation
+                        from your Mass General provider'.<br/><br/>
+
+                        2. Click the link in the invitation. A special login window in iHealthSpace will open.<br/><br/>
+
+                        3. Log-in to your iHealthSpace account as usual with your username and password.<br/><br/>
+
+                        4. Enter the enrollment code listed below where indicated. Type it in exactly as it
+                        appears:<br/><br/>
+
+                        <div align="center">
+                            Enrollment Code for {{patient.firstNamePretty}}:
+                            <strong>{{oncallEnrollmentInfo.ihealthspacePin}}</strong>
+                        </div><br/>
+
+                        5. Click 'Activate' and you're done!<br/><br/>
+
+                        <strong>Important:</strong> This letter contains the patient's personal enrollment code. Please
+                        keep this code in a safe place until you have registered with iHealthSpace. For security
+                        purposes, this enrollment code can only be handed to to the patient in the office, or be mailed
+                        to the patient's home address on record at the Massachusetts General Hospital.
+                        <br/><br/>
+
+                        If you lose this code, did not receive your email invitation or your invitation has expired,
+                        please call your doctor's office, or use the Contact Us link at www.ihealthspace.org to request
+                        a new code and/or invitation. For consistent email delivery, add "ihealthspace@partners.org" to
+                        your email address book.<br/><br/>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div align="center">
+            <img src="images/ihs-logo.png" /><br/><br/>
+        </div>
+    </div>
+</div>

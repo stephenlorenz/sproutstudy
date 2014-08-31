@@ -1,0 +1,54 @@
+`<div modal="deliverFormModal" close="closeDeliverFormModal()">
+    <div class="modal-header">
+        <h4>Deliver Form</h4>
+    </div>
+    <div class="modal-body">
+        <div ng-show="deliveringInd == false && publications == undefined" class="alert alert-info">
+            <h4>Loading Publications...Please wait...</h4>
+        </div>
+        <div ng-show="deliveringInd == false && publications != undefined && publications.length > 0">
+            <h4>Please choose a publication to deliver to {{patient.firstName}} {{patient.lastName}} ({{patient.mrn}}):</h4>
+
+            <table style="width: 100%;" class="table table-condensed">
+                <tr>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Key</th>
+                    <th>Publication Date</th>
+                    <th>Choose Provider...</th>
+                    <th>Expiration Date</th>
+                    <th>Deliver</th>
+                </tr>
+                <tr ng-repeat="publication in publications | orderBy:'id':false" style="background-color: #ffffff;">
+                    <td>{{publication.title}}</td>
+                    <td>{{publication.description}}</td>
+                    <td>{{publication.key}}</td>
+                    <td>{{publication.publicationDate}}</td>
+                    <td>
+                        <select ng-model="publication.provider" ng-options="provider.prettyName for provider in publication.providers"></select>
+                    </td>
+                    <td>
+                        <span style="vertical-align: middle; white-space: nowrap;">
+                            <input type="text" class="input-small date datepicker" ng-model="publication.expirationDate" data-date-format="mm/dd/yyyy" start-date="minDeliveryDate" ng-blur="yo(publication)" form-delivery-exp-date-directive autoclose="true" style="margin-bottom: 0px;" bs-datepicker />
+                            <button  type="button" class="btn" data-toggle="datepicker"><i class="icon-calendar"></i></button>
+                            <div ng-show="publication.expirationDateValid == false" class="text-error">Illegal Date</div>
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-mini" ng-disabled="publication.provider == null || publication.expirationDateValid == false" ng-class="{'btn-primary': publication.provider != null && publication.expirationDateValid != false}" ng-click="onDeliverForm(publication)">Deliver</button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div ng-show="deliveringInd == true" class="alert alert-info">
+            <h4>Delivering Form...Please wait...</h4>
+        </div>
+        <div ng-show="deliveringInd == 'error'" class="alert alert-error">
+            <h4>{{deliveryError}}</h4>
+        </div>
+    </div>
+    <div class="modal-footer" ng-show="deliveringInd == false">
+        <button class="btn cancel" ng-click="closeDeliverFormModal()">Cancel</button>
+    </div>
+</div>

@@ -1,0 +1,187 @@
+<div id="studyControllerDiv" ng-controller="studyController" class="frontoffice-tab frontoffice-tab-patient">
+
+<div ng-show="cohort != null">
+    <div>
+        <span style="float: left; "><h3>{{cohort.name}} Cohort</h3></span>
+        <span style="float: right; vertical-align: middle;">
+            <h3>
+                <button ng-click="changeCohort()" class="btn btn-info btn-mini" title="Change Group"><span style="padding-right: 0px;">Change Cohort</span></button>
+            </h3>
+        </span>
+    </div>
+</div>
+
+<div ng-show="cohort == null">
+    <div>
+        <h3>Please pick a cohort</h3>
+        <table class="table">
+            <tr ng-repeat="cohort in cohorts" style="background-color: #ffffff;">
+                <td>
+                    <h4>{{cohort.name}}</h4>
+                </td>
+
+                <td>
+                    <button class="btn btn-primary" ng-click="chooseCohort(cohort)">Choose</button>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div ng-show="cohort != null && panes.length > 1">
+    <legend>
+    </legend>
+    <tabs>
+        <pane ng-repeat="pane in panes" heading="{{pane.title}}" active="pane.active" >
+            <div style="float: right; vertical-align: middle;" ng-show="active().id != '0'">
+                <button ng-click="closePane(pane)" class="btn btn-warning btn-mini" title="Close"><span style="padding-right: 0px;">&times;</span></button>
+            </div>
+            <div ng-bind-html-unsafe="pane.content"></div>
+        </pane>
+    </tabs>
+</div>
+
+<div ng-show="active().id == 0">
+
+
+        <div ng-show="subject.lastName != null && searchEnabled != true && cohort != null">
+            <legend>
+                <div>
+                    <span>Forms</span>
+                    <span style="float: right;">
+                        <span>
+                            {{subject.prettyName}} ({{subject.id}})
+                            <button ng-click="enableSearch()" class="btn btn-primary btn-mini" title="New Patient Search"><i class="icon-search icon-white"></i></button>
+
+                            <span class="dropdown" style="font-size: 14px;">
+                                <button ng-click="openDeliverFormModal()" class="dropdown-toggle btn btn-primary btn-mini" title="Deliver Form"><i class="icon-envelope icon-white"></i></button>
+                                <ul class="dropdown-menu">
+                                    <li><a ng-click="onFilterByStatus()" ng-show="cohort.forms.length > 0" prevent-default></a></li>
+                                    <li ng-repeat="form in cohort.forms">
+                                        <a class="text text-info" ng-click="onDeliverForm(subject, form)" prevent-default>{{form.name}}</a>
+                                    </li>
+                                </ul>
+                            </span>
+                        </span>
+                    </span>
+                </div>
+            </legend>
+        </div>
+
+        <form class="form-horizontal" ng-show="searchEnabled == true && cohort != null">
+            <legend>Subject Search</legend>
+            <div class="control-group">
+                <label class="control-label" for="patientSearch">Search for Subject</label>
+                <div class="controls">
+                    <input type="text" class="input-medium search-query" ng-model="query" id="patientSearch"/>
+                    <button type="submit" class="btn" ng-disabled="query.length == 0" ng-class="{'btn-primary': query.length > 0}" ng-click="findCohortMember()"><i class="icon-search icon-white"></i></button>
+                </div>
+            </div>
+        </form>
+
+        <div class="span10 well" ng-show="patientMatches != undefined">
+            <div style="width: 100%;">
+                <h4>Search Results:</h4>
+                <div style="margin-top: 20px;" ng-show="patientMatches.length == undefined">
+                    Loading subjects. Please wait...
+                </div>
+                <div class="patient-verification-search-results" style="margin-top: 20px;" ng-show="patientMatches != undefined">
+                    <table style="width: 100%;" class="table">
+                        <tr ng-repeat="subject in patientMatches" style="background-color: #ffffff;">
+                            <td>
+                                <table class="table table-condensed">
+                                    <tr><td>First Name:</td><td>{{subject.firstName}}</td></tr>
+                                    <tr><td>Last Name:</td><td>{{subject.lastName}}</td></tr>
+                                    <tr><td>Gender:</td><td>{{subject.gender}}</td></tr>
+                                </table>
+                            </td>
+                            <td>
+                                <button class="btn btn-primary" ng-click="chooseCohortMember(subject)">Choose</button>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="btn-toolbar" style="text-align: center;">
+                    <div class="btn-group btn-group-horizontal">
+                        <button ng-click="onPreviousPage()" class="btn" ng-show="page > 0">Previous</button>
+                        <button ng-click="onNextPage()" class="btn btn-primary" ng-hide="patientMatches.length < 10">Next</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div ng-show="cohort != null && subject.lastName != null">
+            <div class="alert alert-success" ng-show="inbox == 1">
+                <h4>Loading patient forms. Please wait...</h4>
+            </div>
+
+            <div class="alert alert-info" ng-show="inbox.length == 0">
+                <h4>No forms found for this patient.</h4>
+            </div>
+        </div>
+
+        <div class="" ng-show="inbox.length > 0">
+            <table class="table table-bordered" >
+                <thead class="inbox">
+                <tr>
+                    <th>Form</th>
+                    <th>Delivery Date</th>
+                    <th>
+                    <span class="dropdown">
+		                Status
+		                <a class="dropdown-toggle btn btn-mini" style="float: right;"><b class="caret"></b></a>
+		                <ul class="dropdown-menu">
+                            <li><a ng-click="onFilterByStatus()" ng-show="statuses.length > 0" prevent-default>ALL STATUSES</a></li>
+                            <li ng-repeat="value in statuses">
+                                <a ng-click="onFilterByStatus(value)" prevent-default>{{value}}</a>
+                            </li>
+                        </ul>
+		            </span>
+                    </th>
+                    <th>Status Date</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tr ng-repeat='form in inbox | filter: formFilter | orderBy:"appointmentTime":false' >
+                    <td>{{form.title}}</td>
+                    <td>{{form.deliveryDate | date:'medium' }}</td>
+                    <td>{{form.inboxStatus}}</td>
+                    <td>{{form.statusDate | date:'medium' }}</td>
+                    <td>
+                        <button class="btn btn-primary btn-mini" ng-click="onOpenForm(form)">Open</button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div ng-show="form.value != null">
+            <div ng-hide="form.value" class="alert alert-info"><h5>Loading form...please wait...</h5></div>
+            <div ng-bind-html-unsafe="form.value" class="frontoffice-patient-view-form"></div>
+        </div>
+
+
+    </div>
+
+
+</div>
+
+
+<div modal="viewFormModal" close="closeViewForm()" >
+    <span patient-view-directive></span>
+    <div class="modal-header">
+        <h4>View/Print Form</h4>
+    </div>
+    <div class="modal-body">
+        <div ng-hide="form.value" class="alert alert-info"><h5>Loading form...please wait...</h5></div>
+        <div ng-bind-html-unsafe="form.value" class="frontoffice-patient-view-form"></div>
+    </div>
+    <div class="modal-footer">
+        <!--<button class="btn btn-primary" ng-click="onPrintForm()" ng-show="form.value">Print</button>-->
+        <button class="btn cancel" ng-click="closeViewForm()" ng-show="closeBtn != true"><< Back to Form List</button>
+        <button class="btn cancel" ng-click="closeViewForm()" ng-show="closeBtn == true">Close</button>
+    </div>
+</div>
+
+<iframe id="printFormFrame" src="about:blank" height="0" width="0" style="border: 0px;" >
+</iframe>

@@ -1,0 +1,20 @@
+<tr class="form-detail" style="display: none;">
+       <td colspan="8">
+        		<table style="width: 100%">
+                        <tr ng-repeat='form in appointment.forms' ng-class="{disablerow: (appointment.appointmentId != form.deliveryKey), enablerow: (appointment.appointmentId == form.deliveryKey)}" class="formrow table-no-borders" style="vertical-align: middle;">
+                            <td style="vertical-align: middle; width: 100%" >
+                                {{form.title}} ({{form.inboxStatus}}<span ng-show="form.inboxStatus == 'COMPLETED'">: {{form.statusDate | date:'medium' }}</span>)
+                            </td>
+                            <td style="white-space: nowrap;">
+                                <div class="btn-toolbar" >
+                                    <div class="btn-group">
+                                       <!--<a class="btn" ng-disabled="appointment.iHealthSpaceStatus == 'ENROLLED'" target="saEnrollment" ng-href="/saEnrollmentModule/enrollment.html#/expressPatientHistory/{{appointment.mrn}}/MGH">iHealthSpace Activation</a>-->
+                                       <button class="btn" ng-click="onViewForm(appointment.mrn, form.instanceId)">View Form</button>
+                                       <button class="btn" ng-click="onPush($index, appointment, form.instanceId)" ng-disabled="form.adminStatus != 'NEW'">Push to EMR</button>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                </table>
+        </td>
+</tr>

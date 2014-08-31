@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+        <bean id="contextSource" class="org.springframework.ldap.core.support.LdapContextSource">
+            <!--<property name="url" value="ldap://localhost:389" />-->
+            <property name="url" value="ldap://ldap.partners.org:389" />
+            <property name="base" value="cn=Users,dc=Partners,dc=org" />
+            <property name="userDn" value="cn=lcs23,cn=users,dc=partners,dc=org" />
+            <property name="password" value="xtn7n" />
+        </bean>
+
+        <bean id="ldapTemplate"
+              class="org.springframework.ldap.core.LdapTemplate">
+            <constructor-arg ref="contextSource" />
+        </bean>
+</beans>

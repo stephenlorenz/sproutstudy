@@ -1,0 +1,37 @@
+<form ng-submit="updateAppointments()" xmlns="http://www.w3.org/1999/html" class="form-horizontal" ng-show="1==2">
+    <fieldset>
+
+        <div class="control-group" ng-show="practices.length > 1">
+            <label class="control-label" for="practice">Practice</label>
+            <div class="controls">
+                <select
+                        ng-model="practice"
+                        ng-options="value.id as value.name for value in practices">
+                    <option>--</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label" for="startDate">Date</label>
+            <div class="controls">
+                <input ui-date="{onSelect: resetAppointments}" type="text" ng-model="startDate" placeholder="pick a start date" class="date"/>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label" for="startDate">Provider</label>
+            <div class="controls">
+                <select
+                        ng-model="provider"
+                        ng-options="value.id as value.name for value in providers">
+                    <option>--</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-actions" ng-show="1==2">
+            <input class="btn btn-primary" type="submit" value="Refresh">
+        </div>
+    </fieldset>
+</form>
