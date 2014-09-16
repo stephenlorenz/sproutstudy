@@ -3,7 +3,7 @@ package edu.harvard.mgh.lcs.sprout.forms.study.beaninterface;
 import edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.FormDeliveryStatus;
 import edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.FormInstanceTO;
 import edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.PublicationTO;
-import edu.harvard.mgh.lcs.sprout.study.model.study.CohortEntity;
+import edu.harvard.mgh.lcs.sprout.forms.study.to.CohortTO;
 
 import java.util.List;
 import java.util.Set;
@@ -15,7 +15,8 @@ public interface SproutFormsService {
 	public abstract boolean syncPatientIdentifiersAndAssertions(String instanceId, String[] verifiedIdentifiers, String[] matchedIdentifiers, String[] matchedAssertions);
     public abstract boolean syncFormSubmission(String instanceId);
     public abstract PublicationTO getPublicationDetails(String key);
-    public abstract FormDeliveryStatus deliverToInbox(String mrn, String publicationKey, String provider, String expirationDateString);
-    public abstract List<FormInstanceTO> getSproutInbox(String identityId, Set<String> publicationKeys);
-    public abstract String applyForNonce(String user, String instanceId);
+    public abstract FormDeliveryStatus deliverToInbox(String schema, String id, String publicationKey, String provider, String expirationDateString);
+    public abstract List<FormInstanceTO> getSproutInbox(String username, CohortTO cohortTO, String[] identityArray, Set<String> publicationKeys);
+    public abstract String applyForNonce(String user, String instanceId, String subjectName, String subjectId);
+    public abstract List<FormInstanceTO> getMutableForms(String username, CohortTO cohortTO, Set<String> publicationKeys);
 }

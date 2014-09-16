@@ -14,10 +14,26 @@ import org.apache.commons.lang.WordUtils;
 public class StringUtils {
 
 	private static final SimpleDateFormat COMMON_DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy");
-	
-	public static boolean isEmpty(String value) {
-		return value != null && value.trim().length() > 0 ? false : true;
-	}
+
+    public static boolean isEmpty(String value) {
+        return value != null && value.trim().length() > 0 ? false : true;
+    }
+
+	public static boolean isEmpty(String... values) {
+        if (values != null) {
+            for (String value : values) if (value.trim().length() > 0) return false;
+            return true;
+        }
+        return true;
+    }
+
+	public static boolean isFull(String... values) {
+        if (values != null) {
+            for (String value : values) if (value == null || value.trim().length() == 0) return false;
+            return true;
+        }
+        return false;
+    }
 
 	public static String sanatize(String input) {
 

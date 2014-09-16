@@ -25,6 +25,12 @@ div.modal-small {
     margin-left: -200px;
 }
 
+div.modal-200-600 {
+    width: 800px;
+    min-height: 200px;
+    margin-left: -400px;
+}
+
 div.modal-body {
     min-height: 440px;
 }
@@ -89,4 +95,27 @@ div.patient-verification-search-results {
     max-height: 320px;
     padding: 5px;
     overflow-y: auto;
+}
+
+tr.inbox-new {
+    font-weight: bold;
+}
+
+tr.inbox-row:hover {
+    cursor: pointer;
+    color: blue;
+    text-decoration: underline;
+    /*background-color: #fffcc2 !important;*/
+}
+td.inbox-cell:hover {
+}
+
+div.box {
+    border: solid 1px #CCCCCC;
+    background-color: #f9f9f9;
+    padding: 4px;
+    margin: 4px 4px 0px 20px;
+    float:left;
+    box-shadow: inset 0px 1px 4px #bebebe;
+    -webkit-appearance: textarea;
 }

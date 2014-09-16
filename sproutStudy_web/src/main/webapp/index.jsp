@@ -42,6 +42,7 @@
     <link rel="icon" href="/sproutassets/images/favicon.png" type="image/png" />
     
     <link type="text/css" rel="stylesheet" href="/sproutassets/stylesheets/bootstrap/css/bootstrap.css" />
+    <link type="text/css" rel="stylesheet" href="/sproutassets/stylesheets/bootstrap/css/bootstrap.icon-large.min.css" />
 	<link type="text/css" rel="stylesheet" href="/sproutassets/stylesheets/lcs/css/lcs.css" />
 	<link type="text/css" rel="stylesheet" href="/sproutassets/stylesheets/lcs/css/login.css" />
 	<link type="text/css" rel="stylesheet" href="/sproutassets/stylesheets/bootstrap/css/responsive.css" />
@@ -51,7 +52,7 @@
     
     
 </head>
-<body xmlns:ng="http://angularjs.org" id="ng-app" class="ng-app:sproutStudyApp" xmlns:forms="http://angularjs.org" ng-app="sproutStudyApp" ng-controller="globalController">
+<body xmlns:ng="http://angularjs.org" id="ng-app" class="ng-app:sproutStudyApp" xmlns:forms="http://angularjs.org" ng-app="sproutStudyApp" >
 
 <!--[if lt IE 7]>
 <p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser
@@ -65,13 +66,15 @@
     var sproutStudyResourceBase = "";
 </script>
 
-<div class="container container-sproutstudy" ng-cloak>
-
+<div class="container container-sproutstudy" ng-controller="cohortController">
 	<div class="navbar navbar-fixed-top">
 		<div class="navbar-inner">
-			<ul class="nav">
-                <li class="sproutstudy-tab-li sproutstudy-tab-study"><a href="#/" class="sproutstudy-tab-button">Home</a></li>
+			<ul class="nav" id="sproutstudy-tab-container">
+                <li class="sproutstudy-tab-li sproutstudy-tab-home" instance="home"><a href="#/" class="sproutstudy-tab-button" instance="home">{{member().fullName}}<span ng-show="member().id > 0"> ({{member().id}})</span></a></li>
 		    </ul>
+            <ul class="nav" style="float: right; margin-right: 0px;" ng-show="cohort() != null">
+                <li class="sproutstudy-tab-cohort"><a href="#/" ng-click="changeCohort()" class="sproutstudy-tab-button">{{cohort().name}} Cohort<i class="icon-list" style="margin-left: 10px;"></i></a></li>
+            </ul>
 		</div>
 	</div>
 
@@ -106,11 +109,13 @@
 <script src="scripts/controllers/studyController.js"></script>
 <script src="scripts/controllers/adminController.js"></script>
 <script src="scripts/controllers/globalController.js"></script>
+<script src="scripts/controllers/cohortController.js"></script>
 <script src="scripts/directives/forms.js"></script>
 <script src="scripts/directives/preventDefault.js"></script>
 <script src="scripts/directives/patientViewDirective.js"></script>
 <script src="scripts/models/localeModel.js"></script>
 <script src="scripts/services/appointmentsService.js"></script>
+<script src="scripts/services/cohortService.js"></script>
 <script src="scripts/services/enrollmentService.js"></script>
 <script src="scripts/services/providerService.js"></script>
 <script src="scripts/services/patientService.js"></script>
@@ -147,36 +152,100 @@
             app = "admin";
         }
 
-        jQuerySprout(".study-tab-" + app).addClass("active");
+        jQuerySprout(".sproutstudy-tab-home").addClass("active");
 
-        jQuerySprout(".study-tab-button").bind('click', function(event) {
+        jQuerySprout("#sproutstudy-tab-container").on('click', '.sproutstudy-tab-button', function(event) {
 //            event.preventDefault();
-            jQuerySprout(".study-tab-li").removeClass("active");
+            jQuerySprout(".sproutstudy-tab-li").removeClass("active");
             jQuerySprout(this).parent().addClass("active");
 
-            var activeTab = jQuerySprout(this).attr("href").substring(2);
+            var instance = jQuerySprout(this).attr("instance");
 
-            jQuerySprout(".study-tab").hide();
-            jQuerySprout(".study-tab-" + activeTab).show();
+            jQuerySprout(".sproutstudy-content").hide();
+            jQuerySprout(".sproutstudy-content-" + instance).show();
 //            return false;
         });
-
-        jQuerySprout(".container-study").on('click', ".enrollment-quick-link", function(event) {
-            event.preventDefault();
-            if (window.self !== window.top) {
-//                console.log("href: " + jQuerySprout(this).attr("href"));
-//                console.log("src: " + parent.jQuerySprout("#iframe-ENROLLMENT").attr("src"));
-                parent.jQuerySprout("#iframe-ENROLLMENT").attr("src", jQuerySprout(this).attr("href"));
-                parent.jQuerySprout(".nav-ENROLLMENT").trigger('click');
-//                console.log("in a frame");
-//            } else {
-//                console.log("NOT in a frame");
-            } else {
-                window.open(jQuerySprout(this).attr("href"),'enrollmentModule');
-            }
-            return false;
-        });
     });
+
+    function addPaneContentOrig(title, instanceId, nonce) {
+        jQuerySprout(".form-iframe-container").hide();
+
+        jQuerySprout(".sproutstudy-content").hide();
+
+        if (jQuerySprout(".sproutstudy-tab-" + instanceId).length > 0) {
+            jQuerySprout(".sproutstudy-content-" + instanceId).show();
+        } else {
+            var content = '<div class="sproutstudy-content sproutstudy-content-form sproutstudy-content-' + instanceId + '" id="' + instanceId + '"><iframe id="iframe-' + instanceId + '" name="iframe-' + instanceId + '" src="/prompt/?instanceId=' + instanceId + '&nonce=' + nonce + '&debug=false" class="appFrame" /></div>';
+            var tab = '<li class="sproutstudy-tab-li sproutstudy-tab-form sproutstudy-tab-' + instanceId + '" title="' + title + '" instance="' + instanceId + '"><a href="#/" class="sproutstudy-tab-button"  title="' + title + '" instance="' + instanceId + '">' + title + '</a></li>';
+            jQuerySprout("#sproutstudy-tab-container").append(tab);
+            jQuerySprout("#sproutStudyFormContent").append(content);
+        }
+
+        jQuerySprout(".sproutstudy-tab-li").removeClass("active");
+        jQuerySprout(".sproutstudy-tab-" + instanceId).addClass("active");
+    }
+
+    function addPaneContentForm(form, nonce) {
+        var title = form.title;
+        var instanceId = form.instanceId;
+
+        jQuerySprout(".form-iframe-container").hide();
+
+        jQuerySprout(".sproutstudy-content").hide();
+
+        if (jQuerySprout(".sproutstudy-tab-" + instanceId).length > 0) {
+            jQuerySprout(".sproutstudy-content-" + instanceId).show();
+        } else {
+            var content = '<div class="sproutstudy-content sproutstudy-content-form sproutstudy-content-' + instanceId + '" id="' + instanceId + '"><iframe id="iframe-' + instanceId + '" name="iframe-' + instanceId + '" src="/prompt/?instanceId=' + instanceId + '&nonce=' + nonce + '&debug=false" class="appFrame" /></div>';
+            var tab = '<li class="sproutstudy-tab-li sproutstudy-tab-form sproutstudy-tab-' + instanceId + '" title="' + title + '" instance="' + instanceId + '"><a href="#/" class="sproutstudy-tab-button"  title="' + title + '" instance="' + instanceId + '">' + title + '</a></li>';
+            jQuerySprout("#sproutstudy-tab-container").append(tab);
+            jQuerySprout("#sproutStudyFormContent").append(content);
+
+            var instanceTab = jQuerySprout('.sproutstudy-tab-' + instanceId);
+            instanceTab.data("form", form);
+
+        }
+
+        jQuerySprout(".sproutstudy-tab-li").removeClass("active");
+        jQuerySprout(".sproutstudy-tab-" + instanceId).addClass("active");
+    }
+
+    function deletePaneContent(id) {
+        var instanceId = jQuerySprout(".sproutstudy-tab-li.active").attr("instance");
+        var form = jQuerySprout(".sproutstudy-tab-li.active").data("form");
+
+        if (instanceId != null && instanceId != 'home') {
+            var sourceTab = jQuerySprout(".sproutstudy-tab-" + instanceId);
+            var targetTab = jQuerySprout(".sproutstudy-tab-" + instanceId).prev();
+
+            jQuerySprout(".sproutstudy-content-" + instanceId).remove();
+
+            sourceTab.remove();
+            targetTab.addClass("active");
+
+            var targetInstanceId = targetTab.attr("instance");
+            jQuerySprout(".sproutstudy-content-" + targetInstanceId).show();
+            angular.element(jQuerySprout("#studyControllerDiv")).scope().getSubjectInbox();
+            angular.element(jQuerySprout("#studyControllerDiv")).scope().onComposeMessage(form);
+        } else {
+            // demographic form was just submitted
+            instanceId = jQuerySprout(".iframe-demographic-form-content").attr("instanceId");
+
+
+            angular.element(jQuerySprout("#studyControllerDiv")).scope().setNewSubject(id, instanceId);
+        }
+
+        angular.element(jQuerySprout("#studyControllerDiv")).scope().getMutableForms();
+        angular.element(jQuerySprout("#studyControllerDiv")).scope().$apply();
+    }
+
+    function clearAllFormTabs() {
+        jQuerySprout(".sproutstudy-tab-li.active").removeClass("active");
+        var homeTab = jQuerySprout(".sproutstudy-tab-home");
+        homeTab.addClass("active");
+        jQuerySprout(".sproutstudy-content-form").remove();
+        jQuerySprout(".sproutstudy-tab-form").remove();
+    }
 
     function generateUUID(){
         var d = new Date().getTime();
@@ -199,11 +268,13 @@
         var tNavBarHeight = $(".navbar-fixed-top").height();
         var footerHeight = $(".footer").height();
         var wHeight = $(window).height();
-        var aHeight = tNavBarHeight + footerHeight + 200;
+        var aHeight = tNavBarHeight + footerHeight + 15;
         $(".appFrame").height(wHeight - aHeight);
     }
 </script>
-</script>
+
+
+    <div id="sproutStudyFormContent" />
 
 </body>
 </html>

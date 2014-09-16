@@ -36,12 +36,6 @@ public class SproutStudyUserDetails implements UserDetails {
 		firstName = getStringAttribute(assertion, "first_name");
 		lastName = getStringAttribute(assertion, "last_name");
 		email = getStringAttribute(assertion, "email");
-
-		List<String> grantedAuthorities = securityService.getGrantedAuthorties(this.username);
-
-		if (grantedAuthorities != null && grantedAuthorities.size() > 0) {
-			for (String grantedAuthority : grantedAuthorities) addPractice(grantedAuthority);
-		}
 	}
 
 	private String getStringAttribute(Assertion assertion, String key) {

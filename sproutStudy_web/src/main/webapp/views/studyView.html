@@ -1,17 +1,6 @@
 <div id="studyControllerDiv" ng-controller="studyController" class="frontoffice-tab frontoffice-tab-patient">
 
-<div ng-show="cohort != null">
-    <div>
-        <span style="float: left; "><h3>{{cohort.name}} Cohort</h3></span>
-        <span style="float: right; vertical-align: middle;">
-            <h3>
-                <button ng-click="changeCohort()" class="btn btn-info btn-mini" title="Change Group"><span style="padding-right: 0px;">Change Cohort</span></button>
-            </h3>
-        </span>
-    </div>
-</div>
-
-<div ng-show="cohort == null">
+<div ng-show="cohort() == null">
     <div>
         <h3>Please pick a cohort</h3>
         <table class="table">
@@ -28,79 +17,243 @@
     </div>
 </div>
 
-<div ng-show="cohort != null && panes.length > 1">
-    <legend>
-    </legend>
-    <tabs>
-        <pane ng-repeat="pane in panes" heading="{{pane.title}}" active="pane.active" >
-            <div style="float: right; vertical-align: middle;" ng-show="active().id != '0'">
-                <button ng-click="closePane(pane)" class="btn btn-warning btn-mini" title="Close"><span style="padding-right: 0px;">&times;</span></button>
+<div ng-show="subject.lastName != null && searchEnabled != true && cohort() != null && demographicFormContent == null" style="border-bottom: 1px #cacaca solid; margin: 5px 0 7px 0; padding-bottom: 7px;">
+
+<div style="display: block; text-align: right;">
+            {{subject.prettyName}} ({{subject.id}})
+            <button ng-click="enableSearch()" class="btn btn-primary btn-mini" title="New Patient Search" style="min-width: 80px;"><i class="icon-search icon-white" style="margin-right: 5px;"></i>Search</button>
+
+            <span class="dropdown" >
+                <button ng-click="openDeliverFormModal()" class="dropdown-toggle btn btn-success btn-mini" title="Deliver Form" style="min-width: 80px;"><i class="icon-plus icon-white" style="margin-right: 5px;"></i>New Form</button>
+                <ul class="dropdown-menu" style="font-size: 12px;">
+                    <li ng-repeat="form in cohort().forms | filter: { demographic: false }">
+                        <a class="text text-info" ng-click="onDeliverForm(subject, form)" prevent-default>{{form.name}}</a>
+                    </li>
+                </ul>
+            </span>
+        </div>
+    </div>
+
+    <form class="form-horizontal" ng-show="searchEnabled == true && cohort() != null && demographicFormContent == null && openingForm == false">
+        <legend><h3>Subject Search</h3></legend>
+        <div class="control-group">
+            <label class="control-label" for="patientSearch">Search for Subject</label>
+            <div class="controls">
+                <input type="text" class="input-medium search-query" ng-model="query" id="patientSearch"/>
+                <button class="btn" ng-disabled="query.length == 0" ng-class="{'btn-primary': query.length > 0}" ng-click="findCohortMember()"><i class="icon-search icon-white"></i></button>
             </div>
-            <div ng-bind-html-unsafe="pane.content"></div>
-        </pane>
-    </tabs>
-</div>
-
-<div ng-show="active().id == 0">
-
-
-        <div ng-show="subject.lastName != null && searchEnabled != true && cohort != null">
-            <legend>
-                <div>
-                    <span>Forms</span>
-                    <span style="float: right;">
-                        <span>
-                            {{subject.prettyName}} ({{subject.id}})
-                            <button ng-click="enableSearch()" class="btn btn-primary btn-mini" title="New Patient Search"><i class="icon-search icon-white"></i></button>
-
-                            <span class="dropdown" style="font-size: 14px;">
-                                <button ng-click="openDeliverFormModal()" class="dropdown-toggle btn btn-primary btn-mini" title="Deliver Form"><i class="icon-envelope icon-white"></i></button>
-                                <ul class="dropdown-menu">
-                                    <li><a ng-click="onFilterByStatus()" ng-show="cohort.forms.length > 0" prevent-default></a></li>
-                                    <li ng-repeat="form in cohort.forms">
-                                        <a class="text text-info" ng-click="onDeliverForm(subject, form)" prevent-default>{{form.name}}</a>
-                                    </li>
-                                </ul>
-                            </span>
-                        </span>
-                    </span>
-                </div>
-            </legend>
         </div>
 
-        <form class="form-horizontal" ng-show="searchEnabled == true && cohort != null">
-            <legend>Subject Search</legend>
-            <div class="control-group">
-                <label class="control-label" for="patientSearch">Search for Subject</label>
-                <div class="controls">
-                    <input type="text" class="input-medium search-query" ng-model="query" id="patientSearch"/>
-                    <button type="submit" class="btn" ng-disabled="query.length == 0" ng-class="{'btn-primary': query.length > 0}" ng-click="findCohortMember()"><i class="icon-search icon-white"></i></button>
+        <div id="tabPane">
+            <div id="tabPane" style="margin-top: 40px;" ng-show="searchEnabled == true && cohort() != null && demographicFormContent == null && openingForm == false && searchReturned == false">
+
+                <ul class="nav nav-tabs">
+                    <li class="active">
+                        <a href="#tab0" data-toggle="tab">Inbox</a>
+                    </li>
+                    <li>
+                        <a href="#tab1" data-toggle="tab">Recent Subjects</a>
+                    </li>
+                    <li>
+                        <a href="#tab2" data-toggle="tab">Incomplete Forms</a>
+                    </li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane fade in active" id="tab0" >
+
+
+                        <div ng-show="message != null">
+                            <form class="form-horizontal">
+                                <div class="control-group">
+                                    <label class="control-label">From</label>
+                                    <div class="controls box" style="min-width: 700px; margin-left: 10px;">
+                                        {{message.sender.fullName}} <{{message.sender.email}}>
+                                    </div>
+                                </div>
+                                <div class="control-group">
+                                    <label class="control-label">Message Subject</label>
+                                    <div class="controls box" style="min-width: 700px; margin-left: 10px;">
+                                        {{message.subject}}
+                                    </div>
+                                </div>
+                                <div class="control-group">
+                                    <label class="control-label">Subject</label>
+                                    <div class="controls box" style="min-width: 700px; margin-left: 10px;">
+                                        {{message.subjectName}} ({{message.subjectId}})
+                                    </div>
+                                </div>
+                                <div class="control-group">
+                                    <label class="control-label" >Message</label>
+                                    <div class="controls box" style="min-height: 300px; min-width: 700px; margin-left: 10px;">
+                                        {{message.body}}
+                                    </div>
+                                </div>
+                                <div class="form-actions">
+                                    <button class="btn" ng-click="closeMessage()">Close</button>
+                                    <button class="btn btn-info" ng-click="onOpenStudyInboxForm(message)"><i class="icon-play icon-white" style="margin-right: 5px;"></i>Open Form</button>
+                                </div>
+
+                            </form>
+                        </div>
+
+                        <div class="" ng-show="studyInbox.length > 0 && demographicFormContent == null && openingForm == false && message == null">
+                            <table class="table table-condensed table-striped" >
+                                <thead class="inbox">
+                                <tr>
+                                    <th>Sender</th>
+                                    <th>Subject</th>
+                                    <th>Form</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th style="text-align: center; width: 80px;"></th>
+                                    <th style="text-align: center; width: 80px;"></th>
+                                </tr>
+                                </thead>
+                                <tr class="inbox-row" ng-repeat='message in studyInbox | filter: { status.mutable: true }' ng-class="{'inbox-new': message.status.code == 'NEW'}" >
+                                    <td class="inbox-cell" ng-click="onOpenMessage(message)">{{message.sender.fullName}}</a></td>
+                                    <td class="inbox-cell" ng-click="onOpenMessage(message)">{{message.subjectName}} ({{message.subjectId}})</td>
+                                    <td class="inbox-cell" ng-click="onOpenMessage(message)">{{message.formTitle}}</td>
+                                    <td class="inbox-cell" ng-click="onOpenMessage(message)">{{message.activityDate | date:'medium' }}</td>
+                                    <td class="inbox-cell" ng-click="onOpenMessage(message)">{{message.status.code}}</td>
+                                    <td style="text-align: center; width: 80px;">
+                                        <button class="btn btn-mini" ng-click="onDeleteStudyInboxForm(message)"><i class="icon-remove" style="margin-right: 5px;"></i>Delete</button>
+                                    </td>
+                                    <td style="text-align: center; width: 80px;">
+                                        <button class="btn btn-info btn-mini" ng-click="onOpenStudyInboxForm(message)"><i class="icon-play icon-white" style="margin-right: 5px;"></i>Open</button>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div class="alert alert-info" ng-show="studyInbox.length == 0 && demographicFormContent == null && openingForm == false">You have no messages in your inbox.</div>
+                    </div>
+                    <div class="tab-pane fade in" id="tab1" >
+                        <div class="" ng-show="recentCohortMembers != undefined && searchEnabled == true && cohort() != null && demographicFormContent == null && openingForm == false && (patientMatches.length == undefined || patientMatches.length < 1)">
+                            <table style="width: 100%;" class="table table-condensed table-striped">
+                                <tr ng-repeat="subject in recentCohortMembers">
+                                    <td>
+                                        <div class="container" style="width: 600px; float: left;">
+                                            <div class="row">
+                                                <div class="span2" style="padding: 0px;">First Name:</div>
+                                                <div class="span3" style="padding: 0px;">{{subject.firstName}}</div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="span2">Last Name:</div>
+                                                <div class="span3">{{subject.lastName}}</div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="span2">Gender:</div>
+                                                <div class="span3">{{subject.gender}}</div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="span2">Date of Birth:</div>
+                                                <div class="span3">{{subject.birthDate | date:'longDate'}}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td style="vertical-align: middle;">
+                                        <button class="btn btn-info" ng-click="chooseCohortMember(subject)">Choose</button>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade in" id="tab2">
+                        <div class="" ng-show="mutableForms.length > 0 && demographicFormContent == null && openingForm == false">
+                            <table class="table table-condensed table-striped" >
+                                <thead class="inbox">
+                                <tr>
+                                    <th>Subject</th>
+                                    <th>Form</th>
+                                    <th>Delivery Date</th>
+                                    <th>
+                                        <span class="dropdown">
+                                            Status
+                                            <a class="dropdown-toggle btn btn-mini" style="margin-left: 8px;"><b class="caret"></b></a>
+                                            <ul class="dropdown-menu">
+                                                <li><a ng-click="onFilterByStatus()" ng-show="statuses.length > 0" prevent-default>ALL STATUSES</a></li>
+                                                <li ng-repeat="value in statuses">
+                                                    <a ng-click="onFilterByStatus(value)" prevent-default>{{value}}</a>
+                                                </li>
+                                            </ul>
+                                        </span>
+                                    </th>
+                                    <th>Status Date</th>
+                                    <th style="text-align: center; width: 80px;">Actions</th>
+                                </tr>
+                                </thead>
+                                <tr ng-repeat='form in mutableForms | filter: formFilter | orderBy:"appointmentTime":false' >
+                                    <td>{{form.identityFullName}} ({{form.identityPrimaryId}})</td>
+                                    <td>{{form.title}}</a></td>
+                                    <td>{{form.deliveryDate | date:'medium' }}</td>
+                                    <td>{{form.inboxStatus}}</td>
+                                    <td>{{form.statusDate | date:'medium' }}</td>
+                                    <td style="text-align: center; width: 80px;">
+                                        <button class="btn btn-info btn-mini" ng-click="onOpenMutableForm(form)"><i class="icon-play icon-white" style="margin-right: 5px;"></i>Open</button>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="alert alert-info" ng-show="mutableForms.length == 0 && demographicFormContent == null && openingForm == false">
+                            <h4>No incomplete forms found.</h4>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </form>
+        </div>
+    </form>
 
-        <div class="span10 well" ng-show="patientMatches != undefined">
+<div class="sproutstudy-content sproutstudy-content-home" ng-show="cohort() != null && demographicFormContent == null">
+
+        <div class="span10" ng-show="patientMatches != undefined && demographicFormContent == null">
             <div style="width: 100%;">
-                <h4>Search Results:</h4>
                 <div style="margin-top: 20px;" ng-show="patientMatches.length == undefined">
                     Loading subjects. Please wait...
                 </div>
-                <div class="patient-verification-search-results" style="margin-top: 20px;" ng-show="patientMatches != undefined">
-                    <table style="width: 100%;" class="table">
-                        <tr ng-repeat="subject in patientMatches" style="background-color: #ffffff;">
+                <div style="margin-top: 20px;" class="alert alert-info" ng-show="patientMatches.length == 0 && addSubjectInd == false">
+                    <h4>No subjects found.</h4>
+                    <div style="margin-top: 25px;">
+                        <button class="btn btn-primary" ng-click="addSubject()">Add Subject</button>
+                    </div>
+                </div>
+                <div style="margin-top: 20px;" class="alert alert-success" ng-show="patientMatches.length == 0 && addSubjectInd">
+                    <h4>Adding new subject.  Please search again once you have finished adding the new subject.</h4>
+                </div>
+
+                <h4 ng-show="patientMatches.length > 0">Search Results:</h4>
+
+                <div class="patient-verification-search-results" class="well" style="margin-top: 20px;" ng-show="patientMatches.length > 0">
+                    <table style="width: 100%;" class="table table-condensed table-striped">
+                        <tr ng-repeat="subject in patientMatches">
                             <td>
-                                <table class="table table-condensed">
-                                    <tr><td>First Name:</td><td>{{subject.firstName}}</td></tr>
-                                    <tr><td>Last Name:</td><td>{{subject.lastName}}</td></tr>
-                                    <tr><td>Gender:</td><td>{{subject.gender}}</td></tr>
-                                </table>
+                                <div class="container" style="width: 600px; float: left;">
+                                    <div class="row">
+                                        <div class="span2" style="padding: 0px;">First Name:</div>
+                                        <div class="span3" style="padding: 0px;">{{subject.firstName}}</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="span2">Last Name:</div>
+                                        <div class="span3">{{subject.lastName}}</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="span2">Gender:</div>
+                                        <div class="span3">{{subject.gender}}</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="span2">Date of Birth:</div>
+                                        <div class="span3">{{subject.birthDate | date:'longDate'}}</div>
+                                    </div>
+                                </div>
                             </td>
-                            <td>
+                            <td style="vertical-align: middle;">
                                 <button class="btn btn-primary" ng-click="chooseCohortMember(subject)">Choose</button>
                             </td>
                         </tr>
                     </table>
                 </div>
+                <span ng-show="patientMatches.length > 0">
+                    <button class="btn btn-success" ng-click="addSubject()"><i class="icon-plus icon-white" style="margin-right: 7px;"></i>Add New Subject</button>
+                </span>
                 <div class="btn-toolbar" style="text-align: center;">
                     <div class="btn-group btn-group-horizontal">
                         <button ng-click="onPreviousPage()" class="btn" ng-show="page > 0">Previous</button>
@@ -111,18 +264,19 @@
             </div>
         </div>
 
-        <div ng-show="cohort != null && subject.lastName != null">
+        <div ng-show="cohort() != null && subject.lastName != null && demographicFormContent == null">
             <div class="alert alert-success" ng-show="inbox == 1">
-                <h4>Loading patient forms. Please wait...</h4>
+                <h4>Loading forms. Please wait...</h4>
             </div>
 
             <div class="alert alert-info" ng-show="inbox.length == 0">
-                <h4>No forms found for this patient.</h4>
+                <h4>No forms found for this subject.</h4>
             </div>
         </div>
 
-        <div class="" ng-show="inbox.length > 0">
-            <table class="table table-bordered" >
+        <div class="" ng-show="inbox.length > 0 && demographicFormContent == null && openingForm == false">
+            <h4>Forms</h4>
+            <table class="table table-condensed table-striped" >
                 <thead class="inbox">
                 <tr>
                     <th>Form</th>
@@ -130,7 +284,7 @@
                     <th>
                     <span class="dropdown">
 		                Status
-		                <a class="dropdown-toggle btn btn-mini" style="float: right;"><b class="caret"></b></a>
+		                <a class="dropdown-toggle btn btn-mini" style="margin-left: 8px;"><b class="caret"></b></a>
 		                <ul class="dropdown-menu">
                             <li><a ng-click="onFilterByStatus()" ng-show="statuses.length > 0" prevent-default>ALL STATUSES</a></li>
                             <li ng-repeat="value in statuses">
@@ -140,32 +294,58 @@
 		            </span>
                     </th>
                     <th>Status Date</th>
-                    <th>Actions</th>
+                    <th style="text-align: center; width: 80px;">Actions</th>
                 </tr>
                 </thead>
                 <tr ng-repeat='form in inbox | filter: formFilter | orderBy:"appointmentTime":false' >
-                    <td>{{form.title}}</td>
+                    <td>{{form.title}}</a></td>
                     <td>{{form.deliveryDate | date:'medium' }}</td>
                     <td>{{form.inboxStatus}}</td>
                     <td>{{form.statusDate | date:'medium' }}</td>
-                    <td>
-                        <button class="btn btn-primary btn-mini" ng-click="onOpenForm(form)">Open</button>
+                    <td style="text-align: center; width: 80px;">
+                        <button class="btn btn-primary btn-mini" ng-click="onOpenForm(form)"><i class="icon-play icon-white" style="margin-right: 5px;"></i>Open</button>
                     </td>
                 </tr>
             </table>
         </div>
 
-        <div ng-show="form.value != null">
-            <div ng-hide="form.value" class="alert alert-info"><h5>Loading form...please wait...</h5></div>
-            <div ng-bind-html-unsafe="form.value" class="frontoffice-patient-view-form"></div>
+        <div class="alert alert-info" ng-show="openingForm && demographicFormContent == null">
+            <h4>Opening form...please wait...</h4>
         </div>
-
 
     </div>
 
+    <div ng-show="cohort() != null && demographicFormContent != null" ng-bind-html-unsafe="demographicFormContent" />
+
+<!--<button ng-click="testSendMessageModal()" class="btn btn-success">test send message modal</button>-->
+
+    <div modal="sendMessageModal" close="onCloseSendMessageModal()" options="modalSmallOpts">
+        <div class="modal-header">
+            <h4>Send Form Notification</h4>
+        </div>
+        <div class="modal-body modal-body-short">
+            <form class="form-horizontal">
+                <div class="control-group">
+                    <label class="control-label" for="sendFormMessageSendTo">Send to</label>
+                    <div class="controls">
+                        <select id="sendFormMessageSendTo" multiple="multiple" ng-model="messageTo" ng-options="authorization.user.fullName for authorization in cohortAuthorizations"></select>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="sendFormMessageMessage">Message</label>
+                    <div class="controls">
+                        <textarea id="sendFormMessageMessage" style="min-width: 500px; min-height: 70px" ng-model="messageText" />
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn cancel" ng-click="onCloseSendMessageModal()">Don't Send</button>
+            <button class="btn btn-primary" ng-disabled="messageTo == undefined || messageTo == null || messageTo.length == 0 || messageText == undefined || messageText == null || messageText.length == 0" ng-click="onSendMessage()">Send</button>
+        </div>
+    </div>
 
 </div>
-
 
 <div modal="viewFormModal" close="closeViewForm()" >
     <span patient-view-directive></span>
@@ -182,6 +362,7 @@
         <button class="btn cancel" ng-click="closeViewForm()" ng-show="closeBtn == true">Close</button>
     </div>
 </div>
+
 
 <iframe id="printFormFrame" src="about:blank" height="0" width="0" style="border: 0px;" >
 </iframe>

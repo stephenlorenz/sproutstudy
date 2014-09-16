@@ -1,6 +1,9 @@
 package edu.harvard.mgh.lcs.sprout.forms.study.to;
 
+import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.SproutStudyConstantService;
+
 import java.io.Serializable;
+import java.util.Set;
 
 /**
  * Created with IntelliJ IDEA.
@@ -11,49 +14,105 @@ import java.io.Serializable;
  */
 public class UserTO implements Serializable {
 
-    private String cn;
-    private String sn;
-    private String givenName;
-    private String displayName;
-    private String email;
+    private int id;
+    private String username;
+    private String password;
+    private int salt;
+    private String firstName;
+    private String lastName;
+    private boolean active;
 
-    public String getCn() {
-        return cn;
+    private DomainTO domain;
+    private Set<UserPreferenceTO> preferences;
+
+    public int getId() {
+        return id;
     }
 
-    public void setCn(String cn) {
-        this.cn = cn;
+    public void setId(int id) {
+        this.id = id;
     }
 
-    public String getSn() {
-        return sn;
+    public String getUsername() {
+        return username;
     }
 
-    public void setSn(String sn) {
-        this.sn = sn;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
-    public String getGivenName() {
-        return givenName;
+    public String getPassword() {
+        return password;
     }
 
-    public void setGivenName(String givenName) {
-        this.givenName = givenName;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
-    public String getDisplayName() {
-        return displayName;
+    public int getSalt() {
+        return salt;
     }
 
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
+    public void setSalt(int salt) {
+        this.salt = salt;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public DomainTO getDomain() {
+        return domain;
+    }
+
+    public void setDomain(DomainTO domain) {
+        this.domain = domain;
+    }
+
+    public Set<UserPreferenceTO> getPreferences() {
+        return preferences;
+    }
+
+    public void setPreferences(Set<UserPreferenceTO> preferences) {
+        this.preferences = preferences;
+    }
+
+    public String getFullName() {
+        if (firstName != null && lastName != null) {
+            return String.format("%s %s", firstName, lastName);
+        }
+        return null;
     }
 
     public String getEmail() {
-        return email;
+        if (preferences != null && preferences.size() > 0) {
+            for (UserPreferenceTO preference : preferences) {
+                if (preference.getCode().equalsIgnoreCase(SproutStudyConstantService.UserPreference.EMAIL_PRIMARY.toString())) {
+                    return preference.getValue();
+                }
+            }
+        }
+        return null;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
 }

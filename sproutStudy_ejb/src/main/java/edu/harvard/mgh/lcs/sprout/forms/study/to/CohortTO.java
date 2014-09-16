@@ -14,6 +14,7 @@ public class CohortTO implements Serializable {
     private List<CohortAttrTO> attributes;
     private List<CohortFormTO> forms;
     private String cohortQueryURL;
+    private String cohortSubjectSchema;
 
     public int getId() {
         return id;
@@ -69,5 +70,13 @@ public class CohortTO implements Serializable {
 
     public void setCohortQueryURL(String cohortQueryURL) {
         this.cohortQueryURL = cohortQueryURL;
+    }
+
+    public String getCohortSubjectSchema() {
+        return cohortSubjectSchema;
+    }
+
+    public void setCohortSubjectSchema(String cohortSubjectSchema) {
+        this.cohortSubjectSchema = cohortSubjectSchema;
     }
 }

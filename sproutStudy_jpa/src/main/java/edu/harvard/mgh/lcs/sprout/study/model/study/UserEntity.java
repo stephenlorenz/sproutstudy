@@ -7,11 +7,13 @@ import java.util.*;
 @Entity
 @Table(schema="dbo", name="users")
 @NamedQueries({
-	@NamedQuery(name = UserEntity.BY_USERNAME, query = "FROM UserEntity WHERE username = :username AND active = TRUE")
+	@NamedQuery(name = UserEntity.BY_USERNAME, query = "FROM UserEntity WHERE username = :username AND active = TRUE"),
+	@NamedQuery(name = UserEntity.BY_USERNAME_AND_DOMAIN, query = "FROM UserEntity WHERE username = :username AND domain = :domain AND active = TRUE")
 })
 public class UserEntity implements Serializable {
 
 	public static final String BY_USERNAME = "UserEntity.byUsername";
+	public static final String BY_USERNAME_AND_DOMAIN = "UserEntity.byUsernameAndDomain";
 
 	@Id
     @GeneratedValue (strategy = GenerationType.IDENTITY)

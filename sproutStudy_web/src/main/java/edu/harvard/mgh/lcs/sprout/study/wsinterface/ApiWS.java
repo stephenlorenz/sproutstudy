@@ -19,9 +19,9 @@ import java.util.List;
 public interface ApiWS {
 
     @GET
-    @Path("/secure/getCohortAuthorizations")
+    @Path("/secure/getAuthorizedCohorts")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<CohortTO> getCohortAuthorizations(@Context HttpServletRequest request) throws InvalidSessionRESTful;
+    public List<CohortTO> getAuthorizedCohorts(@Context HttpServletRequest request) throws InvalidSessionRESTful;
 
     @GET
     @Path("/secure/findCohortMember")
@@ -33,11 +33,6 @@ public interface ApiWS {
     @Produces(MediaType.APPLICATION_JSON)
     public CohortTO getLastSelectedCohort(@Context HttpServletRequest request) throws InvalidSessionRESTful;
 
-    @GET
-    @Path("/secure/auth")
-    @Produces(MediaType.APPLICATION_JSON)
-	public Boolean auth(@QueryParam("username") String username);
-	
     @GET
     @Path("/secure/ping")
     @Produces(MediaType.APPLICATION_JSON)
@@ -56,7 +51,7 @@ public interface ApiWS {
     @GET
     @Path("/secure/applyForNonce")
     @Produces(MediaType.APPLICATION_JSON)
-    public NonceTO applyForNonce(@Context HttpServletRequest request, @QueryParam("instanceId") String instanceId) throws InvalidSessionRESTful;
+    public NonceTO applyForNonce(@Context HttpServletRequest request, @QueryParam("instanceId") String instanceId, @QueryParam("subjectName") String subjectName, @QueryParam("subjectId") String subjectId) throws InvalidSessionRESTful;
 
     @GET
     @Path("/secure/getForms")
@@ -109,34 +104,19 @@ public interface ApiWS {
     public FormSubmissionTO getFormSubmission(@Context HttpServletRequest request, @QueryParam("instanceId") String instanceId) throws InvalidSessionRESTful;
 
     @GET
-    @Path("/secure/isAdmin")
-    @Produces(MediaType.APPLICATION_JSON)
-    public BooleanTO isSproutAdmin(@Context HttpServletRequest request) throws InvalidSessionRESTful;
-
-    @GET
-    @Path("/secure/getUser")
-    @Produces(MediaType.APPLICATION_JSON)
-    public UserTO getUser(@Context HttpServletRequest request, @QueryParam("cn") String cn) throws InvalidSessionRESTful;
-
-    @GET
-    @Path("/secure/getApplicationAuthorities")
-    @Produces(MediaType.APPLICATION_JSON)
-    public List<ApplicationAuthorityTO> getApplicationAuthorities(@Context HttpServletRequest request) throws InvalidSessionRESTful;
-
-    @GET
-    @Path("/secure/updateManager")
-    @Produces(MediaType.APPLICATION_JSON)
-    public BooleanTO updateManager(@Context HttpServletRequest request, @QueryParam("grantedAuthId") int grantedAuthId, @QueryParam("manager") Boolean managerInd) throws InvalidSessionRESTful;
-
-    @GET
     @Path("/secure/deliverForm")
     @Produces(MediaType.APPLICATION_JSON)
-    public FormDeliveryStatus deliverForm(@Context HttpServletRequest request, @QueryParam("mrn") String mrn, @QueryParam("publicationKey") String publicationKey, @QueryParam("provider") String provider, @QueryParam("expirationDate") String expirationDateString) throws InvalidSessionRESTful;
+    public FormDeliveryStatus deliverForm(@Context HttpServletRequest request, @QueryParam("schema") String schema, @QueryParam("id") String id, @QueryParam("publicationKey") String publicationKey, @QueryParam("provider") String provider, @QueryParam("expirationDate") String expirationDateString) throws InvalidSessionRESTful;
 
     @GET
     @Path("/secure/getSproutInbox")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<FormInstanceTO> getSproutInbox(@Context HttpServletRequest request, @QueryParam("id") String id) throws InvalidSessionRESTful;
+    public List<FormInstanceTO> getSproutInbox(@Context HttpServletRequest request, @QueryParam("identity") String[] identities) throws InvalidSessionRESTful;
+
+    @GET
+    @Path("/secure/getMutableForms")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<FormInstanceTO> getMutableForms(@Context HttpServletRequest request) throws InvalidSessionRESTful;
 
     @GET
     @Path("/secure/isPatientVerified")
@@ -148,4 +128,38 @@ public interface ApiWS {
     @Produces(MediaType.APPLICATION_JSON)
     public BooleanTO isPatientAssertive(@Context HttpServletRequest request, @QueryParam("mrn") String mrn) throws InvalidSessionRESTful;
 
-    }
+    @GET
+    @Path("/secure/getRecentCohortMembers")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<Result> getRecentCohortMembers(@Context HttpServletRequest request) throws InvalidSessionRESTful;
+
+    @GET
+    @Path("/secure/getCohortAuthorizations")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<CohortAuthTO> getCohortAuthorizations(@Context HttpServletRequest request) throws InvalidSessionRESTful;
+
+    @GET
+    @Path("/secure/sendMessage")
+    @Produces(MediaType.APPLICATION_JSON)
+    public BooleanTO sendMessage(@Context HttpServletRequest request, @QueryParam("to") String usernameRecipient, @QueryParam("form") String form, @QueryParam("message") String message, @QueryParam("instanceId") String instanceId, @QueryParam("formTitle") String formTitle, @QueryParam("subjectId") String subjectId, @QueryParam("subjectName") String subjectName) throws InvalidSessionRESTful;
+
+    @GET
+    @Path("/secure/getStudyInbox")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<StudyInboxTO> getStudyInbox(@Context HttpServletRequest request) throws InvalidSessionRESTful;
+
+    @GET
+    @Path("/secure/deleteInboxMessage")
+    @Produces(MediaType.APPLICATION_JSON)
+    public StudyInboxTO deleteInboxMessage(@Context HttpServletRequest request, @QueryParam("id") int id) throws InvalidSessionRESTful;
+
+    @GET
+    @Path("/secure/markInboxMessageAsRead")
+    @Produces(MediaType.APPLICATION_JSON)
+    public StudyInboxTO markInboxMessageAsRead(@Context HttpServletRequest request, @QueryParam("id") int id) throws InvalidSessionRESTful;
+
+    @GET
+    @Path("/secure/changeInboxMessageStatus")
+    @Produces(MediaType.APPLICATION_JSON)
+    public StudyInboxTO changeInboxMessageStatus(@Context HttpServletRequest request, @QueryParam("id") int id, @QueryParam("status") String status) throws InvalidSessionRESTful;
+}

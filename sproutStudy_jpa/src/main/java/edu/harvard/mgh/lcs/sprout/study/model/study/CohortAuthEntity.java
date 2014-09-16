@@ -27,6 +27,10 @@ public class CohortAuthEntity implements Serializable {
     private Boolean active;
 
     @Basic
+    @Column(name="manager_ind")
+    private Boolean manager;
+
+    @Basic
     @Column(name="activity_date", columnDefinition="datetime", nullable=false)
     private Date activityDate = new Date();
 
@@ -60,6 +64,14 @@ public class CohortAuthEntity implements Serializable {
 
     public void setActive(Boolean active) {
         this.active = active;
+    }
+
+    public Boolean getManager() {
+        return manager;
+    }
+
+    public void setManager(Boolean manager) {
+        this.manager = manager;
     }
 
     public Date getActivityDate() {

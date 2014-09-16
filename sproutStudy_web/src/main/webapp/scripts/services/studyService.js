@@ -4,13 +4,53 @@ angular.module('sproutStudyApp')
     .factory('studyService', function ($http, networkService) {
 
         return {
-            getCohortAuthorizations: function (params, callback) {
-                $http.get(networkService.generateUrl("getCohortAuthorizations", params)).then(function (response) {
+            getAuthorizedCohorts: function (params, callback) {
+                $http.get(networkService.generateUrl("getAuthorizedCohorts", params)).then(function (response) {
                     callback(response.data);
                 });
             },
             findCohortMember: function (params, callback) {
                 $http.get(networkService.generateUrl("findCohortMember", params)).then(function (response) {
+                    callback(response.data);
+                });
+            },
+            getRecentCohortMembers: function (params, callback) {
+                $http.get(networkService.generateUrl("getRecentCohortMembers", params)).then(function (response) {
+                    callback(response.data);
+                });
+            },
+            getMutableForms: function (params, callback) {
+                $http.get(networkService.generateUrl("getMutableForms", params)).then(function (response) {
+                    callback(response.data);
+                });
+            },
+            getCohortAuthorizations: function (params, callback) {
+                $http.get(networkService.generateUrl("getCohortAuthorizations", params)).then(function (response) {
+                    callback(response.data);
+                });
+            },
+            getStudyInbox: function (params, callback) {
+                $http.get(networkService.generateUrl("getStudyInbox", params)).then(function (response) {
+                    callback(response.data);
+                });
+            },
+            deleteInboxMessage: function (params, callback) {
+                $http.get(networkService.generateUrl("deleteInboxMessage", params)).then(function (response) {
+                    callback(response.data);
+                });
+            },
+            markInboxMessageAsRead: function (params, callback) {
+                $http.get(networkService.generateUrl("markInboxMessageAsRead", params)).then(function (response) {
+                    callback(response.data);
+                });
+            },
+            changeInboxMessageStatus: function (params, callback) {
+                $http.get(networkService.generateUrl("changeInboxMessageStatus", params)).then(function (response) {
+                    callback(response.data);
+                });
+            },
+            sendMessage: function (params, callback) {
+                $http.get(networkService.generateUrl("sendMessage", params)).then(function (response) {
                     callback(response.data);
                 });
             },

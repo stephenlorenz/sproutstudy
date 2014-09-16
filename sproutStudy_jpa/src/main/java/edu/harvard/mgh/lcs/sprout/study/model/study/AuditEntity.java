@@ -33,7 +33,19 @@ public class AuditEntity implements Serializable {
     @Basic
     @Column(name="title")
     private String title;
-    
+
+    @ManyToOne(fetch=FetchType.LAZY, cascade=CascadeType.MERGE)
+    @JoinColumn(name="cohort_id")
+    private CohortEntity cohort;
+
+    @Basic
+    @Column(name="subject_schema")
+    private String subjectSchema;
+
+    @Basic
+    @Column(name="subject_id")
+    private String subjectId;
+
     @Basic
     @Column(name="activity_date", columnDefinition="datetime", nullable=false)
     private Date activityDate = new Date();
@@ -50,11 +62,11 @@ public class AuditEntity implements Serializable {
 		this.id = id;
 	}
 
-	public UserEntity getUserDn() {
+	public UserEntity getUser() {
 		return user;
 	}
 
-	public void setUserDn(UserEntity user) {
+	public void setUser(UserEntity user) {
 		this.user = user;
 	}
 
@@ -74,7 +86,31 @@ public class AuditEntity implements Serializable {
 		this.title = title;
 	}
 
-	public Date getActivityDate() {
+    public CohortEntity getCohort() {
+        return cohort;
+    }
+
+    public void setCohort(CohortEntity cohort) {
+        this.cohort = cohort;
+    }
+
+    public String getSubjectSchema() {
+        return subjectSchema;
+    }
+
+    public void setSubjectSchema(String subjectSchema) {
+        this.subjectSchema = subjectSchema;
+    }
+
+    public String getSubjectId() {
+        return subjectId;
+    }
+
+    public void setSubjectId(String subjectId) {
+        this.subjectId = subjectId;
+    }
+
+    public Date getActivityDate() {
 		return activityDate;
 	}
 

@@ -26,7 +26,7 @@ import java.util.Map.Entry;
 
 @ApplicationPath("api")
 @Named
-public class ApiWSImpl extends Application implements ApiWS {
+public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstantService {
 
 	@EJB(mappedName="java:global/sproutStudy/sproutStudy_ejb/SecurityServiceImpl!edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.SecurityService")
 	private SecurityService securityService;
@@ -45,13 +45,24 @@ public class ApiWSImpl extends Application implements ApiWS {
 
 
     @Override
-    @WebMethod(operationName = "getCohortAuthorizations")
-    public List<CohortTO> getCohortAuthorizations(@Context HttpServletRequest request) throws InvalidSessionRESTful {
+    @WebMethod(operationName = "getAuthorizedCohorts")
+    public List<CohortTO> getAuthorizedCohorts(@Context HttpServletRequest request) throws InvalidSessionRESTful {
         SessionTO sessionTO = getSessionTO(request);
         if (sessionTO != null) {
-            return studyService.getCohorts(sessionTO.getUser());
+            return studyService.getAuthorizedCohorts(sessionTO.getUser());
         }
         return null;
+    }
+
+    @Override
+    @WebMethod(operationName = "sendMessage")
+    public BooleanTO sendMessage(@Context HttpServletRequest request, @QueryParam("to") String usernameRecipient, @QueryParam("form") String form, @QueryParam("message") String message, @QueryParam("instanceId") String instanceId, @QueryParam("formTitle") String formTitle, @QueryParam("subjectId") String subjectId, @QueryParam("subjectName") String subjectName) throws InvalidSessionRESTful {
+        SessionTO sessionTO = getSessionTO(request);
+        if (sessionTO != null) {
+            CohortTO cohortTO = getLastSelectedCohort(request);
+            return new BooleanTO(studyService.sendMessage(sessionTO.getUser(), usernameRecipient, cohortTO, message, instanceId, form, subjectId, subjectName));
+        }
+        return new BooleanTO(false);
     }
 
     @Override
@@ -60,6 +71,27 @@ public class ApiWSImpl extends Application implements ApiWS {
         SessionTO sessionTO = getSessionTO(request);
         if (sessionTO != null) {
             return studyService.findCohortMember(sessionTO.getUser(), cohortQueryURL, query);
+        }
+        return null;
+    }
+
+    @Override
+    @WebMethod(operationName = "getRecentCohortMembers")
+    public List<Result> getRecentCohortMembers(@Context HttpServletRequest request) throws InvalidSessionRESTful {
+        SessionTO sessionTO = getSessionTO(request);
+        if (sessionTO != null) {
+            CohortTO cohortTO = getLastSelectedCohort(request);
+            return studyService.getRecentCohortMembers(sessionTO.getUser(), cohortTO);
+        }
+        return null;
+    }
+
+    @Override
+    @WebMethod(operationName = "getStudyInbox")
+    public List<StudyInboxTO> getStudyInbox(@Context HttpServletRequest request) throws InvalidSessionRESTful {
+        SessionTO sessionTO = getSessionTO(request);
+        if (sessionTO != null) {
+            return studyService.getStudyInbox(sessionTO.getUser());
         }
         return null;
     }
@@ -83,19 +115,99 @@ public class ApiWSImpl extends Application implements ApiWS {
         return null;
     }
 
-	@Override
-	@WebMethod(operationName="auth")
-	public Boolean auth(@QueryParam("username") String username) {
-		List<String> grantedAuthorities = securityService.getGrantedAuthorties(username);
-		return grantedAuthorities != null && grantedAuthorities.size() > 0; 
-	}
-	
+    @Override
+    @WebMethod(operationName="getSproutInbox")
+    public List<FormInstanceTO> getSproutInbox(@Context HttpServletRequest request, @QueryParam("identity") String[] identities) throws InvalidSessionRESTful {
+        SessionTO sessionTO = getSessionTO(request);
+        if (sessionTO != null && sessionTO.getCohortTO() != null) {
+            List<CohortFormTO> cohortFormTOList = sessionTO.getCohortTO().getForms();
+            Set<String> publicationKeys = new HashSet<String>();
+            if (cohortFormTOList != null && cohortFormTOList.size() > 0) {
+                for (CohortFormTO cohortFormTO : cohortFormTOList) {
+                    publicationKeys.add(cohortFormTO.getPublicationKey());
+                }
+                return sproutFormsService.getSproutInbox(sessionTO.getUser(), sessionTO.getCohortTO(), identities, publicationKeys);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    @WebMethod(operationName="deleteInboxMessage")
+    public StudyInboxTO deleteInboxMessage(@Context HttpServletRequest request, @QueryParam("id") int id) throws InvalidSessionRESTful {
+        CohortTO cohortTO = getLastSelectedCohort(request);
+        if (cohortTO != null) {
+            return studyService.deleteInboxMessage(id, cohortTO);
+        }
+        return null;
+    }
+
+    @Override
+    @WebMethod(operationName="markInboxMessageAsRead")
+    public StudyInboxTO markInboxMessageAsRead(@Context HttpServletRequest request, @QueryParam("id") int id) throws InvalidSessionRESTful {
+        CohortTO cohortTO = getLastSelectedCohort(request);
+        if (cohortTO != null) {
+            return studyService.markInboxMessageAsRead(id, cohortTO);
+        }
+        return null;
+    }
+
+    @Override
+    @WebMethod(operationName="changeInboxMessageStatus")
+    public StudyInboxTO changeInboxMessageStatus(@Context HttpServletRequest request, @QueryParam("id") int id, @QueryParam("status") String status) throws InvalidSessionRESTful {
+        CohortTO cohortTO = getLastSelectedCohort(request);
+        if (cohortTO != null && StringUtils.isFull(status)) {
+            InboxStatus inboxStatus = InboxStatus.valueOf(status);
+            if (inboxStatus != null) {
+                return studyService.changeInboxMessageStatus(id, cohortTO, inboxStatus);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    @WebMethod(operationName="getMutableForms")
+    public List<FormInstanceTO> getMutableForms(@Context HttpServletRequest request) throws InvalidSessionRESTful {
+        SessionTO sessionTO = getSessionTO(request);
+        if (sessionTO != null) {
+            CohortTO cohortTO = getLastSelectedCohort(request);
+            List<CohortFormTO> cohortFormTOList = cohortTO.getForms();
+            Set<String> publicationKeys = new HashSet<String>();
+            if (cohortFormTOList != null && cohortFormTOList.size() > 0) {
+                for (CohortFormTO cohortFormTO : cohortFormTOList) {
+                    publicationKeys.add(cohortFormTO.getPublicationKey());
+                }
+                return sproutFormsService.getMutableForms(sessionTO.getUser(), sessionTO.getCohortTO(), publicationKeys);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    @WebMethod(operationName="getCohortAuthorizations")
+    public List<CohortAuthTO> getCohortAuthorizations(@Context HttpServletRequest request) throws InvalidSessionRESTful {
+        SessionTO sessionTO = getSessionTO(request);
+        if (sessionTO != null) {
+            CohortTO cohortTO = getLastSelectedCohort(request);
+            return studyService.getCohortAuthorizations(sessionTO.getCohortTO());
+        }
+        return null;
+    }
+
+
+//	@Override
+//	@WebMethod(operationName="auth")
+//	public Boolean auth(@QueryParam("username") String username) {
+//		List<String> grantedAuthorities = securityService.getGrantedAuthorties(username);
+//		return grantedAuthorities != null && grantedAuthorities.size() > 0;
+//	}
+
 	@Override
 	@WebMethod(operationName="ping")
 	public AckTO ping(@QueryParam("clientKey") String clientKey) {
 		return new AckTO();
 	}
-	
+
 	@Override
 	@WebMethod(operationName="getPatientDetail")
     public PatientDetailTO getPatientDetail(@Context HttpServletRequest request, @QueryParam("mrn") String mrn) throws InvalidSessionRESTful {
@@ -178,7 +290,7 @@ public class ApiWSImpl extends Application implements ApiWS {
     public BooleanTO setSessionCohort(@Context HttpServletRequest request, @QueryParam("cohortId") Integer cohortId) throws InvalidSessionRESTful {
 		SessionTO sessionTO = getSessionTO(request);
 		if (sessionTO != null) {
-            CohortTO cohortTO = studyService.getCohort(cohortId);
+            CohortTO cohortTO = studyService.getCohortTO(cohortId);
             if (cohortTO != null) {
                 studyService.persistUserPreference(sessionTO.getUser(), StudyService.USER_PREFERENCE_COHORT_ID, cohortId.toString());
                 sessionTO.setCohortTO(cohortTO);
@@ -199,23 +311,6 @@ public class ApiWSImpl extends Application implements ApiWS {
     }
 
     @Override
-	@WebMethod(operationName="getSproutInbox")
-    public List<FormInstanceTO> getSproutInbox(@Context HttpServletRequest request, @QueryParam("id") String id) throws InvalidSessionRESTful {
-		SessionTO sessionTO = getSessionTO(request);
-		if (sessionTO != null && sessionTO.getCohortTO() != null) {
-            List<CohortFormTO> cohortFormTOList = sessionTO.getCohortTO().getForms();
-            Set<String> publicationKeys = new HashSet<String>();
-            if (cohortFormTOList != null && cohortFormTOList.size() > 0) {
-                for (CohortFormTO cohortFormTO : cohortFormTOList) {
-                    publicationKeys.add(cohortFormTO.getPublicationKey());
-                }
-                return sproutFormsService.getSproutInbox(id, publicationKeys);
-            }
-		}
-		return null;
-	}
-
-    @Override
     @WebMethod(operationName="returnToSender")
     public StringTO returnToSender(@Context HttpServletRequest request, @QueryParam("mrn") String mrn, @QueryParam("instanceId") String instanceId) throws InvalidSessionRESTful {
         SessionTO sessionTO = getSessionTO(request);
@@ -228,11 +323,12 @@ public class ApiWSImpl extends Application implements ApiWS {
 
     @Override
     @WebMethod(operationName="deliverForm")
-    public FormDeliveryStatus deliverForm(@Context HttpServletRequest request, @QueryParam("mrn") String mrn, @QueryParam("publicationKey") String publicationKey, @QueryParam("provider") String provider, @QueryParam("expirationDate") String expirationDateString) throws InvalidSessionRESTful {
+    public FormDeliveryStatus deliverForm(@Context HttpServletRequest request, @QueryParam("schema") String schema, @QueryParam("id") String id, @QueryParam("publicationKey") String publicationKey, @QueryParam("provider") String provider, @QueryParam("expirationDate") String expirationDateString) throws InvalidSessionRESTful {
         SessionTO sessionTO = getSessionTO(request);
 
-        if (sessionTO != null && !StringUtils.isEmpty(mrn) && !StringUtils.isEmpty(publicationKey) && !StringUtils.isEmpty(provider)) {
-            return sproutFormsService.deliverToInbox(mrn, publicationKey, provider, expirationDateString);
+        if (sessionTO != null && !StringUtils.isEmpty(schema) && !StringUtils.isEmpty(publicationKey) && !StringUtils.isEmpty(provider)) {
+            if (schema.equalsIgnoreCase("SPROUT_STUDY_TEMP_ID") && StringUtils.isEmpty(id)) id = StringUtils.getGuid();
+            return sproutFormsService.deliverToInbox(schema, id, publicationKey, provider, expirationDateString);
         }
 
         return null;
@@ -240,11 +336,11 @@ public class ApiWSImpl extends Application implements ApiWS {
 
     @Override
     @WebMethod(operationName="applyForNonce")
-    public NonceTO applyForNonce(@Context HttpServletRequest request, @QueryParam("instanceId") String instanceId) throws InvalidSessionRESTful {
+    public NonceTO applyForNonce(@Context HttpServletRequest request, @QueryParam("instanceId") String instanceId, @QueryParam("subjectName") String subjectName, @QueryParam("subjectId") String subjectId) throws InvalidSessionRESTful {
         SessionTO sessionTO = getSessionTO(request);
 
         if (sessionTO != null && !StringUtils.isEmpty(instanceId)) {
-            String nonce = sproutFormsService.applyForNonce(sessionTO.getUser(), instanceId);
+            String nonce = sproutFormsService.applyForNonce(sessionTO.getUser(), instanceId, subjectName, subjectId);
             if (nonce != null) return new NonceTO(nonce, instanceId);
         }
         return null;
@@ -323,46 +419,6 @@ public class ApiWSImpl extends Application implements ApiWS {
         SessionTO sessionTO = getSessionTO(request);
         if (sessionTO != null) {
             return formSubmissionService.getFormSubmission(instanceId, sessionTO.getUser());
-        }
-        return null;
-    }
-
-    @Override
-    @WebMethod(operationName="isAdmin")
-    public BooleanTO isSproutAdmin(@Context HttpServletRequest request) throws InvalidSessionRESTful {
-        SessionTO sessionTO = getSessionTO(request);
-        if (sessionTO != null) {
-            return securityService.isAdmin(sessionTO.getUser());
-        }
-        return null;
-    }
-
-    @Override
-    @WebMethod(operationName="getApplicationAuthorities")
-    public List<ApplicationAuthorityTO> getApplicationAuthorities(@Context HttpServletRequest request) throws InvalidSessionRESTful {
-        SessionTO sessionTO = getSessionTO(request);
-        if (sessionTO != null) {
-            return securityService.getApplicationAuthorities(sessionTO.getUser());
-        }
-        return null;
-    }
-
-    @Override
-    @WebMethod(operationName="getUser")
-    public UserTO getUser(@Context HttpServletRequest request, @QueryParam("cn") String cn) throws InvalidSessionRESTful {
-        SessionTO sessionTO = getSessionTO(request);
-        if (sessionTO != null) {
-            return securityService.getUser(cn);
-        }
-        return null;
-    }
-
-    @Override
-    @WebMethod(operationName="updateManager")
-    public BooleanTO updateManager(@Context HttpServletRequest request, @QueryParam("grantedAuthId") int grantedAuthId, @QueryParam("manager") Boolean managerInd) throws InvalidSessionRESTful {
-        SessionTO sessionTO = getSessionTO(request);
-        if (sessionTO != null) {
-            return securityService.updateManager(grantedAuthId, managerInd, sessionTO.getUser());
         }
         return null;
     }

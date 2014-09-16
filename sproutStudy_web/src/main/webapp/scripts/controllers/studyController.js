@@ -1,17 +1,22 @@
 'use strict';
 
 angular.module('sproutStudyApp')
-    .controller('studyController', function ($scope, $filter, studyService, patientService, formsService) {
+    .controller('studyController', function ($log, $scope, $filter, $timeout, studyService, patientService, formsService, cohortService) {
 
         $scope.patientMatches = undefined;
+        $scope.recentCohortMembers = undefined;
+        $scope.mutableForms = undefined;
+        $scope.studyInbox = undefined;
         $scope.searchEnabled = true;
+        $scope.searchReturned = false;
 
+//        $scope.query = "buster";
+        $scope.sendMessageForm = null;
         $scope.query = "";
-//        $scope.query = "5008268";
 
         $scope.patient = null;
 
-//        $scope.publicationsMaster = angular.copy(formsService.getPublications());
+        $scope.cohortAuthorizations = null;
 
         $scope.publicationKey = null;
 
@@ -22,71 +27,47 @@ angular.module('sproutStudyApp')
         $scope.provider = null;
         $scope.expirationDate = null;
 
+        $scope.openingForm = false;
+
         $scope.viewName = "patient";
+
+        $scope.tempId = null;
+
+        $scope.addSubjectInd = false;
+        $scope.demographicForm = false;
+        $scope.demographicFormContent = null;
 
         $scope.minDeliveryDate = new Date();
 
-        $scope.cohort = null;
+        $scope.message = null;
+
+        $scope.messageText = null;
+        $scope.messageTo = null;
+
+        $scope.modalSmallOpts = {
+            backdropFade: true,
+            dialogFade: true,
+            dialogClass: 'modal modal-200-600'
+        };
+
+        $scope.cohort = function() {
+            return cohortService.getCohort();
+        }
+
+        $scope.member = function() {
+            return cohortService.getMember();
+        }
+
         $scope.cohorts = null;
 
         $scope.statuses = null;
 
-        $scope.panes = [
-            { id: "0", title: "Search", content:"", active: true }
-        ];
-
-        $scope.test = function() {
-            alert("test");
-        }
-
-        $scope.active = function() {
-            return $scope.panes.filter(function(pane){
-                return pane.active;
-            })[0];
+        $scope.addPaneOrig = function(title, instanceId, nonce) {
+            addPaneContent(title, instanceId, nonce);
         };
 
-        $scope.addPane = function(title, instanceId, nonce) {
-//            var id = $scope.panes.length;
-            var id = generateUUID();
-
-            console.log("guid: " + id);
-
-            $scope.panes.push({
-                id: id,
-                title: title,
-                content: '<iframe id="iframe-' + id + '" name="iframe-' + id + '" src="/prompt/?instanceId=' + instanceId + '&nonce=' + nonce + '&debug=true" class="appFrame" />',
-                active: true
-            });
-        };
-
-//        $scope.closePane = function (pane) {
-//            console.log("close pane: " + pane.id);
-//            pane.active = false;
-//            $scope.panes[0].active = true;
-////            $scope.panes.splice($scope.panes.indexOf(pane), 1);
-//            $scope.panes = $filter('filter')($scope.panes, {id: '!'+pane.id});
-//        };
-
-        $scope.closePane = function () {
-
-            var pane = $scope.active();
-
-            console.log("close pane: " + pane.id);
-            pane.active = false;
-            $scope.panes[0].active = true;
-//            $scope.panes.splice($scope.panes.indexOf(pane), 1);
-
-//            $scope.panes = $filter($scope.panes, {id: pane.id})
-            $scope.panes = $filter('filter')($scope.panes, {id: '!'+pane.id});
-//            $scope.panes = $filter('filter')($scope.panes, { id: pane.id}, function(paneItem, pane){
-//                return (paneItem.id !== pane.id);
-//            });
-
-
-
-
-//            mycollection = $filter('filter')(myCollection, { id: theId }, function (obj, test) {
-//                return obj !== test;
+        $scope.addPaneForm = function(form, nonce) {
+            addPaneContentForm(form, nonce);
         };
 
         $scope.formFilter = function (item){
@@ -98,7 +79,6 @@ angular.module('sproutStudyApp')
 
         $scope.onFilterByStatus = function(status) {
 //            console.log("filtering by status: " + status);
-
             if (status !== undefined) {
                 $scope.status = status;
             } else {
@@ -106,49 +86,146 @@ angular.module('sproutStudyApp')
             }
         }
 
-        $scope.getCohortAuthorizations = function() {
-            studyService.getCohortAuthorizations({}, function(data) {
+        $scope.getAuthorizedCohorts = function() {
+            studyService.getAuthorizedCohorts({}, function(data) {
                 $scope.cohorts = data;
             });
         }
 
-        studyService.getCohortAuthorizations({}, function(data) {
+        $scope.getCohortAuthorizations = function() {
+            studyService.getCohortAuthorizations({}, function(data) {
+                $scope.cohortAuthorizations = data;
+            });
+        }
+
+        studyService.getAuthorizedCohorts({}, function(data) {
             $scope.cohorts = data;
         });
 
         studyService.getLastSelectedCohort({}, function(data) {
-           $scope.cohort = data;
+            cohortService.setCohort(data);
+            $scope.getCohortAuthorizations();
         });
+
+        $scope.onTest = function() {
+            $scope.searchReturned = true;
+
+        }
 
         $scope.findCohortMember = function() {
             $scope.patientMatches = undefined;
-            studyService.findCohortMember({cohortQueryURL: $scope.cohort.cohortQueryURL ,query: $scope.query}, function(data) {
+            $scope.searchReturned = true;
+            studyService.findCohortMember({cohortQueryURL: cohortService.getCohort().cohortQueryURL ,query: $scope.query}, function(data) {
                 $scope.patientMatches = data;
+            });
+        }
+
+        $scope.getRecentCohortMembers = function() {
+            $scope.recentCohortMembers = undefined;
+            studyService.getRecentCohortMembers({}, function(data) {
+                $scope.recentCohortMembers = data;
 //                console.log("data: " + data.length);
             });
         }
 
-        $scope.getSubjectInbox = function() {
-            $scope.inbox = 1;
-            patientService.getSproutInbox({id: $scope.subject.id, allInd: true}, function(data) {
-                $scope.inbox = data;
+        $scope.getMutableForms = function() {
+            $scope.mutableForms = undefined;
+            studyService.getMutableForms({}, function(data) {
+                $scope.mutableForms = data;
+            });
+        }
 
-                $scope.statuses = new Array();
+        $scope.getStudyInbox = function() {
+            $scope.studyInbox = undefined;
+            studyService.getStudyInbox({}, function(data) {
+                $scope.studyInbox = data;
+            });
+        }
 
-                for (var i = 0; i < data.length; i++) {
-                    var includeInd = true;
-                    if ($scope.statuses !== undefined && $scope.statuses.length > 0) {
-                        for (var i2=0;i2<$scope.statuses.length;i2++) {
-                            if ($scope.statuses[i2] == data[i].inboxStatus) {
-                                includeInd = false;
-                            }
-                        }
+        $scope.getStudyInbox();
+        $scope.getRecentCohortMembers();
+        $scope.getMutableForms();
+
+        $scope.setNewSubject = function(id, instanceId) {
+            studyService.findCohortMember({cohortQueryURL: cohortService.getCohort().cohortQueryURL, query: id}, function(data) {
+
+                console.log("setNewSubject.id: " + id);
+                console.log("setNewSubject.instanceId: " + instanceId);
+
+                $scope.patientMatches = data;
+                $scope.searchReturned = true;
+//                $scope.$apply();
+                if ($scope.patientMatches.length == 1) {
+                    $scope.subject = $scope.patientMatches[0];
+
+                    if ($scope.subject != null) {
+
+
+                        var formObject = $scope.newFormConstructor(instanceId, "New Subject", $scope.subject.fullName, $scope.subject.firstName, $scope.subject.lastName, $scope.subject.id);
+
+                        $scope.onComposeMessage(formObject);
+
+
+
+                        cohortService.setMember($scope.subject);
+
+                        var params = [{identity: $scope.subject.id + "@mgh"}, {identity: $scope.tempId + "@SPROUT_STUDY_TEMP_ID"}];
+
+                        $scope.getSubjectInbox(params);
                     }
-
-                    if (includeInd) $scope.statuses.push(data[i].inboxStatus);
+                    $scope.searchEnabled = false;
+                    $scope.patientMatches = undefined;
+                } else {
+                    $scope.searchEnabled = true;
+                    $scope.searchReturned = false;
+//                    $scope.getRecentCohortMembers();
+                    $scope.patientMatches = undefined;
+                    cohortService.clearMember();
                 }
+
 //                console.log("data: " + data.length);
             });
+        };
+
+        $scope.onDeleteStudyInboxForm = function(message) {
+            studyService.deleteInboxMessage({id: message.id}, function(data) {
+                message.status = data.status;
+            });
+
+        };
+
+        $scope.getSubjectInbox = function(params) {
+            $scope.addSubjectInd = false;
+            $scope.demographicFormContent = null;
+            $scope.inbox = 1;
+            if ($scope.subject != null) {
+                cohortService.setMember($scope.subject);
+                if (params == null || params == '') {
+                    params = {identity: $scope.subject.id + "@mgh", allInd: true};
+                }
+                patientService.getSproutInbox(params, function(data) {
+                    $scope.inbox = data;
+
+                    $scope.statuses = new Array();
+
+                    for (var i = 0; i < data.length; i++) {
+                        var includeInd = true;
+                        if ($scope.statuses !== undefined && $scope.statuses.length > 0) {
+                            for (var i2=0;i2<$scope.statuses.length;i2++) {
+                                if ($scope.statuses[i2] == data[i].inboxStatus) {
+                                    includeInd = false;
+                                }
+                            }
+                        }
+
+                        if (includeInd) $scope.statuses.push(data[i].inboxStatus);
+                    }
+                    $scope.getRecentCohortMembers();
+//                console.log("data: " + data.length);
+                });
+            } else {
+                cohortService.clearMember();
+            }
         }
 
         $scope.onDeliverForm = function(subject, form) {
@@ -166,12 +243,26 @@ angular.module('sproutStudyApp')
 //                } catch (e) {}
 //            }
 
-            formsService.deliverForm({mrn: subject.id, publicationKey: form.publicationKey, provider: null, expirationDate: null}, function(data) {
+            formsService.deliverForm({schema: "mgh", id: subject.id, publicationKey: form.publicationKey, provider: null, expirationDate: null}, function(data) {
                 console.log("data.instanceId: " + data.instanceId);
                 console.log("data.status: " + data.status);
                 if (data.instanceId != null) {
                     $scope.getSubjectInbox();
-                    $scope.applyForNonce(data.instanceId);
+
+                    var instanceId = data.instanceId;
+                    var formObject = $scope.newFormConstructor(instanceId, form.name, subject.fullName, subject.firstName, subject.lastName, subject.id);
+
+                    formsService.applyForNonce({instanceId: instanceId, subjectName: subject.fullName, subjectId: subject.id}, function(dataCallback) {
+                        var nonce = dataCallback.nonce;
+//                        var tabTitle = $scope.subject.prettyName + " (" + $scope.subject.id + ") - " + formObject.title;
+
+                        $scope.addPaneForm(formObject, nonce);
+                        setTimeout(sizeAppFrame, 1000);
+                    });
+
+
+//                    $scope.onOpenFormByInstanceId(data.instanceId, form.name);
+
                     $scope.deliverFormModal = false;
                     $scope.deliveringInd = false;
                 } else {
@@ -182,10 +273,46 @@ angular.module('sproutStudyApp')
 
         };
 
-        $scope.applyForNonce = function(instanceId) {
-            formsService.applyForNonce({instanceId: instanceId}, function(data) {
+        $scope.newFormConstructor = function(instanceId, title, fullName, firstName, lastName, subjectId) {
+            return {instanceId: instanceId, title: title, identityFullName: fullName, identityFirstName: firstName, identityLastName: lastName, identityPrimaryId: subjectId};
+        }
+
+        $scope.addSubject = function() {
+            $log.log("addSubject....");
+
+            $scope.deliveringInd = true;
+            $scope.deliveryError = null;
+
+            var form = null;
+
+            $.each(cohortService.getCohort().forms, function(index, tmpForm) {
+                if (tmpForm.demographic) form = tmpForm;
+            });
+
+//            $log.log("demographicForm: " + demographicForm.name);
+
+            $scope.tempId = generateUUID();
+
+            formsService.deliverForm({schema: "SPROUT_STUDY_TEMP_ID", id: $scope.tempId, publicationKey: form.publicationKey, provider: null, expirationDate: null}, function(data) {
+                console.log("data.instanceId: " + data.instanceId);
+                console.log("data.status: " + data.status);
+                if (data.instanceId != null) {
+                    $scope.onDemographicFormByInstanceId(data.instanceId);
+                    $scope.deliverFormModal = false;
+                    $scope.deliveringInd = false;
+                    $scope.addSubjectInd = true;
+                } else {
+                    $scope.deliveringInd = 'error';
+                    $scope.deliveryError = data.message;
+                }
+            });
+        }
+
+
+        $scope.applyForNonce = function(instanceId, subjectName, subjectId) {
+            formsService.applyForNonce({instanceId: instanceId, subjectName: subjectName, subjectId: subjectId}, function(data) {
                 var nonce = data.nonce;
-                console.log("nonce: " + nonce);
+//                console.log("nonce: " + nonce);
             });
         };
 
@@ -208,13 +335,38 @@ angular.module('sproutStudyApp')
             });
         }
 
+        $scope.onComposeMessage = function(form) {
+//            $log.log("onComposeMessage.instanceId: " + form.instanceId)
+//            $log.log("onComposeMessage.formTitle: " + form.title)
+
+            $scope.sendMessageForm = form;
+            $scope.sendMessageModal = true;
+//            $scope.$apply();
+        }
+        $scope.onTest = function(instanceId) {
+
+            $log.log("onTest: " + instanceId)
+
+            $scope.onComposeMessage(instanceId);
+        }
+
+        $scope.onCloseSendMessageModal = function() {
+            $scope.sendMessageModal = false;
+        }
+
+        $scope.onSendMessage = function() {
+
+            $.each($scope.messageTo, function(index, recipient) {
+                var username = recipient.user.username;
+                studyService.sendMessage({to: username, form: JSON.stringify($scope.sendMessageForm), message: $scope.messageText, instanceId: $scope.sendMessageForm.instanceId, formTitle: $scope.sendMessageForm.title, subjectId: cohortService.getMember().id, subjectName: cohortService.getMember().fullName}, function(data) {
+                    $scope.sendMessageModal = false;
+                });
+            });
+        }
+
         $scope.openDeliverFormModal = function() {
             $scope.deliveringInd = false;
             $scope.deliverFormModal = true;
-
-//            $scope.publications = angular.copy($scope.publicationsMaster);
-
-
         }
 
         $scope.demoShowPubs = function() {
@@ -227,6 +379,7 @@ angular.module('sproutStudyApp')
 
         $scope.onPatientLookup = function () {
             $scope.patientMatches = undefined;
+            $scope.searchReturned = false;
             $scope.criteria = {};
             $scope.criteria["lastname"] = $scope.query;
             $scope.page = 0;
@@ -234,17 +387,19 @@ angular.module('sproutStudyApp')
         };
 
         $scope.chooseCohort = function(cohort) {
-            $scope.cohort = cohort;
-            $scope.patientMatches = undefined;
-            $scope.searchEnabled = true;
-            studyService.setSessionCohort({cohortId: cohort.id})
+            cohortService.setCohort(cohort);
+            $scope.enableSearch();
+            studyService.setSessionCohort({cohortId: cohort.id}, function(data) {
+                $scope.getCohortAuthorizations();
+            })
         }
 
         $scope.changeCohort = function() {
-            $scope.cohort = null;
+            cohortService.setCohort(null);
         }
 
         $scope.chooseCohortMember = function(subject) {
+            cohortService.setMember(subject);
             $scope.subject = subject;
             $scope.patientMatches = undefined;
             $scope.searchEnabled = false;
@@ -252,10 +407,14 @@ angular.module('sproutStudyApp')
         }
 
         $scope.enableSearch = function() {
+            cohortService.clearMember();
             $scope.searchEnabled = true;
+            $scope.searchReturned = false;
+            $scope.addSubjectInd = false;
             $scope.patient = null;
             $scope.ihsMrn = false;
             $scope.inbox = undefined;
+            clearAllFormTabs();
         }
 
         $scope.onNextPage = function() {
@@ -277,13 +436,128 @@ angular.module('sproutStudyApp')
 
         $scope.onOpenForm = function (form) {
 
-            console.log("form: " + form);
+            $scope.openingForm = true;
 
-            formsService.applyForNonce({instanceId: form.instanceId}, function(data) {
+            var subject = $scope.subject;
+//            console.log("form: " + form);
+
+            formsService.applyForNonce({instanceId: form.instanceId, subjectName: subject.fullName, subjectId: subject.id}, function(data) {
                 var nonce = data.nonce;
-                var tabTitle = $scope.subject.prettyName + " (" + $scope.subject.id + ") - " + form.title;
+//                var tabTitle = $scope.subject.prettyName + " (" + $scope.subject.id + ") - " + form.title;
+//                var tabTitle = form.title;
 
-                $scope.addPane(tabTitle, form.instanceId, nonce);
+                if ($scope.subject != null) form = $scope.addSubjectToForm(form);
+
+                $scope.addPaneForm(form, nonce);
+                setTimeout(sizeAppFrame, 1000);
+                $scope.openingForm = false;
+            });
+        };
+        $scope.onOpenMutableForm = function (form) {
+
+            $scope.openingForm = true;
+
+            var subject = $scope.getSubjectFromForm(form);
+
+            cohortService.setMember(subject);
+            $scope.subject = subject;
+            $scope.patientMatches = undefined;
+            $scope.searchEnabled = false;
+            $scope.getSubjectInbox();
+
+            formsService.applyForNonce({instanceId: form.instanceId, subjectName: subject.fullName, subjectId: subject.id}, function(data) {
+                var nonce = data.nonce;
+//                var tabTitle = $scope.subject.prettyName + " (" + $scope.subject.id + ") - " + form.title;
+//                var tabTitle = form.title;
+
+                if ($scope.subject != null) form = $scope.addSubjectToForm(form);
+
+                $scope.addPaneForm(form, nonce);
+                setTimeout(sizeAppFrame, 1000);
+                $scope.openingForm = false;
+            });
+        };
+
+        $scope.addSubjectToForm = function(form) {
+            form.identityPrimarySchema = '';
+            form.identityPrimaryId = $scope.subject.id;
+            form.identityFirstName = $scope.subject.firstName;
+            form.identityLastName = $scope.subject.lastName;
+            form.identityFullName = $scope.subject.fullName;
+            form.identityPrettyName = $scope.subject.fullName;
+            return form;
+        };
+
+        $scope.onOpenMessage = function(message) {
+            studyService.markInboxMessageAsRead({id: message.id}, function(data) {
+                message.status = data.status;
+            });
+            $scope.message = message;
+        };
+
+        $scope.closeMessage = function() {
+            $scope.message = null;
+        }
+
+        $scope.onOpenStudyInboxForm = function (message) {
+
+            studyService.markInboxMessageAsRead({id: message.id}, function(data) {
+                message.status = data.status;
+            });
+
+            console.log("onOpenStudyInboxForm");
+            $scope.openingForm = true;
+
+            var form = jQuery.parseJSON(message.form);
+
+            $log.log("onOpenStudyInboxForm.form: " + form);
+            $log.log("onOpenStudyInboxForm.form.title: " + form.title);
+
+            var subject = $scope.getSubjectFromForm(form);
+
+            cohortService.setMember(subject);
+            $scope.subject = subject;
+            $scope.patientMatches = undefined;
+            $scope.searchEnabled = false;
+            $scope.getSubjectInbox();
+
+            formsService.applyForNonce({instanceId: form.instanceId, subjectName: subject.fullName, subjectId: subject.id}, function(data) {
+                var nonce = data.nonce;
+                var tabTitle = form.title;
+
+                $scope.addPaneForm(form, nonce);
+                setTimeout(sizeAppFrame, 1000);
+                $scope.openingForm = false;
+            });
+        };
+
+        $scope.getSubjectFromForm = function(form) {
+            return {fullName: form.identityFullName, prettyName: form.identityFullName, firstName: form.identityFirstName, lastName: form.identityLastName, id: form.identityPrimaryId};
+        }
+
+//        $scope.onOpenFormByInstanceId = function (instanceId, title) {
+//
+////            console.log("form: " + form);
+//
+//            formsService.applyForNonce({instanceId: instanceId}, function(data) {
+//                var nonce = data.nonce;
+//                var tabTitle = $scope.subject.prettyName + " (" + $scope.subject.id + ") - " + title;
+//
+//                $scope.addPane(tabTitle, instanceId, nonce);
+//                setTimeout(sizeAppFrame, 1000);
+//            });
+//        };
+        $scope.onDemographicFormByInstanceId = function (instanceId) {
+
+            formsService.applyForNonce({instanceId: instanceId, subjectName: "New Subject", subjectId: "Unknown"}, function(data) {
+                var nonce = data.nonce;
+                var tabTitle = {fullName: "New Subject", id: 0};
+                cohortService.setMember(tabTitle);
+
+                var content = '<iframe id="iframe-' + instanceId + '" name="iframe-' + instanceId + '" instanceId="' + instanceId + '" src="/prompt/?instanceId=' + instanceId + '&nonce=' + nonce + '&debug=false" class="appFrame iframe-demographic-form-content" />';
+                $scope.demographicFormContent = content;
+
+//                $scope.addPane(tabTitle, instanceId, nonce);
                 setTimeout(sizeAppFrame, 1000);
             });
         };
@@ -309,5 +583,13 @@ angular.module('sproutStudyApp')
         // Fixme: remove me...
 //        $scope.patient = {mrn: "5008268"};
 //        $scope.choosePatient($scope.patient);
+
+        $scope.testSendMessageModal = function() {
+            $scope.messageText = null;
+            $scope.messageTo = null;
+            $scope.sendMessageModal = true;
+
+        }
+
 
     });
