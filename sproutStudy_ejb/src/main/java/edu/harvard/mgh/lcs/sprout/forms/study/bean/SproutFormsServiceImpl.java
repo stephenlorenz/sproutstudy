@@ -1,10 +1,15 @@
 package edu.harvard.mgh.lcs.sprout.forms.study.bean;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.harvard.mgh.lcs.sprout.forms.core.ejb.bean.FormsWebServiceImplService;
 import edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.*;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.*;
 import edu.harvard.mgh.lcs.sprout.forms.study.beanws.Result;
+import edu.harvard.mgh.lcs.sprout.forms.study.to.BooleanTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.CohortTO;
+import edu.harvard.mgh.lcs.sprout.forms.study.to.SproutStudyPayloadTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.util.DateUtils;
 import edu.harvard.mgh.lcs.sprout.forms.study.util.StringUtils;
 import edu.harvard.mgh.lcs.sprout.study.model.formSubmission.AssertionEntity;
@@ -23,6 +28,8 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.xml.datatype.XMLGregorianCalendar;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 
 @Stateless
@@ -34,9 +41,6 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
     private EntityManager entityManager;
 
     @EJB
-    private FormSubmissionService formSubmissionService;
-
-    @EJB
     private StudyService studyService;
 
     @EJB
@@ -46,18 +50,16 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
 
     @PostConstruct
     private void init() {
+        FormsWebServiceImplService formsWebServiceImplService = null;
 
-//        BindingProvider port = null;
-//        //Set timeout until a connection is established
-//        ((BindingProvider)port).getRequestContext().put("javax.xml.ws.client.connectionTimeout", "12000");
-//
-//        //Set timeout until the response is received
-//        ((BindingProvider) port).getRequestContext().put("javax.xml.ws.client.receiveTimeout", "6000");
+        if (StringUtils.isFull(System.getProperty("edu.harvard.mgh.lcs.sprout.forms.service.url"))) {
+            try {
+                URL url = new URL(System.getProperty("edu.harvard.mgh.lcs.sprout.forms.service.url"));
+                formsWebServiceImplService = new FormsWebServiceImplService(url);
+            } catch (MalformedURLException e) {}
+        }
 
-
-        FormsWebServiceImplService formsWebServiceImplService = new FormsWebServiceImplService();
-//        Client client = ClientProxy.getClient(formsWebServiceImplService);
-
+        if (formsWebServiceImplService == null) formsWebServiceImplService = new FormsWebServiceImplService();
 
         formsWebService = formsWebServiceImplService.getFormsAPIWSPort();
     }
@@ -181,9 +183,8 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
     @Override
     public List<FormInstanceTO> getSproutInbox(String username, CohortTO cohortTO, String[] identityArray, Set<String> publicationKeys) {
 
-
-        System.out.println("SproutFormsServiceImpl.getSproutInbox");
-        System.out.println("identityArray = [" + identityArray + "], publicationKeys = [" + publicationKeys + "]");
+//        System.out.println("SproutFormsServiceImpl.getSproutInbox");
+//        System.out.println("identityArray = [" + identityArray + "], publicationKeys = [" + publicationKeys + "]");
 
         if (publicationKeys != null && publicationKeys.size() > 0) {
 
@@ -199,7 +200,6 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
                 if (!StringUtils.isEmpty(orgAuthKey)) {
 
                     List<IdentityTO> identities = parseIdentityArray(identityArray);
-
 
                     String cohortPrimaryIdentitySchema = getCohortPrimaryIdentitySchema(cohortTO);
                     String cohortPrimaryIdentityId = null;
@@ -223,13 +223,13 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
                             List<FormInstanceTO> formInstanceTOList = formDeliveryTO.getFormInstances();
                             if (formInstanceTOList != null && formInstanceTOList.size() > 0) {
                                 for (FormInstanceTO formInstanceTO : formInstanceTOList) {
-                                    if (!StringUtils.isEmpty(formInstanceTO.getDeliveryKey())) {
-                                        SproutStudyConstantService.SubmissionStatus submissionStatus = formSubmissionService.getSubmissionStatus(formInstanceTO.getPublicationKey(), formInstanceTO.getInstanceId(), formInstanceTO.getDeliveryKey());
-                                        if (submissionStatus != null) {
-                                            formInstanceTO.setAdminStatus(submissionStatus.toString());
-                                        }
-                                    }
-                                    forms.add(formInstanceTO);
+//                                    if (!StringUtils.isEmpty(formInstanceTO.getDeliveryKey())) {
+//                                        SproutStudyConstantService.SubmissionStatus submissionStatus = formSubmissionService.getSubmissionStatus(formInstanceTO.getPublicationKey(), formInstanceTO.getInstanceId(), formInstanceTO.getDeliveryKey());
+//                                        if (submissionStatus != null) {
+//                                            formInstanceTO.setAdminStatus(submissionStatus.toString());
+//                                        }
+//                                    }
+                                    if (!formInstanceTO.getInboxStatus().value().equalsIgnoreCase("REVOKED")) forms.add(formInstanceTO);
                                 }
                             }
                             return forms;
@@ -239,6 +239,27 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
             }
         }
         return null;
+    }
+
+    @Override
+    public BooleanTO deleteForm(String instanceId) {
+
+        auditService.log(AuditType.REVOKE_FORM, AuditVerbosity.INFO, "Revoking sprout form instance", String.format("Revoking form instance, %s, from sprout inbox.", instanceId));
+
+        if (formsWebService == null) init();
+
+        if (formsWebService != null) {
+
+            String orgAuthKey = System.getProperty("edu.harvard.mgh.lcs.ihealthspace.module.forms.sprout.authToken");
+
+            if (!StringUtils.isEmpty(orgAuthKey)) {
+                FormDeliveryStatus formDeliveryStatus = formsWebService.revokeFormDeliveryLite(orgAuthKey, instanceId);
+                if (formDeliveryStatus != null && formDeliveryStatus.getStatus().value().equalsIgnoreCase("REVOKED")) {
+                    return new BooleanTO(true);
+                }
+            }
+        }
+        return new BooleanTO(false);
     }
 
     @Override
@@ -267,12 +288,12 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
                         List<FormInstanceTO> formInstanceTOList = formDeliveryTO.getFormInstances();
                         if (formInstanceTOList != null && formInstanceTOList.size() > 0) {
                             for (FormInstanceTO formInstanceTO : formInstanceTOList) {
-                                if (!StringUtils.isEmpty(formInstanceTO.getDeliveryKey())) {
-                                    SproutStudyConstantService.SubmissionStatus submissionStatus = formSubmissionService.getSubmissionStatus(formInstanceTO.getPublicationKey(), formInstanceTO.getInstanceId(), formInstanceTO.getDeliveryKey());
-                                    if (submissionStatus != null) {
-                                        formInstanceTO.setAdminStatus(submissionStatus.toString());
-                                    }
-                                }
+//                                if (!StringUtils.isEmpty(formInstanceTO.getDeliveryKey())) {
+//                                    SproutStudyConstantService.SubmissionStatus submissionStatus = formSubmissionService.getSubmissionStatus(formInstanceTO.getPublicationKey(), formInstanceTO.getInstanceId(), formInstanceTO.getDeliveryKey());
+//                                    if (submissionStatus != null) {
+//                                        formInstanceTO.setAdminStatus(submissionStatus.toString());
+//                                    }
+//                                }
 
                                 if (formInstanceTO.getIdentities() != null && formInstanceTO.getIdentities().size() > 0) {
                                     StringBuilder subjectIds = new StringBuilder();
@@ -300,10 +321,10 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
                                                 }
 
                                             }
+                                            forms.add(formInstanceTO);
                                         }
                                     }
                                 }
-                                forms.add(formInstanceTO);
                             }
                         }
                         return forms;
@@ -351,14 +372,8 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
     private List<IdentityTO> parseIdentityArray(String[] identityArray) {
         List<IdentityTO> identities = new ArrayList<IdentityTO>();
 
-        System.out.println("SproutFormsServiceImpl.parseIdentityArray");
-        System.out.println("identityArray = [" + identityArray.length + "]");
-
         if (identityArray != null && identityArray.length > 0) {
             for (String identity : identityArray) {
-
-                System.out.println("identity = " + identity);
-
                 if (identity.indexOf("@") > -1) {
                     String[] identityParts = identity.split("@");
                     if (identityParts.length == 2) {
@@ -388,7 +403,18 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
                     identityMrn.setScheme("partnerscn");
                     identityMrn.setId(user);
                     identities.add(identityMrn);
-                    return formsWebService.applyForNonce(orgAuthKey, identities, subjectName, subjectId, instanceId);
+
+                    SproutStudyPayloadTO sproutStudyPayloadTO = new SproutStudyPayloadTO(subjectId, subjectName);
+
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    String sproutStudyPayloadTOJSON = null;
+                    try {
+                        sproutStudyPayloadTOJSON = objectMapper.writeValueAsString(sproutStudyPayloadTO);
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                    }
+
+                    return formsWebService.applyForNonce(orgAuthKey, identities, subjectName, subjectId, instanceId, null, sproutStudyPayloadTOJSON);
                 }
             }
         }

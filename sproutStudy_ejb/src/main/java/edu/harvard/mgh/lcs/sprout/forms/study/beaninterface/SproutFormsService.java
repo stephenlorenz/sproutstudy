@@ -3,6 +3,7 @@ package edu.harvard.mgh.lcs.sprout.forms.study.beaninterface;
 import edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.FormDeliveryStatus;
 import edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.FormInstanceTO;
 import edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.PublicationTO;
+import edu.harvard.mgh.lcs.sprout.forms.study.to.BooleanTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.CohortTO;
 
 import java.util.List;
@@ -19,4 +20,5 @@ public interface SproutFormsService {
     public abstract List<FormInstanceTO> getSproutInbox(String username, CohortTO cohortTO, String[] identityArray, Set<String> publicationKeys);
     public abstract String applyForNonce(String user, String instanceId, String subjectName, String subjectId);
     public abstract List<FormInstanceTO> getMutableForms(String username, CohortTO cohortTO, Set<String> publicationKeys);
+    public BooleanTO deleteForm(String instanceId);
 }

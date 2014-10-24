@@ -1,0 +1,30 @@
+<div>
+    <legend>Account Settings</legend>
+
+    <table class="table table-condensed table-striped" >
+        <thead class="inbox">
+        <tr>
+            <th>Setting</th>
+            <th>Value</th>
+            <th style="text-align: center; width: 60px;">Delete</th>
+            <th style="text-align: center; width: 60px;">View<br/>Message</th>
+            <th style="text-align: center; width: 60px;">Open<br/>Form</th>
+        </tr>
+        </thead>
+        <tr class="inbox-row" ng-repeat='preference in user.preferences | filter: { userEditable: true }' >
+            <td>{{preference.description}}</a></td>
+            <td>{{preference.value}}</a></td>
+            <td style="text-align: center; width: 80px;">
+                <button class="btn btn-mini btn-warning" ng-click="onDeleteStudyInboxForm(message)"><i class="icon-trash icon-white" style="margin-right: 0px;"></i></button>
+            </td>
+            <td style="text-align: center; width: 80px;">
+                <button class="btn btn-info btn-mini" ng-click="onOpenMessage(message)"><i class="icon-envelope icon-white" style="margin-right: 0px;"></i></button>
+            </td>
+            <td style="text-align: center; width: 80px;">
+                <button class="btn btn-info btn-mini" ng-click="onOpenStudyInboxForm(message)"><i class="icon-play icon-white" style="margin-right: 0px;"></i></button>
+            </td>
+        </tr>
+    </table>
+
+
+</div>

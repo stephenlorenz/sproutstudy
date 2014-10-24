@@ -12,6 +12,8 @@ angular.module('sproutStudyApp')
             cohort = cohortTmp;
         };
         cohortService.getCohort = function () {
+            if (cohort != null && cohort.length == 0) return null;
+
             return cohort;
         };
         cohortService.getMember = function () {
@@ -19,7 +21,7 @@ angular.module('sproutStudyApp')
         };
         cohortService.setMember = function (memberTmp) {
 
-            console.log("cohortService.setMember: " + memberTmp.lastName);
+//            console.log("cohortService.setMember: " + memberTmp.lastName);
 
             if (memberTmp == null || memberTmp.length == 0) {
                 member = memberDefault;

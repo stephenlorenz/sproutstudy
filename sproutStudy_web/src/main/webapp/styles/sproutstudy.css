@@ -9,6 +9,9 @@ input.date {width: 90px;}
 
 label.control-label {font-weight: bold;}
 
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak, .ng-hide {
+    display: none !important;
+}
 .btn-fixed-width {
     width: 150px;
 }
@@ -31,11 +34,19 @@ div.modal-200-600 {
     margin-left: -400px;
 }
 
+div.modal-timeout {
+    width: 800px;
+    min-height: 150px;
+    margin-left: -400px;
+}
+
 div.modal-body {
     min-height: 440px;
 }
 
 div.modal-body-short {
+    /*padding: 50px 18px 0px 18px;*/
+    padding: 18px;
     min-height: 100px;
 }
 

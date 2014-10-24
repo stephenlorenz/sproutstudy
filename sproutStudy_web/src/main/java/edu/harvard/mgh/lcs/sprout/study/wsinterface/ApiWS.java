@@ -64,16 +64,6 @@ public interface ApiWS {
     public BooleanTO setSessionCohort(@Context HttpServletRequest request, @QueryParam("cohortId") Integer cohortId) throws InvalidSessionRESTful;
 
     @GET
-    @Path("/secure/pushForm")
-    @Produces(MediaType.APPLICATION_JSON)
-    public StringTO pushForm(@Context HttpServletRequest request, @QueryParam("mrn") String mrn, @QueryParam("instanceId") String instanceId) throws InvalidSessionRESTful;
-
-    @GET
-    @Path("/secure/returnToSender")
-    @Produces(MediaType.APPLICATION_JSON)
-    public StringTO returnToSender(@Context HttpServletRequest request, @QueryParam("mrn") String mrn, @QueryParam("instanceId") String instanceId) throws InvalidSessionRESTful;
-
-    @GET
     @Path("/secure/getPublications")
     @Produces(MediaType.APPLICATION_JSON)
     public List<PublicationTO> getPublications(@Context HttpServletRequest request) throws InvalidSessionRESTful;
@@ -87,21 +77,6 @@ public interface ApiWS {
     @Path("/secure/syncSproutPatientIdentifiers")
     @Produces(MediaType.APPLICATION_JSON)
     public BooleanTO syncSproutPatientIdentifiers(@Context HttpServletRequest request, @QueryParam("instanceId") String instanceId, @QueryParam("verifiedIdentifier") String[] verifiedIdentifiers, @QueryParam("matchedIdentifier") String[] matchedIdentifiers, @QueryParam("assertion") String[] matchedAssertions) throws InvalidSessionRESTful;
-    
-    @GET
-    @Path("/secure/syncFormSubmission")
-    @Produces(MediaType.APPLICATION_JSON)
-    public BooleanTO syncFormSubmission(@Context HttpServletRequest request, @QueryParam("instanceId") String instanceId, @QueryParam("verifiedIdentifier") String[] verifiedIdentifiers, @QueryParam("matchedIdentifier") String[] matchedIdentifiers, @QueryParam("assertion") String[] matchedAssertions) throws InvalidSessionRESTful;
-
-    @GET
-    @Path("/secure/appendProviderAsParameter")
-    @Produces(MediaType.APPLICATION_JSON)
-    public BooleanTO appendProviderAsParameter(@Context HttpServletRequest request, @QueryParam("instanceId") String instanceId, @QueryParam("pun") String partnersUsername) throws InvalidSessionRESTful;
-
-    @GET
-    @Path("/secure/getFormSubmission")
-    @Produces(MediaType.APPLICATION_JSON)
-    public FormSubmissionTO getFormSubmission(@Context HttpServletRequest request, @QueryParam("instanceId") String instanceId) throws InvalidSessionRESTful;
 
     @GET
     @Path("/secure/deliverForm")
@@ -117,16 +92,6 @@ public interface ApiWS {
     @Path("/secure/getMutableForms")
     @Produces(MediaType.APPLICATION_JSON)
     public List<FormInstanceTO> getMutableForms(@Context HttpServletRequest request) throws InvalidSessionRESTful;
-
-    @GET
-    @Path("/secure/isPatientVerified")
-    @Produces(MediaType.APPLICATION_JSON)
-    public BooleanTO isPatientVerified(@Context HttpServletRequest request, @QueryParam("mrn") String mrn) throws InvalidSessionRESTful;
-
-    @GET
-    @Path("/secure/isPatientAssertive")
-    @Produces(MediaType.APPLICATION_JSON)
-    public BooleanTO isPatientAssertive(@Context HttpServletRequest request, @QueryParam("mrn") String mrn) throws InvalidSessionRESTful;
 
     @GET
     @Path("/secure/getRecentCohortMembers")
@@ -162,4 +127,19 @@ public interface ApiWS {
     @Path("/secure/changeInboxMessageStatus")
     @Produces(MediaType.APPLICATION_JSON)
     public StudyInboxTO changeInboxMessageStatus(@Context HttpServletRequest request, @QueryParam("id") int id, @QueryParam("status") String status) throws InvalidSessionRESTful;
+
+    @GET
+    @Path("/secure/deleteSubmission")
+    @Produces(MediaType.APPLICATION_JSON)
+    public BooleanTO deleteSubmission(@Context HttpServletRequest request, @QueryParam("instanceId") String instanceId) throws InvalidSessionRESTful;
+
+    @GET
+    @Path("/secure/getUser")
+    @Produces(MediaType.APPLICATION_JSON)
+    public UserTO getUserTO(@Context HttpServletRequest request) throws InvalidSessionRESTful;
+
+    @GET
+    @Path("/secure/getSession")
+    @Produces(MediaType.APPLICATION_JSON)
+    public SessionTO getSessionTO(@Context HttpServletRequest request) throws InvalidSessionRESTful;
 }

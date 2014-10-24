@@ -15,6 +15,7 @@ public class UserPreferenceTO implements Serializable {
     private String code;
     private String description;
     private String value;
+    private boolean userEditable;
 
     public int getId() {
         return id;
@@ -46,5 +47,13 @@ public class UserPreferenceTO implements Serializable {
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    public boolean isUserEditable() {
+        return userEditable;
+    }
+
+    public void setUserEditable(boolean userEditable) {
+        this.userEditable = userEditable;
     }
 }

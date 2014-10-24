@@ -17,7 +17,12 @@
     <!-- build:css styles/main.css -->
     <link rel="stylesheet" href="styles/main.css">
     <!-- endbuild -->
-    
+
+    <style type="text/css">
+        [ng\:cloak], [ng-cloak], .ng-cloak {
+            display: none !important;
+        }
+    </style>
 
 	<!--[if lt IE 9]>
 		<script type="text/javascript" src="/sproutassets/scripts/html5shiv/html5shiv.js"></script>
@@ -67,14 +72,35 @@
 </script>
 
 <div class="container container-sproutstudy" ng-controller="cohortController">
-	<div class="navbar navbar-fixed-top">
+	<div class="navbar navbar-fixed-top" ng-cloak>
 		<div class="navbar-inner">
+			<ul class="nav sproutstudy-tab-container-reset" style="margin: 0px 0px 0px 0px;">
+                <li class="sproutstudy-tab-reset" ><a href="/sproutstudy" class="sproutstudy-tab-button" instance="reset"><i class="icon-home"></i></a></li>
+                <%--<li class="sproutstudy-tab-reset" ><a href="/sproutstudy" class="sproutstudy-tab-button" instance="reset"><img style="width: 20px; height: 20px; " src="/sproutstudy/images/sprout-study-60-2.png" alt="Sprout Study Logo" /></a></li>--%>
+		    </ul>
 			<ul class="nav" id="sproutstudy-tab-container">
                 <li class="sproutstudy-tab-li sproutstudy-tab-home" instance="home"><a href="#/" class="sproutstudy-tab-button" instance="home">{{member().fullName}}<span ng-show="member().id > 0"> ({{member().id}})</span></a></li>
 		    </ul>
-            <ul class="nav" style="float: right; margin-right: 0px;" ng-show="cohort() != null">
-                <li class="sproutstudy-tab-cohort"><a href="#/" ng-click="changeCohort()" class="sproutstudy-tab-button">{{cohort().name}} Cohort<i class="icon-list" style="margin-left: 10px;"></i></a></li>
+
+            <ul class="nav pull-right">
+                <li><a>{{session().firstName}}</a></li>
+                <li ng-show="cohort() != null && cohort().name.length > 0"><a>{{cohort().name}} Cohort</a></li>
+                <li class="dropdown sproutstudy-tab-cohort">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        <i class="icon-list"></i>
+                    </a>
+                    <ul class="dropdown-menu" style="min-width: 150px;">
+                        <li><a href="#/" ng-click="changeCohort()" class="sproutstudy-tab-button">Change Cohort</a></li>
+                        <li><a id="btn_logout" href="logout">Logout</a></li>
+                    <%--<li><a href="#/settings">Account Settings</a></li>--%>
+                    </ul>
+                </li>
+                <%--<li>--%>
+                    <%--<a id="btn_logout" href="logout">Logout</a>--%>
+                <%--</li>--%>
             </ul>
+
+
 		</div>
 	</div>
 
@@ -110,15 +136,19 @@
 <script src="scripts/controllers/adminController.js"></script>
 <script src="scripts/controllers/globalController.js"></script>
 <script src="scripts/controllers/cohortController.js"></script>
+<script src="scripts/controllers/settingsController.js"></script>
+<script src="scripts/filters/filters.js"></script>
 <script src="scripts/directives/forms.js"></script>
 <script src="scripts/directives/preventDefault.js"></script>
 <script src="scripts/directives/patientViewDirective.js"></script>
 <script src="scripts/models/localeModel.js"></script>
 <script src="scripts/services/appointmentsService.js"></script>
 <script src="scripts/services/cohortService.js"></script>
+<script src="scripts/services/sessionService.js"></script>
 <script src="scripts/services/enrollmentService.js"></script>
 <script src="scripts/services/providerService.js"></script>
 <script src="scripts/services/patientService.js"></script>
+<script src="scripts/services/settingsService.js"></script>
 <script src="scripts/services/adminService.js"></script>
 <script src="scripts/directives/custodialAgreementDirective.js"></script>
 <script src="scripts/directives/enrollmentLetterDirective.js"></script>
@@ -175,7 +205,7 @@
         if (jQuerySprout(".sproutstudy-tab-" + instanceId).length > 0) {
             jQuerySprout(".sproutstudy-content-" + instanceId).show();
         } else {
-            var content = '<div class="sproutstudy-content sproutstudy-content-form sproutstudy-content-' + instanceId + '" id="' + instanceId + '"><iframe id="iframe-' + instanceId + '" name="iframe-' + instanceId + '" src="/prompt/?instanceId=' + instanceId + '&nonce=' + nonce + '&debug=false" class="appFrame" /></div>';
+            var content = '<div class="sproutstudy-content sproutstudy-content-form sproutstudy-content-' + instanceId + '" id="' + instanceId + '"><iframe id="iframe-' + instanceId + '" name="iframe-' + instanceId + '" src="/prompt/?instanceId=' + instanceId + '&nonce=' + nonce + '&debug=true&showThanks=false" class="appFrame" /></div>';
             var tab = '<li class="sproutstudy-tab-li sproutstudy-tab-form sproutstudy-tab-' + instanceId + '" title="' + title + '" instance="' + instanceId + '"><a href="#/" class="sproutstudy-tab-button"  title="' + title + '" instance="' + instanceId + '">' + title + '</a></li>';
             jQuerySprout("#sproutstudy-tab-container").append(tab);
             jQuerySprout("#sproutStudyFormContent").append(content);
@@ -196,7 +226,7 @@
         if (jQuerySprout(".sproutstudy-tab-" + instanceId).length > 0) {
             jQuerySprout(".sproutstudy-content-" + instanceId).show();
         } else {
-            var content = '<div class="sproutstudy-content sproutstudy-content-form sproutstudy-content-' + instanceId + '" id="' + instanceId + '"><iframe id="iframe-' + instanceId + '" name="iframe-' + instanceId + '" src="/prompt/?instanceId=' + instanceId + '&nonce=' + nonce + '&debug=false" class="appFrame" /></div>';
+            var content = '<div class="sproutstudy-content sproutstudy-content-form sproutstudy-content-' + instanceId + '" id="' + instanceId + '"><iframe id="iframe-' + instanceId + '" name="iframe-' + instanceId + '" src="/prompt/?instanceId=' + instanceId + '&nonce=' + nonce + '&debug=true&showThanks=false" class="appFrame" /></div>';
             var tab = '<li class="sproutstudy-tab-li sproutstudy-tab-form sproutstudy-tab-' + instanceId + '" title="' + title + '" instance="' + instanceId + '"><a href="#/" class="sproutstudy-tab-button"  title="' + title + '" instance="' + instanceId + '">' + title + '</a></li>';
             jQuerySprout("#sproutstudy-tab-container").append(tab);
             jQuerySprout("#sproutStudyFormContent").append(content);
@@ -214,6 +244,8 @@
         var instanceId = jQuerySprout(".sproutstudy-tab-li.active").attr("instance");
         var form = jQuerySprout(".sproutstudy-tab-li.active").data("form");
 
+//        console.log("deletePaneContent: " + id);
+
         if (instanceId != null && instanceId != 'home') {
             var sourceTab = jQuerySprout(".sproutstudy-tab-" + instanceId);
             var targetTab = jQuerySprout(".sproutstudy-tab-" + instanceId).prev();
@@ -229,8 +261,11 @@
             angular.element(jQuerySprout("#studyControllerDiv")).scope().onComposeMessage(form);
         } else {
             // demographic form was just submitted
+            console.log("demographic form was just submitted");
             instanceId = jQuerySprout(".iframe-demographic-form-content").attr("instanceId");
 
+            console.log("deletePaneContent.id: " + id);
+            console.log("deletePaneContent.instanceId: " + instanceId);
 
             angular.element(jQuerySprout("#studyControllerDiv")).scope().setNewSubject(id, instanceId);
         }
@@ -274,7 +309,61 @@
 </script>
 
 
-    <div id="sproutStudyFormContent" />
+<script src="/sproutassets/scripts/idletimer/jquery.idletimer.js" type="text/javascript"></script>
+<script src="/sproutassets/scripts/idletimer/jquery.idletimeout.js" type="text/javascript"></script>
+<script type="text/javascript">
+    var contextPath = "<%=request.getContextPath()%>";
+    var timeoutSeconds = 600;
+
+    var keepAlive = function(app) {
+        $.idleTimer('keepAlive', {timeout: (timeoutSeconds * 1000)});
+    }
+
+    $(document).ready(function() {
+        $.idleTimeout('#modal-timeout', '#idletimeout-resume', {
+            idleAfter: timeoutSeconds,
+            pollingInterval: 60,
+            keepAliveURL: '<%=request.getContextPath()%>/public/keepalive.jsp',
+            serverResponseEquals: 'OK',
+            onTimeout: function() {
+                $('#modal-timeout').modal('hide');
+                window.location = "<%=request.getContextPath()%>/logout";
+            },
+            onIdle: function () {
+                $('#modal-timeout').modal({
+                    keyboard: true
+                });
+            },
+            onCountdown: function (counter) {
+                $(".timeoutCountdown").html(counter); // update the counter
+            },
+            onResume: function () {
+                $('#modal-timeout').modal('hide');
+            }
+        });
+
+
+
+
+    });
+
+</script>
+
+<div class="modal modal-timeout hide fade in" id="modal-timeout" style="display: none;" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+        <h3>Session Timeout</h3>
+    </div>
+    <div class="modal-body-short">
+        <p>
+        <h4>You will be logged out in <span class="timeoutCountdown" style="color: #8b0031;"></span>&nbsp;seconds due to inactivity.</h4>
+        </p>
+    </div>
+    <div class="modal-footer">
+        <a id="idletimeout-resume" href="#" class="btn btn-primary">Stay Logged In</a><a href="<%=request.getContextPath()%>/logout" class="btn">Logout</a>
+    </div>
+</div>
+
+<div id="sproutStudyFormContent" />
 
 </body>
 </html>

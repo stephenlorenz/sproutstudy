@@ -59,13 +59,23 @@ angular.module('sproutStudyApp')
                     callback(response.data);
                 });
             },
+            deleteSubmission: function (params, callback) {
+                $http.get(networkService.generateUrl("deleteSubmission", params)).then(function (response) {
+                    callback(response.data);
+                });
+            },
             setSessionCohort: function (params, callback) {
                 $http.get(networkService.generateUrl("setSessionCohort", params)).then(function (response) {
-//                    callback();
+                    callback(response.data);
                 });
             },
             getPatientInbox: function (params, callback) {
                 $http.get(networkService.generateUrl("getPatientInbox", params)).then(function (response) {
+                    callback(response.data);
+                });
+            },
+            getSession: function (params, callback) {
+                $http.get(networkService.generateUrl("getSession", params)).then(function (response) {
                     callback(response.data);
                 });
             },

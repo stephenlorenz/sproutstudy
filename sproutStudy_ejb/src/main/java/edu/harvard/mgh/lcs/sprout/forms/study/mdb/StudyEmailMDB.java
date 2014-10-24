@@ -94,6 +94,7 @@ public class StudyEmailMDB implements MessageListener {
                         emailFormBodyModel.put("senderFullName", studyInboxTO.getSender().getFullName());
                         emailFormBodyModel.put("messageText", studyInboxTO.getBody().replaceAll("\\\n", "<br/>"));
                         emailFormBodyModel.put("pickupUrl", constructPickupUrl(studyInboxTO.getInstanceId(), nonce));
+                        emailFormBodyModel.put("sproutStudyUrl", constructSproutStudyUrl());
 
                         Writer pageWriter = new StringWriter();
                         emailFormBodyTemplate.process(emailFormBodyModel, pageWriter);
@@ -111,9 +112,13 @@ public class StudyEmailMDB implements MessageListener {
 
     private String constructPickupUrl(String instanceId, String nonce) {
         if (StringUtils.isFull(instanceId, nonce)) {
-            return String.format("%s/prompt/?instanceId=%s&nonce=%s&debug=false", System.getProperty("ihealthspace.notification.baseUrl", "https://scl30.partners.org:8443"), instanceId, nonce);
+            return String.format("%s/prompt/?instanceId=%s&nonce=%s&debug=true&showThanks=false&trigger=study", System.getProperty("ihealthspace.notification.baseUrl", "https://scl30.partners.org:8443"), instanceId, nonce);
         }
         return null;
+    }
+
+    private String constructSproutStudyUrl() {
+        return String.format("%s/sproutstudy", System.getProperty("ihealthspace.notification.baseUrl", "https://scl30.partners.org:8443"));
     }
 
     private void init() {

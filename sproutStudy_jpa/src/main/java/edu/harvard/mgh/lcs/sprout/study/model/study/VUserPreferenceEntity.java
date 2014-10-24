@@ -31,6 +31,10 @@ public class VUserPreferenceEntity implements Serializable {
     @Column(nullable=false, length=200)
     private String description;
 
+    @Basic
+    @Column(name="user_editable", nullable=false)
+    private boolean userEditable;
+
     @OneToMany(targetEntity=UsersPreferenceEntity.class, mappedBy="userPreference", cascade=CascadeType.MERGE)
     private Set<UsersPreferenceEntity> userPreferences = new HashSet<UsersPreferenceEntity>();
 
@@ -61,6 +65,14 @@ public class VUserPreferenceEntity implements Serializable {
 	public void setDescription(String description) {
 		this.description = description;
 	}
+
+    public boolean isUserEditable() {
+        return userEditable;
+    }
+
+    public void setUserEditable(boolean userEditable) {
+        this.userEditable = userEditable;
+    }
 
     public Set<UsersPreferenceEntity> getUserPreferences() {
         return userPreferences;

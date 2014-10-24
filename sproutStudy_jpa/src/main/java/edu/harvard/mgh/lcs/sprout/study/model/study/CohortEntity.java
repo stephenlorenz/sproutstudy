@@ -27,6 +27,10 @@ public class CohortEntity implements Serializable {
     @OrderBy("id ASC")
     private List<CohortFormEntity> cohortForms = new ArrayList<CohortFormEntity>();
 
+    @OneToMany(targetEntity=InboxEntity.class, mappedBy="cohort", cascade=CascadeType.MERGE)
+    @OrderBy("id ASC")
+    private List<InboxEntity> inboxMessages = new ArrayList<InboxEntity>();
+
     @Basic
     @Column(name="name")
     private String name;
@@ -69,6 +73,14 @@ public class CohortEntity implements Serializable {
 
     public void setCohortForms(List<CohortFormEntity> cohortForms) {
         this.cohortForms = cohortForms;
+    }
+
+    public List<InboxEntity> getInboxMessages() {
+        return inboxMessages;
+    }
+
+    public void setInboxMessages(List<InboxEntity> inboxMessages) {
+        this.inboxMessages = inboxMessages;
     }
 
     public String getName() {

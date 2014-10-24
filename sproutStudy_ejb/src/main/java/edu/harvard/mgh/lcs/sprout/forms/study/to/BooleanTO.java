@@ -39,4 +39,12 @@ public class BooleanTO implements Serializable {
     public void setMessage(String message) {
         this.message = message;
     }
+
+    public boolean isTrue() {
+        return value != null && value.equalsIgnoreCase("true");
+    }
+
+    public boolean isFalse() {
+        return value == null || (value != null && value.equalsIgnoreCase("false"));
+    }
 }

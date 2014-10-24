@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('sproutStudyApp').factory('networkService', function ($http, sproutStudyProperties) {
+angular.module('sproutStudyApp').factory('networkService', function ($http, $log, sproutStudyProperties) {
 
 	var serialize = function(object) {
 		var urlParams = "";
@@ -27,7 +27,7 @@ angular.module('sproutStudyApp').factory('networkService', function ($http, spro
 				}
 			}
 			var url = sproutStudyProperties.serverUrl + "/" + method + urlParam;
-			console.log("url: " + url);
+//			$log.log("networkService.generateUrl.url: " + url);
 			return url;
 		}
         , generateEnrollmentUrl: function (method, params) {
@@ -44,7 +44,7 @@ angular.module('sproutStudyApp').factory('networkService', function ($http, spro
                 }
             }
             var url = sproutStudyProperties.enrollmentUrl + "/" + method + urlParam;
-//            console.log("url: " + url);
+//			$log.log("networkService.generateUrl.url: " + url);
             return url;
         }
 

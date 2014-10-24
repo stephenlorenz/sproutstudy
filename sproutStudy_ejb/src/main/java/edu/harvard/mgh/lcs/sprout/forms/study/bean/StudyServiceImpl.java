@@ -127,11 +127,10 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
     }
 
     @Override
-    public List<StudyInboxTO> getStudyInbox(String username) {
+    public List<StudyInboxTO> getStudyInbox(String username, CohortTO cohortTO) {
         List<StudyInboxTO> studyInboxTOList = new ArrayList<StudyInboxTO>();
 
         UserEntity userEntity = getUserFromUsername(username);
-
 
         if (userEntity != null) {
             Query query = entityManager.createNamedQuery(InboxEntity.GET_USER_INBOX);
@@ -140,7 +139,7 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
 
             if (inboxEntities != null && inboxEntities.size() > 0) {
                 for (InboxEntity inboxEntity : inboxEntities) {
-                    studyInboxTOList.add(constructStudyInboxTO(inboxEntity));
+                    if (inboxEntity != null && inboxEntity.getCohort() != null && inboxEntity.getCohort().getId() == cohortTO.getId()) studyInboxTOList.add(constructStudyInboxTO(inboxEntity, cohortTO));
                 }
             }
         }
@@ -165,6 +164,24 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
     }
 
     @Override
+    public BooleanTO markInboxMessageAsRead(String instanceId) {
+        if (StringUtils.isFull(instanceId)) {
+            Query query = entityManager.createNamedQuery(InboxEntity.GET_USER_INBOX_BY_INSTANCE_ID);
+            query.setParameter("instanceId", instanceId);
+            List<InboxEntity> inboxEntities = query.getResultList();
+            if (inboxEntities != null) {
+                for (InboxEntity inboxEntity : inboxEntities) {
+                    inboxEntity.setStatus(getVInboxStatusEntity(InboxStatus.READ));
+                    inboxEntity.setActivityDate(new Date());
+                    entityManager.merge(inboxEntity);
+                }
+                return new BooleanTO(true);
+            }
+        }
+        return new BooleanTO(false);
+    }
+
+    @Override
     public StudyInboxTO changeInboxMessageStatus(int id, CohortTO cohortTO, InboxStatus inboxStatus) {
         InboxEntity inboxEntity = entityManager.find(InboxEntity.class, id);
         if (inboxEntity != null) {
@@ -175,12 +192,13 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
         return null;
     }
 
-    private StudyInboxTO constructStudyInboxTO(InboxEntity inboxEntity) {
-        return constructStudyInboxTO(inboxEntity, null);
-    }
+//    private StudyInboxTO constructStudyInboxTO(InboxEntity inboxEntity) {
+//        return constructStudyInboxTO(inboxEntity, null);
+//    }
 
     private StudyInboxTO constructStudyInboxTO(InboxEntity inboxEntity, CohortTO cohortTO) {
-        if (inboxEntity != null) {
+
+        if (inboxEntity != null && inboxEntity.getCohort() != null && inboxEntity.getCohort().getId() == cohortTO.getId()) {
             StudyInboxTO studyInboxTO = new StudyInboxTO();
             studyInboxTO.setId(inboxEntity.getId());
             studyInboxTO.setSubject(inboxEntity.getSubject());
@@ -192,10 +210,38 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
             studyInboxTO.setFormTitle(extractFormTitleFromJSON(inboxEntity.getForm()));
             studyInboxTO.setActivityDate(inboxEntity.getActivityDate());
             studyInboxTO.setSender(constructUserTO(inboxEntity.getSender()));
-            studyInboxTO.setCohortTO(cohortTO);
+            studyInboxTO.setCohortTO(constructCohortTO(inboxEntity.getCohort()));
             studyInboxTO.setRecipient(constructUserTO(inboxEntity.getRecipient()));
             studyInboxTO.setStatus(constructInboxStatus(inboxEntity.getStatus()));
             return studyInboxTO;
+        }
+        return null;
+    }
+
+    private CohortTO constructCohortTO(CohortEntity cohortEntity) {
+        if (cohortEntity != null) {
+            CohortTO cohortTO = new CohortTO();
+            cohortTO.setId(cohortEntity.getId());
+            cohortTO.setName(cohortEntity.getName());
+            cohortTO.setDescription(cohortEntity.getDescription());
+            cohortTO.setActivityDate(cohortEntity.getActivityDate());
+
+            List<CohortAttrTO> cohortAttrTOList = getCohortAttributes(cohortEntity);
+            cohortTO.setAttributes(cohortAttrTOList);
+            cohortTO.setForms(getCohortForms(cohortEntity));
+            cohortTO.setCohortQueryURL(getCohortAttr(cohortAttrTOList, COHORT_ATTR_QUERY_URL));
+            cohortTO.setCohortSubjectSchema(getCohortAttr(cohortAttrTOList, COHORT_ATTR_IDENTITY_SCHEMA_PRIMARY));
+            return cohortTO;
+        }
+        return null;
+    }
+
+    public UserTO getUser(String username) {
+        if (StringUtils.isFull(username)) {
+            UserEntity userEntity = getUserFromUsername(username);
+            if (userEntity != null) {
+                return constructUserTO(userEntity);
+            }
         }
         return null;
     }
@@ -230,27 +276,34 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
 
     @Override
     public boolean sendMessage(String usernameSender, String usernameRecipient, CohortTO cohortTO, String message, String instanceId, String form, String subjectId, String subjectName) {
-        if (StringUtils.isFull(usernameSender, usernameRecipient, message, instanceId)) {
-            UserEntity senderUserEntity = getUserFromUsername(usernameSender);
-            UserEntity recipientUserEntity = getUserFromUsername(usernameRecipient);
+        if (StringUtils.isFull(usernameSender, usernameRecipient, message, instanceId) && cohortTO != null) {
 
-            if (senderUserEntity != null && recipientUserEntity != null) {
-                InboxEntity inboxEntity = new InboxEntity();
-                inboxEntity.setRecipient(recipientUserEntity);
-                inboxEntity.setSender(senderUserEntity);
-                inboxEntity.setSubject(System.getProperty("edu.harvard.mgh.lcs.sprout.forms.study.form_email_subject", DEFAULT_FORM_EMAIL_SUBJECT));
-                inboxEntity.setBody(message);
-                inboxEntity.setInstanceId(instanceId);
-                inboxEntity.setForm(form);
-                inboxEntity.setStatus(getVInboxStatusEntity(InboxStatus.NEW));
-                inboxEntity.setSubjectId(subjectId);
-                inboxEntity.setSubjectName(subjectName);
-                inboxEntity.setActivityDate(new Date());
-                entityManager.persist(inboxEntity);
+            CohortEntity cohortEntity = getCohort(cohortTO.getId());
 
-                publishToMailQueue(constructStudyInboxTO(inboxEntity, cohortTO));
-                return true;
+            if (cohortEntity != null) {
+                UserEntity senderUserEntity = getUserFromUsername(usernameSender);
+                UserEntity recipientUserEntity = getUserFromUsername(usernameRecipient);
+
+                if (senderUserEntity != null && recipientUserEntity != null) {
+                    InboxEntity inboxEntity = new InboxEntity();
+                    inboxEntity.setRecipient(recipientUserEntity);
+                    inboxEntity.setSender(senderUserEntity);
+                    inboxEntity.setSubject(System.getProperty("edu.harvard.mgh.lcs.sprout.forms.study.form_email_subject", DEFAULT_FORM_EMAIL_SUBJECT));
+                    inboxEntity.setBody(message);
+                    inboxEntity.setInstanceId(instanceId);
+                    inboxEntity.setForm(form);
+                    inboxEntity.setStatus(getVInboxStatusEntity(InboxStatus.NEW));
+                    inboxEntity.setSubjectId(subjectId);
+                    inboxEntity.setSubjectName(subjectName);
+                    inboxEntity.setCohort(cohortEntity);
+                    inboxEntity.setActivityDate(new Date());
+                    entityManager.persist(inboxEntity);
+
+                    publishToMailQueue(constructStudyInboxTO(inboxEntity, cohortTO));
+                    return true;
+                }
             }
+
         }
         return false;
     }
@@ -259,7 +312,7 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
     public List<Result> getRecentCohortMembers(String user, CohortTO cohortTO) {
         List<CohortMemberTO> cohortMemberTOList = new ArrayList<CohortMemberTO>();
 
-        System.out.println("StudyServiceImpl.getRecentCohortMembers");
+//        System.out.println("StudyServiceImpl.getRecentCohortMembers");
 
         if (cohortTO != null) {
             StringBuilder queryText = new StringBuilder()
@@ -344,6 +397,7 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
                 userPreferenceTO.setCode(usersPreferenceEntity.getUserPreference().getCode());
                 userPreferenceTO.setDescription(usersPreferenceEntity.getUserPreference().getDescription());
                 userPreferenceTO.setValue(usersPreferenceEntity.getValue());
+                userPreferenceTO.setUserEditable(usersPreferenceEntity.getUserPreference().isUserEditable());
                 userPreferenceTOSet.add(userPreferenceTO);
             }
             return userPreferenceTOSet;
@@ -413,23 +467,52 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
     }
 
     @Override
+    public BooleanTO deleteSubmission(CohortTO cohortTO, String instanceId) {
+        GetMethod getMethod = null;
+        try {
+            String queryUrl = String.format(cohortTO.getCohortQueryURL() + "&mode=delete", URLEncoder.encode(instanceId, "UTF-8"));
+
+            HttpClient httpClient = new HttpClient();
+            //				client.getState().setCredentials(
+            //						new AuthScope(formsAuthHost, formsAuthPort, formsAuthRealm),
+            //						new UsernamePasswordCredentials(orgAuthKey, psk)
+            //						);
+
+
+            getMethod = new GetMethod(queryUrl);
+            int status = httpClient.executeMethod(getMethod);
+
+            if (status == 200) {
+                String response = getMethod.getResponseBodyAsString();
+                if (!StringUtils.isEmpty(response)) {
+                    List<Result> results = new ObjectMapper().readValue(response, new TypeReference<List<Result>>() {});
+                    if (results != null && results.size() == 1) {
+                        Result result = results.get(0);
+                        if (result != null && result.getId().equalsIgnoreCase("true")) {
+                            return new BooleanTO(true);
+                        }
+                        return new BooleanTO(false);
+                    } else {
+                        return new BooleanTO(false);
+                    }
+                }
+            }
+
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (getMethod != null) getMethod.releaseConnection();
+        }
+        return new BooleanTO(false);
+    }
+
+    @Override
     public CohortTO getCohortTO(Integer cohortId) {
         if (cohortId != null && cohortId > 0) {
             CohortEntity cohortEntity = entityManager.find(CohortEntity.class, cohortId);
-            if (cohortEntity != null) {
-                CohortTO cohortTO = new CohortTO();
-                cohortTO.setId(cohortEntity.getId());
-                cohortTO.setName(cohortEntity.getName());
-                cohortTO.setDescription(cohortEntity.getDescription());
-                cohortTO.setActivityDate(cohortEntity.getActivityDate());
-
-                List<CohortAttrTO> cohortAttrTOList = getCohortAttributes(cohortEntity);
-                cohortTO.setAttributes(cohortAttrTOList);
-                cohortTO.setForms(getCohortForms(cohortEntity));
-                cohortTO.setCohortQueryURL(getCohortAttr(cohortAttrTOList, COHORT_ATTR_QUERY_URL));
-                cohortTO.setCohortSubjectSchema(getCohortAttr(cohortAttrTOList, COHORT_ATTR_IDENTITY_SCHEMA_PRIMARY));
-                return cohortTO;
-            }
+            if (cohortEntity != null) return constructCohortTO(cohortEntity);
         }
         return null;
     }
@@ -539,8 +622,18 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
                 cohortFormTO.setPublicationKey(cohortFormEntity.getForm().getPublicationKey());
                 cohortFormTO.setDemographic(cohortFormEntity.getForm().getDemographic());
                 cohortFormTO.setActivityDate(cohortFormEntity.getForm().getActivityDate());
+
+                if (cohortFormEntity.getForm().getFormAttributes() != null) {
+                    for (FormAttrEntity formAttrEntity : cohortFormEntity.getForm().getFormAttributes()) {
+                        if (formAttrEntity.getFormAttr().getCode().equalsIgnoreCase(FormAttr.UNIQUE.toString())) {
+                            cohortFormTO.setUnique(true);
+                            break;
+                        }
+                    }
+                }
                 cohortFormTOList.add(cohortFormTO);
             }
+            Collections.sort(cohortFormTOList);
         }
         return cohortFormTOList;
     }

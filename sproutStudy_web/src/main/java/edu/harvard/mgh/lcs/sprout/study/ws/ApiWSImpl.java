@@ -10,6 +10,7 @@ import edu.harvard.mgh.lcs.sprout.forms.study.to.*;
 import edu.harvard.mgh.lcs.sprout.forms.study.util.StringUtils;
 import edu.harvard.mgh.lcs.sprout.study.web.security.SproutStudyUserDetails;
 import edu.harvard.mgh.lcs.sprout.study.wsinterface.ApiWS;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.springframework.security.core.context.SecurityContext;
 
 import javax.ejb.EJB;
@@ -21,6 +22,8 @@ import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Context;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -34,9 +37,6 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
 	@EJB(mappedName="java:global/sproutStudy/sproutStudy_ejb/PatientLookupServiceImpl!edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.PatientService")
 	private PatientService patientService;
 	
-	@EJB(mappedName="java:global/sproutStudy/sproutStudy_ejb/FormSubmissionServiceImpl!edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.FormSubmissionService")
-	private FormSubmissionService formSubmissionService;
-
 	@EJB(mappedName="java:global/sproutStudy/sproutStudy_ejb/SproutFormsServiceImpl!edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.SproutFormsService")
 	private SproutFormsService sproutFormsService;
 
@@ -60,6 +60,15 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
         SessionTO sessionTO = getSessionTO(request);
         if (sessionTO != null) {
             CohortTO cohortTO = getLastSelectedCohort(request);
+
+            message = StringEscapeUtils.unescapeHtml(message);
+
+            if (StringUtils.isFull(message)) {
+                try {
+                    message = URLDecoder.decode(message, "UTF-8");
+                } catch (UnsupportedEncodingException e) {}
+            }
+
             return new BooleanTO(studyService.sendMessage(sessionTO.getUser(), usernameRecipient, cohortTO, message, instanceId, form, subjectId, subjectName));
         }
         return new BooleanTO(false);
@@ -87,11 +96,26 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
     }
 
     @Override
+    @WebMethod(operationName = "deleteSubmission")
+    public BooleanTO deleteSubmission(@Context HttpServletRequest request, String instanceId) throws InvalidSessionRESTful {
+        SessionTO sessionTO = getSessionTO(request);
+        if (sessionTO != null) {
+            CohortTO cohortTO = getLastSelectedCohort(request);
+            BooleanTO booleanTO = studyService.deleteSubmission(cohortTO, instanceId);
+            if (booleanTO.isTrue()) {
+                return sproutFormsService.deleteForm(instanceId);
+            }
+        }
+        return new BooleanTO(false);
+    }
+
+    @Override
     @WebMethod(operationName = "getStudyInbox")
     public List<StudyInboxTO> getStudyInbox(@Context HttpServletRequest request) throws InvalidSessionRESTful {
         SessionTO sessionTO = getSessionTO(request);
         if (sessionTO != null) {
-            return studyService.getStudyInbox(sessionTO.getUser());
+            CohortTO cohortTO = getLastSelectedCohort(request);
+            if (cohortTO != null) return studyService.getStudyInbox(sessionTO.getUser(), cohortTO);
         }
         return null;
     }
@@ -101,16 +125,16 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
     public CohortTO getLastSelectedCohort(@Context HttpServletRequest request) throws InvalidSessionRESTful {
         SessionTO sessionTO = getSessionTO(request);
         if (sessionTO != null) {
-            if (sessionTO.getCohortTO() != null) {
-                return sessionTO.getCohortTO();
-            } else {
+//            if (sessionTO.getCohortTO() != null) {
+//                return sessionTO.getCohortTO();
+//            } else {
                 CohortTO cohortTO = studyService.getLastSelectedCohort(sessionTO.getUser());
                 if (cohortTO != null) {
                     sessionTO.setCohortTO(cohortTO);
                     updateSessionTO(request, sessionTO);
                     return cohortTO;
                 }
-            }
+//            }
         }
         return null;
     }
@@ -171,13 +195,15 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
         SessionTO sessionTO = getSessionTO(request);
         if (sessionTO != null) {
             CohortTO cohortTO = getLastSelectedCohort(request);
-            List<CohortFormTO> cohortFormTOList = cohortTO.getForms();
-            Set<String> publicationKeys = new HashSet<String>();
-            if (cohortFormTOList != null && cohortFormTOList.size() > 0) {
-                for (CohortFormTO cohortFormTO : cohortFormTOList) {
-                    publicationKeys.add(cohortFormTO.getPublicationKey());
+            if (cohortTO != null) {
+                List<CohortFormTO> cohortFormTOList = cohortTO.getForms();
+                Set<String> publicationKeys = new HashSet<String>();
+                if (cohortFormTOList != null && cohortFormTOList.size() > 0) {
+                    for (CohortFormTO cohortFormTO : cohortFormTOList) {
+                        publicationKeys.add(cohortFormTO.getPublicationKey());
+                    }
+                    return sproutFormsService.getMutableForms(sessionTO.getUser(), sessionTO.getCohortTO(), publicationKeys);
                 }
-                return sproutFormsService.getMutableForms(sessionTO.getUser(), sessionTO.getCohortTO(), publicationKeys);
             }
         }
         return null;
@@ -189,7 +215,9 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
         SessionTO sessionTO = getSessionTO(request);
         if (sessionTO != null) {
             CohortTO cohortTO = getLastSelectedCohort(request);
-            return studyService.getCohortAuthorizations(sessionTO.getCohortTO());
+            if (cohortTO != null) {
+                return studyService.getCohortAuthorizations(cohortTO);
+            }
         }
         return null;
     }
@@ -217,26 +245,6 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
 		}
 		return null;
 	}
-
-	@Override
-	@WebMethod(operationName="isPatientVerified")
-    public BooleanTO isPatientVerified(@Context HttpServletRequest request, @QueryParam("mrn") String mrn) throws InvalidSessionRESTful {
-		SessionTO sessionTO = getSessionTO(request);
-		if (sessionTO != null) {
-			return formSubmissionService.isPatientVerified(mrn, sessionTO.getUser());
-		}
-		return null;
-	}
-
-    @Override
-    @WebMethod(operationName="isPatientAssertive")
-    public BooleanTO isPatientAssertive(@Context HttpServletRequest request, @QueryParam("mrn") String mrn) throws InvalidSessionRESTful {
-        SessionTO sessionTO = getSessionTO(request);
-        if (sessionTO != null) {
-            return formSubmissionService.isPatientAssertive(mrn, sessionTO.getUser());
-        }
-        return null;
-    }
 
     @Override
 	@WebMethod(operationName="patientLookup")
@@ -273,18 +281,6 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
         return null;
     }
 
-    @Override
-	@WebMethod(operationName="pushForm")
-    public StringTO pushForm(@Context HttpServletRequest request, @QueryParam("mrn") String mrn, @QueryParam("instanceId") String instanceId) throws InvalidSessionRESTful {
-		SessionTO sessionTO = getSessionTO(request);
-		if (sessionTO != null) {
-			SubmissionStatus submissionStatus = formSubmissionService.pushToEMR(instanceId);
-			return submissionStatus != null ? new StringTO(submissionStatus.toString()) : null;
-
-		}
-		return null;
-	}
-
 	@Override
 	@WebMethod(operationName="setSessionCohort")
     public BooleanTO setSessionCohort(@Context HttpServletRequest request, @QueryParam("cohortId") Integer cohortId) throws InvalidSessionRESTful {
@@ -308,17 +304,6 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    @Override
-    @WebMethod(operationName="returnToSender")
-    public StringTO returnToSender(@Context HttpServletRequest request, @QueryParam("mrn") String mrn, @QueryParam("instanceId") String instanceId) throws InvalidSessionRESTful {
-        SessionTO sessionTO = getSessionTO(request);
-        if (sessionTO != null) {
-            SubmissionStatus submissionStatus = formSubmissionService.returnToSender(instanceId);
-            return submissionStatus != null ? new StringTO(submissionStatus.toString()) : null;
-        }
-        return null;
     }
 
     @Override
@@ -391,46 +376,25 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
 	@WebMethod(operationName="syncSproutPatientIdentifiers")
     public BooleanTO syncSproutPatientIdentifiers(@Context HttpServletRequest request, @QueryParam("instanceId") String instanceId, @QueryParam("verifiedIdentifier") String[] verifiedIdentifiers, @QueryParam("matchedIdentifier") String[] matchedIdentifiers, @QueryParam("assertion") String[] matchedAssertions) throws InvalidSessionRESTful {
 		return sproutFormsService.syncPatientIdentifiersAndAssertions(instanceId, verifiedIdentifiers, matchedIdentifiers, matchedAssertions) ? new BooleanTO(true) : new BooleanTO(false);
-	}	
-
-    @Override
-	@WebMethod(operationName="appendProviderAsParameter")
-    public BooleanTO appendProviderAsParameter(@Context HttpServletRequest request, @QueryParam("instanceId") String instanceId, @QueryParam("pun") String partnersUsername) throws InvalidSessionRESTful {
-        SessionTO sessionTO = getSessionTO(request);
-        if (sessionTO != null) {
-            return formSubmissionService.appendProviderAsParameter(instanceId, partnersUsername, sessionTO.getUser());
-        }
-        return new BooleanTO(false);
-	}
-
-	@Override
-	@WebMethod(operationName="syncFormSubmission")
-    public BooleanTO syncFormSubmission(@Context HttpServletRequest request, @QueryParam("instanceId") String instanceId, @QueryParam("verifiedIdentifier") String[] verifiedIdentifiers, @QueryParam("matchedIdentifier") String[] matchedIdentifiers, @QueryParam("assertion") String[] matchedAssertions) throws InvalidSessionRESTful {
-		SessionTO sessionTO = getSessionTO(request);
-		if (sessionTO != null) {
-			return formSubmissionService.syncFormSubmission(instanceId, verifiedIdentifiers, matchedIdentifiers, matchedAssertions, sessionTO.getUser());
-		}
-		return new BooleanTO(false);
 	}
 
     @Override
-    @WebMethod(operationName="getFormSubmission")
-    public FormSubmissionTO getFormSubmission(@Context HttpServletRequest request, @QueryParam("instanceId") String instanceId) throws InvalidSessionRESTful {
+    public UserTO getUserTO(@Context HttpServletRequest request) throws InvalidSessionRESTful {
         SessionTO sessionTO = getSessionTO(request);
+
         if (sessionTO != null) {
-            return formSubmissionService.getFormSubmission(instanceId, sessionTO.getUser());
+            return studyService.getUser(sessionTO.getUser());
         }
         return null;
     }
 
-    private SessionTO getSessionTO(HttpServletRequest request) throws InvalidSessionRESTful {
+    @Override
+    @WebMethod(operationName = "getSession")
+    public SessionTO getSessionTO(@Context HttpServletRequest request) throws InvalidSessionRESTful {
 		try {
 			HttpSession httpSession = request.getSession(false);
 
             SessionTO sessionTO = (SessionTO) httpSession.getAttribute("sessionTO");
-
-
-            System.out.println("sessionTO = " + sessionTO);
 
             if (sessionTO == null) {
                 SecurityContext securityContext = (SecurityContext) httpSession.getAttribute("SPRING_SECURITY_CONTEXT");
@@ -440,6 +404,9 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
                 if (sproutStudyUserDetails != null) {
                     sessionTO = new SessionTO();
                     sessionTO.setUser(sproutStudyUserDetails.getUsername());
+                    sessionTO.setFirstName(sproutStudyUserDetails.getFirstName());
+                    sessionTO.setLastName(sproutStudyUserDetails.getLastName());
+                    sessionTO.setEmail(sproutStudyUserDetails.getEmail());
                     httpSession.setAttribute("sessionTO", sessionTO);
                     return sessionTO;
                 }
@@ -449,6 +416,7 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
 
 			throw new InvalidSessionRESTful();
 		} catch (Exception e) {
+            e.printStackTrace();
 			throw new InvalidSessionRESTful();
 		}
 	}

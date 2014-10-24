@@ -96,9 +96,6 @@ public class StudyInboxTO implements Serializable {
     }
 
     public void setFormTitle(String formTitle) {
-        System.out.println("StudyInboxTO.setForm");
-        System.out.println("formTitle = [" + formTitle + "]");
-
         this.formTitle = formTitle;
     }
 

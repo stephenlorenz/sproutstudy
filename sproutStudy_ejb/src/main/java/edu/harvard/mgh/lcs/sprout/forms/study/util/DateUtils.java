@@ -18,12 +18,14 @@ import java.util.UUID;
 public class DateUtils {
 
     public static XMLGregorianCalendar getXMLGregorianCalendarFromDate(Date date) {
-        try {
-            GregorianCalendar gregorianCalendar = (GregorianCalendar) GregorianCalendar.getInstance();
-            gregorianCalendar.setTime(date);
-            return DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendar);
-        } catch (DatatypeConfigurationException e) {
-            e.printStackTrace();
+        if (date != null) {
+            try {
+                GregorianCalendar gregorianCalendar = (GregorianCalendar) GregorianCalendar.getInstance();
+                gregorianCalendar.setTime(date);
+                return DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendar);
+            } catch (DatatypeConfigurationException e) {
+//            e.printStackTrace();
+            }
         }
         return null;
     }

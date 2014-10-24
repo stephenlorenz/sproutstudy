@@ -18,17 +18,9 @@ var sproutStudyApp = angular.module('sproutStudyApp', ['ui', 'ngResource', 'ui.b
                 templateUrl: 'views/studyView.html',
                 controller: 'studyController'
             })
-            .when('/admin', {
-                templateUrl: 'views/admin.html',
-                controller: 'adminController'
-            })
-            .when('/addauth', {
-                templateUrl: 'views/auth.html',
-                controller: 'adminController'
-            })
-            .when('/editauth/:grantedAuthId', {
-                templateUrl: 'views/auth.html',
-                controller: 'adminController'
+            .when('/settings', {
+                templateUrl: 'views/settingsView.html',
+                controller: 'settingsController'
             })
             .otherwise({
                 redirectTo: '/'

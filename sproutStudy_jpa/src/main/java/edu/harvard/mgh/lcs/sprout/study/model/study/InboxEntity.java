@@ -7,12 +7,14 @@ import java.util.Date;
 
 @NamedQueries({
         @NamedQuery(name=InboxEntity.GET_USER_INBOX, query="FROM InboxEntity WHERE recipient = :recipient AND status.mutable = true ORDER BY activityDate DESC"),
+        @NamedQuery(name=InboxEntity.GET_USER_INBOX_BY_INSTANCE_ID, query="FROM InboxEntity WHERE instanceId = :instanceId AND status.mutable = true")
 })
 @Entity
 @Table(schema="dbo", name="inbox")
 public class InboxEntity implements Serializable {
 
     public static final String GET_USER_INBOX = "InboxEntity.getUserInbox";
+    public static final String GET_USER_INBOX_BY_INSTANCE_ID = "InboxEntity.getUserInboxByInstanceId";
 
 	@Id
     @GeneratedValue (strategy = GenerationType.IDENTITY)
@@ -49,6 +51,10 @@ public class InboxEntity implements Serializable {
     @Basic
     @Column(name="form")
     private String form;
+
+    @ManyToOne(fetch=FetchType.LAZY, cascade=CascadeType.MERGE)
+    @JoinColumn(name="cohort_id")
+    private CohortEntity cohort;
 
     @ManyToOne(fetch=FetchType.LAZY, cascade=CascadeType.MERGE)
     @JoinColumn(name="status")
@@ -128,6 +134,14 @@ public class InboxEntity implements Serializable {
 
     public void setForm(String form) {
         this.form = form;
+    }
+
+    public CohortEntity getCohort() {
+        return cohort;
+    }
+
+    public void setCohort(CohortEntity cohort) {
+        this.cohort = cohort;
     }
 
     public VInboxStatusEntity getStatus() {

@@ -1,14 +1,19 @@
 'use strict';
 
 angular.module('sproutStudyApp')
-    .controller('studyController', function ($log, $scope, $filter, $timeout, studyService, patientService, formsService, cohortService) {
+    .controller('studyController', function ($log, $scope, $filter, $timeout, studyService, patientService, formsService, cohortService, sessionService) {
+
+
+        $scope.cohortLoaded = false;
 
         $scope.patientMatches = undefined;
         $scope.recentCohortMembers = undefined;
         $scope.mutableForms = undefined;
         $scope.studyInbox = undefined;
         $scope.searchEnabled = true;
+
         $scope.searchReturned = false;
+        $scope.searchInprogress = false;
 
 //        $scope.query = "buster";
         $scope.sendMessageForm = null;
@@ -44,6 +49,8 @@ angular.module('sproutStudyApp')
         $scope.messageText = null;
         $scope.messageTo = null;
 
+        $scope.session = null;
+
         $scope.modalSmallOpts = {
             backdropFade: true,
             dialogFade: true,
@@ -54,6 +61,10 @@ angular.module('sproutStudyApp')
             return cohortService.getCohort();
         }
 
+        $scope.session = function() {
+            return sessionService.getSession();
+        }
+
         $scope.member = function() {
             return cohortService.getMember();
         }
@@ -61,6 +72,7 @@ angular.module('sproutStudyApp')
         $scope.cohorts = null;
 
         $scope.statuses = null;
+        $scope.statusesIncomplete = null;
 
         $scope.addPaneOrig = function(title, instanceId, nonce) {
             addPaneContent(title, instanceId, nonce);
@@ -86,6 +98,12 @@ angular.module('sproutStudyApp')
             }
         }
 
+        studyService.getSession({}, function(data) {
+            sessionService.setSession(data);
+        });
+
+
+
         $scope.getAuthorizedCohorts = function() {
             studyService.getAuthorizedCohorts({}, function(data) {
                 $scope.cohorts = data;
@@ -105,6 +123,7 @@ angular.module('sproutStudyApp')
         studyService.getLastSelectedCohort({}, function(data) {
             cohortService.setCohort(data);
             $scope.getCohortAuthorizations();
+            $scope.cohortLoaded = true;
         });
 
         $scope.onTest = function() {
@@ -115,7 +134,9 @@ angular.module('sproutStudyApp')
         $scope.findCohortMember = function() {
             $scope.patientMatches = undefined;
             $scope.searchReturned = true;
+            $scope.searchInprogress = true;
             studyService.findCohortMember({cohortQueryURL: cohortService.getCohort().cohortQueryURL ,query: $scope.query}, function(data) {
+                $scope.searchInprogress = false;
                 $scope.patientMatches = data;
             });
         }
@@ -128,10 +149,124 @@ angular.module('sproutStudyApp')
             });
         }
 
+        $scope.studyInboxSort = {
+            column: 'activityDate',
+            descending: true
+        };
+
+        $scope.studyInboxSortClass = function(column) {
+            if (column == $scope.studyInboxSort.column) {
+                if ($scope.studyInboxSort.descending) {
+                    return 'icon-chevron-down';
+                } else {
+                    return 'icon-chevron-up';
+                }
+            }
+        };
+        $scope.studyInboxSortStyle = function(column) {
+            if (column == $scope.studyInboxSort.column) {
+                return '7px';
+            } else {
+                return '0px';
+            }
+        };
+
+        $scope.studyInboxChangeSort = function(column) {
+            var sort = $scope.studyInboxSort;
+            if (sort.column == column) {
+                sort.descending = !sort.descending;
+            } else {
+                sort.column = column;
+                sort.descending = false;
+            }
+        };
+
+        $scope.formsSort = {
+            column: 'statusDate',
+            descending: true
+        };
+
+        $scope.formsSortClass = function(column) {
+            if (column == $scope.formsSort.column) {
+                if ($scope.mutableFormsSort.descending) {
+                    return 'icon-chevron-down';
+                } else {
+                    return 'icon-chevron-up';
+                }
+            }
+        };
+        $scope.formsSortStyle = function(column) {
+            if (column == $scope.formsSort.column) {
+                return '7px';
+            } else {
+                return '0px';
+            }
+        };
+
+        $scope.formsChangeSort = function(column) {
+            var sort = $scope.formsSort;
+            if (sort.column == column) {
+                sort.descending = !sort.descending;
+            } else {
+                sort.column = column;
+                sort.descending = false;
+            }
+        };
+
+        $scope.mutableFormsSort = {
+            column: 'statusDate',
+            descending: true
+        };
+
+        $scope.mutableFormsSortClass = function(column) {
+            if (column == $scope.mutableFormsSort.column) {
+                if ($scope.mutableFormsSort.descending) {
+                    return 'icon-chevron-down';
+                } else {
+                    return 'icon-chevron-up';
+                }
+            }
+        };
+        $scope.mutableFormsSortStyle = function(column) {
+            if (column == $scope.mutableFormsSort.column) {
+                return '7px';
+            } else {
+                return '0px';
+            }
+        };
+
+        $scope.mutableFormsChangeSort = function(column) {
+            var sort = $scope.mutableFormsSort;
+            if (sort.column == column) {
+                sort.descending = !sort.descending;
+            } else {
+                sort.column = column;
+                sort.descending = false;
+            }
+        };
+
         $scope.getMutableForms = function() {
             $scope.mutableForms = undefined;
             studyService.getMutableForms({}, function(data) {
                 $scope.mutableForms = data;
+
+                $scope.statusesIncomplete = new Array();
+
+                for (var i = 0; i < data.length; i++) {
+                    var includeInd = true;
+                    if ($scope.statusesIncomplete !== undefined && $scope.statusesIncomplete.length > 0) {
+                        for (var i2=0;i2<$scope.statusesIncomplete.length;i2++) {
+                            if ($scope.statusesIncomplete[i2] == data[i].inboxStatus) {
+                                includeInd = false;
+                            }
+                        }
+
+                    }
+
+                    if (includeInd) $scope.statusesIncomplete.push(data[i].inboxStatus);
+                }
+
+
             });
         }
 
@@ -149,23 +284,15 @@ angular.module('sproutStudyApp')
         $scope.setNewSubject = function(id, instanceId) {
             studyService.findCohortMember({cohortQueryURL: cohortService.getCohort().cohortQueryURL, query: id}, function(data) {
 
-                console.log("setNewSubject.id: " + id);
-                console.log("setNewSubject.instanceId: " + instanceId);
-
                 $scope.patientMatches = data;
                 $scope.searchReturned = true;
-//                $scope.$apply();
                 if ($scope.patientMatches.length == 1) {
                     $scope.subject = $scope.patientMatches[0];
 
                     if ($scope.subject != null) {
-
-
                         var formObject = $scope.newFormConstructor(instanceId, "New Subject", $scope.subject.fullName, $scope.subject.firstName, $scope.subject.lastName, $scope.subject.id);
 
                         $scope.onComposeMessage(formObject);
-
-
 
                         cohortService.setMember($scope.subject);
 
@@ -182,8 +309,6 @@ angular.module('sproutStudyApp')
                     $scope.patientMatches = undefined;
                     cohortService.clearMember();
                 }
-
-//                console.log("data: " + data.length);
             });
         };
 
@@ -221,6 +346,7 @@ angular.module('sproutStudyApp')
                         if (includeInd) $scope.statuses.push(data[i].inboxStatus);
                     }
                     $scope.getRecentCohortMembers();
+                    $scope.getStudyInbox();
 //                console.log("data: " + data.length);
                 });
             } else {
@@ -244,8 +370,8 @@ angular.module('sproutStudyApp')
 //            }
 
             formsService.deliverForm({schema: "mgh", id: subject.id, publicationKey: form.publicationKey, provider: null, expirationDate: null}, function(data) {
-                console.log("data.instanceId: " + data.instanceId);
-                console.log("data.status: " + data.status);
+//                console.log("data.instanceId: " + data.instanceId);
+//                console.log("data.status: " + data.status);
                 if (data.instanceId != null) {
                     $scope.getSubjectInbox();
 
@@ -271,6 +397,31 @@ angular.module('sproutStudyApp')
                 }
             });
 
+        }
+
+        $scope.onSendForm = function(subject, form) {
+            $scope.deliveringInd = true;
+            $scope.deliveryError = null;
+
+            var expirationDate = null;
+
+            formsService.deliverForm({schema: "mgh", id: subject.id, publicationKey: form.publicationKey, provider: null, expirationDate: null}, function(data) {
+                if (data.instanceId != null) {
+                    $scope.getSubjectInbox();
+
+                    var instanceId = data.instanceId;
+                    var formObject = $scope.newFormConstructor(instanceId, form.name, subject.fullName, subject.firstName, subject.lastName, subject.id);
+
+                    $scope.onComposeMessage(formObject);
+
+                    $scope.deliverFormModal = false;
+                    $scope.deliveringInd = false;
+                } else {
+                    $scope.deliveringInd = 'error';
+                    $scope.deliveryError = data.message;
+                }
+            });
+
         };
 
         $scope.newFormConstructor = function(instanceId, title, fullName, firstName, lastName, subjectId) {
@@ -278,7 +429,7 @@ angular.module('sproutStudyApp')
         }
 
         $scope.addSubject = function() {
-            $log.log("addSubject....");
+//            $log.log("addSubject....");
 
             $scope.deliveringInd = true;
             $scope.deliveryError = null;
@@ -289,13 +440,13 @@ angular.module('sproutStudyApp')
                 if (tmpForm.demographic) form = tmpForm;
             });
 
-//            $log.log("demographicForm: " + demographicForm.name);
+//            $log.log("demographicForm: " + form.name);
 
             $scope.tempId = generateUUID();
 
             formsService.deliverForm({schema: "SPROUT_STUDY_TEMP_ID", id: $scope.tempId, publicationKey: form.publicationKey, provider: null, expirationDate: null}, function(data) {
-                console.log("data.instanceId: " + data.instanceId);
-                console.log("data.status: " + data.status);
+//                console.log("data.instanceId: " + data.instanceId);
+//                console.log("data.status: " + data.status);
                 if (data.instanceId != null) {
                     $scope.onDemographicFormByInstanceId(data.instanceId);
                     $scope.deliverFormModal = false;
@@ -338,7 +489,8 @@ angular.module('sproutStudyApp')
         $scope.onComposeMessage = function(form) {
 //            $log.log("onComposeMessage.instanceId: " + form.instanceId)
 //            $log.log("onComposeMessage.formTitle: " + form.title)
-
+            $scope.messageText = null;
+            $scope.messageTo = null;
             $scope.sendMessageForm = form;
             $scope.sendMessageModal = true;
 //            $scope.$apply();
@@ -358,8 +510,9 @@ angular.module('sproutStudyApp')
 
             $.each($scope.messageTo, function(index, recipient) {
                 var username = recipient.user.username;
-                studyService.sendMessage({to: username, form: JSON.stringify($scope.sendMessageForm), message: $scope.messageText, instanceId: $scope.sendMessageForm.instanceId, formTitle: $scope.sendMessageForm.title, subjectId: cohortService.getMember().id, subjectName: cohortService.getMember().fullName}, function(data) {
+                studyService.sendMessage({to: username, form: JSON.stringify($scope.sendMessageForm), message: encodeURIComponent($scope.messageText), instanceId: $scope.sendMessageForm.instanceId, formTitle: $scope.sendMessageForm.title, subjectId: cohortService.getMember().id, subjectName: cohortService.getMember().fullName}, function(data) {
                     $scope.sendMessageModal = false;
+                    $scope.getStudyInbox();
                 });
             });
         }
@@ -387,15 +540,23 @@ angular.module('sproutStudyApp')
         };
 
         $scope.chooseCohort = function(cohort) {
+            $scope.changeCohort();
             cohortService.setCohort(cohort);
             $scope.enableSearch();
             studyService.setSessionCohort({cohortId: cohort.id}, function(data) {
                 $scope.getCohortAuthorizations();
+                $scope.getStudyInbox();
+                $scope.getRecentCohortMembers();
+                $scope.getMutableForms();
             })
         }
 
         $scope.changeCohort = function() {
             cohortService.setCohort(null);
+            $scope.studyInbox = undefined;
+            $scope.recentCohortMembers = undefined;
+            $scope.mutableForms = undefined;
+            $scope.patientMatches = undefined;
         }
 
         $scope.chooseCohortMember = function(subject) {
@@ -505,13 +666,13 @@ angular.module('sproutStudyApp')
                 message.status = data.status;
             });
 
-            console.log("onOpenStudyInboxForm");
+//            console.log("onOpenStudyInboxForm");
             $scope.openingForm = true;
 
             var form = jQuery.parseJSON(message.form);
 
-            $log.log("onOpenStudyInboxForm.form: " + form);
-            $log.log("onOpenStudyInboxForm.form.title: " + form.title);
+//            $log.log("onOpenStudyInboxForm.form: " + form);
+//            $log.log("onOpenStudyInboxForm.form.title: " + form.title);
 
             var subject = $scope.getSubjectFromForm(form);
 
@@ -554,7 +715,7 @@ angular.module('sproutStudyApp')
                 var tabTitle = {fullName: "New Subject", id: 0};
                 cohortService.setMember(tabTitle);
 
-                var content = '<iframe id="iframe-' + instanceId + '" name="iframe-' + instanceId + '" instanceId="' + instanceId + '" src="/prompt/?instanceId=' + instanceId + '&nonce=' + nonce + '&debug=false" class="appFrame iframe-demographic-form-content" />';
+                var content = '<iframe id="iframe-' + instanceId + '" name="iframe-' + instanceId + '" instanceId="' + instanceId + '" src="/prompt/?instanceId=' + instanceId + '&nonce=' + nonce + '&debug=true&showThanks=false" class="appFrame iframe-demographic-form-content" />';
                 $scope.demographicFormContent = content;
 
 //                $scope.addPane(tabTitle, instanceId, nonce);
@@ -562,6 +723,52 @@ angular.module('sproutStudyApp')
             });
         };
 
+        $scope.addSubjectButton = "";
+        $scope.expandAddSubjectButton =  function() {
+            $scope.addSubjectButton = "  Add New Subject";
+        }
+        $scope.collapseAddSubjectButton =  function() {
+            $scope.addSubjectButton = "";
+        }
+
+        $scope.searchButton = "  Search";
+        $scope.expandSearchButton =  function() {
+//            $scope.searchButton = "  Search";
+        }
+        $scope.collapseSearchButton =  function() {
+//            $scope.searchButton = "";
+        }
+
+        $scope.newFormButton = "  New Form";
+        $scope.expandNewFormButton =  function() {
+//            $scope.newFormButton = "  New Form";
+        }
+        $scope.collapseNewFormButton =  function() {
+//            $scope.newFormButton = "";
+        }
+
+        $scope.sendFormButton = "  Send Form";
+        $scope.expandSendFormButton =  function() {
+//            $scope.sendFormButton = "  Send Form";
+        }
+        $scope.collapseSendFormButton =  function() {
+//            $scope.sendFormButton = "";
+        }
+
+        $scope.onDeleteSubmission = function (instanceId) {
+            var answer = confirm("Are you sure you want to delete this form?  This action cannot be undone!")
+            if (answer == true) {
+                studyService.deleteSubmission({instanceId: instanceId}, function(data) {
+//                    console.log("onDeleteSubmission: " + data.value);
+                    if (data.value == 'false') {
+//                        console.log("onDeleteSubmission failed.");
+                    } else {
+//                        console.log("onDeleteSubmission succeeded.");
+                        $scope.getSubjectInbox();
+                    }
+                });
+            }
+        }
 
         $scope.onPrintForm = function () {
             // NOTE: onPrintForm
@@ -575,14 +782,6 @@ angular.module('sproutStudyApp')
         $scope.closeViewForm = function () {
             $scope.viewFormModal = false;
         };
-
-        $scope.changeExpirationDate = function() {
-            console.log("expirationDate changed: " + publication.expirationDate);
-        }
-
-        // Fixme: remove me...
-//        $scope.patient = {mrn: "5008268"};
-//        $scope.choosePatient($scope.patient);
 
         $scope.testSendMessageModal = function() {
             $scope.messageText = null;

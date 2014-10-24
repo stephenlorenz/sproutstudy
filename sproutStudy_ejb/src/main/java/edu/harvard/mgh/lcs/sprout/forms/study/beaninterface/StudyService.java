@@ -20,8 +20,11 @@ public interface StudyService {
     public List<Result> getRemoteCohortSubjectsByList(CohortTO cohortTO, String idList);
     public List<CohortAuthTO> getCohortAuthorizations(CohortTO cohortTO);
     public boolean sendMessage(String usernameSender, String usernameRecipient, CohortTO cohortTO, String message, String instanceId, String form, String subjectId, String subjectName);
-    public List<StudyInboxTO> getStudyInbox(String username);
+    public List<StudyInboxTO> getStudyInbox(String username, CohortTO cohortTO);
     public StudyInboxTO deleteInboxMessage(int id, CohortTO cohortTO);
     public StudyInboxTO markInboxMessageAsRead(int id, CohortTO cohortTO);
     public StudyInboxTO changeInboxMessageStatus(int id, CohortTO cohortTO, SproutStudyConstantService.InboxStatus inboxStatus);
+    public BooleanTO deleteSubmission(CohortTO cohortTO, String instanceId);
+    public BooleanTO markInboxMessageAsRead(String instanceId);
+    public UserTO getUser(String username);
 }
