@@ -137,6 +137,7 @@
 <script src="scripts/controllers/globalController.js"></script>
 <script src="scripts/controllers/cohortController.js"></script>
 <script src="scripts/controllers/settingsController.js"></script>
+<script src="scripts/controllers/formManagerController.js"></script>
 <script src="scripts/filters/filters.js"></script>
 <script src="scripts/directives/forms.js"></script>
 <script src="scripts/directives/preventDefault.js"></script>
@@ -149,6 +150,7 @@
 <script src="scripts/services/providerService.js"></script>
 <script src="scripts/services/patientService.js"></script>
 <script src="scripts/services/settingsService.js"></script>
+<script src="scripts/services/formManagerService.js"></script>
 <script src="scripts/services/adminService.js"></script>
 <script src="scripts/directives/custodialAgreementDirective.js"></script>
 <script src="scripts/directives/enrollmentLetterDirective.js"></script>
@@ -168,6 +170,8 @@
 <div class="container container-sproutstudy" style="margin-top: 50px;" ng-view></div>
 
 <script type="text/javascript">
+    var sproutFormsDoneInd = false;
+
     jQuerySprout(document).ready(function() {
 //        jQuerySprout(".study-tab:not('.study-tab-default')").hide();
 
@@ -240,11 +244,13 @@
         jQuerySprout(".sproutstudy-tab-" + instanceId).addClass("active");
     }
 
+    function sproutFormsDoneCallback() {
+        sproutFormsDoneInd = true;
+    }
+
     function deletePaneContent(id) {
         var instanceId = jQuerySprout(".sproutstudy-tab-li.active").attr("instance");
         var form = jQuerySprout(".sproutstudy-tab-li.active").data("form");
-
-//        console.log("deletePaneContent: " + id);
 
         if (instanceId != null && instanceId != 'home') {
             var sourceTab = jQuerySprout(".sproutstudy-tab-" + instanceId);
@@ -258,20 +264,21 @@
             var targetInstanceId = targetTab.attr("instance");
             jQuerySprout(".sproutstudy-content-" + targetInstanceId).show();
             angular.element(jQuerySprout("#studyControllerDiv")).scope().getSubjectInbox();
-            angular.element(jQuerySprout("#studyControllerDiv")).scope().onComposeMessage(form);
+
+            if (!sproutFormsDoneInd) angular.element(jQuerySprout("#studyControllerDiv")).scope().onComposeMessage(form);
+
         } else {
             // demographic form was just submitted
-            console.log("demographic form was just submitted");
             instanceId = jQuerySprout(".iframe-demographic-form-content").attr("instanceId");
-
-            console.log("deletePaneContent.id: " + id);
-            console.log("deletePaneContent.instanceId: " + instanceId);
 
             angular.element(jQuerySprout("#studyControllerDiv")).scope().setNewSubject(id, instanceId);
         }
 
         angular.element(jQuerySprout("#studyControllerDiv")).scope().getMutableForms();
         angular.element(jQuerySprout("#studyControllerDiv")).scope().$apply();
+
+        sproutFormsDoneInd = false;
+
     }
 
     function clearAllFormTabs() {

@@ -120,6 +120,11 @@ tr.inbox-row:hover {
 }
 td.inbox-cell:hover {
 }
+.sortable:hover {
+    cursor: pointer;
+    /*color: blue;*/
+    /*text-decoration: underline;*/
+}
 
 div.box {
     border: solid 1px #CCCCCC;

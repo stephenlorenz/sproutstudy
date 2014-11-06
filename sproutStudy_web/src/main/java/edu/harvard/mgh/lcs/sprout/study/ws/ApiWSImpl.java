@@ -157,6 +157,16 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
     }
 
     @Override
+    @WebMethod(operationName="saveFormPublicationKey")
+    public BooleanTO saveFormPublicationKey(@Context HttpServletRequest request, @QueryParam("id") String id, @QueryParam("publicationKey") String publicationKey) throws InvalidSessionRESTful {
+        SessionTO sessionTO = getSessionTO(request);
+        if (sessionTO != null) {
+            return studyService.saveFormPublicationKey(id, publicationKey);
+        }
+        return new BooleanTO(false);
+    }
+
+    @Override
     @WebMethod(operationName="deleteInboxMessage")
     public StudyInboxTO deleteInboxMessage(@Context HttpServletRequest request, @QueryParam("id") int id) throws InvalidSessionRESTful {
         CohortTO cohortTO = getLastSelectedCohort(request);
@@ -203,6 +213,25 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
                         publicationKeys.add(cohortFormTO.getPublicationKey());
                     }
                     return sproutFormsService.getMutableForms(sessionTO.getUser(), sessionTO.getCohortTO(), publicationKeys);
+                }
+            }
+        }
+        return null;
+    }
+    @Override
+    @WebMethod(operationName="getAllForms")
+    public List<FormInstanceTO> getAllForms(@Context HttpServletRequest request, @QueryParam("page") int page, @QueryParam("rows") int rows) throws InvalidSessionRESTful {
+        SessionTO sessionTO = getSessionTO(request);
+        if (sessionTO != null) {
+            CohortTO cohortTO = getLastSelectedCohort(request);
+            if (cohortTO != null) {
+                List<CohortFormTO> cohortFormTOList = cohortTO.getForms();
+                Set<String> publicationKeys = new HashSet<String>();
+                if (cohortFormTOList != null && cohortFormTOList.size() > 0) {
+                    for (CohortFormTO cohortFormTO : cohortFormTOList) {
+                        publicationKeys.add(cohortFormTO.getPublicationKey());
+                    }
+                    return sproutFormsService.getAllForms(sessionTO.getUser(), sessionTO.getCohortTO(), publicationKeys, page, rows);
                 }
             }
         }

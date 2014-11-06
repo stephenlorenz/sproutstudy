@@ -14,9 +14,10 @@ public class StudyInboxTO implements Serializable {
     private String subjectId;
     private String instanceId;
     private String form;
-    private String formTitle ="bo";
+    private String formTitle ="";
     private InboxStatusTO status;
     private Date activityDate;
+    private Date deliveryDate;
     private CohortTO cohortTO;
 
     public int getId() {
@@ -113,6 +114,14 @@ public class StudyInboxTO implements Serializable {
 
     public void setActivityDate(Date activityDate) {
         this.activityDate = activityDate;
+    }
+
+    public Date getDeliveryDate() {
+        return deliveryDate;
+    }
+
+    public void setDeliveryDate(Date deliveryDate) {
+        this.deliveryDate = deliveryDate;
     }
 
     public CohortTO getCohortTO() {

@@ -64,6 +64,10 @@ public class InboxEntity implements Serializable {
     @Column(name="activity_date", columnDefinition="datetime", nullable=false)
     private Date activityDate = new Date();
 
+    @Basic
+    @Column(name="delivery_date", columnDefinition="datetime", nullable=false)
+    private Date deliveryDate = new Date();
+
 	public int getId() {
 		return id;
 	}
@@ -158,5 +162,13 @@ public class InboxEntity implements Serializable {
 
     public void setActivityDate(Date activityDate) {
         this.activityDate = activityDate;
+    }
+
+    public Date getDeliveryDate() {
+        return deliveryDate;
+    }
+
+    public void setDeliveryDate(Date deliveryDate) {
+        this.deliveryDate = deliveryDate;
     }
 }

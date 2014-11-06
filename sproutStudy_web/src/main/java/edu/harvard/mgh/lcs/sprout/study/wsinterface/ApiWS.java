@@ -6,6 +6,7 @@ import edu.harvard.mgh.lcs.sprout.forms.study.beanws.Result;
 import edu.harvard.mgh.lcs.sprout.forms.study.exception.InvalidSessionRESTful;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.*;
 
+import javax.jws.WebMethod;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -94,6 +95,11 @@ public interface ApiWS {
     public List<FormInstanceTO> getMutableForms(@Context HttpServletRequest request) throws InvalidSessionRESTful;
 
     @GET
+    @Path("/secure/getAllForms")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<FormInstanceTO> getAllForms(@Context HttpServletRequest request, @QueryParam("page") int page, @QueryParam("rows") int rows) throws InvalidSessionRESTful;
+
+    @GET
     @Path("/secure/getRecentCohortMembers")
     @Produces(MediaType.APPLICATION_JSON)
     public List<Result> getRecentCohortMembers(@Context HttpServletRequest request) throws InvalidSessionRESTful;
@@ -142,4 +148,10 @@ public interface ApiWS {
     @Path("/secure/getSession")
     @Produces(MediaType.APPLICATION_JSON)
     public SessionTO getSessionTO(@Context HttpServletRequest request) throws InvalidSessionRESTful;
-}
+
+    @GET
+    @Path("/secure/saveFormPublicationKey")
+    @Produces(MediaType.APPLICATION_JSON)
+    public BooleanTO saveFormPublicationKey(@Context HttpServletRequest request, @QueryParam("id") String id, @QueryParam("publicationKey") String publicationKey) throws InvalidSessionRESTful;
+
+    }

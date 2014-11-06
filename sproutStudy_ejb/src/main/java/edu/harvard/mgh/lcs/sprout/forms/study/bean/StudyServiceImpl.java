@@ -209,6 +209,7 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
             studyInboxTO.setForm(inboxEntity.getForm());
             studyInboxTO.setFormTitle(extractFormTitleFromJSON(inboxEntity.getForm()));
             studyInboxTO.setActivityDate(inboxEntity.getActivityDate());
+            studyInboxTO.setDeliveryDate(inboxEntity.getDeliveryDate());
             studyInboxTO.setSender(constructUserTO(inboxEntity.getSender()));
             studyInboxTO.setCohortTO(constructCohortTO(inboxEntity.getCohort()));
             studyInboxTO.setRecipient(constructUserTO(inboxEntity.getRecipient()));
@@ -244,6 +245,20 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
             }
         }
         return null;
+    }
+
+    @Override
+    public BooleanTO saveFormPublicationKey(String id, String publicationKey) {
+        if (StringUtils.isFull(id, publicationKey) && StringUtils.isInteger(id)) {
+            FormEntity formEntity = entityManager.find(FormEntity.class, Integer.parseInt(id));
+            if (formEntity != null) {
+                formEntity.setPublicationKey(publicationKey);
+                formEntity.setActivityDate(new Date());
+                entityManager.merge(formEntity);
+                return new BooleanTO(true);
+            }
+        }
+        return new BooleanTO(false);
     }
 
     private String extractFormTitleFromJSON(String form) {
@@ -297,6 +312,7 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
                     inboxEntity.setSubjectName(subjectName);
                     inboxEntity.setCohort(cohortEntity);
                     inboxEntity.setActivityDate(new Date());
+                    inboxEntity.setDeliveryDate(new Date());
                     entityManager.persist(inboxEntity);
 
                     publishToMailQueue(constructStudyInboxTO(inboxEntity, cohortTO));
@@ -618,6 +634,7 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
         if (cohortEntity != null && cohortEntity.getCohortForms() != null) {
             for (CohortFormEntity cohortFormEntity : cohortEntity.getCohortForms()) {
                 CohortFormTO cohortFormTO = new CohortFormTO();
+                cohortFormTO.setId(cohortFormEntity.getForm().getId() + "");
                 cohortFormTO.setName(cohortFormEntity.getForm().getName());
                 cohortFormTO.setPublicationKey(cohortFormEntity.getForm().getPublicationKey());
                 cohortFormTO.setDemographic(cohortFormEntity.getForm().getDemographic());

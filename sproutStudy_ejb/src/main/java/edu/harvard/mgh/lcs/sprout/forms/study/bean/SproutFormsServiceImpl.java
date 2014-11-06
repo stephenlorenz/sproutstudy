@@ -334,6 +334,78 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
         }
         return null;
     }
+    @Override
+    public List<FormInstanceTO> getAllForms(String username, CohortTO cohortTO, Set<String> publicationKeys, int page, int rows) {
+
+        if (publicationKeys != null && publicationKeys.size() > 0 && cohortTO != null) {
+
+            List<String> publicationKeysList = new ArrayList<String>();
+            for (String publicationKey : publicationKeys) publicationKeysList.add(publicationKey);
+
+            if (formsWebService == null) init();
+
+            if (formsWebService != null) {
+
+                String orgAuthKey = System.getProperty("edu.harvard.mgh.lcs.ihealthspace.module.forms.sprout.authToken");
+
+                if (!StringUtils.isEmpty(orgAuthKey)) {
+
+//                    auditService.log(username, AuditType.GET_INBOX, SproutStudyConstantService.AuditVerbosity.INFO, "Retrieving subject inbox", cohortTO, cohortPrimaryIdentitySchema, cohortPrimaryIdentityId, String.format("Retrieving subject, %s, inbox.", getIdentityArrayAsString(identityArray)));
+
+                    FormDeliveryTO formDeliveryTO = formsWebService.getFormsByPublications(orgAuthKey, publicationKeysList, page, rows);
+
+                    if (formDeliveryTO != null) {
+                        List<FormInstanceTO> forms = new ArrayList<FormInstanceTO>();
+
+                        List<FormInstanceTO> formInstanceTOList = formDeliveryTO.getFormInstances();
+                        if (formInstanceTOList != null && formInstanceTOList.size() > 0) {
+                            for (FormInstanceTO formInstanceTO : formInstanceTOList) {
+//                                if (!StringUtils.isEmpty(formInstanceTO.getDeliveryKey())) {
+//                                    SproutStudyConstantService.SubmissionStatus submissionStatus = formSubmissionService.getSubmissionStatus(formInstanceTO.getPublicationKey(), formInstanceTO.getInstanceId(), formInstanceTO.getDeliveryKey());
+//                                    if (submissionStatus != null) {
+//                                        formInstanceTO.setAdminStatus(submissionStatus.toString());
+//                                    }
+//                                }
+
+                                if (formInstanceTO.getIdentities() != null && formInstanceTO.getIdentities().size() > 0) {
+                                    StringBuilder subjectIds = new StringBuilder();
+
+                                    for (IdentityTO identityTO : formInstanceTO.getIdentities()) {
+                                        if (identityTO.getScheme() != null && identityTO.getScheme().equalsIgnoreCase(cohortTO.getCohortSubjectSchema())) {
+                                            if (subjectIds.length() > 0) subjectIds.append("|");
+                                            subjectIds.append(identityTO.getId());
+                                            break;
+                                        }
+                                    }
+                                    if (subjectIds.length() > 0) {
+                                        List<Result> results = studyService.getRemoteCohortSubjectsByList(cohortTO, subjectIds.toString());
+                                        if (results != null && results.size() > 0) {
+                                            for (Result result : results) {
+                                                if (result != null && !StringUtils.isEmpty(result.getId())) {
+                                                    formInstanceTO.setIdentityFirstName(result.getFirstName());
+                                                    formInstanceTO.setIdentityLastName(result.getLastName());
+                                                    formInstanceTO.setIdentityFullName(result.getFullName());
+                                                    formInstanceTO.setIdentityGender(result.getGender());
+                                                    formInstanceTO.setIdentityDob(DateUtils.getXMLGregorianCalendarFromDate(result.getBirthDate()));
+                                                    formInstanceTO.setIdentityPrimarySchema(cohortTO.getCohortSubjectSchema());
+                                                    formInstanceTO.setIdentityPrimaryId(result.getId());
+                                                    break;
+                                                }
+
+                                            }
+                                            forms.add(formInstanceTO);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        return forms;
+                    }
+                }
+            }
+        }
+        return null;
+    }
 
     private String getCohortPrimaryIdentitySchema(CohortTO cohortTO) {
         if (cohortTO != null) {

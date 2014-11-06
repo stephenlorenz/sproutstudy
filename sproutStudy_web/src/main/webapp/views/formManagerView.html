@@ -1,0 +1,30 @@
+<div>
+    <legend>Cohort Form Listing</legend>
+
+    <table class="table table-condensed table-striped" >
+        <thead class="inbox">
+        <tr>
+            <th>Name</th>
+            <th>Publication Key</th>
+            <th>Demographic Ind</th>
+            <th>Timestamp</th>
+            <th style="text-align: center; width: 60px;">Save</th>
+            <!--<th style="text-align: center; width: 60px;">Delete</th>-->
+        </tr>
+        </thead>
+        <tr ng-repeat="form in cohort.forms | orderBy:name" >
+            <td>{{form.name}}</a></td>
+            <td><input ng-model="form.publicationKey" style="min-width: 320px; font-family: 'Courier New', Courier, monospace" ng-change="onPubIdModified(form)"></a></td>
+            <td>{{form.demographic}}</a></td>
+            <td>{{form.activityDate | date:'medium' }}</a></td>
+            <td style="text-align: center; width: 80px;">
+                <button class="btn btn-mini" ng-class="{'btn-primary': form.modified}" ng-disabled="!form.modified" ng-click="onSaveForm(form)" ></i>Save</button>
+            </td>
+            <!--<td style="text-align: center; width: 80px;">-->
+                <!--<button class="btn btn-mini btn-warning" ng-click="onDeleteForm(form)"><i class="icon-trash icon-white" style="margin-right: 0px;"></i></button>-->
+            <!--</td>-->
+        </tr>
+    </table>
+
+
+</div>

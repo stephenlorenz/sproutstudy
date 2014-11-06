@@ -9,6 +9,7 @@ angular.module('sproutStudyApp')
         $scope.patientMatches = undefined;
         $scope.recentCohortMembers = undefined;
         $scope.mutableForms = undefined;
+        $scope.allForms = undefined;
         $scope.studyInbox = undefined;
         $scope.searchEnabled = true;
 
@@ -17,6 +18,14 @@ angular.module('sproutStudyApp')
 
 //        $scope.query = "buster";
         $scope.sendMessageForm = null;
+        $scope.sendMessageButtonText = "Send";
+        $scope.sendingMessage = false;
+
+        $scope.deleteFormButtonText = "Delete";
+        $scope.deletingMessage = false;
+
+
+
         $scope.query = "";
 
         $scope.patient = null;
@@ -72,7 +81,10 @@ angular.module('sproutStudyApp')
         $scope.cohorts = null;
 
         $scope.statuses = null;
+        $scope.formFilterRule = undefined;
         $scope.statusesIncomplete = null;
+        $scope.allFormsFilterStatus = null;
+        $scope.allFormsFilterForm = null;
 
         $scope.addPaneOrig = function(title, instanceId, nonce) {
             addPaneContent(title, instanceId, nonce);
@@ -86,6 +98,9 @@ angular.module('sproutStudyApp')
             if ($scope.status !== undefined) {
                 if (item.inboxStatus != $scope.status) return false;
             }
+            if ($scope.formFilterRule !== undefined) {
+                if (item.title != $scope.formFilterRule) return false;
+            }
             return true;
         };
 
@@ -95,6 +110,14 @@ angular.module('sproutStudyApp')
                 $scope.status = status;
             } else {
                 $scope.status = undefined;
+            }
+        }
+        $scope.onFilterByForm = function(formFilterRule) {
+//            console.log("filtering by status: " + status);
+            if (formFilterRule !== undefined) {
+                $scope.formFilterRule = formFilterRule;
+            } else {
+                $scope.formFilterRule = undefined;
             }
         }
 
@@ -270,6 +293,42 @@ angular.module('sproutStudyApp')
             });
         }
 
+        $scope.getAllForms = function() {
+            $scope.allForms = undefined;
+            studyService.getAllForms({page: 1, rows: 5}, function(data) {
+                $scope.allForms = data;
+
+                $scope.allFormsFilterStatus = new Array();
+                $scope.allFormsFilterForm = new Array();
+
+                for (var i = 0; i < data.length; i++) {
+                    var statusIncludeInd = true;
+                    var formIncludeInd = true;
+                    if ($scope.allFormsFilterStatus !== undefined && $scope.allFormsFilterStatus.length > 0) {
+                        for (var i2=0;i2<$scope.allFormsFilterStatus.length;i2++) {
+                            if ($scope.allFormsFilterStatus[i2] == data[i].inboxStatus) {
+                                statusIncludeInd = false;
+                            }
+                        }
+
+                    }
+                    if ($scope.allFormsFilterForm !== undefined && $scope.allFormsFilterForm.length > 0) {
+                        for (var i2=0;i2<$scope.allFormsFilterForm.length;i2++) {
+                            if ($scope.allFormsFilterForm[i2] == data[i].title) {
+                                formIncludeInd = false;
+                            }
+                        }
+
+                    }
+
+                    if (statusIncludeInd) $scope.allFormsFilterStatus.push(data[i].inboxStatus);
+                    if (formIncludeInd) $scope.allFormsFilterForm.push(data[i].title);
+                }
+
+
+            });
+        }
+
         $scope.getStudyInbox = function() {
             $scope.studyInbox = undefined;
             studyService.getStudyInbox({}, function(data) {
@@ -280,6 +339,7 @@ angular.module('sproutStudyApp')
         $scope.getStudyInbox();
         $scope.getRecentCohortMembers();
         $scope.getMutableForms();
+        $scope.getAllForms();
 
         $scope.setNewSubject = function(id, instanceId) {
             studyService.findCohortMember({cohortQueryURL: cohortService.getCohort().cohortQueryURL, query: id}, function(data) {
@@ -290,7 +350,7 @@ angular.module('sproutStudyApp')
                     $scope.subject = $scope.patientMatches[0];
 
                     if ($scope.subject != null) {
-                        var formObject = $scope.newFormConstructor(instanceId, "New Subject", $scope.subject.fullName, $scope.subject.firstName, $scope.subject.lastName, $scope.subject.id);
+                        var formObject = $scope.newFormConstructor(instanceId, null, "New Subject", $scope.subject.fullName, $scope.subject.firstName, $scope.subject.lastName, $scope.subject.id);
 
                         $scope.onComposeMessage(formObject);
 
@@ -376,7 +436,7 @@ angular.module('sproutStudyApp')
                     $scope.getSubjectInbox();
 
                     var instanceId = data.instanceId;
-                    var formObject = $scope.newFormConstructor(instanceId, form.name, subject.fullName, subject.firstName, subject.lastName, subject.id);
+                    var formObject = $scope.newFormConstructor(instanceId, form.publicationKey, form.name, subject.fullName, subject.firstName, subject.lastName, subject.id);
 
                     formsService.applyForNonce({instanceId: instanceId, subjectName: subject.fullName, subjectId: subject.id}, function(dataCallback) {
                         var nonce = dataCallback.nonce;
@@ -405,27 +465,13 @@ angular.module('sproutStudyApp')
 
             var expirationDate = null;
 
-            formsService.deliverForm({schema: "mgh", id: subject.id, publicationKey: form.publicationKey, provider: null, expirationDate: null}, function(data) {
-                if (data.instanceId != null) {
-                    $scope.getSubjectInbox();
-
-                    var instanceId = data.instanceId;
-                    var formObject = $scope.newFormConstructor(instanceId, form.name, subject.fullName, subject.firstName, subject.lastName, subject.id);
-
-                    $scope.onComposeMessage(formObject);
-
-                    $scope.deliverFormModal = false;
-                    $scope.deliveringInd = false;
-                } else {
-                    $scope.deliveringInd = 'error';
-                    $scope.deliveryError = data.message;
-                }
-            });
+            var formObject = $scope.newFormConstructor(null, form.publicationKey, form.name, subject.fullName, subject.firstName, subject.lastName, subject.id);
+            $scope.onComposeMessage(formObject);
 
         };
 
-        $scope.newFormConstructor = function(instanceId, title, fullName, firstName, lastName, subjectId) {
-            return {instanceId: instanceId, title: title, identityFullName: fullName, identityFirstName: firstName, identityLastName: lastName, identityPrimaryId: subjectId};
+        $scope.newFormConstructor = function(instanceId, publicationKey, title, fullName, firstName, lastName, subjectId) {
+            return {instanceId: instanceId, title: title, identityFullName: fullName, identityFirstName: firstName, identityLastName: lastName, identityPrimaryId: subjectId, publicationKey: publicationKey};
         }
 
         $scope.addSubject = function() {
@@ -489,7 +535,9 @@ angular.module('sproutStudyApp')
         $scope.onComposeMessage = function(form) {
 //            $log.log("onComposeMessage.instanceId: " + form.instanceId)
 //            $log.log("onComposeMessage.formTitle: " + form.title)
-            $scope.messageText = null;
+            $scope.messageText = "Please review this form.";
+            $scope.sendMessageButtonText = "Send";
+            $scope.sendingMessage = false;
             $scope.messageTo = null;
             $scope.sendMessageForm = form;
             $scope.sendMessageModal = true;
@@ -505,16 +553,70 @@ angular.module('sproutStudyApp')
         $scope.onCloseSendMessageModal = function() {
             $scope.sendMessageModal = false;
         }
+        $scope.onCloseDeleteFormModal = function() {
+            $scope.deleteFormModal = false;
+        }
+
+        $scope.onDeleteForm = function() {
+            $scope.deleteFormButtonText = "Deleting";
+            $scope.deletingForm = true;
+            $scope.deleteMessageText = "Deleting form...please wait...";
+
+            studyService.deleteSubmission({instanceId: $scope.deleteFormInstance}, function(data) {
+                if (data.value == 'false') {
+                } else {
+                    $scope.getSubjectInbox();
+                }
+                $scope.onCloseDeleteFormModal();
+            });
+
+        }
 
         $scope.onSendMessage = function() {
 
-            $.each($scope.messageTo, function(index, recipient) {
-                var username = recipient.user.username;
-                studyService.sendMessage({to: username, form: JSON.stringify($scope.sendMessageForm), message: encodeURIComponent($scope.messageText), instanceId: $scope.sendMessageForm.instanceId, formTitle: $scope.sendMessageForm.title, subjectId: cohortService.getMember().id, subjectName: cohortService.getMember().fullName}, function(data) {
-                    $scope.sendMessageModal = false;
-                    $scope.getStudyInbox();
+            $scope.sendMessageButtonText = "Sending...";
+            $scope.sendingMessage = true;
+
+            if ($scope.sendMessageForm.instanceId == null) {
+                formsService.deliverForm({schema: "mgh", id: $scope.sendMessageForm.identityPrimaryId, publicationKey: $scope.sendMessageForm.publicationKey, provider: null, expirationDate: null}, function(data) {
+                    if (data.instanceId != null) {
+                        $scope.getSubjectInbox();
+
+                        var instanceId = data.instanceId;
+                        $scope.sendMessageForm.instanceId = instanceId;
+                        $scope.deliverFormModal = false;
+                        $scope.deliveringInd = false;
+
+
+                        $.each($scope.messageTo, function(index, recipient) {
+                            var username = recipient.user.username;
+                            studyService.sendMessage({to: username, form: JSON.stringify($scope.sendMessageForm), message: encodeURIComponent($scope.messageText), instanceId: $scope.sendMessageForm.instanceId, formTitle: $scope.sendMessageForm.title, subjectId: cohortService.getMember().id, subjectName: cohortService.getMember().fullName}, function(data) {
+                                $scope.sendMessageModal = false;
+//                                $scope.sendMessageButtonText = "Send";
+                                $scope.sendingMessage = false;
+                                $scope.getStudyInbox();
+                            });
+                        });
+
+                    } else {
+                        $scope.deliveringInd = 'error';
+                        $scope.deliveryError = data.message;
+//                        $scope.sendMessageButtonText = "Send";
+                        $scope.sendingMessage = false;
+                    }
                 });
-            });
+            } else {
+                $.each($scope.messageTo, function(index, recipient) {
+                    var username = recipient.user.username;
+                    studyService.sendMessage({to: username, form: JSON.stringify($scope.sendMessageForm), message: encodeURIComponent($scope.messageText), instanceId: $scope.sendMessageForm.instanceId, formTitle: $scope.sendMessageForm.title, subjectId: cohortService.getMember().id, subjectName: cohortService.getMember().fullName}, function(data) {
+                        $scope.sendMessageModal = false;
+//                        $scope.sendMessageButtonText = "Send";
+                        $scope.sendingMessage = false;
+                        $scope.getStudyInbox();
+                    });
+                });
+            }
+
         }
 
         $scope.openDeliverFormModal = function() {
@@ -756,18 +858,11 @@ angular.module('sproutStudyApp')
         }
 
         $scope.onDeleteSubmission = function (instanceId) {
-            var answer = confirm("Are you sure you want to delete this form?  This action cannot be undone!")
-            if (answer == true) {
-                studyService.deleteSubmission({instanceId: instanceId}, function(data) {
-//                    console.log("onDeleteSubmission: " + data.value);
-                    if (data.value == 'false') {
-//                        console.log("onDeleteSubmission failed.");
-                    } else {
-//                        console.log("onDeleteSubmission succeeded.");
-                        $scope.getSubjectInbox();
-                    }
-                });
-            }
+            $scope.deleteFormInstance = instanceId;
+            $scope.deleteMessageText = "Are you sure you want to delete this form?  This action cannot be undone!";
+            $scope.deleteFormButtonText = "Delete";
+            $scope.deletingForm = false;
+            $scope.deleteFormModal = true;
         }
 
         $scope.onPrintForm = function () {
@@ -777,7 +872,6 @@ angular.module('sproutStudyApp')
             $('#printFormFrame').contents().find('html').find(".sprout-page-relevant").show();
             $("#printFormFrame").get(0).contentWindow.print();
         };
-
 
         $scope.closeViewForm = function () {
             $scope.viewFormModal = false;

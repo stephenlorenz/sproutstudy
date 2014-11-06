@@ -27,4 +27,6 @@ public interface StudyService {
     public BooleanTO deleteSubmission(CohortTO cohortTO, String instanceId);
     public BooleanTO markInboxMessageAsRead(String instanceId);
     public UserTO getUser(String username);
+
+    BooleanTO saveFormPublicationKey(String id, String publicationKey);
 }

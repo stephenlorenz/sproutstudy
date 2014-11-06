@@ -330,6 +330,8 @@ public class AuditServiceImpl implements AuditService, SproutStudyConstantServic
             if (domainEntity != null) {
                 return getSystemUser(domainEntity);
             }
+        } else {
+            return systemUserEntity;
         }
         return null;
     }

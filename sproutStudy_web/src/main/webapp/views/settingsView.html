@@ -1,14 +1,13 @@
 <div>
-    <legend>Account Settings</legend>
+    <legend>Cohor Form Listing</legend>
 
     <table class="table table-condensed table-striped" >
         <thead class="inbox">
         <tr>
-            <th>Setting</th>
-            <th>Value</th>
+            <th>Name</th>
+            <th>Publication Key</th>
+            <th>Demographic Ind</th>
             <th style="text-align: center; width: 60px;">Delete</th>
-            <th style="text-align: center; width: 60px;">View<br/>Message</th>
-            <th style="text-align: center; width: 60px;">Open<br/>Form</th>
         </tr>
         </thead>
         <tr class="inbox-row" ng-repeat='preference in user.preferences | filter: { userEditable: true }' >
