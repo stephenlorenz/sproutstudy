@@ -125,6 +125,10 @@ td.inbox-cell:hover {
     /*color: blue;*/
     /*text-decoration: underline;*/
 }
+.dropdown-menu a:hover {
+    cursor: pointer;
+
+}
 
 div.box {
     border: solid 1px #CCCCCC;

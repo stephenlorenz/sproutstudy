@@ -268,30 +268,30 @@ angular.module('sproutStudyApp')
             }
         };
 
-        $scope.getMutableForms = function() {
-            $scope.mutableForms = undefined;
-            studyService.getMutableForms({}, function(data) {
-                $scope.mutableForms = data;
-
-                $scope.statusesIncomplete = new Array();
-
-                for (var i = 0; i < data.length; i++) {
-                    var includeInd = true;
-                    if ($scope.statusesIncomplete !== undefined && $scope.statusesIncomplete.length > 0) {
-                        for (var i2=0;i2<$scope.statusesIncomplete.length;i2++) {
-                            if ($scope.statusesIncomplete[i2] == data[i].inboxStatus) {
-                                includeInd = false;
-                            }
-                        }
-
-                    }
-
-                    if (includeInd) $scope.statusesIncomplete.push(data[i].inboxStatus);
-                }
-
-
-            });
-        }
+//        $scope.getMutableForms = function() {
+//            $scope.mutableForms = undefined;
+//            studyService.getMutableForms({}, function(data) {
+//                $scope.mutableForms = data;
+//
+//                $scope.statusesIncomplete = new Array();
+//
+//                for (var i = 0; i < data.length; i++) {
+//                    var includeInd = true;
+//                    if ($scope.statusesIncomplete !== undefined && $scope.statusesIncomplete.length > 0) {
+//                        for (var i2=0;i2<$scope.statusesIncomplete.length;i2++) {
+//                            if ($scope.statusesIncomplete[i2] == data[i].inboxStatus) {
+//                                includeInd = false;
+//                            }
+//                        }
+//
+//                    }
+//
+//                    if (includeInd) $scope.statusesIncomplete.push(data[i].inboxStatus);
+//                }
+//
+//
+//            });
+//        }
 
         $scope.getAllForms = function() {
             $scope.allForms = undefined;
@@ -338,7 +338,7 @@ angular.module('sproutStudyApp')
 
         $scope.getStudyInbox();
         $scope.getRecentCohortMembers();
-        $scope.getMutableForms();
+//        $scope.getMutableForms();
         $scope.getAllForms();
 
         $scope.setNewSubject = function(id, instanceId) {
@@ -649,7 +649,7 @@ angular.module('sproutStudyApp')
                 $scope.getCohortAuthorizations();
                 $scope.getStudyInbox();
                 $scope.getRecentCohortMembers();
-                $scope.getMutableForms();
+                $scope.getAllForms();
             })
         }
 
@@ -817,7 +817,7 @@ angular.module('sproutStudyApp')
                 var tabTitle = {fullName: "New Subject", id: 0};
                 cohortService.setMember(tabTitle);
 
-                var content = '<iframe id="iframe-' + instanceId + '" name="iframe-' + instanceId + '" instanceId="' + instanceId + '" src="/prompt/?instanceId=' + instanceId + '&nonce=' + nonce + '&debug=true&showThanks=false" class="appFrame iframe-demographic-form-content" />';
+                var content = '<iframe id="iframe-' + instanceId + '" name="iframe-' + instanceId + '" instanceId="' + instanceId + '" src="/prompt/?instanceId=' + instanceId + '&nonce=' + nonce + '&debug=true&showThanks=false&disableSave=true" class="appFrame iframe-demographic-form-content" />';
                 $scope.demographicFormContent = content;
 
 //                $scope.addPane(tabTitle, instanceId, nonce);

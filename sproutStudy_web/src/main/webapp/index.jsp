@@ -133,7 +133,6 @@
 <script src="scripts/controllers/formSubmissionController.js"></script>
 <script src="scripts/controllers/patientController.js"></script>
 <script src="scripts/controllers/studyController.js"></script>
-<script src="scripts/controllers/adminController.js"></script>
 <script src="scripts/controllers/globalController.js"></script>
 <script src="scripts/controllers/cohortController.js"></script>
 <script src="scripts/controllers/settingsController.js"></script>
@@ -151,7 +150,6 @@
 <script src="scripts/services/patientService.js"></script>
 <script src="scripts/services/settingsService.js"></script>
 <script src="scripts/services/formManagerService.js"></script>
-<script src="scripts/services/adminService.js"></script>
 <script src="scripts/directives/custodialAgreementDirective.js"></script>
 <script src="scripts/directives/enrollmentLetterDirective.js"></script>
 <script src="scripts/directives/formDeliveryExpirationDate.js"></script>
@@ -274,7 +272,7 @@
             angular.element(jQuerySprout("#studyControllerDiv")).scope().setNewSubject(id, instanceId);
         }
 
-        angular.element(jQuerySprout("#studyControllerDiv")).scope().getMutableForms();
+        angular.element(jQuerySprout("#studyControllerDiv")).scope().getAllForms();
         angular.element(jQuerySprout("#studyControllerDiv")).scope().$apply();
 
         sproutFormsDoneInd = false;

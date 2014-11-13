@@ -118,7 +118,7 @@
                                     <th class="sortable" ng-click="studyInboxChangeSort('sender.fullName')">Sender<i ng-class="studyInboxSortClass('sender.fullName')" ng-style="{'margin-left': studyInboxSortStyle('sender.fullName')}" ></i></th>
                                     <th class="sortable" ng-click="studyInboxChangeSort('subjectName')">Subject<i ng-class="studyInboxSortClass('subjectName')" ng-style="{'margin-left': studyInboxSortStyle('subjectName')}"></i></th>
                                     <th class="sortable" ng-click="studyInboxChangeSort('formTitle')">Form<i ng-class="studyInboxSortClass('formTitle')" ng-style="{'margin-left': studyInboxSortStyle('formTitle')}"></i></th>
-                                    <th class="sortable" ng-click="studyInboxChangeSort('activityDate')">Date<i ng-class="studyInboxSortClass('activityDate')" ng-style="{'margin-left': studyInboxSortStyle('activityDate')}"></i></th>
+                                    <th class="sortable" ng-click="studyInboxChangeSort('deliveryDate')">Date<i ng-class="studyInboxSortClass('deliveryDate')" ng-style="{'margin-left': studyInboxSortStyle('deliveryDate')}"></i></th>
                                     <th class="sortable" ng-click="studyInboxChangeSort('status.code')">Status<i ng-class="studyInboxSortClass('status.code')" ng-style="{'margin-left': studyInboxSortStyle('status.code')}"></i></th>
                                     <th style="text-align: center; width: 60px;">Delete</th>
                                     <th style="text-align: center; width: 60px;">View<br/>Message</th>
@@ -357,7 +357,7 @@
                 <div class="control-group">
                     <label class="control-label" for="sendFormMessageSendTo">Send to</label>
                     <div class="controls">
-                        <select id="sendFormMessageSendTo" multiple="multiple" ng-model="messageTo" ng-options="authorization.user.fullName for authorization in cohortAuthorizations"></select>
+                        <select id="sendFormMessageSendTo" multiple="multiple" ng-model="messageTo" ng-options="authorization.user.fullName for authorization in cohortAuthorizations | orderBy: 'user.fullName'"></select>
                     </div>
                 </div>
                 <div class="control-group">
