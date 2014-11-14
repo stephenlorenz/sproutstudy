@@ -47,7 +47,7 @@
     <link rel="icon" href="/sproutassets/images/favicon.png" type="image/png" />
     
     <link type="text/css" rel="stylesheet" href="/sproutassets/stylesheets/bootstrap/css/bootstrap.css" />
-    <link type="text/css" rel="stylesheet" href="/sproutassets/stylesheets/bootstrap/css/bootstrap.icon-large.min.css" />
+    <%--<link type="text/css" rel="stylesheet" href="/sproutassets/stylesheets/bootstrap/css/bootstrap.icon-large.min.css" />--%>
 	<link type="text/css" rel="stylesheet" href="/sproutassets/stylesheets/lcs/css/lcs.css" />
 	<link type="text/css" rel="stylesheet" href="/sproutassets/stylesheets/lcs/css/login.css" />
 	<link type="text/css" rel="stylesheet" href="/sproutassets/stylesheets/bootstrap/css/responsive.css" />
@@ -264,11 +264,9 @@
             angular.element(jQuerySprout("#studyControllerDiv")).scope().getSubjectInbox();
 
             if (!sproutFormsDoneInd) angular.element(jQuerySprout("#studyControllerDiv")).scope().onComposeMessage(form);
-
         } else {
             // demographic form was just submitted
             instanceId = jQuerySprout(".iframe-demographic-form-content").attr("instanceId");
-
             angular.element(jQuerySprout("#studyControllerDiv")).scope().setNewSubject(id, instanceId);
         }
 
@@ -308,7 +306,7 @@
         var tNavBarHeight = $(".navbar-fixed-top").height();
         var footerHeight = $(".footer").height();
         var wHeight = $(window).height();
-        var aHeight = tNavBarHeight + footerHeight + 15;
+        var aHeight = tNavBarHeight + footerHeight + 70;
         $(".appFrame").height(wHeight - aHeight);
     }
 </script>

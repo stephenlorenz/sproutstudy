@@ -389,24 +389,9 @@
             <button class="btn btn-primary" ng-disabled="deletingForm" ng-click="onDeleteForm()">{{deleteFormButtonText}}</button>
         </div>
     </div>
-
 </div>
 
-<div modal="viewFormModal" close="closeViewForm()" >
-    <span patient-view-directive></span>
-    <div class="modal-header">
-        <h4>View/Print Form</h4>
-    </div>
-    <div class="modal-body">
-        <div ng-hide="form.value" class="alert alert-info"><h5>Loading form...please wait...</h5></div>
-        <div ng-bind-html-unsafe="form.value" class="frontoffice-patient-view-form"></div>
-    </div>
-    <div class="modal-footer">
-        <!--<button class="btn btn-primary" ng-click="onPrintForm()" ng-show="form.value">Print</button>-->
-        <button class="btn cancel" ng-click="closeViewForm()" ng-show="closeBtn != true"><< Back to Form List</button>
-        <button class="btn cancel" ng-click="closeViewForm()" ng-show="closeBtn == true">Close</button>
-    </div>
-</div>
+
 
 <iframe id="printFormFrame" src="about:blank" height="0" width="0" style="border: 0px;" >
 </iframe>

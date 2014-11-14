@@ -61,8 +61,8 @@ angular.module('sproutStudyApp')
         $scope.session = null;
 
         $scope.modalSmallOpts = {
-            backdropFade: true,
-            dialogFade: true,
+//            backdropFade: true, // These two settings
+//            dialogFade: true,
             dialogClass: 'modal modal-200-600'
         };
 
@@ -692,9 +692,13 @@ angular.module('sproutStudyApp')
 
 
         $scope.onViewForm = function (mrn, instanceId) {
+
+
+            console.log("onViewForm1...");
             $scope.closeBtn = true;
-            $scope.form = formsService.getForm({schema: "mgh", mrn: $scope.subject.id, instanceId: instanceId});
+//            $scope.form = formsService.getForm({schema: "mgh", mrn: $scope.subject.id, instanceId: instanceId});
             $scope.viewFormModal = true;
+//            $scope.deleteFormModal = true;
         };
 
         $scope.onOpenForm = function (form) {
