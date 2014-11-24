@@ -8,12 +8,16 @@ import java.util.*;
 @Table(schema="dbo", name="form")
 @NamedQueries({
     @NamedQuery(name= FormEntity.ALL, query="FROM FormEntity"),
-    @NamedQuery(name= FormEntity.FIND_BY_NAME, query="FROM FormEntity WHERE name = :name")
+    @NamedQuery(name= FormEntity.FIND_BY_NAME, query="FROM FormEntity WHERE name = :name"),
+    @NamedQuery(name= FormEntity.FIND_BY_PUBLICATION_KEY, query="FROM FormEntity WHERE publicationKey = :publicationKey"),
+    @NamedQuery(name= FormEntity.FIND_BY_FORM_KEY, query="FROM FormEntity WHERE formKey = :formKey")
 })
 public class FormEntity implements Serializable {
 
     public static final String ALL = "FormEntity.all";
     public static final String FIND_BY_NAME = "FormEntity.findByCode";
+    public static final String FIND_BY_PUBLICATION_KEY = "FormEntity.findByPublicationKey";
+    public static final String FIND_BY_FORM_KEY = "FormEntity.findByFormKey";
 
     @Id
     @GeneratedValue (strategy = GenerationType.IDENTITY)
@@ -26,6 +30,10 @@ public class FormEntity implements Serializable {
     @Basic
     @Column(name="publication_key", nullable=false)
     private String publicationKey;
+
+    @Basic
+    @Column(name="form_key")
+    private String formKey;
 
     @Basic
     @Column(name="demographic_ind", nullable=false)
@@ -67,6 +75,14 @@ public class FormEntity implements Serializable {
 
     public void setPublicationKey(String publicationKey) {
         this.publicationKey = publicationKey;
+    }
+
+    public String getFormKey() {
+        return formKey;
+    }
+
+    public void setFormKey(String formKey) {
+        this.formKey = formKey;
     }
 
     public Boolean getDemographic() {

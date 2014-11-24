@@ -26,7 +26,7 @@
             <span class="dropdown" >
                 <button ng-click="openDeliverFormModal()" class="dropdown-toggle btn btn-success btn-mini" title="Deliver Form" ng-mouseover="expandNewFormButton()" ng-mouseleave="collapseNewFormButton()"><i class="icon-plus icon-white" style="margin-right: 0px;"></i>{{newFormButton}}</button>
                 <ul class="dropdown-menu pull-right" style="font-size: 12px; text-align: left;">
-                    <li ng-repeat="form in cohort().forms | filter: { demographic: false } | filterUnique:inbox | orderBy:name">
+                    <li ng-repeat="form in cohort().forms | filter: { demographic: false, active: true } | filterUnique:inbox | orderBy:name">
                         <a class="text text-info" ng-click="onDeliverForm(subject, form)" prevent-default>{{form.name}}</a>
                     </li>
                 </ul>
@@ -34,7 +34,7 @@
             <span class="dropdown" >
                 <button ng-click="openDeliverFormModal()" class="dropdown-toggle btn btn-info btn-mini" title="Send Form" ng-mouseover="expandSendFormButton()" ng-mouseleave="collapseSendFormButton()"><i class="icon-envelope icon-white" style="margin-right: 0px;"></i>{{sendFormButton}}</button>
                 <ul class="dropdown-menu pull-right" style="font-size: 12px; text-align: left;">
-                    <li ng-repeat="form in cohort().forms | filter: { demographic: false } | filterUnique:inbox | orderBy:name">
+                    <li ng-repeat="form in cohort().forms | filter: { demographic: false, active: true } | filterUnique:inbox | orderBy:name">
                         <a class="text text-info" ng-click="onSendForm(subject, form)" prevent-default>{{form.name}}</a>
                     </li>
                 </ul>
@@ -168,42 +168,43 @@
                         <div class="alert alert-info" ng-show="recentCohortMembers.length == 0 && demographicFormContent == null && openingForm == false">You have no recent subjects.</div>
 
                     </div>
-                    <div class="tab-pane fade in" id="tab2">
-                        <div class="" ng-show="allForms.length > 0 && demographicFormContent == null && openingForm == false" style="padding-bottom: 300px;">
+                    <div class="tab-pane fade in" id="tab2" style="min-height: 500px;">
+                        <div class="" ng-show="(allForms.length > 0 || allFormsFilterFormPublicationKey != null) && demographicFormContent == null && openingForm == false" >
                             <table class="table table-condensed table-striped" >
                                 <thead class="inbox">
                                 <tr>
-                                    <th><span class="sortable" ng-click="mutableFormsChangeSort('identityFullName')">Subject<i ng-class="mutableFormsSortClass('identityFullName')" ng-style="{'margin-left': mutableFormsSortStyle('identityFullName')}" ></i></span></th>
+                                    <th>Subject</th>
                                     <th>
                                         <span class="dropdown">
-                                            <span class="sortable" ng-click="mutableFormsChangeSort('title')">Form<i ng-class="mutableFormsSortClass('title')" ng-style="{'margin-left': mutableFormsSortStyle('title')}" ></i></span>
+                                            <span ng-show="allFormsFilterFormTitle == null">Forms</span>
+                                            <span ng-show="allFormsFilterFormTitle != null">{{allFormsFilterFormTitle}}</span>
                                             <a class="dropdown-toggle btn btn-mini" style="margin-left: 8px;"><b class="caret"></b></a>
                                             <ul class="dropdown-menu">
-                                                <li><a ng-click="onFilterByForm()" ng-show="allFormsFilterForm.length > 0" prevent-default>ALL FORMS</a></li>
-                                                <li ng-repeat="value in allFormsFilterForm">
-                                                    <a ng-click="onFilterByForm(value)" prevent-default>{{value}}</a>
+                                                <li><a ng-click="onFilterByFormAll()" prevent-default>ALL FORMS</a></li>
+                                                <li ng-repeat="form in cohort().forms | filter: { active: true } | orderBy:name">
+                                                    <a ng-click="onFilterByFormAll(form)" prevent-default>{{form.name}}</a>
                                                 </li>
                                             </ul>
                                         </span>
                                     </th>
-                                    <th><span class="sortable" ng-click="mutableFormsChangeSort('deliveryDate')">Delivery Date<i ng-class="mutableFormsSortClass('deliveryDate')" ng-style="{'margin-left': mutableFormsSortStyle('deliveryDate')}" ></i></span></th>
+                                    <th><span class="sortable" ng-click="allFormsChangeSort('date_of_entry')">Delivery Date<i ng-class="allFormsSortClass('date_of_entry')" ng-style="{'margin-left': mutableFormsSortStyle('date_of_entry')}" ></i></span></th>
                                     <th>
                                         <span class="dropdown">
-                                            <span class="sortable" ng-click="mutableFormsChangeSort('inboxStatus')">Status<i ng-class="mutableFormsSortClass('inboxStatus')" ng-style="{'margin-left': mutableFormsSortStyle('inboxStatus')}" ></i></span>
-                                            <a class="dropdown-toggle btn btn-mini" style="margin-left: 8px;"><b class="caret"></b></a>
-                                            <ul class="dropdown-menu">
-                                                <li><a ng-click="onFilterByStatus()" ng-show="allFormsFilterStatus.length > 0" prevent-default>ALL STATUSES</a></li>
-                                                <li ng-repeat="value in allFormsFilterStatus">
-                                                    <a ng-click="onFilterByStatus(value)" prevent-default>{{value}}</a>
-                                                </li>
-                                            </ul>
+                                            <span class="" ng-click="mutableFormsChangeSort('inboxStatus')">Status<i ng-class="allFormsSortClass('inboxStatus')" ng-style="{'margin-left': mutableFormsSortStyle('inboxStatus')}" ></i></span>
+                                            <!--<a class="dropdown-toggle btn btn-mini" style="margin-left: 8px;"><b class="caret"></b></a>-->
+                                            <!--<ul class="dropdown-menu">-->
+                                                <!--<li><a ng-click="onFilterByStatus()" ng-show="allFormsFilterStatus.length > 0" prevent-default>ALL STATUSES</a></li>-->
+                                                <!--<li ng-repeat="value in allFormsFilterStatus">-->
+                                                    <!--<a ng-click="onFilterByStatus(value)" prevent-default>{{value}}</a>-->
+                                                <!--</li>-->
+                                            <!--</ul>-->
                                         </span>
                                     </th>
-                                    <th><span class="sortable" ng-click="mutableFormsChangeSort('statusDate')">Status Date<i ng-class="mutableFormsSortClass('statusDate')" ng-style="{'margin-left': mutableFormsSortStyle('statusDate')}" ></i></span></th>
+                                    <th><span class="sortable" ng-click="allFormsChangeSort('date_of_status')">Status Date<i ng-class="allFormsSortClass('date_of_status')" ng-style="{'margin-left': mutableFormsSortStyle('date_of_status')}" ></i></span></th>
                                     <th style="text-align: center; width: 100px;">Open Form</th>
                                 </tr>
                                 </thead>
-                                <tr class="inbox-row" ng-repeat='form in allForms | filter: formFilter | orderBy:mutableFormsSort.column:mutableFormsSort.descending' >
+                                <tr class="inbox-row" ng-repeat='form in allForms | filter: formFilter ' ng-class="{'unknown': form.identityFullName == 'Unknown'}"  >
                                     <td class="inbox-cell" ng-click="onOpenMutableForm(form)">{{form.identityFullName}} ({{form.identityPrimaryId}})</td>
                                     <td class="inbox-cell" ng-click="onOpenMutableForm(form)">{{form.title}}</a></td>
                                     <td class="inbox-cell" ng-click="onOpenMutableForm(form)">{{form.deliveryDate | date:'medium' }}</td>
@@ -214,6 +215,13 @@
                                     </td>
                                 </tr>
                             </table>
+                            <div style="text-align: center;" ng-show="allForms.length > 0 && allFormsPageCount > 1">
+                                <button class="btn btn-mini" ng-disabled="allFormsCurrentPage == 1" ng-class="{'btn-primary': allFormsCurrentPage > 1}" ng-click="allFormsFirstPage()"><i class="icon-fast-backward icon-white" style="margin-left: 0px;"></i></button>
+                                <button class="btn btn-mini" ng-disabled="allFormsCurrentPage == 1" ng-class="{'btn-primary': allFormsCurrentPage > 1}" ng-click="allFormsPreviousPage()"><i class="icon-backward icon-white" style="margin-left: 0px;"></i></button>
+                                Page {{allFormsCurrentPage}} of {{allFormsPageCount}}
+                                <button class="btn btn-mini" ng-disabled="allFormsCurrentPage == allFormsPageCount" ng-class="{'btn-primary': allFormsCurrentPage < allFormsPageCount}" ng-click="allFormsNextPage()"><i class="icon-forward icon-white" style="margin-left: 0px;"></i></button>
+                                <button class="btn btn-mini" ng-disabled="allFormsCurrentPage == allFormsPageCount" ng-class="{'btn-primary': allFormsCurrentPage < allFormsPageCount}" ng-click="allFormsLastPage()"><i class="icon-fast-forward icon-white" style="margin-left: 0px;"></i></button>
+                            </div>
                         </div>
                         <div class="alert alert-info" ng-show="allForms == undefined && demographicFormContent == null && openingForm == false">Loading Forms...</div>
                         <div class="alert alert-info" ng-show="allForms.length == 0 && demographicFormContent == null && openingForm == false">No forms found.</div>

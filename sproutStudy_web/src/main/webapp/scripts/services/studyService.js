@@ -29,6 +29,11 @@ angular.module('sproutStudyApp')
                     callback(response.data);
                 });
             },
+            getAllFormsPageCount: function (params, callback) {
+                $http.get(networkService.generateUrl("getAllFormsPageCount", params)).then(function (response) {
+                    callback(response.data);
+                });
+            },
             getCohortAuthorizations: function (params, callback) {
                 $http.get(networkService.generateUrl("getCohortAuthorizations", params)).then(function (response) {
                     callback(response.data);

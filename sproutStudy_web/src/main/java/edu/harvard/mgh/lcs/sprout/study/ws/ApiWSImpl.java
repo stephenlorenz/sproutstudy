@@ -220,22 +220,68 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
     }
     @Override
     @WebMethod(operationName="getAllForms")
-    public List<FormInstanceTO> getAllForms(@Context HttpServletRequest request, @QueryParam("page") int page, @QueryParam("rows") int rows) throws InvalidSessionRESTful {
+    public List<FormInstanceTO> getAllForms(@Context HttpServletRequest request, @QueryParam("page") int page, @QueryParam("rows") int rows, @QueryParam("orderBy") String orderBy, @QueryParam("orderDirection") String orderDirection, @QueryParam("form") String publicationKey, @QueryParam("status") String status) throws InvalidSessionRESTful {
+
         SessionTO sessionTO = getSessionTO(request);
         if (sessionTO != null) {
             CohortTO cohortTO = getLastSelectedCohort(request);
             if (cohortTO != null) {
                 List<CohortFormTO> cohortFormTOList = cohortTO.getForms();
                 Set<String> publicationKeys = new HashSet<String>();
-                if (cohortFormTOList != null && cohortFormTOList.size() > 0) {
-                    for (CohortFormTO cohortFormTO : cohortFormTOList) {
-                        publicationKeys.add(cohortFormTO.getPublicationKey());
+
+                if (StringUtils.isFull(publicationKey) && !publicationKey.equalsIgnoreCase("null")) {
+                    Set<String> publicationKeySet = studyService.getPublicationKeysFromPublicationKey(publicationKey);
+                    if (publicationKeySet != null && publicationKeySet.size() > 0) {
+                        if (cohortFormTOList != null && cohortFormTOList.size() > 0) {
+                            for (CohortFormTO cohortFormTO : cohortFormTOList) {
+                                if (publicationKeySet.contains(cohortFormTO.getPublicationKey())) publicationKeys.add(cohortFormTO.getPublicationKey());
+                            }
+                            return sproutFormsService.getAllForms(sessionTO.getUser(), sessionTO.getCohortTO(), publicationKeys, page, rows, orderBy, orderDirection);
+                        }
                     }
-                    return sproutFormsService.getAllForms(sessionTO.getUser(), sessionTO.getCohortTO(), publicationKeys, page, rows);
+                } else {
+                    if (cohortFormTOList != null && cohortFormTOList.size() > 0) {
+                        for (CohortFormTO cohortFormTO : cohortFormTOList) {
+                            publicationKeys.add(cohortFormTO.getPublicationKey());
+                        }
+                        return sproutFormsService.getAllForms(sessionTO.getUser(), sessionTO.getCohortTO(), publicationKeys, page, rows, orderBy, orderDirection);
+                    }
                 }
             }
         }
         return null;
+    }
+
+    @Override
+    @WebMethod(operationName="getAllFormsPageCount")
+    public int getAllFormsPageCount(@Context HttpServletRequest request, @QueryParam("rows") int rows, @QueryParam("form") String publicationKey, @QueryParam("status") String status) throws InvalidSessionRESTful {
+        SessionTO sessionTO = getSessionTO(request);
+        if (sessionTO != null) {
+            CohortTO cohortTO = getLastSelectedCohort(request);
+            if (cohortTO != null) {
+                List<CohortFormTO> cohortFormTOList = cohortTO.getForms();
+                Set<String> publicationKeys = new HashSet<String>();
+                if (StringUtils.isFull(publicationKey) && !publicationKey.equalsIgnoreCase("null")) {
+                    Set<String> publicationKeySet = studyService.getPublicationKeysFromPublicationKey(publicationKey);
+                    if (publicationKeySet != null && publicationKeySet.size() > 0) {
+                        if (cohortFormTOList != null && cohortFormTOList.size() > 0) {
+                            for (CohortFormTO cohortFormTO : cohortFormTOList) {
+                                if (publicationKeySet.contains(cohortFormTO.getPublicationKey())) publicationKeys.add(cohortFormTO.getPublicationKey());
+                            }
+                            return sproutFormsService.getAllFormsPageCount(sessionTO.getUser(), sessionTO.getCohortTO(), publicationKeys, rows);
+                        }
+                    }
+                } else {
+                    if (cohortFormTOList != null && cohortFormTOList.size() > 0) {
+                        for (CohortFormTO cohortFormTO : cohortFormTOList) {
+                            publicationKeys.add(cohortFormTO.getPublicationKey());
+                        }
+                        return sproutFormsService.getAllFormsPageCount(sessionTO.getUser(), sessionTO.getCohortTO(), publicationKeys, rows);
+                    }
+                }
+            }
+        }
+        return 1;
     }
 
     @Override

@@ -5,6 +5,7 @@ import edu.harvard.mgh.lcs.sprout.forms.study.to.*;
 import edu.harvard.mgh.lcs.sprout.study.model.study.CohortEntity;
 
 import java.util.List;
+import java.util.Set;
 
 public interface StudyService {
     public static final String USER_PREFERENCE_COHORT_ID = "COHORT_ID";
@@ -29,4 +30,9 @@ public interface StudyService {
     public UserTO getUser(String username);
 
     BooleanTO saveFormPublicationKey(String id, String publicationKey);
+
+    String getFormFromPublicationKey(String publicationKey);
+    String getFormKeyFromPublicationKey(String publicationKey);
+
+    Set<String> getPublicationKeysFromPublicationKey(String publicationKey);
 }

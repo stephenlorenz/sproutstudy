@@ -10,4 +10,6 @@ import java.rmi.RemoteException;
 @WebService
 public interface SproutStudyWebService {
     public abstract BooleanTO markAsRead(@WebParam(name = "instanceId") String instanceId);
+    public abstract String getFormFromPublicationKey(@WebParam(name = "publicationKey") String publicationKey);
+    public abstract String getFormKeyFromPublicationKey(@WebParam(name = "publicationKey") String publicationKey);
 }

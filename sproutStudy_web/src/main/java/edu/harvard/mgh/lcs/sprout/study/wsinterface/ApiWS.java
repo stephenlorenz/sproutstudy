@@ -97,7 +97,12 @@ public interface ApiWS {
     @GET
     @Path("/secure/getAllForms")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<FormInstanceTO> getAllForms(@Context HttpServletRequest request, @QueryParam("page") int page, @QueryParam("rows") int rows) throws InvalidSessionRESTful;
+    public List<FormInstanceTO> getAllForms(@Context HttpServletRequest request, @QueryParam("page") int page, @QueryParam("rows") int rows, @QueryParam("orderBy") String orderBy, @QueryParam("orderDirection") String orderDirection, @QueryParam("form") String publicationKey, @QueryParam("status") String status) throws InvalidSessionRESTful;
+
+    @GET
+    @Path("/secure/getAllFormsPageCount")
+    @Produces(MediaType.APPLICATION_JSON)
+    public int getAllFormsPageCount(@Context HttpServletRequest request, @QueryParam("rows") int rows, @QueryParam("form") String publicationKey, @QueryParam("status") String status) throws InvalidSessionRESTful;
 
     @GET
     @Path("/secure/getRecentCohortMembers")

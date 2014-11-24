@@ -20,5 +20,15 @@ public class SproutStudyWebServiceImpl implements SproutStudyWebService {
     @Override
     public BooleanTO markAsRead(String instanceId) {
         return studyService.markInboxMessageAsRead(instanceId);
+
+    }
+    @Override
+    public String getFormFromPublicationKey(String publicationKey) {
+        return studyService.getFormFromPublicationKey(publicationKey);
+    }
+
+    @Override
+    public String getFormKeyFromPublicationKey(String publicationKey) {
+        return studyService.getFormKeyFromPublicationKey(publicationKey);
     }
 }

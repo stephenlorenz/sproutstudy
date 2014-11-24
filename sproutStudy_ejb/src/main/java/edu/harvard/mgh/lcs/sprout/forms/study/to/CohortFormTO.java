@@ -8,8 +8,10 @@ public class CohortFormTO implements Serializable, Comparable<CohortFormTO> {
     private String id;
     private String name;
     private String publicationKey;
+    private String formKey;
     private boolean demographic;
     private boolean unique;
+    private boolean active;
     private Date activityDate;
 
     public String getId() {
@@ -36,6 +38,14 @@ public class CohortFormTO implements Serializable, Comparable<CohortFormTO> {
         this.publicationKey = publicationKey;
     }
 
+    public String getFormKey() {
+        return formKey;
+    }
+
+    public void setFormKey(String formKey) {
+        this.formKey = formKey;
+    }
+
     public boolean isDemographic() {
         return demographic;
     }
@@ -50,6 +60,14 @@ public class CohortFormTO implements Serializable, Comparable<CohortFormTO> {
 
     public void setUnique(boolean unique) {
         this.unique = unique;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     public Date getActivityDate() {

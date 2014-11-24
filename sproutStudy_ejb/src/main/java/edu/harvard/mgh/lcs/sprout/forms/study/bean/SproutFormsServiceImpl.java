@@ -334,8 +334,33 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
         }
         return null;
     }
+
     @Override
-    public List<FormInstanceTO> getAllForms(String username, CohortTO cohortTO, Set<String> publicationKeys, int page, int rows) {
+    public int getAllFormsPageCount(String username, CohortTO cohortTO, Set<String> publicationKeys, int rows) {
+        if (publicationKeys != null && publicationKeys.size() > 0 && cohortTO != null) {
+
+            List<String> publicationKeysList = new ArrayList<String>();
+            for (String publicationKey : publicationKeys) publicationKeysList.add(publicationKey);
+
+            if (formsWebService == null) init();
+
+            if (formsWebService != null) {
+
+                String orgAuthKey = System.getProperty("edu.harvard.mgh.lcs.ihealthspace.module.forms.sprout.authToken");
+
+                if (!StringUtils.isEmpty(orgAuthKey)) {
+
+//                    auditService.log(username, AuditType.GET_INBOX, SproutStudyConstantService.AuditVerbosity.INFO, "Retrieving subject inbox", cohortTO, cohortPrimaryIdentitySchema, cohortPrimaryIdentityId, String.format("Retrieving subject, %s, inbox.", getIdentityArrayAsString(identityArray)));
+
+                    return formsWebService.getPageCountByPublications(orgAuthKey, publicationKeysList, rows);
+                }
+            }
+        }
+        return 1;
+    }
+
+    @Override
+    public List<FormInstanceTO> getAllForms(String username, CohortTO cohortTO, Set<String> publicationKeys, int page, int rows, String orderBy, String orderDirection) {
 
         if (publicationKeys != null && publicationKeys.size() > 0 && cohortTO != null) {
 
@@ -352,7 +377,10 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
 
 //                    auditService.log(username, AuditType.GET_INBOX, SproutStudyConstantService.AuditVerbosity.INFO, "Retrieving subject inbox", cohortTO, cohortPrimaryIdentitySchema, cohortPrimaryIdentityId, String.format("Retrieving subject, %s, inbox.", getIdentityArrayAsString(identityArray)));
 
-                    FormDeliveryTO formDeliveryTO = formsWebService.getFormsByPublications(orgAuthKey, publicationKeysList, page, rows);
+                    FormDeliveryTO formDeliveryTO = formsWebService.getFormsByPublications(orgAuthKey, publicationKeysList, page, rows, orderBy, orderDirection);
+//                    FormDeliveryTO formDeliveryTO = formsWebService.getFormsByPublications(orgAuthKey, publicationKeysList, page, rows);
+
+                    int hasSubjectIds = 0;
 
                     if (formDeliveryTO != null) {
                         List<FormInstanceTO> forms = new ArrayList<FormInstanceTO>();
@@ -380,6 +408,7 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
                                     if (subjectIds.length() > 0) {
                                         List<Result> results = studyService.getRemoteCohortSubjectsByList(cohortTO, subjectIds.toString());
                                         if (results != null && results.size() > 0) {
+                                            hasSubjectIds++;
                                             for (Result result : results) {
                                                 if (result != null && !StringUtils.isEmpty(result.getId())) {
                                                     formInstanceTO.setIdentityFirstName(result.getFirstName());
@@ -393,8 +422,15 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
                                                 }
 
                                             }
-                                            forms.add(formInstanceTO);
+//                                            forms.add(formInstanceTO);
+                                        } else {
+                                            formInstanceTO.setIdentityFirstName("Unknown");
+                                            formInstanceTO.setIdentityLastName("Unknown");
+                                            formInstanceTO.setIdentityFullName("Unknown");
+                                            formInstanceTO.setIdentityPrimarySchema(cohortTO.getCohortSubjectSchema());
+                                            formInstanceTO.setIdentityPrimaryId(subjectIds.toString());
                                         }
+                                        forms.add(formInstanceTO);
                                     }
                                 }
                             }

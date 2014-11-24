@@ -252,13 +252,91 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
         if (StringUtils.isFull(id, publicationKey) && StringUtils.isInteger(id)) {
             FormEntity formEntity = entityManager.find(FormEntity.class, Integer.parseInt(id));
             if (formEntity != null) {
+                FormEntity formEntityNew = new FormEntity();
+                formEntityNew.setName(formEntity.getName());
+                formEntityNew.setPublicationKey(formEntity.getPublicationKey());
+                formEntityNew.setFormKey(formEntity.getFormKey());
+                formEntityNew.setDemographic(formEntity.getDemographic());
+                formEntityNew.setActivityDate(new Date());
+                formEntityNew.setActive(false);
+                entityManager.persist(formEntityNew);
+
+                for (CohortFormEntity cohortFormEntityCurrent : formEntity.getCohortForms()) {
+                    CohortFormEntity cohortFormEntity = new CohortFormEntity();
+                    cohortFormEntity.setCohort(cohortFormEntityCurrent.getCohort());
+                    cohortFormEntity.setForm(formEntityNew);
+                    cohortFormEntity.setActivityDate(new Date());
+                    entityManager.persist(cohortFormEntity);
+                }
+
+                for (FormAttrEntity formAttrEntityCurrent : formEntity.getFormAttributes()) {
+                    FormAttrEntity formAttrEntity = new FormAttrEntity();
+                    formAttrEntity.setForm(formEntityNew);
+                    formAttrEntity.setFormAttr(formAttrEntityCurrent.getFormAttr());
+                    formAttrEntity.setValue(formAttrEntityCurrent.getValue());
+                    formAttrEntity.setActivityDate(new Date());
+                    entityManager.persist(formAttrEntity);
+                }
+
                 formEntity.setPublicationKey(publicationKey);
                 formEntity.setActivityDate(new Date());
                 entityManager.merge(formEntity);
+
                 return new BooleanTO(true);
             }
         }
         return new BooleanTO(false);
+    }
+
+    @Override
+    public String getFormFromPublicationKey(String publicationKey) {
+        if (StringUtils.isFull(publicationKey)) {
+            try {
+                Query query = entityManager.createNamedQuery(FormEntity.FIND_BY_PUBLICATION_KEY);
+                query.setParameter("publicationKey", publicationKey);
+                FormEntity formEntity = (FormEntity) query.getSingleResult();
+                if (formEntity != null) return formEntity.getName();
+            } catch (NoResultException e) {}
+        }
+        return null;
+    }
+
+    @Override
+    public String getFormKeyFromPublicationKey(String publicationKey) {
+        if (StringUtils.isFull(publicationKey)) {
+            try {
+                Query query = entityManager.createNamedQuery(FormEntity.FIND_BY_PUBLICATION_KEY);
+                query.setParameter("publicationKey", publicationKey);
+                FormEntity formEntity = (FormEntity) query.getSingleResult();
+                if (formEntity != null) return formEntity.getFormKey();
+            } catch (NoResultException e) {}
+        }
+        return null;
+    }
+
+    public List<FormEntity> getFormsKeyFromFormKey(String formKey) {
+        if (StringUtils.isFull(formKey)) {
+            Query query = entityManager.createNamedQuery(FormEntity.FIND_BY_FORM_KEY);
+            query.setParameter("formKey", formKey);
+            return query.getResultList();
+        }
+        return null;
+    }
+
+    @Override
+    public Set<String> getPublicationKeysFromPublicationKey(String publicationKey) {
+        if (StringUtils.isFull(publicationKey)) {
+            Set<String> publicationKeySet = new HashSet<String>();
+            String formKey = getFormKeyFromPublicationKey(publicationKey);
+            if (StringUtils.isFull(formKey)) {
+                List<FormEntity> formEntities = getFormsKeyFromFormKey(formKey);
+                for (FormEntity formEntity : formEntities) {
+                    publicationKeySet.add(formEntity.getPublicationKey());
+                }
+                return publicationKeySet;
+            }
+        }
+        return null;
     }
 
     private String extractFormTitleFromJSON(String form) {
@@ -637,7 +715,9 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
                 cohortFormTO.setId(cohortFormEntity.getForm().getId() + "");
                 cohortFormTO.setName(cohortFormEntity.getForm().getName());
                 cohortFormTO.setPublicationKey(cohortFormEntity.getForm().getPublicationKey());
+                cohortFormTO.setFormKey(cohortFormEntity.getForm().getFormKey());
                 cohortFormTO.setDemographic(cohortFormEntity.getForm().getDemographic());
+                cohortFormTO.setActive(cohortFormEntity.getForm().getActive());
                 cohortFormTO.setActivityDate(cohortFormEntity.getForm().getActivityDate());
 
                 if (cohortFormEntity.getForm().getFormAttributes() != null) {

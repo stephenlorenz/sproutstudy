@@ -207,7 +207,7 @@
         if (jQuerySprout(".sproutstudy-tab-" + instanceId).length > 0) {
             jQuerySprout(".sproutstudy-content-" + instanceId).show();
         } else {
-            var content = '<div class="sproutstudy-content sproutstudy-content-form sproutstudy-content-' + instanceId + '" id="' + instanceId + '"><iframe id="iframe-' + instanceId + '" name="iframe-' + instanceId + '" src="/prompt/?instanceId=' + instanceId + '&nonce=' + nonce + '&debug=true&showThanks=false" class="appFrame" /></div>';
+            var content = '<div class="sproutstudy-content sproutstudy-content-form sproutstudy-content-' + instanceId + '" id="' + instanceId + '"><iframe scrolling="no" id="iframe-' + instanceId + '" name="iframe-' + instanceId + '" src="/prompt/?instanceId=' + instanceId + '&nonce=' + nonce + '&debug=true&showThanks=false" class="appFrame sproutStudyFrame" /></div>';
             var tab = '<li class="sproutstudy-tab-li sproutstudy-tab-form sproutstudy-tab-' + instanceId + '" title="' + title + '" instance="' + instanceId + '"><a href="#/" class="sproutstudy-tab-button"  title="' + title + '" instance="' + instanceId + '">' + title + '</a></li>';
             jQuerySprout("#sproutstudy-tab-container").append(tab);
             jQuerySprout("#sproutStudyFormContent").append(content);
@@ -228,7 +228,7 @@
         if (jQuerySprout(".sproutstudy-tab-" + instanceId).length > 0) {
             jQuerySprout(".sproutstudy-content-" + instanceId).show();
         } else {
-            var content = '<div class="sproutstudy-content sproutstudy-content-form sproutstudy-content-' + instanceId + '" id="' + instanceId + '"><iframe id="iframe-' + instanceId + '" name="iframe-' + instanceId + '" src="/prompt/?instanceId=' + instanceId + '&nonce=' + nonce + '&debug=true&showThanks=false" class="appFrame" /></div>';
+            var content = '<div class="sproutstudy-content sproutstudy-content-form sproutstudy-content-' + instanceId + '" id="' + instanceId + '"><iframe scrolling="no" id="iframe-' + instanceId + '" name="iframe-' + instanceId + '" src="/prompt/?instanceId=' + instanceId + '&nonce=' + nonce + '&debug=true&showThanks=false" class="appFrame sproutStudyFrame" /></div>';
             var tab = '<li class="sproutstudy-tab-li sproutstudy-tab-form sproutstudy-tab-' + instanceId + '" title="' + title + '" instance="' + instanceId + '"><a href="#/" class="sproutstudy-tab-button"  title="' + title + '" instance="' + instanceId + '">' + title + '</a></li>';
             jQuerySprout("#sproutstudy-tab-container").append(tab);
             jQuerySprout("#sproutStudyFormContent").append(content);
@@ -306,8 +306,17 @@
         var tNavBarHeight = $(".navbar-fixed-top").height();
         var footerHeight = $(".footer").height();
         var wHeight = $(window).height();
+        var dHeight = $(document).height();
         var aHeight = tNavBarHeight + footerHeight + 70;
-        $(".appFrame").height(wHeight - aHeight);
+//        $(".appFrame").height(dHeight - aHeight);
+        $(".appFrame").height(20000);
+
+//        console.log("tNavBarHeight: " + tNavBarHeight);
+//        console.log("footerHeight: " + footerHeight);
+//        console.log("wHeight: " + wHeight);
+//        console.log("dHeight: " + dHeight);
+//        console.log("aHeight: " + aHeight);
+
     }
 </script>
 
