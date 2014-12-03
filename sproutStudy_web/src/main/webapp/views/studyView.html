@@ -26,7 +26,7 @@
             <span class="dropdown" >
                 <button ng-click="openDeliverFormModal()" class="dropdown-toggle btn btn-success btn-mini" title="Deliver Form" ng-mouseover="expandNewFormButton()" ng-mouseleave="collapseNewFormButton()"><i class="icon-plus icon-white" style="margin-right: 0px;"></i>{{newFormButton}}</button>
                 <ul class="dropdown-menu pull-right" style="font-size: 12px; text-align: left;">
-                    <li ng-repeat="form in cohort().forms | filter: { demographic: false, active: true } | filterUnique:inbox | orderBy:name">
+                        <li ng-repeat="form in cohort().forms | filter: { demographic: false, active: true } | filterUnique:inbox | orderBy:name">
                         <a class="text text-info" ng-click="onDeliverForm(subject, form)" prevent-default>{{form.name}}</a>
                     </li>
                 </ul>

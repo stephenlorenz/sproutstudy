@@ -145,5 +145,5 @@ div.box {
     -webkit-appearance: textarea;
 }
 .sproutStudyFrame {
-    overflow:hidden;
+    /*overflow:hidden;*/
 }

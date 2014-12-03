@@ -26,7 +26,7 @@ angular.module('sproutStudyApp')
 
         $scope.allFormsCurrentPage = 1;
         $scope.allFormsPageCount = 1;
-        $scope.allFormsRowsPerPage = 10;
+        $scope.allFormsRowsPerPage = 15;
         $scope.allFormsOrderBy = "date_of_status";
         $scope.allFormsOrderDirection = "DESC"
         $scope.allFormsFilterFormPublicationKey = null;
@@ -928,7 +928,7 @@ angular.module('sproutStudyApp')
                 var tabTitle = {fullName: "New Subject", id: 0};
                 cohortService.setMember(tabTitle);
 
-                var content = '<iframe scrolling="no" id="iframe-' + instanceId + '" name="iframe-' + instanceId + '" instanceId="' + instanceId + '" src="/prompt/?instanceId=' + instanceId + '&nonce=' + nonce + '&debug=true&showThanks=false&disableSave=true" class="appFrame sproutStudyFrame iframe-demographic-form-content" />';
+                var content = '<iframe id="iframe-' + instanceId + '" name="iframe-' + instanceId + '" instanceId="' + instanceId + '" src="/prompt/?instanceId=' + instanceId + '&nonce=' + nonce + '&debug=true&showThanks=false&disableSave=true" class="appFrame sproutStudyFrame iframe-demographic-form-content" />';
                 $scope.demographicFormContent = content;
 
 //                $scope.addPane(tabTitle, instanceId, nonce);
