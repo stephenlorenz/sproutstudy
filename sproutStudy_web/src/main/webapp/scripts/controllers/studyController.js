@@ -207,7 +207,7 @@ angular.module('sproutStudyApp')
         }
 
         $scope.studyInboxSort = {
-            column: 'activityDate',
+            column: 'deliveryDate',
             descending: true
         };
 

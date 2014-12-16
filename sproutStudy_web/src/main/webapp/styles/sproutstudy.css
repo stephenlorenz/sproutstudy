@@ -40,6 +40,12 @@ div.modal-timeout {
     margin-left: -400px;
 }
 
+div.modal-wait {
+    width: 800px;
+    min-height: 150px;
+    margin-left: -400px;
+}
+
 div.modal-body {
     min-height: 440px;
 }

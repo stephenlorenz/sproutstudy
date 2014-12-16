@@ -197,25 +197,12 @@
             jQuerySprout(".sproutstudy-content-" + instance).show();
 //            return false;
         });
+        jQuerySprout("#sproutstudy-tab-container").on('click', '.sproutstudy-close-tab', function(event) {
+            var instanceId = jQuerySprout(this).attr("instance");
+            deleteTab(instanceId);
+            return false;
+        });
     });
-
-    function addPaneContentOrig(title, instanceId, nonce) {
-        jQuerySprout(".form-iframe-container").hide();
-
-        jQuerySprout(".sproutstudy-content").hide();
-
-        if (jQuerySprout(".sproutstudy-tab-" + instanceId).length > 0) {
-            jQuerySprout(".sproutstudy-content-" + instanceId).show();
-        } else {
-            var content = '<div class="sproutstudy-content sproutstudy-content-form sproutstudy-content-' + instanceId + '" id="' + instanceId + '"><iframe id="iframe-' + instanceId + '" name="iframe-' + instanceId + '" src="/prompt/?instanceId=' + instanceId + '&nonce=' + nonce + '&debug=true&showThanks=false" class="appFrame sproutStudyFrame" /></div>';
-            var tab = '<li class="sproutstudy-tab-li sproutstudy-tab-form sproutstudy-tab-' + instanceId + '" title="' + title + '" instance="' + instanceId + '"><a href="#/" class="sproutstudy-tab-button"  title="' + title + '" instance="' + instanceId + '">' + title + '</a></li>';
-            jQuerySprout("#sproutstudy-tab-container").append(tab);
-            jQuerySprout("#sproutStudyFormContent").append(content);
-        }
-
-        jQuerySprout(".sproutstudy-tab-li").removeClass("active");
-        jQuerySprout(".sproutstudy-tab-" + instanceId).addClass("active");
-    }
 
     function addPaneContentForm(form, nonce) {
         var title = form.title;
@@ -229,7 +216,7 @@
             jQuerySprout(".sproutstudy-content-" + instanceId).show();
         } else {
             var content = '<div class="sproutstudy-content sproutstudy-content-form sproutstudy-content-' + instanceId + '" id="' + instanceId + '"><iframe id="iframe-' + instanceId + '" name="iframe-' + instanceId + '" src="/prompt/?instanceId=' + instanceId + '&nonce=' + nonce + '&debug=true&showThanks=false" class="appFrame sproutStudyFrame" /></div>';
-            var tab = '<li class="sproutstudy-tab-li sproutstudy-tab-form sproutstudy-tab-' + instanceId + '" title="' + title + '" instance="' + instanceId + '"><a href="#/" class="sproutstudy-tab-button"  title="' + title + '" instance="' + instanceId + '">' + title + '</a></li>';
+            var tab = '<li class="sproutstudy-tab-li sproutstudy-tab-form sproutstudy-tab-' + instanceId + '" title="' + title + '" instance="' + instanceId + '"><a href="#/" class="sproutstudy-tab-button"  title="' + title + '" instance="' + instanceId + '">' + title + '<span class="sproutstudy-close-tab" instance="' + instanceId + '"><i class="icon-remove-sign"></i></span></a></li>';
             jQuerySprout("#sproutstudy-tab-container").append(tab);
             jQuerySprout("#sproutStudyFormContent").append(content);
 
@@ -246,6 +233,55 @@
         sproutFormsDoneInd = true;
     }
 
+    function deleteTab(instanceId) {
+        if (instanceId != null && instanceId != 'home') {
+
+            var mutableInd = jQuerySprout("#iframe-" + instanceId).contents().find(".sprout-form-mutable-ind").val();
+
+            if (mutableInd == 'true') {
+                jQuerySprout("#modal-wait-title").html("Saving and Closing form");
+                jQuerySprout("#modal-wait-message").html("Saving and closing form....please wait...");
+                jQuerySprout('#modal-wait').modal({
+                    keyboard: false
+                });
+
+                jQuerySprout("#iframe-" + instanceId)[0].contentWindow.remoteSave(function(data) {
+                    jQuerySprout(".sproutstudy-tab-li.active").removeClass("active");
+                    jQuerySprout(".sproutstudy-content-form").hide();
+
+                    var sourceTab = jQuerySprout(".sproutstudy-tab-" + instanceId);
+                    var targetTab = jQuerySprout(".sproutstudy-tab-home");
+
+                    jQuerySprout(".sproutstudy-content-" + instanceId).remove();
+
+                    sourceTab.remove();
+                    targetTab.addClass("active");
+
+                    jQuerySprout(".sproutstudy-content-home").show();
+                    jQuerySprout('#modal-wait').modal('hide');
+                });
+            } else {
+                jQuerySprout(".sproutstudy-tab-li.active").removeClass("active");
+                jQuerySprout(".sproutstudy-content-form").hide();
+
+                var sourceTab = jQuerySprout(".sproutstudy-tab-" + instanceId);
+                var targetTab = jQuerySprout(".sproutstudy-tab-home");
+
+                jQuerySprout(".sproutstudy-content-" + instanceId).remove();
+
+                sourceTab.remove();
+                targetTab.addClass("active");
+
+                jQuerySprout(".sproutstudy-content-home").show();
+                jQuerySprout('#modal-wait').modal('hide');
+            }
+        }
+
+        angular.element(jQuerySprout("#studyControllerDiv")).scope().getAllForms();
+        angular.element(jQuerySprout("#studyControllerDiv")).scope().$apply();
+
+        sproutFormsDoneInd = false;
+    }
     function deletePaneContent(id) {
         var instanceId = jQuerySprout(".sproutstudy-tab-li.active").attr("instance");
         var form = jQuerySprout(".sproutstudy-tab-li.active").data("form");
@@ -308,19 +344,7 @@
         var wHeight = $(window).height();
         var dHeight = $(document).height();
         var aHeight = tNavBarHeight + footerHeight + 80;
-//        $(".appFrame").height(dHeight - aHeight);
         $(".appFrame").height(wHeight - aHeight);
-//        $(".appFrame").height(20000);
-
-//        console.log("tNavBarHeight: " + tNavBarHeight);
-//        console.log("footerHeight: " + footerHeight);
-//        console.log("wHeight! " + wHeight);
-//        console.log("dHeight: " + dHeight);
-//        console.log("aHeight: " + aHeight);
-//
-//
-//        console.log("Setting .appFrame height to: " + dHeight - aHeight);
-
     }
 </script>
 
@@ -357,10 +381,6 @@
                 $('#modal-timeout').modal('hide');
             }
         });
-
-
-
-
     });
 
 </script>
@@ -376,6 +396,17 @@
     </div>
     <div class="modal-footer">
         <a id="idletimeout-resume" href="#" class="btn btn-primary">Stay Logged In</a><a href="<%=request.getContextPath()%>/logout" class="btn">Logout</a>
+    </div>
+</div>
+
+<div class="modal modal-wait hide fade in" id="modal-wait" style="display: none;" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" options="modalSmallOpts" aria-hidden="true">
+    <div class="modal-header">
+        <h3><span id="modal-wait-title"/>></h3>
+    </div>
+    <div class="modal-body-short">
+        <p>
+        <h4><span id="modal-wait-message"/></h4>
+        </p>
     </div>
 </div>
 
