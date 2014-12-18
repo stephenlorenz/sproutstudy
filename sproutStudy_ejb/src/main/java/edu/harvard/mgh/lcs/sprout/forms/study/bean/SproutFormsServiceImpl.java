@@ -336,7 +336,12 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
     }
 
     @Override
-    public int getAllFormsPageCount(String username, CohortTO cohortTO, Set<String> publicationKeys, int rows) {
+    public List<NameValue> getActiveSproutInboxStatuses() {
+        return formsWebService.getActiveInboxStatues();
+    }
+
+    @Override
+    public int getAllFormsPageCount(String username, CohortTO cohortTO, Set<String> publicationKeys, int rows, String status) {
         if (publicationKeys != null && publicationKeys.size() > 0 && cohortTO != null) {
 
             List<String> publicationKeysList = new ArrayList<String>();
@@ -352,7 +357,7 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
 
 //                    auditService.log(username, AuditType.GET_INBOX, SproutStudyConstantService.AuditVerbosity.INFO, "Retrieving subject inbox", cohortTO, cohortPrimaryIdentitySchema, cohortPrimaryIdentityId, String.format("Retrieving subject, %s, inbox.", getIdentityArrayAsString(identityArray)));
 
-                    return formsWebService.getPageCountByPublications(orgAuthKey, publicationKeysList, rows);
+                    return formsWebService.getPageCountByPublications(orgAuthKey, publicationKeysList, rows, status);
                 }
             }
         }
@@ -360,7 +365,7 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
     }
 
     @Override
-    public List<FormInstanceTO> getAllForms(String username, CohortTO cohortTO, Set<String> publicationKeys, int page, int rows, String orderBy, String orderDirection) {
+    public List<FormInstanceTO> getAllForms(String username, CohortTO cohortTO, Set<String> publicationKeys, int page, int rows, String orderBy, String orderDirection, String status) {
 
         if (publicationKeys != null && publicationKeys.size() > 0 && cohortTO != null) {
 
@@ -377,7 +382,7 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
 
 //                    auditService.log(username, AuditType.GET_INBOX, SproutStudyConstantService.AuditVerbosity.INFO, "Retrieving subject inbox", cohortTO, cohortPrimaryIdentitySchema, cohortPrimaryIdentityId, String.format("Retrieving subject, %s, inbox.", getIdentityArrayAsString(identityArray)));
 
-                    FormDeliveryTO formDeliveryTO = formsWebService.getFormsByPublications(orgAuthKey, publicationKeysList, page, rows, orderBy, orderDirection);
+                    FormDeliveryTO formDeliveryTO = formsWebService.getFormsByPublications(orgAuthKey, publicationKeysList, page, rows, orderBy, orderDirection, status);
 //                    FormDeliveryTO formDeliveryTO = formsWebService.getFormsByPublications(orgAuthKey, publicationKeysList, page, rows);
 
                     int hasSubjectIds = 0;

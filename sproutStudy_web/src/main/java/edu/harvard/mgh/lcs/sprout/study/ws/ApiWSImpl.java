@@ -1,12 +1,12 @@
 package edu.harvard.mgh.lcs.sprout.study.ws;
 
-import edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.FormDeliveryStatus;
-import edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.FormInstanceTO;
+import edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.*;
 import edu.harvard.mgh.lcs.sprout.forms.study.beanws.Result;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.*;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.SproutStudyConstantService.SubmissionStatus;
 import edu.harvard.mgh.lcs.sprout.forms.study.exception.InvalidSessionRESTful;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.*;
+import edu.harvard.mgh.lcs.sprout.forms.study.to.PublicationTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.util.StringUtils;
 import edu.harvard.mgh.lcs.sprout.study.web.security.SproutStudyUserDetails;
 import edu.harvard.mgh.lcs.sprout.study.wsinterface.ApiWS;
@@ -26,6 +26,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.jar.Attributes;
 
 @ApplicationPath("api")
 @Named
@@ -236,7 +237,7 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
                             for (CohortFormTO cohortFormTO : cohortFormTOList) {
                                 if (publicationKeySet.contains(cohortFormTO.getPublicationKey())) publicationKeys.add(cohortFormTO.getPublicationKey());
                             }
-                            return sproutFormsService.getAllForms(sessionTO.getUser(), sessionTO.getCohortTO(), publicationKeys, page, rows, orderBy, orderDirection);
+                            return sproutFormsService.getAllForms(sessionTO.getUser(), sessionTO.getCohortTO(), publicationKeys, page, rows, orderBy, orderDirection, status);
                         }
                     }
                 } else {
@@ -244,12 +245,21 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
                         for (CohortFormTO cohortFormTO : cohortFormTOList) {
                             publicationKeys.add(cohortFormTO.getPublicationKey());
                         }
-                        return sproutFormsService.getAllForms(sessionTO.getUser(), sessionTO.getCohortTO(), publicationKeys, page, rows, orderBy, orderDirection);
+                        return sproutFormsService.getAllForms(sessionTO.getUser(), sessionTO.getCohortTO(), publicationKeys, page, rows, orderBy, orderDirection, status);
                     }
                 }
             }
         }
         return null;
+    }
+
+
+
+
+    @Override
+    @WebMethod(operationName="getActiveSproutInboxStatuses")
+    public List<edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.NameValue> getActiveSproutInboxStatuses(@Context HttpServletRequest request) throws InvalidSessionRESTful {
+        return sproutFormsService.getActiveSproutInboxStatuses();
     }
 
     @Override
@@ -268,7 +278,7 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
                             for (CohortFormTO cohortFormTO : cohortFormTOList) {
                                 if (publicationKeySet.contains(cohortFormTO.getPublicationKey())) publicationKeys.add(cohortFormTO.getPublicationKey());
                             }
-                            return sproutFormsService.getAllFormsPageCount(sessionTO.getUser(), sessionTO.getCohortTO(), publicationKeys, rows);
+                            return sproutFormsService.getAllFormsPageCount(sessionTO.getUser(), sessionTO.getCohortTO(), publicationKeys, rows, status);
                         }
                     }
                 } else {
@@ -276,7 +286,7 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
                         for (CohortFormTO cohortFormTO : cohortFormTOList) {
                             publicationKeys.add(cohortFormTO.getPublicationKey());
                         }
-                        return sproutFormsService.getAllFormsPageCount(sessionTO.getUser(), sessionTO.getCohortTO(), publicationKeys, rows);
+                        return sproutFormsService.getAllFormsPageCount(sessionTO.getUser(), sessionTO.getCohortTO(), publicationKeys, rows, status);
                     }
                 }
             }

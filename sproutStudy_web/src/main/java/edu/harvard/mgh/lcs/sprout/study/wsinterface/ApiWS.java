@@ -159,4 +159,8 @@ public interface ApiWS {
     @Produces(MediaType.APPLICATION_JSON)
     public BooleanTO saveFormPublicationKey(@Context HttpServletRequest request, @QueryParam("id") String id, @QueryParam("publicationKey") String publicationKey) throws InvalidSessionRESTful;
 
-    }
+    @GET
+    @Path("/secure/getActiveSproutInboxStatuses")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.NameValue> getActiveSproutInboxStatuses(@Context HttpServletRequest request) throws InvalidSessionRESTful;
+}

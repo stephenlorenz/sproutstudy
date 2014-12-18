@@ -169,7 +169,7 @@
 
                     </div>
                     <div class="tab-pane fade in" id="tab2" style="min-height: 500px;">
-                        <div class="" ng-show="(allForms.length > 0 || allFormsFilterFormPublicationKey != null) && demographicFormContent == null && openingForm == false" >
+                        <div class="" ng-show="(allForms.length > 0 || allFormsFilterFormPublicationKey != null || allFormsFilterStatus != null) && demographicFormContent == null && openingForm == false" >
                             <table class="table table-condensed table-striped" >
                                 <thead class="inbox">
                                 <tr>
@@ -191,13 +191,13 @@
                                     <th>
                                         <span class="dropdown">
                                             <span class="" ng-click="mutableFormsChangeSort('inboxStatus')">Status<i ng-class="allFormsSortClass('inboxStatus')" ng-style="{'margin-left': mutableFormsSortStyle('inboxStatus')}" ></i></span>
-                                            <!--<a class="dropdown-toggle btn btn-mini" style="margin-left: 8px;"><b class="caret"></b></a>-->
-                                            <!--<ul class="dropdown-menu">-->
-                                                <!--<li><a ng-click="onFilterByStatus()" ng-show="allFormsFilterStatus.length > 0" prevent-default>ALL STATUSES</a></li>-->
-                                                <!--<li ng-repeat="value in allFormsFilterStatus">-->
-                                                    <!--<a ng-click="onFilterByStatus(value)" prevent-default>{{value}}</a>-->
-                                                <!--</li>-->
-                                            <!--</ul>-->
+                                            <a class="dropdown-toggle btn btn-mini" style="margin-left: 8px;"><b class="caret"></b></a>
+                                            <ul class="dropdown-menu">
+                                                <li><a ng-click="onFilterByStatusAll()" ng-show="activeSproutInboxStatuses.length > 0" prevent-default>ALL STATUSES</a></li>
+                                                <li ng-repeat="status in activeSproutInboxStatuses">
+                                                    <a ng-click="onFilterByStatusAll(status)" prevent-default>{{status.name}}</a>
+                                                </li>
+                                            </ul>
                                         </span>
                                     </th>
                                     <th><span class="sortable" ng-click="allFormsChangeSort('date_of_status')">Status Date<i ng-class="allFormsSortClass('date_of_status')" ng-style="{'margin-left': mutableFormsSortStyle('date_of_status')}" ></i></span></th>

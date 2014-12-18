@@ -32,6 +32,8 @@ angular.module('sproutStudyApp')
         $scope.allFormsFilterFormPublicationKey = null;
         $scope.allFormsFilterFormTitle = null;
 
+        $scope.activeSproutInboxStatuses = null;
+
         $scope.query = "";
 
         $scope.patient = null;
@@ -352,6 +354,18 @@ angular.module('sproutStudyApp')
 
         };
 
+        $scope.onFilterByStatusAll = function(status) {
+            $scope.allFormsCurrentPage = 1;
+            if (status !== undefined) {
+                $scope.allFormsFilterStatus = status.name;
+            } else {
+                $scope.allFormsFilterStatus = null;
+            }
+
+            $scope.getAllForms();
+
+        };
+
 //        $scope.getMutableForms = function() {
 //            $scope.mutableForms = undefined;
 //            studyService.getMutableForms({}, function(data) {
@@ -377,14 +391,18 @@ angular.module('sproutStudyApp')
 //            });
 //        }
 
+        studyService.getActiveSproutInboxStatuses({}, function(data) {
+            $scope.activeSproutInboxStatuses = data;
+        });
+
         $scope.getAllForms = function() {
             $scope.allForms = undefined;
 
-            studyService.getAllFormsPageCount({rows: $scope.allFormsRowsPerPage, form: $scope.allFormsFilterFormPublicationKey}, function(data) {
+            studyService.getAllFormsPageCount({rows: $scope.allFormsRowsPerPage, form: $scope.allFormsFilterFormPublicationKey, status: $scope.allFormsFilterStatus}, function(data) {
                 $scope.allFormsPageCount = data;
             });
 
-            studyService.getAllForms({page: $scope.allFormsCurrentPage, rows: $scope.allFormsRowsPerPage, orderBy: $scope.allFormsOrderBy, orderDirection: $scope.allFormsOrderDirection, form: $scope.allFormsFilterFormPublicationKey}, function(data) {
+            studyService.getAllForms({page: $scope.allFormsCurrentPage, rows: $scope.allFormsRowsPerPage, orderBy: $scope.allFormsOrderBy, orderDirection: $scope.allFormsOrderDirection, form: $scope.allFormsFilterFormPublicationKey, status: $scope.allFormsFilterStatus}, function(data) {
 //                $scope.allFormsFilterFormPublicationKey = null;
 
                 $scope.allForms = data;

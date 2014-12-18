@@ -24,6 +24,11 @@ angular.module('sproutStudyApp')
                     callback(response.data);
                 });
             },
+            getActiveSproutInboxStatuses: function (params, callback) {
+                $http.get(networkService.generateUrl("getActiveSproutInboxStatuses", params)).then(function (response) {
+                    callback(response.data);
+                });
+            },
             getAllForms: function (params, callback) {
                 $http.get(networkService.generateUrl("getAllForms", params)).then(function (response) {
                     callback(response.data);
