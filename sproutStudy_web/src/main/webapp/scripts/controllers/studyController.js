@@ -247,7 +247,7 @@ angular.module('sproutStudyApp')
 
         $scope.formsSortClass = function(column) {
             if (column == $scope.formsSort.column) {
-                if ($scope.mutableFormsSort.descending) {
+                if ($scope.formsSort.descending) {
                     return 'icon-chevron-down';
                 } else {
                     return 'icon-chevron-up';
@@ -407,7 +407,6 @@ angular.module('sproutStudyApp')
 
                 $scope.allForms = data;
 
-                $scope.allFormsFilterStatus = new Array();
                 $scope.allFormsFilterForm = new Array();
 
 //                $log.log("getAllForms.data.length: " + data.length);
@@ -422,14 +421,6 @@ angular.module('sproutStudyApp')
                         if (tmpForm.publicationKey == publicationKey) data[i].title = tmpForm.name;
                     });
 
-                    if ($scope.allFormsFilterStatus !== undefined && $scope.allFormsFilterStatus.length > 0) {
-                        for (var i2=0;i2<$scope.allFormsFilterStatus.length;i2++) {
-                            if ($scope.allFormsFilterStatus[i2] == data[i].inboxStatus) {
-                                statusIncludeInd = false;
-                            }
-                        }
-
-                    }
                     if ($scope.allFormsFilterForm !== undefined && $scope.allFormsFilterForm.length > 0) {
                         for (var i2=0;i2<$scope.allFormsFilterForm.length;i2++) {
                             if ($scope.allFormsFilterForm[i2] == data[i].title) {
@@ -439,7 +430,6 @@ angular.module('sproutStudyApp')
 
                     }
 
-                    if (statusIncludeInd) $scope.allFormsFilterStatus.push(data[i].inboxStatus);
                     if (formIncludeInd) $scope.allFormsFilterForm.push(data[i].title);
                 }
 
