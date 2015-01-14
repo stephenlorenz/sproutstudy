@@ -609,7 +609,7 @@ angular.module('sproutStudyApp')
 //                console.log("data.instanceId: " + data.instanceId);
 //                console.log("data.status: " + data.status);
                 if (data.instanceId != null) {
-                    $scope.onDemographicFormByInstanceId(data.instanceId);
+                    $scope.onDemographicFormByInstanceId(data.instanceId, form.name);
                     $scope.deliverFormModal = false;
                     $scope.deliveringInd = false;
                     $scope.addSubjectInd = true;
@@ -702,7 +702,6 @@ angular.module('sproutStudyApp')
                         $scope.deliverFormModal = false;
                         $scope.deliveringInd = false;
 
-
                         $.each($scope.messageTo, function(index, recipient) {
                             var username = recipient.user.username;
                             studyService.sendMessage({to: username, form: JSON.stringify($scope.sendMessageForm), message: encodeURIComponent($scope.messageText), instanceId: $scope.sendMessageForm.instanceId, formTitle: $scope.sendMessageForm.title, subjectId: cohortService.getMember().id, subjectName: cohortService.getMember().fullName}, function(data) {
@@ -721,6 +720,12 @@ angular.module('sproutStudyApp')
                     }
                 });
             } else {
+                if ($scope.sendMessageForm.title == 'New Subject') {
+                    $.each(cohortService.getCohort().forms, function(index, tmpForm) {
+                        if (tmpForm.demographic) $scope.sendMessageForm.title = tmpForm.name;
+                    });
+                }
+
                 $.each($scope.messageTo, function(index, recipient) {
                     var username = recipient.user.username;
                     studyService.sendMessage({to: username, form: JSON.stringify($scope.sendMessageForm), message: encodeURIComponent($scope.messageText), instanceId: $scope.sendMessageForm.instanceId, formTitle: $scope.sendMessageForm.title, subjectId: cohortService.getMember().id, subjectName: cohortService.getMember().fullName}, function(data) {
@@ -929,11 +934,11 @@ angular.module('sproutStudyApp')
 //                setTimeout(sizeAppFrame, 1000);
 //            });
 //        };
-        $scope.onDemographicFormByInstanceId = function (instanceId) {
+        $scope.onDemographicFormByInstanceId = function (instanceId, title) {
 
             formsService.applyForNonce({instanceId: instanceId, subjectName: "New Subject", subjectId: "Unknown"}, function(data) {
                 var nonce = data.nonce;
-                var tabTitle = {fullName: "New Subject", id: 0};
+                var tabTitle = {fullName: title === undefined ? "New Subject" : title, id: 0};
                 cohortService.setMember(tabTitle);
 
                 var content = '<iframe id="iframe-' + instanceId + '" name="iframe-' + instanceId + '" instanceId="' + instanceId + '" src="/prompt/?instanceId=' + instanceId + '&nonce=' + nonce + '&debug=true&showThanks=false&disableSave=true" class="appFrame sproutStudyFrame iframe-demographic-form-content" />';
