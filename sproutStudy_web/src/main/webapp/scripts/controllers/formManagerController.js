@@ -17,7 +17,8 @@ angular.module('sproutStudyApp')
                 form.activityDate = data.timestamp;
                 form.modified = false;
             } else {
-                alert("Failed to save Form Publication Key.");
+                alert("Failed to save Form Publication Key.  Perhaps you used a duplicate key?");
+                form.modified = false;
             }
         });
 

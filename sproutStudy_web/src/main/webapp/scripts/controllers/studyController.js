@@ -590,18 +590,16 @@ angular.module('sproutStudyApp')
         }
 
         $scope.addSubject = function() {
-//            $log.log("addSubject....");
-
             $scope.deliveringInd = true;
             $scope.deliveryError = null;
 
             var form = null;
 
             $.each(cohortService.getCohort().forms, function(index, tmpForm) {
-                if (tmpForm.demographic) form = tmpForm;
+                if (tmpForm.demographic && tmpForm.active) {
+                    form = tmpForm;
+                }
             });
-
-//            $log.log("demographicForm: " + form.name);
 
             $scope.tempId = generateUUID();
 
@@ -722,7 +720,7 @@ angular.module('sproutStudyApp')
             } else {
                 if ($scope.sendMessageForm.title == 'New Subject') {
                     $.each(cohortService.getCohort().forms, function(index, tmpForm) {
-                        if (tmpForm.demographic) $scope.sendMessageForm.title = tmpForm.name;
+                        if (tmpForm.demographic && tmpForm.active) $scope.sendMessageForm.title = tmpForm.name;
                     });
                 }
 

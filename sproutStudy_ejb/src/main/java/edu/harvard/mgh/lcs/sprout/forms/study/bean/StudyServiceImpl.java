@@ -249,7 +249,7 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
 
     @Override
     public BooleanTO saveFormPublicationKey(String id, String publicationKey) {
-        if (StringUtils.isFull(id, publicationKey) && StringUtils.isInteger(id)) {
+        if (StringUtils.isFull(id, publicationKey) && StringUtils.isInteger(id) && publicationKeyIsUnique(publicationKey)) {
             FormEntity formEntity = entityManager.find(FormEntity.class, Integer.parseInt(id));
             if (formEntity != null) {
                 FormEntity formEntityNew = new FormEntity();
@@ -286,6 +286,10 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
             }
         }
         return new BooleanTO(false);
+    }
+
+    private boolean publicationKeyIsUnique(String publicationKey) {
+        return StringUtils.isEmpty(getFormFromPublicationKey(publicationKey));
     }
 
     @Override
@@ -456,7 +460,7 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
                     cohortAuthTO.setManager(cohortAuthEntity.getManager());
 
                     UserEntity userEntity = cohortAuthEntity.getUser();
-                    if (userEntity != null) cohortAuthTO.setUser(constructUserTO(userEntity));
+                    if (userEntity != null) cohortAuthTO.setUser(constructUserTOLite(userEntity));
 
                     cohortAuthorizations.add(cohortAuthTO);
                 }
@@ -482,6 +486,18 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
         return null;
     }
 
+    private UserTO constructUserTOLite(UserEntity userEntity) {
+        if (userEntity != null) {
+            UserTO userTO = new UserTO();
+            userTO.setUsername(userEntity.getUsername());
+            userTO.setFirstName(userEntity.getFirstName());
+            userTO.setLastName(userEntity.getLastName());
+            userTO.setPreferences(constructUserPreferencesTOLite(userEntity.getPreferences()));
+            return userTO;
+        }
+        return null;
+    }
+
     private Set<UserPreferenceTO> constructUserPreferencesTO(Set<UsersPreferenceEntity> usersPreferenceEntities) {
         if (usersPreferenceEntities != null) {
             Set<UserPreferenceTO> userPreferenceTOSet = new HashSet<UserPreferenceTO>();
@@ -493,6 +509,24 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
                 userPreferenceTO.setValue(usersPreferenceEntity.getValue());
                 userPreferenceTO.setUserEditable(usersPreferenceEntity.getUserPreference().isUserEditable());
                 userPreferenceTOSet.add(userPreferenceTO);
+            }
+            return userPreferenceTOSet;
+        }
+        return null;
+    }
+    private Set<UserPreferenceTO> constructUserPreferencesTOLite(Set<UsersPreferenceEntity> usersPreferenceEntities) {
+        if (usersPreferenceEntities != null) {
+            Set<UserPreferenceTO> userPreferenceTOSet = new HashSet<UserPreferenceTO>();
+            for (UsersPreferenceEntity usersPreferenceEntity : usersPreferenceEntities) {
+                if (usersPreferenceEntity.getUserPreference().getCode().equalsIgnoreCase("EMAIL_PRIMARY")) {
+                    UserPreferenceTO userPreferenceTO = new UserPreferenceTO();
+                    userPreferenceTO.setId(usersPreferenceEntity.getId());
+                    userPreferenceTO.setCode(usersPreferenceEntity.getUserPreference().getCode());
+                    userPreferenceTO.setDescription(usersPreferenceEntity.getUserPreference().getDescription());
+                    userPreferenceTO.setValue(usersPreferenceEntity.getValue());
+                    userPreferenceTO.setUserEditable(usersPreferenceEntity.getUserPreference().isUserEditable());
+                    userPreferenceTOSet.add(userPreferenceTO);
+                }
             }
             return userPreferenceTOSet;
         }
