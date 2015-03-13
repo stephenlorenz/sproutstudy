@@ -112,13 +112,13 @@ public class StudyEmailMDB implements MessageListener {
 
     private String constructPickupUrl(String instanceId, String nonce) {
         if (StringUtils.isFull(instanceId, nonce)) {
-            return String.format("%s/prompt/?instanceId=%s&nonce=%s&debug=true&showThanks=false&trigger=study", System.getProperty("ihealthspace.notification.baseUrl", "https://scl30.partners.org:8443"), instanceId, nonce);
+            return String.format("%s/prompt/?instanceId=%s&nonce=%s&debug=true&showThanks=false&trigger=study", System.getProperty("server.root.url", "https://scl30.partners.org:8443"), instanceId, nonce);
         }
         return null;
     }
 
     private String constructSproutStudyUrl() {
-        return String.format("%s/sproutstudy", System.getProperty("ihealthspace.notification.baseUrl", "https://scl30.partners.org:8443"));
+        return String.format("%s/sproutstudy", System.getProperty("server.root.url", "https://scl30.partners.org:8443"));
     }
 
     private void init() {

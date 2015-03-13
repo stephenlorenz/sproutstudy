@@ -465,7 +465,8 @@ angular.module('sproutStudyApp')
 
                         cohortService.setMember($scope.subject);
 
-                        var params = [{identity: $scope.subject.id + "@mgh"}, {identity: $scope.tempId + "@SPROUT_STUDY_TEMP_ID"}];
+//                        var params = [{identity: $scope.subject.id + "@mgh"}, {identity: $scope.tempId + "@SPROUT_STUDY_TEMP_ID"}];
+                        var params = [{identity: $scope.subject.id + "@mgh"}];
 
                         $scope.getSubjectInbox(params);
                     }

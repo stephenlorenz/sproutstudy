@@ -183,9 +183,6 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
     @Override
     public List<FormInstanceTO> getSproutInbox(String username, CohortTO cohortTO, String[] identityArray, Set<String> publicationKeys) {
 
-//        System.out.println("SproutFormsServiceImpl.getSproutInbox");
-//        System.out.println("identityArray = [" + identityArray + "], publicationKeys = [" + publicationKeys + "]");
-
         if (publicationKeys != null && publicationKeys.size() > 0) {
 
             List<String> publicationKeysList = new ArrayList<String>();
