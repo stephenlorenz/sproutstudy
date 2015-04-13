@@ -51,6 +51,8 @@
 	<link type="text/css" rel="stylesheet" href="/sproutassets/stylesheets/lcs/css/lcs.css" />
 	<link type="text/css" rel="stylesheet" href="/sproutassets/stylesheets/lcs/css/login.css" />
 	<link type="text/css" rel="stylesheet" href="/sproutassets/stylesheets/bootstrap/css/responsive.css" />
+	<link type="text/css" rel="stylesheet" href="assets/components/font-awesome/css/font-awesome.min.css">
+	<link type="text/css" rel="stylesheet" href="assets/components/icomoon99838/style.css">
 	<!--[if IE]><link rel="stylesheet" type="text/css" href="/sproutassets/stylesheets/ie/ie.css"></link><![endif]-->
    	<!--[if lt IE 9]><link rel="stylesheet" type="text/css" href="/sproutassets/stylesheets/ie/ie8.css"></link><![endif]-->
    	<!--[if lt IE 7]><link rel="stylesheet" type="text/css" href="/sproutassets/stylesheets/ie/ie6.css"></link><![endif]-->
@@ -87,7 +89,7 @@
                 <li ng-show="cohort() != null && cohort().name.length > 0"><a>{{cohort().name}} Cohort</a></li>
                 <li class="dropdown sproutstudy-tab-cohort">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                        <i class="icon-list"></i>
+                        <i class="fa fa-bars"></i>
                     </a>
                     <ul class="dropdown-menu" style="min-width: 150px;">
                         <li><a href="#/" ng-click="changeCohort()" class="sproutstudy-tab-button">Change Cohort</a></li>
