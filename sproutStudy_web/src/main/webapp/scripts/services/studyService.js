@@ -3,7 +3,46 @@
 angular.module('sproutStudyApp')
     .factory('studyService', function ($http, networkService) {
 
+        var admin = false;
+        var manager = false;
+
+        function setAdmin(adminObject) {
+            admin = adminObject;
+        }
+        function isAdmin() {
+            return admin;
+        }
+
+        function setManager(managerObject) {
+            manager = managerObject;
+        }
+        function isManager() {
+            return manager;
+        }
+
+        $http.get(networkService.generateUrl("isAdmin", {})).then(function (response) {
+            admin = response.data.value;
+        });
+
+        $http.get(networkService.generateUrl("isManager", {})).then(function (response) {
+            manager = response.data.value;
+        });
+
         return {
+            setAdmin: setAdmin,
+            setManager: setManager,
+            isAdmin: isAdmin,
+            isManager: isManager,
+            getAdmin: function (params, callback) {
+                $http.get(networkService.generateUrl("isAdmin", params)).then(function (response) {
+                    callback(response.data);
+                });
+            },
+            getManager: function (params, callback) {
+                $http.get(networkService.generateUrl("isManager", params)).then(function (response) {
+                    callback(response.data);
+                });
+            },
             getAuthorizedCohorts: function (params, callback) {
                 $http.get(networkService.generateUrl("getAuthorizedCohorts", params)).then(function (response) {
                     callback(response.data);
@@ -16,6 +55,11 @@ angular.module('sproutStudyApp')
             },
             getRecentCohortMembers: function (params, callback) {
                 $http.get(networkService.generateUrl("getRecentCohortMembers", params)).then(function (response) {
+                    callback(response.data);
+                });
+            },
+            getCohortByKey: function (params, callback) {
+                $http.get(networkService.generateUrl("getCohortByKey", params)).then(function (response) {
                     callback(response.data);
                 });
             },

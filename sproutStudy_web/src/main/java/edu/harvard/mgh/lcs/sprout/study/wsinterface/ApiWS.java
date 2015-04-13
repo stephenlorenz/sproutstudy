@@ -6,7 +6,6 @@ import edu.harvard.mgh.lcs.sprout.forms.study.beanws.Result;
 import edu.harvard.mgh.lcs.sprout.forms.study.exception.InvalidSessionRESTful;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.*;
 
-import javax.jws.WebMethod;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -23,6 +22,11 @@ public interface ApiWS {
     @Path("/secure/getAuthorizedCohorts")
     @Produces(MediaType.APPLICATION_JSON)
     public List<CohortTO> getAuthorizedCohorts(@Context HttpServletRequest request) throws InvalidSessionRESTful;
+
+    @GET
+    @Path("/secure/getManagedCohorts")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<CohortTO> getManagedCohorts(@Context HttpServletRequest request) throws InvalidSessionRESTful;
 
     @GET
     @Path("/secure/findCohortMember")
@@ -48,6 +52,16 @@ public interface ApiWS {
     @Path("/secure/getForm")
     @Produces(MediaType.APPLICATION_JSON)
     public StringTO getForm(@Context HttpServletRequest request, @QueryParam("schema") String schema, @QueryParam("mrn") String mrn, @QueryParam("instanceId") String instanceId) throws InvalidSessionRESTful;
+
+    @GET
+    @Path("/secure/saveForm")
+    @Produces(MediaType.APPLICATION_JSON)
+    public BooleanTO saveForm(@Context HttpServletRequest request, @QueryParam("cohort") String cohort, @QueryParam("name") String name, @QueryParam("formKey") String formKey, @QueryParam("publicationKey") String publicationKey, @QueryParam("demographicInd") Boolean demographicInd) throws InvalidSessionRESTful;
+
+    @GET
+    @Path("/secure/deleteForm")
+    @Produces(MediaType.APPLICATION_JSON)
+    public BooleanTO deleteForm(@Context HttpServletRequest request, @QueryParam("cohort") String cohortKey, @QueryParam("formKey") String formKey) throws InvalidSessionRESTful;
 
     @GET
     @Path("/secure/applyForNonce")
@@ -163,4 +177,55 @@ public interface ApiWS {
     @Path("/secure/getActiveSproutInboxStatuses")
     @Produces(MediaType.APPLICATION_JSON)
     public List<edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.NameValue> getActiveSproutInboxStatuses(@Context HttpServletRequest request) throws InvalidSessionRESTful;
+
+    @GET
+    @Path("/secure/saveCohort")
+    @Produces(MediaType.APPLICATION_JSON)
+    public BooleanTO saveCohort(@Context HttpServletRequest request, @QueryParam("cohortKey") String cohortKey, @QueryParam("name") String name, @QueryParam("description") String description, @QueryParam("group") String group) throws InvalidSessionRESTful;
+
+    @GET
+    @Path("/secure/revokeCohortAuthorization")
+    @Produces(MediaType.APPLICATION_JSON)
+    public BooleanTO revokeCohortAuthorization(@Context HttpServletRequest request, @QueryParam("cohortKey") String cohortKey, @QueryParam("username") String username) throws InvalidSessionRESTful;
+
+    @GET
+    @Path("/secure/updateCohortAuthorization")
+    @Produces(MediaType.APPLICATION_JSON)
+    public BooleanTO updateCohortAuthorization(@Context HttpServletRequest request, @QueryParam("cohortKey") String cohortKey, @QueryParam("username") String username, @QueryParam("manager") Boolean manager) throws InvalidSessionRESTful;
+
+    @GET
+    @Path("/secure/grantCohortAuthorization")
+    @Produces(MediaType.APPLICATION_JSON)
+    public BooleanTO grantCohortAuthorization(@Context HttpServletRequest request, @QueryParam("cohortKey") String cohortKey, @QueryParam("firstName") String firstName, @QueryParam("lastName") String lastName, @QueryParam("username") String username, @QueryParam("email") String email, @QueryParam("manager") Boolean manager) throws InvalidSessionRESTful;
+
+    @GET
+    @Path("/secure/deleteCohort")
+    @Produces(MediaType.APPLICATION_JSON)
+    public BooleanTO deleteCohort(@Context HttpServletRequest request, @QueryParam("cohortKey") String cohortKey) throws InvalidSessionRESTful;
+
+    @GET
+    @Path("/secure/getUser")
+    @Produces(MediaType.APPLICATION_JSON)
+    public LdapUserTO getUser(@Context HttpServletRequest request, @QueryParam("cn") String cn) throws InvalidSessionRESTful;
+
+    @GET
+    @Path("/secure/isAdmin")
+    @Produces(MediaType.APPLICATION_JSON)
+    public BooleanTO isAdmin(@Context HttpServletRequest request) throws InvalidSessionRESTful;
+
+    @GET
+    @Path("/secure/isManager")
+    @Produces(MediaType.APPLICATION_JSON)
+    public BooleanTO isManager(@Context HttpServletRequest request) throws InvalidSessionRESTful;
+
+    @GET
+    @Path("/secure/getCohortAuthorizationsByKey")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<CohortAuthorizationTO> getCohortAuthorizationsByKey(@Context HttpServletRequest request, @QueryParam("cohortKey") String cohortKey) throws InvalidSessionRESTful;
+
+    @GET
+    @Path("/secure/getCohortByKey")
+    @Produces(MediaType.APPLICATION_JSON)
+    public CohortTO getCohortTO(@Context HttpServletRequest request, @QueryParam("cohortKey") String cohortKey) throws InvalidSessionRESTful;
+
 }

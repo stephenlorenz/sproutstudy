@@ -7,11 +7,15 @@ import java.util.*;
 @Entity
 @Table(schema="dbo", name="cohort")
 @NamedQueries({
-	@NamedQuery(name = CohortEntity.BY_COHORT_NAME, query = "FROM CohortEntity WHERE name = :name")
+	@NamedQuery(name = CohortEntity.BY_COHORT_NAME, query = "FROM CohortEntity WHERE name = :name"),
+	@NamedQuery(name = CohortEntity.BY_COHORT_KEY_AND_AUTH, query = "SELECT c FROM CohortEntity c, IN (c.cohortAuthorizations) AS a WHERE c.cohortKey = :key AND a.user = :user"),
+	@NamedQuery(name = CohortEntity.BY_COHORT_KEY, query = "FROM CohortEntity WHERE cohortKey = :key")
 })
 public class CohortEntity implements Serializable {
 
 	public static final String BY_COHORT_NAME = "CohortEntity.byName";
+	public static final String BY_COHORT_KEY_AND_AUTH = "CohortEntity.byKeyAndAuth";
+	public static final String BY_COHORT_KEY = "CohortEntity.byKey";
 
 	@Id
     @GeneratedValue (strategy = GenerationType.IDENTITY)
@@ -21,7 +25,7 @@ public class CohortEntity implements Serializable {
     private Set<CohortAttrEntity> cohortAttributes = new HashSet<CohortAttrEntity>();
 
     @OneToMany(targetEntity=CohortAuthEntity.class, mappedBy="cohort", cascade=CascadeType.MERGE)
-    private Set<CohortAuthEntity> cohortAuthorizations = new HashSet<CohortAuthEntity>();
+    private List<CohortAuthEntity> cohortAuthorizations = new ArrayList<CohortAuthEntity>();
 
     @OneToMany(targetEntity=CohortFormEntity.class, mappedBy="cohort", cascade=CascadeType.MERGE)
     @OrderBy("id ASC")
@@ -38,6 +42,14 @@ public class CohortEntity implements Serializable {
     @Basic
     @Column(name="description")
     private String description;
+
+    @Basic
+    @Column(name="cohort_key")
+    private String cohortKey;
+
+    @Basic
+    @Column(name="active_ind")
+    private boolean active;
 
     @Basic
     @Column(name="activity_date", columnDefinition="datetime", nullable=false)
@@ -59,11 +71,11 @@ public class CohortEntity implements Serializable {
         this.cohortAttributes = cohortAttributes;
     }
 
-    public Set<CohortAuthEntity> getCohortAuthorizations() {
+    public List<CohortAuthEntity> getCohortAuthorizations() {
         return cohortAuthorizations;
     }
 
-    public void setCohortAuthorizations(Set<CohortAuthEntity> cohortAuthorizations) {
+    public void setCohortAuthorizations(List<CohortAuthEntity> cohortAuthorizations) {
         this.cohortAuthorizations = cohortAuthorizations;
     }
 
@@ -97,6 +109,22 @@ public class CohortEntity implements Serializable {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getCohortKey() {
+        return cohortKey;
+    }
+
+    public void setCohortKey(String cohortKey) {
+        this.cohortKey = cohortKey;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     public Date getActivityDate() {

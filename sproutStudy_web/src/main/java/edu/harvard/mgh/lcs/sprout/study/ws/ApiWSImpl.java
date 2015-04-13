@@ -5,6 +5,7 @@ import edu.harvard.mgh.lcs.sprout.forms.study.beanws.Result;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.*;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.SproutStudyConstantService.SubmissionStatus;
 import edu.harvard.mgh.lcs.sprout.forms.study.exception.InvalidSessionRESTful;
+import edu.harvard.mgh.lcs.sprout.forms.study.exception.UnauthorizedActionException;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.*;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.PublicationTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.util.StringUtils;
@@ -51,6 +52,16 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
         SessionTO sessionTO = getSessionTO(request);
         if (sessionTO != null) {
             return studyService.getAuthorizedCohorts(sessionTO.getUser());
+        }
+        return null;
+    }
+
+    @Override
+    @WebMethod(operationName = "getManagedCohorts")
+    public List<CohortTO> getManagedCohorts(@Context HttpServletRequest request) throws InvalidSessionRESTful {
+        SessionTO sessionTO = getSessionTO(request);
+        if (sessionTO != null) {
+            return studyService.getAuthorizedCohorts(sessionTO);
         }
         return null;
     }
@@ -348,23 +359,50 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
 
     @Override
     @WebMethod(operationName="getForm")
-    public StringTO getForm(@Context HttpServletRequest request, @QueryParam("schema") String schema, @QueryParam("mrn") String mrn, @QueryParam("instanceId") String instanceId) throws InvalidSessionRESTful {
+    public StringTO getForm(@Context HttpServletRequest request, @QueryParam("cohort") String cohort, @QueryParam("mrn") String mrn, @QueryParam("instanceId") String instanceId) throws InvalidSessionRESTful {
         SessionTO sessionTO = getSessionTO(request);
         if (sessionTO != null) {
-            return new StringTO(sproutFormsService.getForm(schema, mrn, instanceId));
+            return new StringTO(sproutFormsService.getForm(cohort, mrn, instanceId));
         }
         return null;
     }
 
     @Override
     @WebMethod(operationName="getForms")
-    public List<FormInstanceTO> getForms(@Context HttpServletRequest request, @QueryParam("schema") String schema, @QueryParam("mrn") String mrn, @QueryParam("practiceId") String practiceId) throws InvalidSessionRESTful {
+    public List<FormInstanceTO> getForms(@Context HttpServletRequest request, @QueryParam("cohort") String cohort, @QueryParam("mrn") String mrn, @QueryParam("practiceId") String practiceId) throws InvalidSessionRESTful {
         SessionTO sessionTO = getSessionTO(request);
         if (sessionTO != null) {
-            return sproutFormsService.getForms(schema, mrn, practiceId);
+            return sproutFormsService.getForms(cohort, mrn, practiceId);
         }
         return null;
     }
+
+    @Override
+    public BooleanTO saveForm(HttpServletRequest request, String cohort, String name, String formKey, String publicationKey, Boolean demographicInd) throws InvalidSessionRESTful {
+        SessionTO sessionTO = getSessionTO(request);
+        if (sessionTO != null && StringUtils.isFull(name, formKey, publicationKey, cohort)) {
+            try {
+                return studyService.saveForm(sessionTO, cohort, name, formKey, publicationKey, demographicInd);
+            } catch (UnauthorizedActionException e) {
+                return new BooleanTO(false, e.getMessage());
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public BooleanTO deleteForm(HttpServletRequest request, String cohortKey, String formKey) throws InvalidSessionRESTful {
+        SessionTO sessionTO = getSessionTO(request);
+        if (sessionTO != null && StringUtils.isFull(formKey, cohortKey)) {
+            try {
+                return studyService.deleteForm(sessionTO, cohortKey, formKey);
+            } catch (UnauthorizedActionException e) {
+                return new BooleanTO(false, e.getMessage());
+            }
+        }
+        return null;
+    }
+
 
 	@Override
 	@WebMethod(operationName="setSessionCohort")
@@ -382,6 +420,15 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
 		return new BooleanTO(false);
 	}
 
+    @Override
+    public CohortTO getCohortTO(@Context HttpServletRequest request, @QueryParam("cohortKey") String cohortKey) throws InvalidSessionRESTful {
+        SessionTO sessionTO = getSessionTO(request);
+        if (sessionTO != null) {
+            return studyService.getCohortTO(sessionTO, cohortKey);
+        }
+        return null;
+    }
+
     private void updateSessionTO(HttpServletRequest request, SessionTO sessionTO) {
         try {
             HttpSession httpSession = request.getSession(false);
@@ -393,12 +440,12 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
 
     @Override
     @WebMethod(operationName="deliverForm")
-    public FormDeliveryStatus deliverForm(@Context HttpServletRequest request, @QueryParam("schema") String schema, @QueryParam("id") String id, @QueryParam("publicationKey") String publicationKey, @QueryParam("provider") String provider, @QueryParam("expirationDate") String expirationDateString) throws InvalidSessionRESTful {
+    public FormDeliveryStatus deliverForm(@Context HttpServletRequest request, @QueryParam("cohort") String cohort, @QueryParam("id") String id, @QueryParam("publicationKey") String publicationKey, @QueryParam("provider") String provider, @QueryParam("expirationDate") String expirationDateString) throws InvalidSessionRESTful {
         SessionTO sessionTO = getSessionTO(request);
 
-        if (sessionTO != null && !StringUtils.isEmpty(schema) && !StringUtils.isEmpty(publicationKey) && !StringUtils.isEmpty(provider)) {
-            if (schema.equalsIgnoreCase("SPROUT_STUDY_TEMP_ID") && StringUtils.isEmpty(id)) id = StringUtils.getGuid();
-            return sproutFormsService.deliverToInbox(schema, id, publicationKey, provider, expirationDateString);
+        if (sessionTO != null && !StringUtils.isEmpty(cohort) && !StringUtils.isEmpty(publicationKey) && !StringUtils.isEmpty(provider)) {
+            if (cohort.equalsIgnoreCase("SPROUT_STUDY_TEMP_ID") && StringUtils.isEmpty(id)) id = StringUtils.getGuid();
+            return sproutFormsService.deliverToInbox(cohort, id, publicationKey, provider, expirationDateString);
         }
 
         return null;
@@ -505,6 +552,128 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
 			throw new InvalidSessionRESTful();
 		}
 	}
-	
-	
+
+    @Override
+    public BooleanTO isAdmin(HttpServletRequest request) throws InvalidSessionRESTful {
+        SessionTO sessionTO = getSessionTO(request);
+        if (sessionTO != null) {
+            return new BooleanTO(studyService.isAdmin(sessionTO));
+        }
+        return new BooleanTO(false);
+    }
+
+    @Override
+    public BooleanTO isManager(HttpServletRequest request) throws InvalidSessionRESTful {
+        SessionTO sessionTO = getSessionTO(request);
+        if (sessionTO != null) {
+            return new BooleanTO(studyService.isManager(sessionTO));
+        }
+        return new BooleanTO(false);
+    }
+
+    @Override
+    public BooleanTO saveCohort(HttpServletRequest request, String cohortKey, String name, String description, String group) throws InvalidSessionRESTful {
+        SessionTO sessionTO = getSessionTO(request);
+        if (sessionTO != null) {
+            try {
+                if (studyService.saveCohort(sessionTO, cohortKey, name, description, group).isTrue()) {
+                    if (refreshAuthorizedCohorts(request, sessionTO).isTrue()) return refreshAuthorizedCohorts(request, sessionTO);
+                }
+            } catch (UnauthorizedActionException e) {
+                return new BooleanTO(false, e.getMessage());
+            }
+        }
+        return new BooleanTO(false);
+    }
+
+    @Override
+    public BooleanTO grantCohortAuthorization(HttpServletRequest request, String cohortKey, String firstName, String lastName, String username, String email, Boolean manager) throws InvalidSessionRESTful {
+        SessionTO sessionTO = getSessionTO(request);
+        if (sessionTO != null) {
+            try {
+                if (studyService.grantCohortAuthorization(sessionTO, cohortKey, firstName, lastName, username, email, manager).isTrue()) {
+                    if (refreshAuthorizedCohorts(request, sessionTO).isTrue()) return refreshAuthorizedCohorts(request, sessionTO);
+                }
+            } catch (UnauthorizedActionException e) {
+                return new BooleanTO(false, e.getMessage());
+            }
+        }
+        return new BooleanTO(false);
+    }
+
+    @Override
+    public BooleanTO revokeCohortAuthorization(HttpServletRequest request, String cohortKey, String username) throws InvalidSessionRESTful {
+        SessionTO sessionTO = getSessionTO(request);
+        if (sessionTO != null) {
+            try {
+                if (studyService.revokeCohortAuthorization(sessionTO, cohortKey, username).isTrue()) {
+                    if (refreshAuthorizedCohorts(request, sessionTO).isTrue()) return refreshAuthorizedCohorts(request, sessionTO);
+                }
+            } catch (UnauthorizedActionException e) {
+                return new BooleanTO(false, e.getMessage());
+            }
+        }
+        return new BooleanTO(false);
+    }
+
+    @Override
+    public BooleanTO updateCohortAuthorization(HttpServletRequest request, String cohortKey, String username, Boolean manager) throws InvalidSessionRESTful {
+        SessionTO sessionTO = getSessionTO(request);
+        if (sessionTO != null) {
+            try {
+                if (studyService.updateCohortAuthorization(sessionTO, cohortKey, username, manager).isTrue()) {
+                    if (refreshAuthorizedCohorts(request, sessionTO).isTrue()) return refreshAuthorizedCohorts(request, sessionTO);
+                }
+            } catch (UnauthorizedActionException e) {
+                return new BooleanTO(false, e.getMessage());
+            }
+        }
+        return new BooleanTO(false);
+    }
+
+    @Override
+    public BooleanTO deleteCohort(HttpServletRequest request, String cohortKey) throws InvalidSessionRESTful {
+        SessionTO sessionTO = getSessionTO(request);
+        if (sessionTO != null) {
+            BooleanTO booleanTO = studyService.deleteCohort(sessionTO, cohortKey);
+            if (booleanTO.isTrue()) {
+                if (refreshAuthorizedCohorts(request, sessionTO).isTrue()) return refreshAuthorizedCohorts(request, sessionTO);
+            } else {
+                return booleanTO;
+            }
+        }
+        return new BooleanTO(false);
+    }
+
+    @Override
+    public List<CohortAuthorizationTO> getCohortAuthorizationsByKey(HttpServletRequest request, String cohortKey) throws InvalidSessionRESTful {
+        SessionTO sessionTO = getSessionTO(request);
+        if (sessionTO != null) {
+            return studyService.getCohortAuthorizations(sessionTO, cohortKey);
+        }
+        return null;
+    }
+
+
+    private BooleanTO refreshAuthorizedCohorts(HttpServletRequest request, SessionTO sessionTO) {
+        try {
+            sessionTO.setAuthorizedCohorts(studyService.getAuthorizedCohorts(sessionTO));
+            updateSessionTO(request, sessionTO);
+            return new BooleanTO(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new BooleanTO(false);
+    }
+
+    @Override
+    public LdapUserTO getUser(HttpServletRequest request, String cn) throws InvalidSessionRESTful {
+        SessionTO sessionTO = getSessionTO(request);
+        if (sessionTO != null) {
+            return securityService.getUser(cn);
+        }
+        return null;
+    }
+
+
 }

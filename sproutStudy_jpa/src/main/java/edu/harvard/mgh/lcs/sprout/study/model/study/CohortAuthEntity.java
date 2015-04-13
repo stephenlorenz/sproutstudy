@@ -8,9 +8,16 @@ import java.util.Set;
 
 @Entity
 @Table(schema="dbo", name="cohort_auth")
+@NamedQueries({
+        @NamedQuery(name = CohortAuthEntity.BY_USERNAME_AND_COHORT_KEY, query = "FROM CohortAuthEntity WHERE user.username = :username AND active = TRUE AND cohort.cohortKey = :cohortKey"),
+        @NamedQuery(name = CohortAuthEntity.MANAGER_BY_USERNAME_AND_COHORT_KEY, query = "FROM CohortAuthEntity WHERE user.username = :username AND active = TRUE AND manager = TRUE AND cohort.cohortKey = :cohortKey")
+})
 public class CohortAuthEntity implements Serializable {
 
-	@Id
+    public static final String BY_USERNAME_AND_COHORT_KEY = "CohortAuthEntity.byUsernameAndCohortKey";
+    public static final String MANAGER_BY_USERNAME_AND_COHORT_KEY = "CohortAuthEntity.managerByUsernameAndCohortKey";
+    
+    @Id
     @GeneratedValue (strategy = GenerationType.IDENTITY)
     private int id;
 
@@ -24,11 +31,11 @@ public class CohortAuthEntity implements Serializable {
 
     @Basic
     @Column(name="active_ind")
-    private Boolean active;
+    private boolean active = false;
 
     @Basic
     @Column(name="manager_ind")
-    private Boolean manager;
+    private boolean manager = false;
 
     @Basic
     @Column(name="activity_date", columnDefinition="datetime", nullable=false)
@@ -58,19 +65,19 @@ public class CohortAuthEntity implements Serializable {
         this.user = user;
     }
 
-    public Boolean getActive() {
+    public boolean isActive() {
         return active;
     }
 
-    public void setActive(Boolean active) {
+    public void setActive(boolean active) {
         this.active = active;
     }
 
-    public Boolean getManager() {
+    public boolean isManager() {
         return manager;
     }
 
-    public void setManager(Boolean manager) {
+    public void setManager(boolean manager) {
         this.manager = manager;
     }
 

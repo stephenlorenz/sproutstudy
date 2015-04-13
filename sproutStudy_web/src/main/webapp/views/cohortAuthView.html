@@ -1,0 +1,53 @@
+<div class="sprout-study-admin-cohorts">
+    <div ng-controller="cohortManagerController" class="sproutstudy-tab sproutstudy-tab-patient container">
+
+
+        <div class="alert alert-error" ng-show="saveCohortMessage != undefined">
+            <h4>{{saveCohortAuthMessage}}</h4>
+        </div>
+
+
+        <legend>Authorizations for {{cohort.name}} cohort:
+            <span style="float: right;" ng-show="(isAdmin() == 'true' || isManagerOfCohort()) && cohortAuthorizations != undefined">
+                <a class="btn btn-primary" ng-href="#cohorts/authorizations/add">Grant Authorization</a>
+            </span>
+        </legend>
+
+        <div ng-show="cohortAuthorizations != undefined">
+
+            <table class="table table-condensed table-striped" ng-show="cohortAuthorizations.length > 0">
+                <thead class="inbox">
+                <tr>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Username</th>
+                    <th>Date Modified</th>
+                    <th ng-show="isAdmin() == 'true' || isManagerOfCohort()">Manager?</th>
+                    <th style="text-align: center; width: 60px;" ng-show="isAdmin() == 'true'">Revoke</th>
+                </tr>
+                </thead>
+                <tr ng-repeat="authorization in cohortAuthorizations | orderBy:user.lastName" >
+                    <td>{{authorization.user.firstName}}</td>
+                    <td>{{authorization.user.lastName}}</td>
+                    <td>{{authorization.user.username}}</td>
+                    <td>{{authorization.activityDate | date:'medium' }}</td>
+                    <td ng-show="isAdmin() == 'true' || isManagerOfCohort()">
+                        <input ng-model="authorization.manager" id="manager" rautocomplete="false" class="field-label message-text" ng-change="onManagerUpdate(cohort, authorization)" type="checkbox" />
+                    </td>
+                    <td style="text-align: center; width: 80px;" ng-show="isAdmin() == 'true' || isManagerOfCohort()">
+                        <button class="btn btn-mini" ng-click="onRevokeAuthorization(cohort, authorization)" >Revoke</button>
+                    </td>
+                </tr>
+            </table>
+            <div class="alert alert-info" ng-show="cohortAuthorizations.length == 0">
+                <h4>There are no cohort authorizations for this cohort.</h4>
+            </div>
+
+
+        </div>
+        <div class="alert alert-info" ng-show="cohortAuthorizations == undefined">
+            <h4>Loading cohort authorizations...please wait...</h4>
+        </div>
+    </div>
+
+</div>

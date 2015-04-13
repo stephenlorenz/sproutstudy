@@ -46,6 +46,12 @@ public class AuditServiceImpl implements AuditService, SproutStudyConstantServic
     private EntityManager entityManager;
 
     @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public int log(UserEntity userEntity, AuditType auditType, AuditVerbosity verbosity, CohortEntity cohortEntity, String title, String message) {
+        return addAuditMessage(userEntity, auditType, verbosity, title, cohortEntity, message);
+    }
+    
+    @Override
     public int info(String message) {
         return addGenericAuditMessage(AuditType.INFO, AuditVerbosity.INFO, null, message);
     }
@@ -150,6 +156,40 @@ public class AuditServiceImpl implements AuditService, SproutStudyConstantServic
 
     private int addAuditMessage(UserEntity userEntity, AuditType auditType, AuditVerbosity verbosity, String title, String message) {
         return addAuditMessage(userEntity, auditType, verbosity, title, null, null, null, message);
+    }
+
+    private int addAuditMessage(UserEntity userEntity, AuditType auditType, AuditVerbosity verbosity, String title, CohortEntity cohortEntity, String message) {
+        try {
+            VAuditTypeEntity vAuditTypeEntity = getVAuditTypeEntity(auditType.toString());
+            VAuditVerbosityEntity vAuditVerbosityEntity = getVAuditVerbosityEntity(verbosity.toString());
+            if (vAuditTypeEntity != null && vAuditVerbosityEntity != null) {
+                AuditEntity auditEntity = new AuditEntity();
+                auditEntity.setAuditType(vAuditTypeEntity);
+                auditEntity.setTitle(title != null ? title : auditType.toString());
+                auditEntity.setCohort(cohortEntity);
+                auditEntity.setUser(userEntity != null ? userEntity : getSystemUser(SproutStudyConstantService.TEMP_DOMAIN_NAME));
+                entityManager.persist(auditEntity);
+
+                AuditMessageEntity auditMessageEntity = new AuditMessageEntity(auditEntity);
+                auditMessageEntity.setVerbosity(vAuditVerbosityEntity);
+                auditMessageEntity.setMessage(message);
+                entityManager.persist(auditMessageEntity);
+                logMessage(verbosity, message);
+
+                return auditEntity.getId();
+            } else {
+                throw new InvalidAuditTypeCodeException(auditType.toString());
+            }
+        } catch (InvalidAuditTypeCodeException e) {
+            log.error(message, e);
+        } catch (InvalidAuditVerbosityCodeException e) {
+            log.error(message, e);
+        } catch (SecurityException e) {
+            log.error(message, e);
+        } catch (IllegalStateException e) {
+            log.error(message, e);
+        }
+        return 0;
     }
 
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)

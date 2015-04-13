@@ -1,0 +1,47 @@
+<div ng-controller="formManagerController" class="sproutstudy-tab sproutstudy-tab-patient container">
+
+    <legend>Add Form</legend>
+
+    <form method="post" id="user" name="addForm" autocomplete="false">
+
+        <div class="alert alert-error" ng-show="saveFormMessage != undefined">
+            <h4>{{saveFormMessage}}</h4>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label" for="name">Form Name</label>
+            <div class="controls">
+                <input ng-model="form.name" id="name" required  autocomplete="false"
+                       class="field-label message-text" type="text" style="width: 20em;" />
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="publicationKey">Publication Key</label>
+            <div class="controls">
+                <input ng-model="form.publicationKey" id="publicationKey" required  autocomplete="false"
+                       class="field-label message-text" type="text" style="width: 20em;" />
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="formKey">Form Key</label>
+            <div class="controls">
+                <input ng-model="form.formKey" id="formKey" required  autocomplete="false"
+                       class="field-label message-text" type="text" style="width: 20em;" />
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="demographicInd">Demographic Form?</label>
+            <div class="controls">
+                <input ng-model="form.demographicInd" id="demographicInd" autocomplete="false"
+                       class="field-label message-text" type="checkbox" />
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button class="btn btn-primary" ng-click="onSaveNewForm()" ng-disabled="addForm.$invalid">Submit</button>
+            <a ng-href="#/forms" class="btn">Cancel</a>
+
+        </div>
+
+    </form>
+</div>

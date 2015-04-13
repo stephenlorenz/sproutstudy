@@ -15,6 +15,8 @@ public class CohortTO implements Serializable {
     private List<CohortFormTO> forms;
     private String cohortQueryURL;
     private String cohortSubjectSchema;
+    private boolean active;
+    private String cohortKey;
 
     public int getId() {
         return id;
@@ -78,5 +80,21 @@ public class CohortTO implements Serializable {
 
     public void setCohortSubjectSchema(String cohortSubjectSchema) {
         this.cohortSubjectSchema = cohortSubjectSchema;
+    }
+
+    public String getCohortKey() {
+        return cohortKey;
+    }
+
+    public void setCohortKey(String cohortKey) {
+        this.cohortKey = cohortKey;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }

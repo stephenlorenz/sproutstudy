@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('sproutStudyApp')
-    .controller('studyController', function ($log, $scope, $filter, $timeout, studyService, patientService, formsService, cohortService, sessionService) {
+    .controller('studyController', function ($log, $scope, $filter, $timeout, $window, studyService, patientService, formsService, cohortService, sessionService) {
 
 
         $scope.cohortLoaded = false;
@@ -67,6 +67,14 @@ angular.module('sproutStudyApp')
         $scope.messageTo = null;
 
         $scope.session = null;
+
+        $scope.isAdmin = function() {
+            return studyService.isAdmin();
+        }
+
+        $scope.isManager = function() {
+           return studyService.isManager();
+        }
 
         $scope.modalSmallOpts = {
 //            backdropFade: true, // These two settings
@@ -488,6 +496,10 @@ angular.module('sproutStudyApp')
             });
 
         };
+
+        $scope.isAdmin = function() {
+            return studyService.isAdmin();
+        }
 
         $scope.getSubjectInbox = function(params) {
             $scope.addSubjectInd = false;

@@ -3,7 +3,7 @@
 angular.module('sproutStudyApp')
     .factory('cohortService', function () {
 
-        var memberDefault = {fullName: "Search", id: 0};
+        var memberDefault = {fullName: "Search", id: 0, url: ""};
         var member = memberDefault;
         var cohort = null;
         var cohortService = {};

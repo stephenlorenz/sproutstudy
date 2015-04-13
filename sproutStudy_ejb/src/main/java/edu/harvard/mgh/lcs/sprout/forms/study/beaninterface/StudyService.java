@@ -1,9 +1,11 @@
 package edu.harvard.mgh.lcs.sprout.forms.study.beaninterface;
 
 import edu.harvard.mgh.lcs.sprout.forms.study.beanws.Result;
+import edu.harvard.mgh.lcs.sprout.forms.study.exception.UnauthorizedActionException;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.*;
 import edu.harvard.mgh.lcs.sprout.study.model.study.CohortEntity;
 
+import javax.jms.Session;
 import java.util.List;
 import java.util.Set;
 
@@ -34,5 +36,19 @@ public interface StudyService {
     String getFormFromPublicationKey(String publicationKey);
     String getFormKeyFromPublicationKey(String publicationKey);
 
+    public CohortTO getCohortTO(SessionTO sessionTO, String cohortKey);
     Set<String> getPublicationKeysFromPublicationKey(String publicationKey);
+
+    public List<CohortTO> getAuthorizedCohorts(SessionTO sessionTO);
+    public BooleanTO saveCohort(SessionTO sessionTO, String cohortKey, String name, String description, String group) throws UnauthorizedActionException;
+    public BooleanTO deleteCohort(SessionTO sessionTO, String cohortKey);
+    public BooleanTO saveAuthorization(SessionTO sessionTO, String usernane, String cohortKey);
+    public boolean isAdmin(SessionTO sessionTO);
+    public boolean isManager(SessionTO sessionTO);
+    public List<CohortAuthorizationTO> getCohortAuthorizations(SessionTO sessionTO, String cohortKey);
+    public BooleanTO grantCohortAuthorization(SessionTO sessionTO, String cohortKey, String firstName, String lastName, String username, String email, Boolean manager) throws UnauthorizedActionException;
+    public BooleanTO revokeCohortAuthorization(SessionTO sessionTO, String cohortKey, String username) throws UnauthorizedActionException;
+    public BooleanTO updateCohortAuthorization(SessionTO sessionTO, String cohortKey, String username, Boolean manager) throws UnauthorizedActionException;
+    public BooleanTO saveForm(SessionTO sessionTO, String cohort, String name, String formKey, String publicationKey, Boolean demographicInd) throws UnauthorizedActionException;
+    public BooleanTO deleteForm(SessionTO sessionTO, String cohortKey, String formKey) throws UnauthorizedActionException;
 }

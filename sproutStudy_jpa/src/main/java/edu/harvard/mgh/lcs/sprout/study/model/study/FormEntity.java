@@ -9,6 +9,7 @@ import java.util.*;
 @NamedQueries({
     @NamedQuery(name= FormEntity.ALL, query="FROM FormEntity"),
     @NamedQuery(name= FormEntity.FIND_BY_NAME, query="FROM FormEntity WHERE name = :name"),
+    @NamedQuery(name= FormEntity.FIND_BY_FORM_OR_PUBLICATION_KEY, query="FROM FormEntity WHERE (publicationKey = :publicationKey OR formKey = :formKey)"),
     @NamedQuery(name= FormEntity.FIND_BY_PUBLICATION_KEY, query="FROM FormEntity WHERE publicationKey = :publicationKey"),
     @NamedQuery(name= FormEntity.FIND_BY_FORM_KEY, query="FROM FormEntity WHERE formKey = :formKey")
 })
@@ -16,6 +17,7 @@ public class FormEntity implements Serializable {
 
     public static final String ALL = "FormEntity.all";
     public static final String FIND_BY_NAME = "FormEntity.findByCode";
+    public static final String FIND_BY_FORM_OR_PUBLICATION_KEY = "FormEntity.findByFormOrPublicationKey";
     public static final String FIND_BY_PUBLICATION_KEY = "FormEntity.findByPublicationKey";
     public static final String FIND_BY_FORM_KEY = "FormEntity.findByFormKey";
 

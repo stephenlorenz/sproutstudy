@@ -3,6 +3,7 @@ package edu.harvard.mgh.lcs.sprout.forms.study.beaninterface;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.SproutStudyConstantService.AuditType;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.SproutStudyConstantService.AuditVerbosity;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.CohortTO;
+import edu.harvard.mgh.lcs.sprout.study.model.study.CohortEntity;
 import edu.harvard.mgh.lcs.sprout.study.model.study.UserEntity;
 
 public interface AuditService {
@@ -29,4 +30,5 @@ public interface AuditService {
     public abstract int log(String username, AuditType auditType, AuditVerbosity verbosity, String title, CohortTO cohortTO, String subjectSchema, String subjectId, String message);
     public abstract int log(AuditType auditType, AuditVerbosity verbosity, String title, String message);
     public abstract int log(int auditId, AuditVerbosity verbosity, String message);
+    public int log(UserEntity userEntity, AuditType auditType, AuditVerbosity verbosity, CohortEntity cohortEntity, String title, String message);
 }

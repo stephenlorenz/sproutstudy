@@ -8,6 +8,8 @@ import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.AuditService;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.SproutStudyConstantService;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.StudyService;
 import edu.harvard.mgh.lcs.sprout.forms.study.beanws.Result;
+import edu.harvard.mgh.lcs.sprout.forms.study.exception.DuplicateCohortNameException;
+import edu.harvard.mgh.lcs.sprout.forms.study.exception.UnauthorizedActionException;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.*;
 import edu.harvard.mgh.lcs.sprout.forms.study.util.StringUtils;
 import edu.harvard.mgh.lcs.sprout.study.model.study.*;
@@ -53,15 +55,17 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
         try {
             UserEntity userEntity = getUserFromUsername(username);
             if (userEntity != null) {
-                Set<CohortAuthEntity> cohortAuthEntitySet = userEntity.getCohortAuthorizations();
-                if (cohortAuthEntitySet != null && cohortAuthEntitySet.size() > 0) {
-                    for (CohortAuthEntity cohortAuthEntity : cohortAuthEntitySet) {
+                List<CohortAuthEntity> cohortAuthEntityList = userEntity.getCohortAuthorizations();
+                if (cohortAuthEntityList != null && cohortAuthEntityList.size() > 0) {
+                    for (CohortAuthEntity cohortAuthEntity : cohortAuthEntityList) {
                         CohortEntity cohortEntity = cohortAuthEntity.getCohort();
                         CohortTO cohortTO = new CohortTO();
                         cohortTO.setId(cohortEntity.getId());
                         cohortTO.setName(cohortEntity.getName());
                         cohortTO.setDescription(cohortEntity.getDescription());
                         cohortTO.setActivityDate(cohortEntity.getActivityDate());
+                        cohortTO.setCohortKey(cohortEntity.getCohortKey());
+                        cohortTO.setActive(cohortEntity.isActive());
 
                         List<CohortAttrTO> cohortAttrTOList = getCohortAttributes(cohortEntity);
                         cohortTO.setAttributes(cohortAttrTOList);
@@ -225,6 +229,7 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
             cohortTO.setId(cohortEntity.getId());
             cohortTO.setName(cohortEntity.getName());
             cohortTO.setDescription(cohortEntity.getDescription());
+            cohortTO.setCohortKey(cohortEntity.getCohortKey());
             cohortTO.setActivityDate(cohortEntity.getActivityDate());
 
             List<CohortAttrTO> cohortAttrTOList = getCohortAttributes(cohortEntity);
@@ -451,13 +456,13 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
         CohortEntity cohortEntity = getCohort(cohortTO);
 
         if (cohortEntity != null) {
-            Set<CohortAuthEntity> cohortAuthEntities = cohortEntity.getCohortAuthorizations();
+            List<CohortAuthEntity> cohortAuthEntities = cohortEntity.getCohortAuthorizations();
             if (cohortAuthEntities != null && cohortAuthEntities.size() > 0) {
                 for (CohortAuthEntity cohortAuthEntity : cohortAuthEntities) {
                     CohortAuthTO cohortAuthTO = new CohortAuthTO();
                     cohortAuthTO.setId(cohortAuthEntity.getId());
-                    cohortAuthTO.setActive(cohortAuthEntity.getActive());
-                    cohortAuthTO.setManager(cohortAuthEntity.getManager());
+                    cohortAuthTO.setActive(cohortAuthEntity.isActive());
+                    cohortAuthTO.setManager(cohortAuthEntity.isManager());
 
                     UserEntity userEntity = cohortAuthEntity.getUser();
                     if (userEntity != null) cohortAuthTO.setUser(constructUserTOLite(userEntity));
@@ -646,6 +651,20 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
     }
 
     @Override
+    public CohortTO getCohortTO(SessionTO sessionTO, String cohortKey) {
+        if (StringUtils.isFull(cohortKey)) {
+            try {
+                Query query = entityManager.createNamedQuery(CohortEntity.BY_COHORT_KEY_AND_AUTH);
+                query.setParameter("key", cohortKey);
+                query.setParameter("user", findUserEntity(sessionTO));
+                CohortEntity cohortEntity = (CohortEntity) query.getSingleResult();
+                if (cohortEntity != null) return constructCohortTO(cohortEntity);
+            } catch (NoResultException e) {}
+        }
+        return null;
+    }
+
+    @Override
     public void persistUserPreference(String username, String key, String value) {
         if (!StringUtils.isEmpty(username) && !StringUtils.isEmpty(key) && value != null) {
             UserEntity userEntity = getUserFromUsername(username);
@@ -817,4 +836,565 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
             }
         }
     }
+
+    @Override
+    public List<CohortTO> getAuthorizedCohorts(SessionTO sessionTO) {
+        try {
+            UserEntity userEntity = findUserEntity(sessionTO);
+
+            if (userEntity != null) {
+                List<CohortAuthEntity> cohortAuthEntities = userEntity.getCohortAuthorizations();
+                if (cohortAuthEntities != null) {
+                    List<CohortTO> cohortTOList = new ArrayList<CohortTO>();
+
+                    boolean adminInd = isAdmin(sessionTO);
+
+                    for (CohortAuthEntity cohortAuthEntity : cohortAuthEntities) {
+                        if (adminInd || cohortAuthEntity.isManager()) {
+                            if (cohortAuthEntity.getCohort().isActive()) {
+                                CohortTO cohortTO = new CohortTO();
+                                cohortTO.setName(cohortAuthEntity.getCohort().getName());
+                                cohortTO.setDescription(cohortAuthEntity.getCohort().getDescription());
+                                cohortTO.setCohortKey(cohortAuthEntity.getCohort().getCohortKey());
+                                cohortTO.setActive(cohortAuthEntity.getCohort().isActive());
+                                cohortTO.setActivityDate(cohortAuthEntity.getCohort().getActivityDate());
+                                cohortTOList.add(cohortTO);
+                            }
+                        }
+                    }
+                    return cohortTOList;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public BooleanTO saveCohort(SessionTO sessionTO, String cohortKey, String name, String description, String group) throws UnauthorizedActionException {
+        if (sessionTO != null && StringUtils.isFull(name)) {
+            if (StringUtils.isFull(cohortKey) && !cohortKey.equalsIgnoreCase("undefined")) {
+                CohortEntity cohortEntity = getAuthorizedCohortByKey(sessionTO, cohortKey);
+                if (cohortEntity != null) {
+                    if (isAdmin(sessionTO) || isManager(sessionTO, cohortEntity)) {
+                        cohortEntity.setDescription(description);
+                        cohortEntity.setActivityDate(new Date());
+                        entityManager.merge(cohortEntity);
+                        auditService.log(findUserEntity(sessionTO), AuditType.ADMIN_EDIT_COHORT, SproutStudyConstantService.AuditVerbosity.INFO, cohortEntity, "Edit Cohort", String.format("User (%s) edited cohort \"%s\" (%s).", sessionTO.getUser(), cohortEntity.getName(), cohortEntity.getCohortKey()));
+                        return new BooleanTO(true);
+                    } else {
+                        throw new UnauthorizedActionException("You are not authorized to save this cohort.");
+                    }
+                } else {
+                    return new BooleanTO(false, "Failed to save cohort changes.");
+                }
+            } else {
+                if (isAdmin(sessionTO)) {
+                    List<CohortEntity> cohortEntities = findCohortEntities(name);
+                    try {
+                        if (cohortEntities != null && cohortEntities.size() > 0) throw new DuplicateCohortNameException(name);
+                    } catch (DuplicateCohortNameException e) {
+                        return new BooleanTO(false, e.getMessage());
+                    }
+                    CohortEntity cohortEntity = new CohortEntity();
+                    cohortEntity.setName(name);
+                    cohortEntity.setDescription(description);
+                    cohortEntity.setCohortKey(StringUtils.getGuid());
+                    cohortEntity.setActive(true);
+                    cohortEntity.setActivityDate(new Date());
+                    entityManager.persist(cohortEntity);
+                    auditService.log(findUserEntity(sessionTO), AuditType.ADMIN_NEW_COHORT, SproutStudyConstantService.AuditVerbosity.INFO, cohortEntity, "Add New Cohort", String.format("User (%s) created cohort \"%s\" (%s).", sessionTO.getUser(), cohortEntity.getName(), cohortEntity.getCohortKey()));
+                    if (saveAuthorization(sessionTO.getUser(), sessionTO.getUser(), cohortEntity).isTrue()) {
+                        return new BooleanTO(true);
+                    }
+                } else {
+                    throw new UnauthorizedActionException("You are not authorized to save this cohort.");
+                }
+            }
+        }
+        return new BooleanTO(false);
+    }
+
+    @Override
+    public BooleanTO saveAuthorization(SessionTO sessionTO, String usernane, String cohortKey) {
+        CohortEntity cohortEntity = getAuthorizedCohortByKey(sessionTO, cohortKey);
+        if (cohortEntity != null) {
+            return saveAuthorization(sessionTO.getUser(), usernane, cohortEntity);
+        }
+        return new BooleanTO(false);
+    }
+
+    private BooleanTO saveAuthorization(String authorizedBy, String username, CohortEntity cohortEntity) {
+        if (cohortEntity != null && StringUtils.isFull(username, authorizedBy)) {
+            UserEntity userEntityAuthorizedBy = findUserEntity(authorizedBy);
+            UserEntity userEntityAuthorizedTo = findUserEntity(username);
+            if (userEntityAuthorizedBy != null && userEntityAuthorizedTo != null) {
+                auditService.log(userEntityAuthorizedBy, AuditType.ADMIN_AUTHORIZE_COHORT, SproutStudyConstantService.AuditVerbosity.INFO, cohortEntity, "Authorize Cohort", String.format("User (%s) is granting access to user (%s) to cohort \"%s\" (%s).", authorizedBy, username, cohortEntity.getName(), cohortEntity.getCohortKey()));
+                if (!isAuthorized(userEntityAuthorizedTo, cohortEntity)) {
+                    CohortAuthEntity cohortAuthEntity = new CohortAuthEntity();
+                    cohortAuthEntity.setCohort(cohortEntity);
+                    cohortAuthEntity.setUser(userEntityAuthorizedTo);
+                    cohortAuthEntity.setActive(true);
+                    cohortAuthEntity.setManager(authorizedBy.equalsIgnoreCase(username));
+                    cohortAuthEntity.setActivityDate(new Date());
+                    entityManager.persist(cohortAuthEntity);
+                    return new BooleanTO(true);
+                } else {
+                    return new BooleanTO(true);
+                }
+            }
+        }
+        return new BooleanTO(false);
+    }
+
+    private boolean isAuthorized(UserEntity userEntityAuthorizedTo, CohortEntity cohortEntity) {
+        return getAuthorizedCohortByKey(userEntityAuthorizedTo.getUsername(), cohortEntity.getCohortKey()) != null;
+    }
+
+    private CohortEntity getAuthorizedCohortByKey(SessionTO sessionTO, String cohortKey) {
+        if (sessionTO != null && StringUtils.isFull(cohortKey, sessionTO.getUser())) {
+            return getAuthorizedCohortByKey(sessionTO.getUser(), cohortKey);
+        }
+        return null;
+    }
+
+    private CohortEntity getAuthorizedCohortByKey(String username, String cohortKey) {
+        if (StringUtils.isFull(cohortKey, username)) {
+            try {
+                Query query = entityManager.createNamedQuery(CohortAuthEntity.BY_USERNAME_AND_COHORT_KEY);
+                query.setParameter("username", username);
+                query.setParameter("cohortKey", cohortKey);
+                CohortAuthEntity cohortAuthEntity = (CohortAuthEntity) query.getSingleResult();
+                if (cohortAuthEntity != null) return cohortAuthEntity.getCohort();
+            } catch (NoResultException e) {}
+        }
+        return null;
+    }
+
+    private CohortEntity findCohortEntity(SessionTO sessionTO) {
+        if (sessionTO != null && sessionTO.getCohortTO() != null) {
+            return findCohortEntity(sessionTO.getCohortTO().getName());
+        }
+        return null;
+    }
+
+    private CohortEntity findCohortEntity(String cohort) {
+        try {
+            Query query = entityManager.createNamedQuery(CohortEntity.BY_COHORT_NAME);
+            query.setParameter("name", cohort);
+            return (CohortEntity) query.getSingleResult();
+        } catch (NoResultException e) {}
+        return null;
+    }
+
+    private List<CohortEntity> findCohortEntities(String cohortName) {
+        try {
+            Query query = entityManager.createNamedQuery(CohortEntity.BY_COHORT_NAME);
+            query.setParameter("name", cohortName);
+            return query.getResultList();
+        } catch (NoResultException e) {}
+        return null;
+    }
+
+
+    @Override
+    public BooleanTO deleteCohort(SessionTO sessionTO, String cohortKey) {
+        CohortEntity cohortEntity = getAuthorizedCohortByKey(sessionTO, cohortKey);
+        if (cohortEntity != null) {
+            if (isAdmin(sessionTO)) {
+                cohortEntity.setActive(false);
+                cohortEntity.setActivityDate(new Date());
+                entityManager.merge(cohortEntity);
+                return new BooleanTO(true);
+            } else {
+                try {
+                    throw new UnauthorizedActionException("You are not authorized to delete this cohort.");
+                } catch (UnauthorizedActionException e) {
+                    return new BooleanTO(false, e.getMessage());
+                }
+            }
+        }
+        return new BooleanTO(false);
+    }
+
+    @Override
+    public boolean isAdmin(SessionTO sessionTO) {
+        UserEntity userEntity = findUserEntity(sessionTO);
+        return (userEntity != null && userEntity.isAdmin());
+    }
+
+    @Override
+    public boolean isManager(SessionTO sessionTO) {
+        UserEntity userEntity = findUserEntity(sessionTO);
+        if (userEntity != null && userEntity.getCohortAuthorizations() != null) {
+            for (CohortAuthEntity cohortAuthEntity : userEntity.getCohortAuthorizations()) {
+                if (cohortAuthEntity.isManager()) return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isManager(SessionTO sessionTO, CohortEntity cohortEntity) {
+        if (cohortEntity != null) {
+            UserEntity userEntity = findUserEntity(sessionTO);
+            if (userEntity != null && userEntity.getCohortAuthorizations() != null) {
+                for (CohortAuthEntity cohortAuthEntity : userEntity.getCohortAuthorizations()) {
+                    if (cohortAuthEntity.isManager() && cohortAuthEntity.getCohort().getId() == cohortEntity.getId()) return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public List<CohortAuthorizationTO> getCohortAuthorizations(SessionTO sessionTO, String cohortKey) {
+        if (sessionTO != null && StringUtils.isFull(cohortKey) && !cohortKey.equalsIgnoreCase("undefined")) {
+            CohortEntity cohortEntity = null;
+            if (isAdmin(sessionTO)) {
+                cohortEntity = getAuthorizedCohortByKey(sessionTO, cohortKey);
+            } else {
+                cohortEntity = getManagedCohortByKey(sessionTO, cohortKey);
+            }
+            if (cohortEntity != null) {
+                List<CohortAuthEntity> cohortAuthEntities = cohortEntity.getCohortAuthorizations();
+                if (cohortAuthEntities != null) {
+                    List<CohortAuthorizationTO> cohortAuthorizationTOList = new ArrayList<CohortAuthorizationTO>();
+                    for (CohortAuthEntity cohortAuthEntity : cohortAuthEntities) {
+                        CohortAuthorizationTO cohortAuthorizationTO = new CohortAuthorizationTO();
+                        cohortAuthorizationTO.setUser(generateUserTO(cohortAuthEntity.getUser()));
+                        cohortAuthorizationTO.setActivityDate(cohortAuthEntity.getActivityDate());
+                        cohortAuthorizationTO.setManager(cohortAuthEntity.isManager());
+                        cohortAuthorizationTOList.add(cohortAuthorizationTO);
+                    }
+                    return cohortAuthorizationTOList;
+                }
+            }
+        }
+        return null;
+    }
+
+    private UserTO generateUserTO(UserEntity userEntity) {
+        if (userEntity != null) {
+            UserTO userTO = new UserTO();
+            userTO.setUsername(userEntity.getUsername());
+            userTO.setFirstName(userEntity.getFirstName());
+            userTO.setLastName(userEntity.getLastName());
+            userTO.setId(userEntity.getId());
+
+            if (userEntity.getPreferences() != null) {
+                for (UsersPreferenceEntity usersPreferenceEntity : userEntity.getPreferences()) {
+                    if (usersPreferenceEntity.getUserPreference().getCode().equalsIgnoreCase("EMAIL_PRIMARY")) {
+                        userTO.setEmail(usersPreferenceEntity.getValue());
+                        break;
+                    }
+                }
+            }
+            return userTO;
+        }
+        return null;
+    }
+
+    @Override
+    public BooleanTO grantCohortAuthorization(SessionTO sessionTO, String cohortKey, String firstName, String lastName, String username, String email, Boolean manager) throws UnauthorizedActionException {
+        {
+            if (sessionTO != null && StringUtils.isFull(cohortKey, firstName, lastName, username, email)) {
+                if (StringUtils.isFull(cohortKey) && !cohortKey.equalsIgnoreCase("undefined")) {
+                    CohortEntity cohortEntity = null;
+                    if (isAdmin(sessionTO)) {
+                        cohortEntity = getAuthorizedCohortByKey(sessionTO, cohortKey);
+                    } else {
+                        cohortEntity = getManagedCohortByKey(sessionTO, cohortKey);
+                    }
+                    if (cohortEntity != null) {
+                        if (isAdmin(sessionTO) || isManager(sessionTO, cohortEntity)) {
+                            UserEntity userEntity = findUserEntity(username);
+                            if (userEntity != null) {
+                                CohortAuthEntity cohortAuthEntity = getCohortAuthorizationByKey(username, cohortKey);
+                                if (cohortAuthEntity == null) {
+                                    cohortAuthEntity = new CohortAuthEntity();
+                                    cohortAuthEntity.setUser(userEntity);
+                                    cohortAuthEntity.setCohort(cohortEntity);
+                                    cohortAuthEntity.setManager(manager != null && manager == true);
+                                    cohortAuthEntity.setActive(true);
+                                    cohortAuthEntity.setActivityDate(new Date());
+                                    entityManager.persist(cohortAuthEntity);
+                                } else {
+                                    cohortAuthEntity.setManager(manager != null && manager == true);
+                                    cohortAuthEntity.setActivityDate(new Date());
+                                    entityManager.merge(cohortAuthEntity);
+                                }
+                                return new BooleanTO(true);
+                            } else {
+                                userEntity = new UserEntity();
+                                userEntity.setFirstName(firstName);
+                                userEntity.setLastName(lastName);
+                                userEntity.setUsername(username);
+                                userEntity.setDomain(getDomainByName(SproutStudyConstantService.TEMP_DOMAIN_NAME));
+                                userEntity.setActive(true);
+                                userEntity.setActivityDate(new Date());
+                                entityManager.persist(userEntity);
+
+                                UsersPreferenceEntity usersPreferenceEntity = new UsersPreferenceEntity();
+                                usersPreferenceEntity.setUser(userEntity);
+                                usersPreferenceEntity.setUserPreference(getVUserPreferenceByKey("EMAIL_PRIMARY"));
+                                usersPreferenceEntity.setValue(email);
+                                usersPreferenceEntity.setActivityDate(new Date());
+                                entityManager.persist(usersPreferenceEntity);
+
+                                CohortAuthEntity cohortAuthEntity = new CohortAuthEntity();
+                                cohortAuthEntity.setUser(userEntity);
+                                cohortAuthEntity.setCohort(cohortEntity);
+                                cohortAuthEntity.setManager(manager != null && manager == true);
+                                cohortAuthEntity.setActive(true);
+                                cohortAuthEntity.setActivityDate(new Date());
+                                entityManager.persist(cohortAuthEntity);
+
+                                return new BooleanTO(true);
+                            }
+                        } else {
+                            throw new UnauthorizedActionException("You are not authorized to grant this cohort authorization.");
+                        }
+                    }
+                }
+            }
+            return new BooleanTO(false, "Failed to save user authorization.");
+        }
+    }
+
+    private VUserPreferenceEntity getVUserPreferenceByKey(String key) {
+        if (StringUtils.isFull(key)) {
+            try {
+                Query query = entityManager.createNamedQuery(VUserPreferenceEntity.FIND_BY_CODE);
+                query.setParameter("code", key);
+                return (VUserPreferenceEntity) query.getSingleResult();
+            } catch (NoResultException e) {}
+        }
+        return null;
+    }
+
+    private DomainEntity getDomainByName(String domainName) {
+        if (StringUtils.isFull(domainName)) {
+            try {
+                Query query = entityManager.createNamedQuery(DomainEntity.BY_NAME);
+                query.setParameter("name", domainName);
+                return  (DomainEntity) query.getSingleResult();
+            } catch (NoResultException e) {}
+        }
+        return null;
+    }
+
+    @Override
+    public BooleanTO revokeCohortAuthorization(SessionTO sessionTO, String cohortKey, String username) throws UnauthorizedActionException {
+        if (sessionTO != null && StringUtils.isFull(cohortKey, username)) {
+            if (StringUtils.isFull(cohortKey) && !cohortKey.equalsIgnoreCase("undefined")) {
+                CohortEntity cohortEntity = null;
+                if (isAdmin(sessionTO)) {
+                    cohortEntity = getAuthorizedCohortByKey(sessionTO, cohortKey);
+                } else {
+                    cohortEntity = getManagedCohortByKey(sessionTO, cohortKey);
+                }
+                if (cohortEntity != null) {
+                    if (isAdmin(sessionTO) || isManager(sessionTO, cohortEntity)) {
+                        UserEntity userEntity = findUserEntity(username);
+                        if (userEntity != null) {
+                            CohortAuthEntity cohortAuthEntity = getCohortAuthorizationByKey(username, cohortKey);
+                            if (cohortAuthEntity != null) {
+                                entityManager.remove(cohortAuthEntity);
+                                return new BooleanTO(true);
+                            }
+
+                        }
+                    } else {
+                        throw new UnauthorizedActionException("You are not authorized to revoke this cohort authorization.");
+                    }
+                }
+            }
+        }
+        return new BooleanTO(false, "Failed to revoke cohort authorization.");
+    }
+
+    @Override
+    public BooleanTO updateCohortAuthorization(SessionTO sessionTO, String cohortKey, String username, Boolean manager) throws UnauthorizedActionException {
+        if (sessionTO != null && StringUtils.isFull(cohortKey, username)) {
+            if (StringUtils.isFull(cohortKey) && !cohortKey.equalsIgnoreCase("undefined")) {
+                CohortEntity cohortEntity = null;
+                if (isAdmin(sessionTO)) {
+                    cohortEntity = getAuthorizedCohortByKey(sessionTO, cohortKey);
+                } else {
+                    cohortEntity = getManagedCohortByKey(sessionTO, cohortKey);
+                }
+                if (cohortEntity != null) {
+                    if (isAdmin(sessionTO) || isManager(sessionTO, cohortEntity)) {
+                        UserEntity userEntity = findUserEntity(username);
+                        if (userEntity != null) {
+                            CohortAuthEntity cohortAuthEntity = getCohortAuthorizationByKey(username, cohortKey);
+                            if (cohortAuthEntity != null) {
+                                cohortAuthEntity.setManager(manager);
+                                cohortAuthEntity.setActivityDate(new Date());
+                                entityManager.merge(cohortAuthEntity);
+                                return new BooleanTO(true);
+                            }
+
+                        }
+                    } else {
+                        throw new UnauthorizedActionException("You are not authorized to modify this cohort authorization.");
+                    }
+                }
+            }
+        }
+        return new BooleanTO(false, "Failed to revoke cohort authorization.");
+    }
+
+    @Override
+    public BooleanTO saveForm(SessionTO sessionTO, String cohortKey, String name, String formKey, String publicationKey, Boolean demographicInd) throws UnauthorizedActionException {
+        if (sessionTO != null && StringUtils.isFull(cohortKey, name, formKey, publicationKey)) {
+            if (StringUtils.isFull(cohortKey) && !cohortKey.equalsIgnoreCase("undefined")) {
+                CohortEntity cohortEntity = null;
+                if (isAdmin(sessionTO)) {
+                    cohortEntity = getAuthorizedCohortByKey(sessionTO, cohortKey);
+                } else {
+                    cohortEntity = getManagedCohortByKey(sessionTO, cohortKey);
+                }
+                if (cohortEntity != null) {
+                    if (isAdmin(sessionTO) || isManager(sessionTO, cohortEntity)) {
+                        FormEntity formEntity = getFormByFormOrPublicationKey(formKey, publicationKey);
+                        if (formEntity != null) {
+                            formEntity.setName(name);
+                            formEntity.setActivityDate(new Date());
+                        } else {
+                            formEntity = new FormEntity();
+                            formEntity.setName(name);
+                            formEntity.setFormKey(formKey);
+                            formEntity.setPublicationKey(publicationKey);
+                            formEntity.setActive(true);
+                            formEntity.setDemographic(demographicInd);
+                            formEntity.setActivityDate(new Date());
+                            entityManager.persist(formEntity);
+
+                            CohortFormEntity cohortFormEntity = new CohortFormEntity();
+                            cohortFormEntity.setForm(formEntity);
+                            cohortFormEntity.setCohort(cohortEntity);
+                            cohortFormEntity.setActivityDate(new Date());
+                            entityManager.persist(cohortFormEntity);
+                        }
+                        return new BooleanTO(true);
+                    } else {
+                        throw new UnauthorizedActionException("You are not authorized to create this form.");
+                    }
+                }
+            }
+        }
+        return new BooleanTO(false, "Failed to create form.");
+    }
+
+    @Override
+    public BooleanTO deleteForm(SessionTO sessionTO, String cohortKey, String formKey) throws UnauthorizedActionException {
+        if (sessionTO != null && StringUtils.isFull(cohortKey, formKey)) {
+            if (StringUtils.isFull(cohortKey) && !cohortKey.equalsIgnoreCase("undefined")) {
+                CohortEntity cohortEntity = null;
+                if (isAdmin(sessionTO)) {
+                    cohortEntity = getAuthorizedCohortByKey(sessionTO, cohortKey);
+                } else {
+                    cohortEntity = getManagedCohortByKey(sessionTO, cohortKey);
+                }
+                if (cohortEntity != null) {
+                    if (isAdmin(sessionTO) || isManager(sessionTO, cohortEntity)) {
+                        List<FormEntity> formEntities = getFormsByFormKey(formKey);
+                        if (formEntities != null) {
+                            for (FormEntity formEntity : formEntities) {
+                                if (formEntity.getCohortForms() != null) {
+                                    for (CohortFormEntity cohortFormEntity : formEntity.getCohortForms()) {
+                                        entityManager.remove(cohortFormEntity);
+                                    }
+                                }
+                                if (formEntity.getFormAttributes() != null) {
+                                    for (FormAttrEntity formAttrEntity : formEntity.getFormAttributes()) {
+                                        entityManager.remove(formAttrEntity);
+                                    }
+                                }
+                                entityManager.remove(formEntity);
+                            }
+                            return new BooleanTO(true);
+                        }
+                    } else {
+                        throw new UnauthorizedActionException("You are not authorized to delete this form.");
+                    }
+                }
+            }
+        }
+        return new BooleanTO(false, "Failed to delete form.");
+    }
+
+    private FormEntity getFormByFormOrPublicationKey(String formKey, String publicationKey) {
+        try {
+            Query query = entityManager.createNamedQuery(FormEntity.FIND_BY_FORM_OR_PUBLICATION_KEY);
+            query.setParameter("formKey", formKey);
+            query.setParameter("publicationKey", publicationKey);
+            return (FormEntity) query.getSingleResult();
+        } catch (NoResultException e) {}
+        catch (Exception e) {}
+        return null;
+    }
+
+    private List<FormEntity> getFormsByFormKey(String formKey) {
+        Query query = entityManager.createNamedQuery(FormEntity.FIND_BY_FORM_KEY);
+        query.setParameter("formKey", formKey);
+        return query.getResultList();
+    }
+
+    private CohortAuthEntity getCohortAuthorizationByKey(String username, String cohortKey) {
+        if (StringUtils.isFull(cohortKey, username)) {
+            try {
+                Query query = entityManager.createNamedQuery(CohortAuthEntity.BY_USERNAME_AND_COHORT_KEY);
+                query.setParameter("username", username);
+                query.setParameter("cohortKey", cohortKey);
+                return (CohortAuthEntity) query.getSingleResult();
+            } catch (NoResultException e) {}
+        }
+        return null;
+
+    }
+
+    private CohortEntity getManagedCohortByKey(SessionTO sessionTO, String cohortKey) {
+        if (sessionTO != null && StringUtils.isFull(cohortKey, sessionTO.getUser())) {
+            return getManagedCohortByKey(sessionTO.getUser(), cohortKey);
+        }
+        return null;
+    }
+
+    private CohortEntity getManagedCohortByKey(String username, String cohortKey) {
+        if (StringUtils.isFull(cohortKey, username)) {
+            try {
+                Query query = entityManager.createNamedQuery(CohortAuthEntity.MANAGER_BY_USERNAME_AND_COHORT_KEY);
+                query.setParameter("username", username);
+                query.setParameter("cohortKey", cohortKey);
+                CohortAuthEntity cohortAuthEntity = (CohortAuthEntity) query.getSingleResult();
+                if (cohortAuthEntity != null) return cohortAuthEntity.getCohort();
+            } catch (NoResultException e) {}
+        }
+        return null;
+    }
+
+
+    private UserEntity findUserEntity(SessionTO sessionTO) {
+        if (sessionTO != null && sessionTO.getUser() != null) {
+            return findUserEntity(sessionTO.getUser());
+        }
+        return null;
+    }
+
+    private UserEntity findUserEntity(String username) {
+        try {
+            Query query = entityManager.createNamedQuery(UserEntity.BY_USERNAME);
+            query.setParameter("username", username);
+            return (UserEntity) query.getSingleResult();
+        } catch (NoResultException e) {}
+        return null;
+    }
+
+
+
+
+
 }

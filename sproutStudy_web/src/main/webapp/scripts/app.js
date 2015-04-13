@@ -26,6 +26,30 @@ var sproutStudyApp = angular.module('sproutStudyApp', ['ui', 'ngResource', 'ui.b
                 templateUrl: 'views/formManagerView.html',
                 controller: 'formManagerController'
             })
+            .when('/forms/add', {
+                templateUrl: 'views/formAddView.html',
+                controller: 'formManagerController'
+            })
+            .when('/cohorts', {
+                templateUrl: 'views/cohortManagerView.html',
+                controller: 'cohortManagerController'
+            })
+            .when('/cohorts/add', {
+                templateUrl: 'views/cohortAddView.html',
+                controller: 'cohortManagerController'
+            })
+            .when('/cohorts/edit', {
+                templateUrl: 'views/cohortEditView.html',
+                controller: 'cohortManagerController'
+            })
+            .when('/cohorts/authorizations', {
+                templateUrl: 'views/cohortAuthView.html',
+                controller: 'cohortManagerController'
+            })
+            .when('/cohorts/authorizations/add', {
+                templateUrl: 'views/cohortAuthAddView.html',
+                controller: 'cohortManagerController'
+            })
             .otherwise({
                 redirectTo: '/'
             });

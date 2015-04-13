@@ -21,6 +21,7 @@ public class UserTO implements Serializable {
     private String firstName;
     private String lastName;
     private boolean active;
+    private String email;
 
     private DomainTO domain;
     private Set<UserPreferenceTO> preferences;
@@ -115,4 +116,7 @@ public class UserTO implements Serializable {
         return null;
     }
 
+    public void setEmail(String email) {
+        this.email = email;
+    }
 }

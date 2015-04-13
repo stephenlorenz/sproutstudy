@@ -1,13 +1,19 @@
 <div>
-    <legend>Active Form Listing for {{cohort.name}}</legend>
+    <legend ng-show="isManagerOfCohort() || isAdmin()">Active Form Listing for {{cohort.name}}
+        <span style="float: right;" ng-show="isManagerOfCohort() || isAdmin()">
+            <a class="btn btn-primary" ng-click="onAddForm()">Add Form</a>
+        </span>
+    </legend>
 
-    <table class="table table-condensed table-striped" >
+
+    <table class="table table-condensed table-striped" ng-show="isManagerOfCohort() || isAdmin()">
         <thead class="inbox">
         <tr>
             <th>Name</th>
             <th>Publication Key</th>
             <th>Form Key</th>
             <th>Timestamp</th>
+            <th style="text-align: center; width: 60px;">Delete</th>
             <th style="text-align: center; width: 60px;">Save</th>
             <!--<th style="text-align: center; width: 60px;">Delete</th>-->
         </tr>
@@ -18,13 +24,16 @@
             <td style="font-family: 'Courier New', Courier, monospace">{{form.formKey}}</a></td>
             <td>{{form.activityDate | date:'medium' }}</a></td>
             <td style="text-align: center; width: 80px;">
+                <button class="btn btn-mini btn-warning" ng-click="onDeleteForm(form.formKey)"><i class="icon-trash icon-white" style="margin-right: 0px;"></i></button>
+            </td>
+            <td style="text-align: center; width: 80px;">
                 <button class="btn btn-mini" ng-class="{'btn-primary': form.modified}" ng-disabled="!form.modified" ng-click="onSaveForm(form)" ></i>Save</button>
             </td>
-            <!--<td style="text-align: center; width: 80px;">-->
-                <!--<button class="btn btn-mini btn-warning" ng-click="onDeleteForm(form)"><i class="icon-trash icon-white" style="margin-right: 0px;"></i></button>-->
-            <!--</td>-->
         </tr>
     </table>
 
+    <div class="alert alert-info" ng-show="isManagerOfCohort() == false && isAdmin() == false">
+        <h4>You are not authorized to manage cohort forms.</h4>
+    </div>
 
 </div>

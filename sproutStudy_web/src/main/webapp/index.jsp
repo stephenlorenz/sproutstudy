@@ -79,7 +79,7 @@
                 <%--<li class="sproutstudy-tab-reset" ><a href="/sproutstudy" class="sproutstudy-tab-button" instance="reset"><img style="width: 20px; height: 20px; " src="/sproutstudy/images/sprout-study-60-2.png" alt="Sprout Study Logo" /></a></li>--%>
 		    </ul>
 			<ul class="nav" id="sproutstudy-tab-container">
-                <li class="sproutstudy-tab-li sproutstudy-tab-home" instance="home"><a href="#/" class="sproutstudy-tab-button" instance="home">{{member().fullName}}<span ng-show="member().id > 0"> ({{member().id}})</span></a></li>
+                <li class="sproutstudy-tab-li sproutstudy-tab-home" instance="home"><a ng-href="#/{{member().url}}" class="sproutstudy-tab-button" instance="home">{{member().fullName}}<span ng-show="member().id > 0"> ({{member().id}})</span></a></li>
 		    </ul>
 
             <ul class="nav pull-right">
@@ -91,6 +91,8 @@
                     </a>
                     <ul class="dropdown-menu" style="min-width: 150px;">
                         <li><a href="#/" ng-click="changeCohort()" class="sproutstudy-tab-button">Change Cohort</a></li>
+                        <li><a href="#/cohorts" class="sproutstudy-tab-button" ng-show="isCohortManager()">Cohort Admin</a></li>
+                        <li><a href="#/forms" class="sproutstudy-tab-button" ng-show="isManagerOfCohort() || isAdmin()  ">Form Admin</a></li>
                         <li><a id="btn_logout" href="logout">Logout</a></li>
                     <%--<li><a href="#/settings">Account Settings</a></li>--%>
                     </ul>
@@ -137,6 +139,7 @@
 <script src="scripts/controllers/cohortController.js"></script>
 <script src="scripts/controllers/settingsController.js"></script>
 <script src="scripts/controllers/formManagerController.js"></script>
+<script src="scripts/controllers/cohortManagerController.js"></script>
 <script src="scripts/filters/filters.js"></script>
 <script src="scripts/directives/forms.js"></script>
 <script src="scripts/directives/preventDefault.js"></script>
@@ -150,6 +153,8 @@
 <script src="scripts/services/patientService.js"></script>
 <script src="scripts/services/settingsService.js"></script>
 <script src="scripts/services/formManagerService.js"></script>
+<script src="scripts/services/cohortManagerService.js"></script>
+<script src="scripts/services/userManagerService.js"></script>
 <script src="scripts/directives/custodialAgreementDirective.js"></script>
 <script src="scripts/directives/enrollmentLetterDirective.js"></script>
 <script src="scripts/directives/formDeliveryExpirationDate.js"></script>

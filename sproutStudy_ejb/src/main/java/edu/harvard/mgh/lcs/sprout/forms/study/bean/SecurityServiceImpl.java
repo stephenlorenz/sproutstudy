@@ -1,10 +1,7 @@
 package edu.harvard.mgh.lcs.sprout.forms.study.bean;
 
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.SecurityService;
-import edu.harvard.mgh.lcs.sprout.forms.study.to.ApplicationAuthorityTO;
-import edu.harvard.mgh.lcs.sprout.forms.study.to.BooleanTO;
-import edu.harvard.mgh.lcs.sprout.forms.study.to.GrantedAuthorityTO;
-import edu.harvard.mgh.lcs.sprout.forms.study.to.UserTO;
+import edu.harvard.mgh.lcs.sprout.forms.study.to.*;
 import edu.harvard.mgh.lcs.sprout.forms.study.util.StringUtils;
 import edu.harvard.mgh.lcs.sprout.study.model.cas.ApplicationAuthorityEntity;
 import edu.harvard.mgh.lcs.sprout.study.model.cas.GrantedAuthorityEntity;
@@ -52,5 +49,67 @@ public class SecurityServiceImpl implements SecurityService {
         }
         return null;
     }
+
+    //    @Override
+    public LdapUserTO getUserReal(String cn) {
+        DirContextAdapter dirContextAdapter = findPartnersUser(cn);
+        if (dirContextAdapter != null) {
+            Attributes attributes = dirContextAdapter.getAttributes();
+            if (attributes != null) {
+                LdapUserTO ldapUserTO = new LdapUserTO();
+
+                ldapUserTO.setSn(getAttribute("sn", attributes));
+                ldapUserTO.setGivenName(getAttribute("givenName", attributes));
+                ldapUserTO.setDisplayName(getAttribute("displayName", attributes));
+                ldapUserTO.setCn(getAttribute("cn", attributes));
+                ldapUserTO.setEmail(getAttribute("mail", attributes));
+                return ldapUserTO;
+            }
+
+        }
+
+        return null;
+    }
+
+    public LdapUserTO getUser(String cn) {
+        LdapUserTO ldapUserTO = new LdapUserTO();
+
+        ldapUserTO.setSn("Rogers");
+        ldapUserTO.setGivenName("Fred");
+        ldapUserTO.setDisplayName("Fred Rogers");
+        ldapUserTO.setCn("fr10");
+        ldapUserTO.setEmail("frogers@gmail.com");
+        return ldapUserTO;
+    }
+
+    private DirContextAdapter findPartnersUser(String principal) {
+        if (ldapTemplate != null) {
+            try {
+                LdapName ldapName = new LdapName(String.format("cn=%s", principal));
+                return (DirContextAdapter) ldapTemplate.lookup(ldapName);
+            } catch (InvalidNameException e) {
+            } catch (NameNotFoundException e) {
+            } catch (   Exception e) {
+            }
+        }
+        return null;
+    }
+
+    private String getAttribute(String name, Attributes attributes) {
+        try {
+            return attributes.get(name).get(0).toString();
+        } catch (javax.naming.NamingException e) {
+        } catch (NullPointerException e) {
+//            System.out.println("getAttribute.NullPointerException: " + name);
+        }
+        return null;
+    }
+
+    @PostConstruct
+    private void init() {
+        applicationContext = new ClassPathXmlApplicationContext("applicationContext-ldap.xml");
+        if (applicationContext != null) ldapTemplate = (LdapTemplate) applicationContext.getBean("ldapTemplate");
+    }
+
 
 }

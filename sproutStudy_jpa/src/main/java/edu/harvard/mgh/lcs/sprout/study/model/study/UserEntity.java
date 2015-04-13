@@ -30,8 +30,11 @@ public class UserEntity implements Serializable {
     @OneToMany(targetEntity=UsersPreferenceEntity.class, mappedBy="user", cascade=CascadeType.MERGE)
     private Set<UsersPreferenceEntity> preferences = new HashSet<UsersPreferenceEntity>();
 
+    @OneToMany(targetEntity=UsersRoleEntity.class, mappedBy="user", cascade=CascadeType.MERGE)
+    private Set<UsersRoleEntity> roles = new HashSet<UsersRoleEntity>();
+
     @OneToMany(targetEntity=CohortAuthEntity.class, mappedBy="user", cascade=CascadeType.MERGE)
-    private Set<CohortAuthEntity> cohortAuthorizations = new HashSet<CohortAuthEntity>();
+    private List<CohortAuthEntity> cohortAuthorizations = new ArrayList<CohortAuthEntity>();
 
     @Basic
     @Column(name="password")
@@ -73,11 +76,11 @@ public class UserEntity implements Serializable {
         this.username = username;
     }
 
-    public Set<CohortAuthEntity> getCohortAuthorizations() {
+    public List<CohortAuthEntity> getCohortAuthorizations() {
         return cohortAuthorizations;
     }
 
-    public void setCohortAuthorizations(Set<CohortAuthEntity> cohortAuthorizations) {
+    public void setCohortAuthorizations(List<CohortAuthEntity> cohortAuthorizations) {
         this.cohortAuthorizations = cohortAuthorizations;
     }
 
@@ -95,6 +98,14 @@ public class UserEntity implements Serializable {
 
     public void setPreferences(Set<UsersPreferenceEntity> preferences) {
         this.preferences = preferences;
+    }
+
+    public Set<UsersRoleEntity> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<UsersRoleEntity> roles) {
+        this.roles = roles;
     }
 
     public String getPassword() {
@@ -137,6 +148,10 @@ public class UserEntity implements Serializable {
         this.active = active;
     }
 
+    public Boolean isActive() {
+        return active;
+    }
+
     public Date getActivityDate() {
         return activityDate;
     }
@@ -144,4 +159,20 @@ public class UserEntity implements Serializable {
     public void setActivityDate(Date activityDate) {
         this.activityDate = activityDate;
     }
+
+
+    public boolean isAdmin() {
+        Set<UsersRoleEntity> roles = getRoles();
+        if (roles != null) {
+            for (UsersRoleEntity role : roles) {
+                VUserRoleEntity vUserRoleEntity = role.getRole();
+                if (vUserRoleEntity != null && vUserRoleEntity.isAdmin()) {
+//                    System.out.println(vUserRoleEntity.getName() + ": " + vUserRoleEntity.isAdmin());
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
 }

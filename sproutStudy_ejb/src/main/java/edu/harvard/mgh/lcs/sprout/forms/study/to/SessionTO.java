@@ -2,6 +2,7 @@ package edu.harvard.mgh.lcs.sprout.forms.study.to;
 
 import java.io.Serializable;
 import java.lang.String;
+import java.util.List;
 import java.util.Set;
 
 public class SessionTO implements Serializable {
@@ -14,7 +15,9 @@ public class SessionTO implements Serializable {
     private String email;
     private CohortTO cohortTO;
 
-	public String getUser() {
+    private List<CohortTO> authorizedCohorts;
+
+    public String getUser() {
 		return user;
 	}
 	public void setUser(String user) {
@@ -51,5 +54,13 @@ public class SessionTO implements Serializable {
 
     public void setCohortTO(CohortTO cohortTO) {
         this.cohortTO = cohortTO;
+    }
+
+    public List<CohortTO> getAuthorizedCohorts() {
+        return authorizedCohorts;
+    }
+
+    public void setAuthorizedCohorts(List<CohortTO> authorizedCohorts) {
+        this.authorizedCohorts = authorizedCohorts;
     }
 }

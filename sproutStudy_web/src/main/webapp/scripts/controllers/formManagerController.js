@@ -1,14 +1,78 @@
 'use strict';
 
 angular.module('sproutStudyApp')
-    .controller('formManagerController', function ($scope, $location, $routeParams, formManagerService, studyService) {
+    .controller('formManagerController', function ($scope, $location, $routeParams, $window, formManagerService, studyService, cohortService) {
 
     $scope.forms = null;
-    $scope.cohort = null;
+    $scope.form = null;
+    $scope.form = null;
+    $scope.managedForms = undefined;
 
-    studyService.getLastSelectedCohort({}, function(data) {
-        $scope.cohort = data;
-    });
+    cohortService.setMember({fullName: "Form Manager", id: 0, url: "forms"});
+
+    $scope.saveFormMessage = undefined;
+
+    $scope.cohort = formManagerService.getCohort();
+
+    if ($scope.cohort == undefined) {
+        formManagerService.setCohort(cohortService.getCohort());
+        $scope.cohort = formManagerService.getCohort();
+    }
+
+    if ($scope.cohort !== undefined && $scope.cohort !== null) {
+        $window.sessionStorage.setItem("sproutStudyCohort", JSON.stringify($scope.cohort));
+    } else {
+        try {
+            formManagerService.setCohort(JSON.parse($window.sessionStorage.getItem("sproutStudyCohort")));
+            $scope.cohort = formManagerService.getCohort();
+        } catch (e) {
+            $scope.cohort = undefined;
+        }
+    }
+
+    $scope.session = function() {
+        return sessionService.getSession();
+    }
+
+    $scope.member = function() {
+        return cohortService.getMember();
+    }
+
+    $scope.isAdmin = function() {
+       return studyService.isAdmin();
+    }
+
+    $scope.isManager = function() {
+       return studyService.isManager();
+    }
+
+    $scope.isManagerOfForm = function() {
+        var manager = false;
+        var formCurrent = $scope.form;
+        if (formCurrent !== undefined && formCurrent !== null) {
+            if ($scope.managedForms !== undefined) {
+                $.each($scope.managedForms, function(index, tmpForm) {
+                    if (tmpForm.name == formCurrent.name) manager = true;
+                });
+            }
+        }
+        return manager;
+    }
+
+    $scope.onAddForm = function() {
+        $scope.form = undefined;
+        formManagerService.setForm(null);
+        $window.sessionStorage.setItem("sproutStudyForm", undefined);
+        $location.path("/forms/add");
+    }
+
+//    formManagerService.getManagedForms({}, function(data) {
+//        $scope.managedForms = data;
+//    });
+
+//    studyService.getLastSelectedForm({}, function(data) {
+//        $scope.form = data;
+//    });
 
     $scope.onSaveForm = function(form) {
         formManagerService.saveFormPublicationKey({id: form.id, publicationKey: form.publicationKey}, function(data) {
@@ -24,13 +88,46 @@ angular.module('sproutStudyApp')
 
     };
 
+    $scope.onSaveNewForm = function() {
+        formManagerService.saveForm({"formKey": $scope.form.formKey, "publicationKey": $scope.form.publicationKey, "name": $scope.form.name, "demographicInd": $scope.form.demographicInd, "cohort": $scope.cohort.cohortKey}, function(data) {
+            if (data.value == 'true') {
+                formManagerService.setForm(null);
+                $scope.saveNewFormMessage = undefined;
+
+                studyService.getCohortByKey({"cohortKey": $scope.cohort.cohortKey}, function(cohort) {
+                    $scope.cohort = cohort;
+                    cohortService.setCohort(cohort);
+                    formManagerService.setCohort(cohortService.getCohort());
+                    $window.sessionStorage.setItem("sproutStudyCohort", JSON.stringify($scope.cohort));
+                    $location.path("/forms");
+                });
+
+            } else {
+                $scope.saveFormMessage = data.message;
+            }
+        });
+    }
+
+    $scope.onDeleteForm = function(formKey) {
+        formManagerService.deleteForm({"formKey": formKey, "cohort": $scope.cohort.cohortKey}, function(data) {
+            if (data.value == 'true') {
+                formManagerService.setForm(null);
+                $scope.saveNewFormMessage = undefined;
+
+                studyService.getCohortByKey({"cohortKey": $scope.cohort.cohortKey}, function(cohort) {
+                    $scope.cohort = cohort;
+                    cohortService.setCohort(cohort);
+                    formManagerService.setCohort(cohortService.getCohort());
+                    $window.sessionStorage.setItem("sproutStudyCohort", JSON.stringify($scope.cohort));
+                });
+            } else {
+                $scope.saveFormMessage = data.message;
+            }
+        });
+    }
+
     $scope.onPubIdModified = function(form) {
         form.modified = true;
-    };
-
-
-    $scope.onDeleteForm = function(form) {
-        console.log("onDeleteForm...");
     };
 
 });
