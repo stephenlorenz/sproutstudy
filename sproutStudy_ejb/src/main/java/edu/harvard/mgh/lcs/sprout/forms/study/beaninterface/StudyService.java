@@ -40,7 +40,7 @@ public interface StudyService {
     Set<String> getPublicationKeysFromPublicationKey(String publicationKey);
 
     public List<CohortTO> getAuthorizedCohorts(SessionTO sessionTO);
-    public BooleanTO saveCohort(SessionTO sessionTO, String cohortKey, String name, String description, String group) throws UnauthorizedActionException;
+    public BooleanTO saveCohort(SessionTO sessionTO, String cohortKey, String name, String description, String restfulApiUrl, String restfulApiUsername, String restfulApiPassword, String identitySchemaPrimary) throws UnauthorizedActionException;
     public BooleanTO deleteCohort(SessionTO sessionTO, String cohortKey);
     public BooleanTO saveAuthorization(SessionTO sessionTO, String usernane, String cohortKey);
     public boolean isAdmin(SessionTO sessionTO);

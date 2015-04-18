@@ -181,7 +181,7 @@ public interface ApiWS {
     @GET
     @Path("/secure/saveCohort")
     @Produces(MediaType.APPLICATION_JSON)
-    public BooleanTO saveCohort(@Context HttpServletRequest request, @QueryParam("cohortKey") String cohortKey, @QueryParam("name") String name, @QueryParam("description") String description, @QueryParam("group") String group) throws InvalidSessionRESTful;
+    public BooleanTO saveCohort(@Context HttpServletRequest request, @QueryParam("cohortKey") String cohortKey, @QueryParam("name") String name, @QueryParam("description") String description, @QueryParam("restfulApiUrl") String restfulApiUrl, @QueryParam("restfulApiUsername") String restfulApiUsername, @QueryParam("restfulApiPassword") String restfulApiPassword, @QueryParam("identitySchemaPrimary") String identitySchemaPrimary) throws InvalidSessionRESTful;
 
     @GET
     @Path("/secure/revokeCohortAuthorization")

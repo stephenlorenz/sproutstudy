@@ -872,7 +872,7 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
     }
 
     @Override
-    public BooleanTO saveCohort(SessionTO sessionTO, String cohortKey, String name, String description, String group) throws UnauthorizedActionException {
+    public BooleanTO saveCohort(SessionTO sessionTO, String cohortKey, String name, String description, String restfulApiUrl, String restfulApiUsername, String restfulApiPassword, String identitySchemaPrimary) throws UnauthorizedActionException {
         if (sessionTO != null && StringUtils.isFull(name)) {
             if (StringUtils.isFull(cohortKey) && !cohortKey.equalsIgnoreCase("undefined")) {
                 CohortEntity cohortEntity = getAuthorizedCohortByKey(sessionTO, cohortKey);
@@ -904,6 +904,40 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
                     cohortEntity.setActive(true);
                     cohortEntity.setActivityDate(new Date());
                     entityManager.persist(cohortEntity);
+
+                    if (StringUtils.isFull(restfulApiUrl)) {
+                        CohortAttrEntity cohortAttrEntity = new CohortAttrEntity();
+                        cohortAttrEntity.setCohort(cohortEntity);
+                        cohortAttrEntity.setCohortAttr(getVCohortAttrByCode(CohortAttribute.QUERY.toString()));
+                        cohortAttrEntity.setValue(restfulApiUrl);
+                        cohortAttrEntity.setActivityDate(new Date());
+                        entityManager.persist(cohortAttrEntity);
+                    }
+                    if (StringUtils.isFull(restfulApiUsername)) {
+                        CohortAttrEntity cohortAttrEntity = new CohortAttrEntity();
+                        cohortAttrEntity.setCohort(cohortEntity);
+                        cohortAttrEntity.setCohortAttr(getVCohortAttrByCode(CohortAttribute.QUERY_AUTH_USERNAME.toString()));
+                        cohortAttrEntity.setValue(restfulApiUsername);
+                        cohortAttrEntity.setActivityDate(new Date());
+                        entityManager.persist(cohortAttrEntity);
+                    }
+                    if (StringUtils.isFull(restfulApiPassword)) {
+                        CohortAttrEntity cohortAttrEntity = new CohortAttrEntity();
+                        cohortAttrEntity.setCohort(cohortEntity);
+                        cohortAttrEntity.setCohortAttr(getVCohortAttrByCode(CohortAttribute.QUERY_AUTH_PASSWORD.toString()));
+                        cohortAttrEntity.setValue(restfulApiPassword);
+                        cohortAttrEntity.setActivityDate(new Date());
+                        entityManager.persist(cohortAttrEntity);
+                    }
+                    if (StringUtils.isFull(identitySchemaPrimary)) {
+                        CohortAttrEntity cohortAttrEntity = new CohortAttrEntity();
+                        cohortAttrEntity.setCohort(cohortEntity);
+                        cohortAttrEntity.setCohortAttr(getVCohortAttrByCode(CohortAttribute.IDENTITY_SCHEMA_PRIMARY.toString()));
+                        cohortAttrEntity.setValue(identitySchemaPrimary);
+                        cohortAttrEntity.setActivityDate(new Date());
+                        entityManager.persist(cohortAttrEntity);
+                    }
+
                     auditService.log(findUserEntity(sessionTO), AuditType.ADMIN_NEW_COHORT, SproutStudyConstantService.AuditVerbosity.INFO, cohortEntity, "Add New Cohort", String.format("User (%s) created cohort \"%s\" (%s).", sessionTO.getUser(), cohortEntity.getName(), cohortEntity.getCohortKey()));
                     if (saveAuthorization(sessionTO.getUser(), sessionTO.getUser(), cohortEntity).isTrue()) {
                         return new BooleanTO(true);
@@ -1160,6 +1194,17 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
             }
             return new BooleanTO(false, "Failed to save user authorization.");
         }
+    }
+
+    private VCohortAttrEntity getVCohortAttrByCode(String code) {
+        if (StringUtils.isFull(code)) {
+            try {
+                Query query = entityManager.createNamedQuery(VCohortAttrEntity.FIND_BY_CODE);
+                query.setParameter("code", code);
+                return (VCohortAttrEntity) query.getSingleResult();
+            } catch (NoResultException e) {}
+        }
+        return null;
     }
 
     private VUserPreferenceEntity getVUserPreferenceByKey(String key) {

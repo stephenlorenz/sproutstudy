@@ -30,3 +30,8 @@ ul.sproutstudy-tab-container-reset {
 th.sortable {
     cursor: pointer;
 }
+
+div.modal-narrative-template {
+    background-color: #FDFDBF;
+    border: solid #F1C19A 1px;
+}

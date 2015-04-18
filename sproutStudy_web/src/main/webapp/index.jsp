@@ -126,6 +126,7 @@
 <script src="/sproutassets/components/angular-sanitize/angular-sanitize.js"></script>
 <script src="/sproutassets/components/angular-ui/build/angular-ui.min.js"></script>
 <script src="/sproutassets/components/angular-ui-bootstrap-bower/ui-bootstrap-tpls.js"></script>
+<script src="assets/scripts/jquery.contenteditable.js"></script>
 
 <script src="/sproutassets/components/angular-strap/angular-strap.js"></script>
 <script src="/sproutassets/components/angular-strap/bootstrap-datepicker.js"></script>
@@ -146,6 +147,7 @@
 <script src="scripts/directives/forms.js"></script>
 <script src="scripts/directives/preventDefault.js"></script>
 <script src="scripts/directives/patientViewDirective.js"></script>
+<script src="scripts/directives/sproutNarrativeDirective.js"></script>
 <script src="scripts/models/localeModel.js"></script>
 <script src="scripts/services/appointmentsService.js"></script>
 <script src="scripts/services/cohortService.js"></script>
@@ -157,9 +159,6 @@
 <script src="scripts/services/formManagerService.js"></script>
 <script src="scripts/services/cohortManagerService.js"></script>
 <script src="scripts/services/userManagerService.js"></script>
-<script src="scripts/directives/custodialAgreementDirective.js"></script>
-<script src="scripts/directives/enrollmentLetterDirective.js"></script>
-<script src="scripts/directives/formDeliveryExpirationDate.js"></script>
 <script src="scripts/services/formsService.js"></script>
 <script src="scripts/services/practiceService.js"></script>
 <script src="scripts/services/studyService.js"></script>
@@ -353,8 +352,70 @@
         var aHeight = tNavBarHeight + footerHeight + 80;
         $(".appFrame").height(wHeight - aHeight);
     }
-</script>
 
+    var formCallbackCatalog = {};
+
+    function getSerializedArray(getSerializedArray, narrativeUpdate, instanceId) {
+        //console.log("sproutStudy.getSerializedArray.instanceId: " + instanceId);
+        var callbackItem = {};
+        if (formCallbackCatalog[instanceId]) {
+            callbackItem = formCallbackCatalog[instanceId];
+        }
+        callbackItem["getSerializedArray"] = getSerializedArray;
+        callbackItem["narrativeUpdate"] = narrativeUpdate;
+        formCallbackCatalog[instanceId] = callbackItem;
+    }
+
+    function getNarrativeModel() {
+        var activeTab = jQuerySprout(".sproutstudy-tab-li.active");
+        var instanceId = activeTab.attr("instance");
+
+        if (formCallbackCatalog[instanceId]) {
+            var callbackItem = formCallbackCatalog[instanceId];
+            var narrativeModel = callbackItem.getSerializedArray();
+            //console.log("model: " + JSON.stringify(narrativeModel, null, 4));
+            return narrativeModel;
+        }
+    }
+
+    var sproutTransformTemplateChanged = false;
+
+    function setSproutTransformTemplate(template) {
+        sproutTransformTemplateChanged = false;
+        $("#sproutTransformTemplate").html(template);
+
+        $(".modal-narrative-template").contentEditable().change(function() {
+            sproutTransformTemplateChanged = true;
+            console.log("sproutTransformTemplateChanged: " + sproutTransformTemplateChanged);
+        });
+
+
+    }
+
+    function syncNarrativeTemplate() {
+        console.log("syncNarrativeTemplate...");
+        var narrativeParts = getNarrativeParts();
+        if (narrativeParts.length > 0) {
+            $("#sproutTransformTemplate").find("[contenteditable]").each(function(index, element) {
+                $(this).html(narrativeParts[index]);
+            });
+        }
+        return $("#sproutTransformTemplate").html();
+    }
+
+    function getNarrativeParts() {
+        console.log("getNarrativeParts...");
+        var narrativeParts = [];
+        $(".modal-narrative-template").find("[contenteditable]").each(function(index, element) {
+            var part = $(this).html();
+            console.log("part: " + part);
+            narrativeParts.push(part);
+        });
+        return narrativeParts;
+    }
+
+
+</script>
 
 <script src="/sproutassets/scripts/idletimer/jquery.idletimer.js" type="text/javascript"></script>
 <script src="/sproutassets/scripts/idletimer/jquery.idletimeout.js" type="text/javascript"></script>
@@ -388,6 +449,7 @@
                 $('#modal-timeout').modal('hide');
             }
         });
+
     });
 
 </script>
@@ -418,6 +480,10 @@
 </div>
 
 <div id="sproutStudyFormContent" />
+
+<div id="sproutTransformTemplate" style="display: none;" />
+
+
 
 </body>
 </html>

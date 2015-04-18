@@ -32,6 +32,19 @@ angular.module('sproutStudyApp')
         cohortService.clearMember = function () {
             member = memberDefault;
         };
+        cohortService.hasDemographicForm = function() {
+            var demographicFound = false;
+            if (cohort !== null) {
+                $.each(cohort.forms, function(index, tmpForm) {
+                    if (demographicFound == false) {
+                        if (tmpForm.demographic && tmpForm.active) {
+                            demographicFound = true;
+                        }
+                    }
+                });
+            }
+            return demographicFound;
+        }
 
         return cohortService;
     });

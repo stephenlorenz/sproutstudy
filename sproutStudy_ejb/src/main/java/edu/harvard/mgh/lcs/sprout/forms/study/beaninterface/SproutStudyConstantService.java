@@ -11,6 +11,7 @@ public interface SproutStudyConstantService {
     public static enum InboxStatus {NEW, READ, STAR, ARCHIVE, DELETE}
     public static enum FormAttr {UNIQUE}
     public static enum UserPreference {COHORT_ID, EMAIL_PRIMARY, EMAIL_SECONDARY, SMS_TEXT_PHONE}
+    public static enum CohortAttribute {QUERY, QUERY_AUTH_USERNAME, QUERY_AUTH_PASSWORD, IDENTITY_SCHEMA_PRIMARY}
 
 	public static enum PatientVerificationSearchSelector {MRN, LASTNAME, FIRSTNAME, MIDDLENAME, DOB, SEX, PHONE, ADDRESS}
 	public static final String SENDER_FRONT_OFFICE = "FRONT_OFFICE";

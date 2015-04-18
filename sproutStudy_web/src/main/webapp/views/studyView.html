@@ -4,7 +4,7 @@
     <div>
         <h3>Please pick a cohort</h3>
         <table class="table">
-            <tr ng-repeat="cohort in cohorts" style="background-color: #ffffff;">
+            <tr ng-repeat="cohort in cohorts | filter: { active: true }" style="background-color: #ffffff;">
                 <td>
                     <h4>{{cohort.name}}</h4>
                 </td>
@@ -22,6 +22,7 @@
     <div style="display: block; text-align: right;">
             <span style="text-align: left; font-size: 17px; font-weight: bold; float: left">{{subject.prettyName}} ({{subject.id}})</span>
             <button ng-click="enableSearch()" class="btn btn-primary btn-mini" title="New Patient Search" ng-mouseover="expandSearchButton()" ng-mouseleave="collapseSearchButton()"><i class="icon-search icon-white" style="margin-right: 0px;"></i>{{searchButton}}</button>
+            <button ng-click="onViewNarrative()" class="btn btn-warning btn-mini" title="View Narrative"><i class="icon-book icon-white" style="margin-right: 0px;"></i>{{narrativeButton}}</button>
 
             <span class="dropdown" >
                 <button ng-click="openDeliverFormModal()" class="dropdown-toggle btn btn-success btn-mini" title="Deliver Form" ng-mouseover="expandNewFormButton()" ng-mouseleave="collapseNewFormButton()"><i class="icon-plus icon-white" style="margin-right: 0px;"></i>{{newFormButton}}</button>
@@ -55,7 +56,7 @@
                 <div class="controls" style="vertical-align: middle;">
                     <input type="text" class="input-xlarge search-query" style="height: 35px; font-size: 17px;" ng-model="query" id="patientSearch"/>
                     <button class="btn btn-large" ng-disabled="query.length == 0" ng-class="{'btn-primary': query.length > 0}" ng-click="findCohortMember()"><i class="icon-search icon-white"></i></button>
-                    <button class="btn btn-large btn-success" ng-click="addSubject()" ng-mouseover="expandAddSubjectButton()" ng-mouseleave="collapseAddSubjectButton()"><i class="icon-plus icon-white"></i>{{addSubjectButton}}</button>
+                    <button class="btn btn-large btn-success" ng-show="hasDemographicForm()" ng-click="addSubject()" ng-mouseover="expandAddSubjectButton()" ng-mouseleave="collapseAddSubjectButton()"><i class="icon-plus icon-white"></i>{{addSubjectButton}}</button>
                 </div>
 
             </div>
@@ -241,7 +242,7 @@
             <div style="width: 100%;">
                 <div style="margin-top: 20px;" class="alert alert-success" ng-show="patientMatches.length == 0 && addSubjectInd == false">
                     <h4>No subjects found.</h4>
-                    <div style="margin-top: 25px;">
+                    <div style="margin-top: 25px;" ng-show="hasDemographicForm()">
                         <button class="btn btn-success" ng-click="addSubject()"><i class="icon-plus icon-white" style="margin-right: 7px;"></i>Add New Subject</button>
                     </div>
                 </div>
@@ -285,7 +286,7 @@
                     </table>
                 </div>
                 <span ng-show="patientMatches.length > 0">
-                    <button class="btn btn-success" ng-click="addSubject()"><i class="icon-plus icon-white" style="margin-right: 7px;"></i>Add New Subject</button>
+                    <button class="btn btn-success" ng-show="hasDemographicForm()" ng-click="addSubject()"><i class="icon-plus icon-white" style="margin-right: 7px;"></i>Add New Subject</button>
                 </span>
                 <div class="btn-toolbar" style="text-align: center;">
                     <div class="btn-group btn-group-horizontal">
@@ -382,6 +383,18 @@
         <div class="modal-footer">
             <button class="btn cancel" ng-click="onCloseSendMessageModal()">Don't Send</button>
             <button class="btn btn-primary" ng-disabled="messageTo == undefined || messageTo == null || messageTo.length == 0 || messageText == undefined || messageText == null || messageText.length == 0 || sendingMessage" ng-click="onSendMessage()">{{sendMessageButtonText}}</button>
+        </div>
+    </div>
+
+    <div modal="narrativeModal" close="onCloseNarrativeModal()" options="modalSmallOpts">
+        <div class="modal-header">
+            <h4>Narrative</h4>
+        </div>
+        <div class="modal-body modal-narrative-template">
+            <narrative model="model" template="template"/>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" ng-click="onCloseNarrativeModal()">Save</button>
         </div>
     </div>
 

@@ -572,11 +572,11 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
     }
 
     @Override
-    public BooleanTO saveCohort(HttpServletRequest request, String cohortKey, String name, String description, String group) throws InvalidSessionRESTful {
+    public BooleanTO saveCohort(HttpServletRequest request, String cohortKey, String name, String description, String restfulApiUrl, String restfulApiUsername, String restfulApiPassword, String identitySchemaPrimary) throws InvalidSessionRESTful {
         SessionTO sessionTO = getSessionTO(request);
         if (sessionTO != null) {
             try {
-                if (studyService.saveCohort(sessionTO, cohortKey, name, description, group).isTrue()) {
+                if (studyService.saveCohort(sessionTO, cohortKey, name, description, restfulApiUrl, restfulApiUsername, restfulApiPassword, identitySchemaPrimary).isTrue()) {
                     if (refreshAuthorizedCohorts(request, sessionTO).isTrue()) return refreshAuthorizedCohorts(request, sessionTO);
                 }
             } catch (UnauthorizedActionException e) {

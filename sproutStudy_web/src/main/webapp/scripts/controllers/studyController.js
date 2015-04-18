@@ -86,6 +86,10 @@ angular.module('sproutStudyApp')
             return cohortService.getCohort();
         }
 
+        $scope.hasDemographicForm = function() {
+            return cohortService.hasDemographicForm();
+        }
+
         $scope.session = function() {
             return sessionService.getSession();
         }
@@ -682,6 +686,9 @@ angular.module('sproutStudyApp')
         $scope.onCloseDeleteFormModal = function() {
             $scope.deleteFormModal = false;
         }
+        $scope.onCloseNarrativeModal = function() {
+            $scope.narrativeModal = false;
+        }
 
         $scope.onDeleteForm = function() {
             $scope.deleteFormButtonText = "Deleting";
@@ -969,6 +976,7 @@ angular.module('sproutStudyApp')
         }
 
         $scope.searchButton = "  Search";
+        $scope.narrativeButton = "  Narrative";
         $scope.expandSearchButton =  function() {
 //            $scope.searchButton = "  Search";
         }
@@ -1016,8 +1024,29 @@ angular.module('sproutStudyApp')
             $scope.messageText = null;
             $scope.messageTo = null;
             $scope.sendMessageModal = true;
-
         }
 
+        $scope.onViewNarrative = function() {
+            $scope.model = getNarrativeModel();
+            $scope.narrativeModal = true;
+        }
+
+        $scope.onSyncNarrativeModal = function() {
+            $scope.template = syncNarrativeTemplate();
+
+        }
+        $scope.onCloseNarrativeModal = function() {
+            $scope.onSyncNarrativeModal();
+            $scope.narrativeModal = false;
+        }
+
+        $scope.setTemplate = function(instanceId) {
+            $scope.template = '<div contenteditable="true">This is a sample narrative for the signature test form.</div><br/><div><span contenteditable="true">Technician Partners UID: </span>{{model.signature.technician}}.</div><div><span contenteditable="true">Cardiologist Partners UID: </span>{{model.signature.cardiologist}}.</div><div><span contenteditable="true">Radiologist Partners UID: </span>{{model.signature.radiologist}}.</div><div ng-show="model.signature.test_field != \'\'"><br/><span contenteditable="true">Test Field: </span>{{model.signature.test_field}}.</div>';
+            setSproutTransformTemplate($scope.template);
+        }
+
+        $scope.setTemplate();
+
+//        $('.nav-tabs a[href="#tab2"]').tab('show');
 
     });
