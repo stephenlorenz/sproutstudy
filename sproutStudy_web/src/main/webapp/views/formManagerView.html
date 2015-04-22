@@ -13,6 +13,8 @@
             <th>Publication Key</th>
             <th>Form Key</th>
             <th>Timestamp</th>
+            <th ng-show="cohort.transformEnabled == true">Transform</th>
+
             <th style="text-align: center; width: 60px;">Delete</th>
             <th style="text-align: center; width: 60px;">Save</th>
             <!--<th style="text-align: center; width: 60px;">Delete</th>-->
@@ -23,6 +25,9 @@
             <td><input ng-model="form.publicationKey" style="min-width: 320px; font-family: 'Courier New', Courier, monospace" ng-change="onPubIdModified(form)"></a></td>
             <td style="font-family: 'Courier New', Courier, monospace">{{form.formKey}}</a></td>
             <td>{{form.activityDate | date:'medium' }}</a></td>
+            <td ng-show="cohort.transformEnabled == true" style="text-align: center; width: 80px;">
+                <button class="btn btn-mini btn-success" ng-click="onTransformAdmin(form)"><i class="fa fa-circle-o-notch"></i></button>
+            </td>
             <td style="text-align: center; width: 80px;">
                 <button class="btn btn-mini btn-warning" ng-click="onDeleteForm(form.formKey)"><i class="icon-trash icon-white" style="margin-right: 0px;"></i></button>
             </td>

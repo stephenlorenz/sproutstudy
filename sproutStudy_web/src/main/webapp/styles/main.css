@@ -32,6 +32,12 @@ th.sortable {
 }
 
 div.modal-narrative-template {
-    background-color: #FDFDBF;
-    border: solid #F1C19A 1px;
+    /* background-color: #FDFDBF; */
+    background-color: #EFEFEF;
+    border: solid #CCCCCC 1px;
 }
+
+
+
+
+

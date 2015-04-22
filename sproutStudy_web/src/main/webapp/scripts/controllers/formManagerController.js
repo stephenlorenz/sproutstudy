@@ -30,6 +30,14 @@ angular.module('sproutStudyApp')
         }
     }
 
+    $scope.onTransformAdmin = function(form) {
+        $window.sessionStorage.setItem("sproutStudyForm", JSON.stringify($scope.form));
+        $location.path("/transform");
+
+
+
+    }
+
     $scope.session = function() {
         return sessionService.getSession();
     }

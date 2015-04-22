@@ -17,6 +17,7 @@ public class CohortTO implements Serializable {
     private String cohortSubjectSchema;
     private boolean active;
     private String cohortKey;
+    private boolean transformEnabled;
 
     public int getId() {
         return id;
@@ -97,4 +98,16 @@ public class CohortTO implements Serializable {
     public void setActive(boolean active) {
         this.active = active;
     }
+
+    public boolean isTransformEnabled() {
+        if (attributes != null && attributes.size() > 0) {
+            for (CohortAttrTO attribute : attributes) {
+                if (attribute.getName() != null && attribute.getValue() != null && attribute.getName().equalsIgnoreCase("SPROUT_TRANSFORM_IND") && attribute.getValue().equalsIgnoreCase("true")) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
 }

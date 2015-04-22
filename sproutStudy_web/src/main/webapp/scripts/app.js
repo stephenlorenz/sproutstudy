@@ -1,6 +1,6 @@
 'use strict';
 
-var sproutStudyApp = angular.module('sproutStudyApp', ['ui', 'ngResource', 'ui.bootstrap', '$strap.directives'])
+var sproutStudyApp = angular.module('sproutStudyApp', ['ui', 'ngResource', 'ngRoute', 'ui.bootstrap', 'cfp.hotkeys', 'bgDirectives', '$strap.directives'])
     .value("sproutStudyProperties", {
 //    serverUrl: 'http://localhost:8080/study/api/command/secure'
     serverUrl: '/sproutstudy/api/command/secure'
@@ -29,6 +29,10 @@ var sproutStudyApp = angular.module('sproutStudyApp', ['ui', 'ngResource', 'ui.b
             .when('/forms/add', {
                 templateUrl: 'views/formAddView.html',
                 controller: 'formManagerController'
+            })
+            .when('/transform', {
+                templateUrl: 'views/transformDesignerView.html',
+                controller: 'transformManagerController'
             })
             .when('/cohorts', {
                 templateUrl: 'views/cohortManagerView.html',

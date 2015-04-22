@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('sproutStudyApp')
-    .controller('studyController', function ($log, $scope, $filter, $timeout, $window, studyService, patientService, formsService, cohortService, sessionService) {
+    .controller('studyController', function ($log, $scope, $filter, $timeout, $window, studyService, patientService, formsService, cohortService, sessionService, transformService) {
 
 
         $scope.cohortLoaded = false;
@@ -32,6 +32,8 @@ angular.module('sproutStudyApp')
         $scope.allFormsFilterFormPublicationKey = null;
         $scope.allFormsFilterFormTitle = null;
 
+        $scope.template = undefined;
+
         $scope.activeSproutInboxStatuses = null;
 
         $scope.query = "";
@@ -41,6 +43,10 @@ angular.module('sproutStudyApp')
         $scope.cohortAuthorizations = null;
 
         $scope.publicationKey = null;
+
+        $scope.hasNarrative = undefined;
+        $scope.formLoaded = undefined;
+        $scope.activeInstanceId = undefined;
 
         $scope.inbox = 0;
 
@@ -686,9 +692,6 @@ angular.module('sproutStudyApp')
         $scope.onCloseDeleteFormModal = function() {
             $scope.deleteFormModal = false;
         }
-        $scope.onCloseNarrativeModal = function() {
-            $scope.narrativeModal = false;
-        }
 
         $scope.onDeleteForm = function() {
             $scope.deleteFormButtonText = "Deleting";
@@ -830,9 +833,6 @@ angular.module('sproutStudyApp')
 
 
         $scope.onViewForm = function (mrn, instanceId) {
-
-
-            console.log("onViewForm1...");
             $scope.closeBtn = true;
 //            $scope.form = formsService.getForm({schema: "mgh", mrn: $scope.subject.id, instanceId: instanceId});
             $scope.viewFormModal = true;
@@ -1028,24 +1028,80 @@ angular.module('sproutStudyApp')
 
         $scope.onViewNarrative = function() {
             $scope.model = getNarrativeModel();
-            $scope.narrativeModal = true;
+            var form = getActiveForm();
+            if (form !== undefined) {
+                var publicationKey = form.publicationKey;
+                var instanceId = form.instanceId;
+                $scope.setTemplate(publicationKey, instanceId);
+            }
         }
 
-        $scope.onSyncNarrativeModal = function() {
-            $scope.template = syncNarrativeTemplate();
+        $scope.onSyncNarrativeModal = function(closeOnComplete) {
+            var narrative = getNarrativeHtml();
 
+            if (narrative !== undefined) {
+                var form = getActiveForm();
+                if (form !== undefined) {
+                    var publicationKey = form.publicationKey;
+                    var instanceId = form.instanceId;
+                    transformService.saveTemplate({publicationKey: publicationKey, instanceId: instanceId, template: syncNarrativeTemplate()}, function(data) {
+                        if (data.value == 'false') {
+                            if (closeOnComplete) $scope.narrativeModal = false;
+                            $scope.errorMessageText = "Failed to save narrative template.";
+                            $scope.errorFormModal = true;
+                        } else {
+                            transformService.saveNarrative({instanceId: instanceId, narrative: narrative, format: "HTML"}, function(data) {
+                                if (data.value == 'false') {
+                                    if (closeOnComplete) $scope.narrativeModal = false;
+                                    $scope.errorMessageText = "Failed to save narrative.";
+                                    $scope.errorFormModal = true;
+                                } else {
+                                    if (closeOnComplete) $scope.narrativeModal = false;
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    if (closeOnComplete) $scope.narrativeModal = false;
+                    $scope.errorMessageText = "Failed to save narrative template.";
+                    $scope.errorFormModal = true;
+                }
+            }
         }
+
         $scope.onCloseNarrativeModal = function() {
-            $scope.onSyncNarrativeModal();
-            $scope.narrativeModal = false;
+            $scope.onSyncNarrativeModal(true);
         }
 
-        $scope.setTemplate = function(instanceId) {
-            $scope.template = '<div contenteditable="true">This is a sample narrative for the signature test form.</div><br/><div><span contenteditable="true">Technician Partners UID: </span>{{model.signature.technician}}.</div><div><span contenteditable="true">Cardiologist Partners UID: </span>{{model.signature.cardiologist}}.</div><div><span contenteditable="true">Radiologist Partners UID: </span>{{model.signature.radiologist}}.</div><div ng-show="model.signature.test_field != \'\'"><br/><span contenteditable="true">Test Field: </span>{{model.signature.test_field}}.</div>';
-            setSproutTransformTemplate($scope.template);
+        $scope.onCloseErrorModal = function() {
+            $scope.errorFormModal = false;
         }
 
-        $scope.setTemplate();
+        $scope.setTemplate = function(publicationKey, instanceId) {
+            $scope.templateKey = undefined;
+            $scope.template = undefined;
+
+            transformService.getTemplate({publicationKey: publicationKey, instanceId: instanceId}, function(data) {
+                $scope.templateKey = data.key;
+                $scope.template = data.template;
+                setSproutTransformTemplate($scope.template);
+                $scope.narrativeModal = true;
+            });
+        }
+
+        $scope.showNarrativeButton = function(showInd, instanceId) {
+            if (showInd !== undefined) {
+                $scope.hasNarrative = showInd;
+            }
+            if (instanceId !== undefined) {
+                $scope.formLoaded = isFormLoaded(instanceId);
+            }
+        }
+
+        $scope.formLoadUpdate = function(instanceId) {
+            if (getActiveForm().instanceId == instanceId) $scope.formLoaded = true;
+        }
+
 
 //        $('.nav-tabs a[href="#tab2"]').tab('show');
 

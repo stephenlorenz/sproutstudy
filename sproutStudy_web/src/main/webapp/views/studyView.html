@@ -22,7 +22,7 @@
     <div style="display: block; text-align: right;">
             <span style="text-align: left; font-size: 17px; font-weight: bold; float: left">{{subject.prettyName}} ({{subject.id}})</span>
             <button ng-click="enableSearch()" class="btn btn-primary btn-mini" title="New Patient Search" ng-mouseover="expandSearchButton()" ng-mouseleave="collapseSearchButton()"><i class="icon-search icon-white" style="margin-right: 0px;"></i>{{searchButton}}</button>
-            <button ng-click="onViewNarrative()" class="btn btn-warning btn-mini" title="View Narrative"><i class="icon-book icon-white" style="margin-right: 0px;"></i>{{narrativeButton}}</button>
+            <button ng-show="hasNarrative && formLoaded" ng-click="onViewNarrative()" class="btn btn-warning btn-mini" title="View Narrative"><i class="fa fa-circle-o-notch"></i>{{narrativeButton}}</button>
 
             <span class="dropdown" >
                 <button ng-click="openDeliverFormModal()" class="dropdown-toggle btn btn-success btn-mini" title="Deliver Form" ng-mouseover="expandNewFormButton()" ng-mouseleave="collapseNewFormButton()"><i class="icon-plus icon-white" style="margin-right: 0px;"></i>{{newFormButton}}</button>
@@ -408,6 +408,18 @@
         <div class="modal-footer">
             <button class="btn cancel" ng-click="onCloseDeleteFormModal()">Cancel</button>
             <button class="btn btn-primary" ng-disabled="deletingForm" ng-click="onDeleteForm()">{{deleteFormButtonText}}</button>
+        </div>
+    </div>
+
+    <div modal="errorFormModal" close="onCloseErrorModal()" options="modalSmallOpts">
+        <div class="modal-header">
+            <h3 style="color: #b94a48;">Error</h3>
+        </div>
+        <div class="modal-body modal-body-short">
+            <h4>{{errorMessageText}}</h4>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-danger" ng-disabled="deletingForm" ng-click="onCloseErrorModal()">Close</button>
         </div>
     </div>
 </div>

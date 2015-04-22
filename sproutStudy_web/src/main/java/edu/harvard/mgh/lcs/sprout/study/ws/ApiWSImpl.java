@@ -45,6 +45,9 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
 	@EJB(mappedName="java:global/sproutStudy/sproutStudy_ejb/StudyServiceImpl!edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.StudyService")
 	private StudyService studyService;
 
+	@EJB(mappedName="java:global/sproutStudy/sproutStudy_ejb/StudyServiceImpl!edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.StudyService")
+	private SproutTransformService transformService;
+
 
     @Override
     @WebMethod(operationName = "getAuthorizedCohorts")
@@ -427,6 +430,21 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
             return studyService.getCohortTO(sessionTO, cohortKey);
         }
         return null;
+    }
+
+    @Override
+    public TemplateTO getTemplate(HttpServletRequest request, String publicationKey, String instanceId) throws InvalidSessionRESTful {
+        return transformService.getTemplateTO(publicationKey, instanceId);
+    }
+
+    @Override
+    public BooleanTO saveTemplate(HttpServletRequest request, String publicationKey, String instanceId, String template) throws InvalidSessionRESTful {
+        return transformService.saveTemplate(publicationKey, instanceId, template);
+    }
+
+    @Override
+    public BooleanTO saveNarrative(HttpServletRequest request, String instanceId, String narrative, String format) throws InvalidSessionRESTful {
+        return transformService.saveNarrative(instanceId, narrative, format);
     }
 
     private void updateSessionTO(HttpServletRequest request, SessionTO sessionTO) {

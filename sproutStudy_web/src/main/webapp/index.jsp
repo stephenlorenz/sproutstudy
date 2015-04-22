@@ -119,8 +119,12 @@
 
 <script type="text/javascript" src="/sproutassets/scripts/bootstrap/bootstrap.js" ></script>
 <script type="text/javascript" src="/sproutassets/scripts/lcs/lcs.js"></script>
+<link rel="stylesheet" href="assets/components/angular-hotkeys/build/hotkeys.min.css"/>
 
-<script src="/sproutassets/components/angular/angular.js"></script>
+<script src="assets/components/angular/angular.min.js"></script>
+<script src="assets/components/angular-route/angular-route.min.js"></script>
+
+
 <script src="/sproutassets/components/angular-resource/angular-resource.js"></script>
 <script src="/sproutassets/components/angular-cookies/angular-cookies.js"></script>
 <script src="/sproutassets/components/angular-sanitize/angular-sanitize.js"></script>
@@ -130,6 +134,9 @@
 
 <script src="/sproutassets/components/angular-strap/angular-strap.js"></script>
 <script src="/sproutassets/components/angular-strap/bootstrap-datepicker.js"></script>
+
+<script src="assets/components/angular-hotkeys/build/hotkeys.min.js"></script>
+<script src="assets/scripts/external/splitter/js/splitter.js"></script>
 
 <!-- build:js scripts/scripts.js -->
 <script src="scripts/app.js"></script>
@@ -142,6 +149,7 @@
 <script src="scripts/controllers/cohortController.js"></script>
 <script src="scripts/controllers/settingsController.js"></script>
 <script src="scripts/controllers/formManagerController.js"></script>
+<script src="scripts/controllers/transformManagerController.js"></script>
 <script src="scripts/controllers/cohortManagerController.js"></script>
 <script src="scripts/filters/filters.js"></script>
 <script src="scripts/directives/forms.js"></script>
@@ -162,6 +170,7 @@
 <script src="scripts/services/formsService.js"></script>
 <script src="scripts/services/practiceService.js"></script>
 <script src="scripts/services/studyService.js"></script>
+<script src="scripts/services/transformService.js"></script>
 <script src="scripts/services/networkService.js"></script>
 <!-- endbuild -->
 
@@ -191,11 +200,13 @@
         }
 
         jQuerySprout(".sproutstudy-tab-home").addClass("active");
+        updateTransformButton(jQuerySprout(".sproutstudy-tab-home"));
 
         jQuerySprout("#sproutstudy-tab-container").on('click', '.sproutstudy-tab-button', function(event) {
 //            event.preventDefault();
             jQuerySprout(".sproutstudy-tab-li").removeClass("active");
             jQuerySprout(this).parent().addClass("active");
+            updateTransformButton(jQuerySprout(this).parent());
 
             var instance = jQuerySprout(this).attr("instance");
 
@@ -228,11 +239,14 @@
 
             var instanceTab = jQuerySprout('.sproutstudy-tab-' + instanceId);
             instanceTab.data("form", form);
-
+            instanceTab.data("loaded", false);
         }
 
         jQuerySprout(".sproutstudy-tab-li").removeClass("active");
         jQuerySprout(".sproutstudy-tab-" + instanceId).addClass("active");
+
+        updateTransformButton(jQuerySprout(".sproutstudy-tab-" + instanceId));
+
     }
 
     function sproutFormsDoneCallback() {
@@ -262,6 +276,7 @@
 
                     sourceTab.remove();
                     targetTab.addClass("active");
+                    updateTransformButton(targetTab, true);
 
                     jQuerySprout(".sproutstudy-content-home").show();
                     jQuerySprout('#modal-wait').modal('hide');
@@ -277,6 +292,7 @@
 
                 sourceTab.remove();
                 targetTab.addClass("active");
+                updateTransformButton(targetTab, true);
 
                 jQuerySprout(".sproutstudy-content-home").show();
                 jQuerySprout('#modal-wait').modal('hide');
@@ -300,6 +316,7 @@
 
             sourceTab.remove();
             targetTab.addClass("active");
+            updateTransformButton(targetTab, true);
 
             var targetInstanceId = targetTab.attr("instance");
             jQuerySprout(".sproutstudy-content-" + targetInstanceId).show();
@@ -319,10 +336,41 @@
 
     }
 
+    function updateTransformButton(targetTab, apply) {
+        var instanceId = targetTab.attr("instance");
+        if (angular.element(jQuerySprout("#studyControllerDiv")).scope() !== undefined) {
+            angular.element(jQuerySprout("#studyControllerDiv")).scope().showNarrativeButton(instanceId !== undefined && instanceId !== 'home', instanceId);
+            if (apply) angular.element(jQuerySprout("#studyControllerDiv")).scope().$apply();
+        }
+    }
+
+    function formLoadedCallback(instanceId) {
+        if (angular.element(jQuerySprout("#studyControllerDiv")).scope() !== undefined) {
+            var instanceTab = jQuerySprout('.sproutstudy-tab-' + instanceId);
+            instanceTab.data("loaded", true);
+            angular.element(jQuerySprout("#studyControllerDiv")).scope().formLoadUpdate(instanceId);
+            angular.element(jQuerySprout("#studyControllerDiv")).scope().$apply();
+        }
+    }
+
+    function getActiveForm() {
+        return jQuerySprout(".sproutstudy-tab-li.active").data("form");
+    }
+
+    function isFormLoaded(instanceId) {
+        var instanceTab = jQuerySprout('.sproutstudy-tab-' + instanceId);
+        if (instanceTab !== undefined) {
+            return instanceTab.data("loaded");
+        } else {
+            return false;
+        }
+    }
+
     function clearAllFormTabs() {
         jQuerySprout(".sproutstudy-tab-li.active").removeClass("active");
         var homeTab = jQuerySprout(".sproutstudy-tab-home");
         homeTab.addClass("active");
+        updateTransformButton(homeTab);
         jQuerySprout(".sproutstudy-content-form").remove();
         jQuerySprout(".sproutstudy-tab-form").remove();
     }
@@ -393,7 +441,6 @@
     }
 
     function syncNarrativeTemplate() {
-        console.log("syncNarrativeTemplate...");
         var narrativeParts = getNarrativeParts();
         if (narrativeParts.length > 0) {
             $("#sproutTransformTemplate").find("[contenteditable]").each(function(index, element) {
@@ -404,14 +451,16 @@
     }
 
     function getNarrativeParts() {
-        console.log("getNarrativeParts...");
         var narrativeParts = [];
         $(".modal-narrative-template").find("[contenteditable]").each(function(index, element) {
             var part = $(this).html();
-            console.log("part: " + part);
             narrativeParts.push(part);
         });
         return narrativeParts;
+    }
+
+    function getNarrativeHtml() {
+        return $(".modal-narrative-template").html();
     }
 
 

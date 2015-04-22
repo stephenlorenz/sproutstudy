@@ -1,5 +1,6 @@
 package edu.harvard.mgh.lcs.sprout.study.wsinterface;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.FormDeliveryStatus;
 import edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.FormInstanceTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.beanws.Result;
@@ -227,5 +228,20 @@ public interface ApiWS {
     @Path("/secure/getCohortByKey")
     @Produces(MediaType.APPLICATION_JSON)
     public CohortTO getCohortTO(@Context HttpServletRequest request, @QueryParam("cohortKey") String cohortKey) throws InvalidSessionRESTful;
+
+    @GET
+    @Path("/secure/getTemplate")
+    @Produces(MediaType.APPLICATION_JSON)
+    public TemplateTO getTemplate(@Context HttpServletRequest request, @QueryParam("publicationKey") String publicationKey, @QueryParam("instanceId") String instanceId) throws InvalidSessionRESTful;
+
+    @GET
+    @Path("/secure/saveTemplate")
+    @Produces(MediaType.APPLICATION_JSON)
+    public BooleanTO saveTemplate(@Context HttpServletRequest request, @QueryParam("publicationKey") String publicationKey, @QueryParam("instanceId") String instanceId, @QueryParam("template") String template) throws InvalidSessionRESTful;
+
+    @GET
+    @Path("/secure/saveNarrative")
+    @Produces(MediaType.APPLICATION_JSON)
+    public BooleanTO saveNarrative(@Context HttpServletRequest request, @QueryParam("instanceId") String instanceId, @QueryParam("narrative") String narrative, @QueryParam("format") String format) throws InvalidSessionRESTful;
 
 }
