@@ -1,22 +1,73 @@
-<div>
-    <bg-splitter orientation="horizontal">
-        <bg-pane min-size="100" init-size="365" style="background-color: #efefef;">
+<div id="transformControllerDiv">
+
+    <bg-splitter orientation="horizontal" style="margin-top: 40px;">
+        <bg-pane min-size="100" init-size="600">
             <bg-splitter orientation="vertical">
                 <bg-pane min-size="50" class="sprout-transform-form-pane">
-                    top left
+                    <div id="sproutTransformFormContent" class="sprout-transform-drag-dimme"/>
                 </bg-pane>
                 <bg-pane min-size="50" class="sprout-transform-model-pane">
-                    bottom left
+                    <div ng-show="formLoaded">
+                        <div class="sprout-transform-model-toolbar">
+                            <div class="btn-group">
+                                <button class="btn" title="Reload Model" ng-click="onReloadModel()"><i class="fa fa-refresh"></i></button>
+                                <button class="btn" title="Live Sync" ng-click="onToggleSyncModel()" ng-class="{'btn-success': syncModel}"><i class="fa fa-arrows-v"></i></button>
+                            </div>
+                            <div class="btn-group">
+                                <label class="sprout-transform-toolbar-select-label">Model</label>
+                            </div>
+                        </div>
+                        <pre id="sproutTransformModelContent" class="sprout-transform-model-content"/>
+                    </div>
+                    <div style="line-height: 300px; text-align: center;" ng-show="formLoaded == false">
+                        <span class="badge badge-info sprout-form-loading"><i class="fa fa-refresh fa-spin sprout-form-loading"></i><span class="sprout-form-loading-message">Loading form...please wait...</span></span>
+                    </div>
                 </bg-pane>
             </bg-splitter>
         </bg-pane>
         <bg-pane min-size="150">
             <bg-splitter orientation="vertical">
                 <bg-pane min-size="50" class="sprout-transform-template-pane">
-                    top right
+                    <div style="line-height: 300px; text-align: center;" ng-show="formLoaded == false">
+                        <span class="badge badge-info sprout-form-loading"><i class="fa fa-refresh fa-spin sprout-form-loading"></i><span class="sprout-form-loading-message">Loading form...please wait...</span></span>
+                    </div>
+                    <div ng-show="formLoaded">
+                        <div class="sprout-transform-template-editor" ng-model="template" ui-ace="{
+                        advanced: {
+                            enableSnippets: true,
+                            enableBasicAutocompletion: true,
+                            enableLiveAutocompletion: true
+                        },
+                        useWrapMode : false,
+                        showGutter: true,
+                        theme:'chrome',
+                        mode: 'handlebars',
+                        firstLineNumber: 1,
+                        onLoad: aceLoaded,
+                        onChange: aceChanged
+                        }"></div>
+                    </div>
+
                 </bg-pane>
-                <bg-pane min-size="50" class="sprout-vault-narrative-pane">
-                    bottom right
+                <bg-pane min-size="50" class="sprout-transform-narrative-pane">
+                    <div style="line-height: 300px; text-align: center;" ng-show="formLoaded == false">
+                        <span class="badge badge-info sprout-form-loading"><i class="fa fa-refresh fa-spin sprout-form-loading"></i><span class="sprout-form-loading-message">Loading form...please wait...</span></span>
+                    </div>
+                    <div ng-show="formLoaded">
+                        <div class="sprout-transform-template-toolbar">
+                            <div class="btn-group">
+                                <button class="btn" title="Save" ng-click="onSaveTemplate()" ng-class="{'btn-primary': templateHasChanges}"><i class="fa fa-save"></i></button>
+                                <button class="btn" title="Reload Narrative" ng-click="onReloadNarrative()"><i class="fa fa-refresh"></i></button>
+                                <button class="btn" title="Live Sync" ng-click="onToggleSyncNarrative()" ng-class="{'btn-success': syncNarrative}"><i class="fa fa-arrows-v"></i></button>
+                            </div>
+                            <div class="btn-group">
+                                <label class="sprout-transform-toolbar-select-label">Narrative<span ng-show="templateError" class="sprout-transform-template-error" ng-click="showTemplateError()"><i class="fa fa-exclamation-triangle" style="padding-left: 10px;" rel="popover"></i></span></label>
+
+                            </div>
+                            <span class="label label-success sprout-transform-save-success" style="float: right; margin-top: 5px;" ng-show="templateSavedSuccessfully"><i class="fa fa-save"></i> Template saved successfully.</span>
+                        </div>
+                        <div id="sproutTransformNarrativeContent" class="sprout-transform-narrative-content" ng-dblclick="onReloadNarrative()"/>
+                    </div>
                 </bg-pane>
             </bg-splitter>
         </bg-pane>

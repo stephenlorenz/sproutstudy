@@ -41,15 +41,14 @@
 {
   left: 50%;
   right: 0px;
-  border-left: 1px solid #aaa;
+  border-left: 8px solid #ccc;
 }
 
 
 /* Vertical */
 
-.split-panes.vertical > .split-handler
-{
-  height: 4px;
+.split-panes.vertical > .split-handler {
+  height: 7px;
   top: 50%; 
   left: 0px;
   right: 0px;
@@ -72,5 +71,5 @@
 {
   top: 50%;
   bottom: 0px;
-  border-top: 1px solid #aaa;
+  border-top: 8px solid #ccc;
 }

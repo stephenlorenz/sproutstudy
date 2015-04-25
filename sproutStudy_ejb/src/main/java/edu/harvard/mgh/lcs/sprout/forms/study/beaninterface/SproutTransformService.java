@@ -10,6 +10,6 @@ import java.util.concurrent.Future;
 public interface SproutTransformService {
 	public String getTemplate(String publicationKey, String instanceId);
 	public TemplateTO getTemplateTO(String publicationKey, String instanceId);
-	public BooleanTO saveTemplate(String publicationKey, String instanceId, String template);
+	public BooleanTO saveTemplate(String publicationKey, String instanceId, String template, String templateKey, boolean masterInd);
 	public BooleanTO saveNarrative(String instanceId, String narrative, String format);
 }

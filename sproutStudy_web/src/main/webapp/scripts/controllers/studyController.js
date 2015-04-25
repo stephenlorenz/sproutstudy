@@ -1044,7 +1044,7 @@ angular.module('sproutStudyApp')
                 if (form !== undefined) {
                     var publicationKey = form.publicationKey;
                     var instanceId = form.instanceId;
-                    transformService.saveTemplate({publicationKey: publicationKey, instanceId: instanceId, template: syncNarrativeTemplate()}, function(data) {
+                    transformService.saveTemplate({publicationKey: publicationKey, instanceId: instanceId, template: syncNarrativeTemplate(), templateKey: null, masterInd: false}, function(data) {
                         if (data.value == 'false') {
                             if (closeOnComplete) $scope.narrativeModal = false;
                             $scope.errorMessageText = "Failed to save narrative template.";

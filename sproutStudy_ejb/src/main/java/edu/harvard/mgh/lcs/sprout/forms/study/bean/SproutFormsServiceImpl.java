@@ -338,6 +338,33 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
     }
 
     @Override
+    public String getMostRecentInstanceId(String schema, String id, String publicationKey) {
+        try {
+            if (formsWebService == null) init();
+
+            if (formsWebService != null) {
+                String orgAuthKey = System.getProperty("edu.harvard.mgh.lcs.ihealthspace.module.forms.sprout.authToken");
+
+                if (!StringUtils.isEmpty(orgAuthKey)) {
+                    List<IdentityTO> identityTOList = new ArrayList<IdentityTO>();
+                    IdentityTO identityTO = new IdentityTO();
+                    identityTO.setScheme(schema);
+                    identityTO.setId(id);
+                    identityTOList.add(identityTO);
+
+                    FormDeliveryStatus formDeliveryStatus = formsWebService.getMostRecentInstanceId(orgAuthKey, identityTOList, publicationKey);
+                    if (formDeliveryStatus != null && StringUtils.isFull(formDeliveryStatus.getInstanceId())) {
+                        return formDeliveryStatus.getInstanceId();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
     public int getAllFormsPageCount(String username, CohortTO cohortTO, Set<String> publicationKeys, int rows, String status) {
         if (publicationKeys != null && publicationKeys.size() > 0 && cohortTO != null) {
 

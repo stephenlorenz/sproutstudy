@@ -25,4 +25,5 @@ public interface SproutFormsService {
     public BooleanTO deleteForm(String instanceId);
     public int getAllFormsPageCount(String username, CohortTO cohortTO, Set<String> publicationKeys, int rows, String status);
     public List<NameValue> getActiveSproutInboxStatuses();
+    public String getMostRecentInstanceId(String schema, String id, String publicationKey);
 }

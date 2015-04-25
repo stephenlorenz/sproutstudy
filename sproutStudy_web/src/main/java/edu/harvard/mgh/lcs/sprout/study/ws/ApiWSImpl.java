@@ -438,8 +438,8 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
     }
 
     @Override
-    public BooleanTO saveTemplate(HttpServletRequest request, String publicationKey, String instanceId, String template) throws InvalidSessionRESTful {
-        return transformService.saveTemplate(publicationKey, instanceId, template);
+    public BooleanTO saveTemplate(HttpServletRequest request, String publicationKey, String instanceId, String template, String templateKey, boolean masterInd) throws InvalidSessionRESTful {
+        return transformService.saveTemplate(publicationKey, instanceId, template, templateKey, masterInd);
     }
 
     @Override
@@ -458,12 +458,33 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
 
     @Override
     @WebMethod(operationName="deliverForm")
-    public FormDeliveryStatus deliverForm(@Context HttpServletRequest request, @QueryParam("cohort") String cohort, @QueryParam("id") String id, @QueryParam("publicationKey") String publicationKey, @QueryParam("provider") String provider, @QueryParam("expirationDate") String expirationDateString) throws InvalidSessionRESTful {
+    public FormDeliveryStatus deliverForm(@Context HttpServletRequest request, String schema, String id, String publicationKey, String provider, String expirationDateString) throws InvalidSessionRESTful {
         SessionTO sessionTO = getSessionTO(request);
 
-        if (sessionTO != null && !StringUtils.isEmpty(cohort) && !StringUtils.isEmpty(publicationKey) && !StringUtils.isEmpty(provider)) {
-            if (cohort.equalsIgnoreCase("SPROUT_STUDY_TEMP_ID") && StringUtils.isEmpty(id)) id = StringUtils.getGuid();
-            return sproutFormsService.deliverToInbox(cohort, id, publicationKey, provider, expirationDateString);
+        if (sessionTO != null && !StringUtils.isEmpty(schema) && !StringUtils.isEmpty(publicationKey) && !StringUtils.isEmpty(provider)) {
+            if (schema.equalsIgnoreCase("SPROUT_STUDY_TEMP_ID") && StringUtils.isEmpty(id)) id = StringUtils.getGuid();
+            return sproutFormsService.deliverToInbox(schema, id, publicationKey, provider, expirationDateString);
+        }
+
+        return null;
+    }
+
+    @Override
+    @WebMethod(operationName="deliverOrOpenForm")
+    public FormDeliveryStatus deliverOrOpenForm(@Context HttpServletRequest request, String schema, String id, String publicationKey, String provider, String expirationDateString) throws InvalidSessionRESTful {
+        SessionTO sessionTO = getSessionTO(request);
+
+        if (sessionTO != null && !StringUtils.isEmpty(schema) && !StringUtils.isEmpty(publicationKey) && !StringUtils.isEmpty(provider)) {
+            if (schema.equalsIgnoreCase("SPROUT_STUDY_TEMP_ID") && StringUtils.isEmpty(id)) id = StringUtils.getGuid();
+
+            String instanceId = sproutFormsService.getMostRecentInstanceId(schema, id, publicationKey);
+            if (StringUtils.isFull(instanceId)) {
+                FormDeliveryStatus formDeliveryStatus = new FormDeliveryStatus();
+                formDeliveryStatus.setInstanceId(instanceId);
+                return formDeliveryStatus;
+            } else {
+                return sproutFormsService.deliverToInbox(schema, id, publicationKey, provider, expirationDateString);
+            }
         }
 
         return null;

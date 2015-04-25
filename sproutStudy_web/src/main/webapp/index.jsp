@@ -53,6 +53,7 @@
 	<link type="text/css" rel="stylesheet" href="/sproutassets/stylesheets/bootstrap/css/responsive.css" />
 	<link type="text/css" rel="stylesheet" href="assets/components/font-awesome/css/font-awesome.min.css">
 	<link type="text/css" rel="stylesheet" href="assets/components/icomoon99838/style.css">
+	<link type="text/css" rel="stylesheet" href="assets/scripts/external/splitter/css/style.css">
 	<!--[if IE]><link rel="stylesheet" type="text/css" href="/sproutassets/stylesheets/ie/ie.css"></link><![endif]-->
    	<!--[if lt IE 9]><link rel="stylesheet" type="text/css" href="/sproutassets/stylesheets/ie/ie8.css"></link><![endif]-->
    	<!--[if lt IE 7]><link rel="stylesheet" type="text/css" href="/sproutassets/stylesheets/ie/ie6.css"></link><![endif]-->
@@ -95,6 +96,7 @@
                         <li><a href="#/" ng-click="changeCohort()" class="sproutstudy-tab-button">Change Cohort</a></li>
                         <li><a href="#/cohorts" class="sproutstudy-tab-button" ng-show="isCohortManager()">Cohort Admin</a></li>
                         <li><a href="#/forms" class="sproutstudy-tab-button" ng-show="isManagerOfCohort() || isAdmin()  ">Form Admin</a></li>
+                        <li><a href="#/lists" class="sproutstudy-tab-button" ng-show="isManagerOfCohort() || isAdmin()  ">List Admin</a></li>
                         <li><a id="btn_logout" href="logout">Logout</a></li>
                     <%--<li><a href="#/settings">Account Settings</a></li>--%>
                     </ul>
@@ -117,14 +119,12 @@
 </script>
 <script type="text/javascript" src="/sproutassets/scripts/jquery-ui/jquery-ui-1.10.1.custom.min.js" ></script>
 
+<script type="text/javascript" src="assets/components/ace-builds/src-min-noconflict/ace.js"></script>
+<script type="text/javascript" src="assets/components/ace-builds/src-min-noconflict/ext-language_tools.js"></script>
 <script type="text/javascript" src="/sproutassets/scripts/bootstrap/bootstrap.js" ></script>
 <script type="text/javascript" src="/sproutassets/scripts/lcs/lcs.js"></script>
-<link rel="stylesheet" href="assets/components/angular-hotkeys/build/hotkeys.min.css"/>
 
-<script src="assets/components/angular/angular.min.js"></script>
-<script src="assets/components/angular-route/angular-route.min.js"></script>
-
-
+<script src="/sproutassets/components/angular/angular.js"></script>
 <script src="/sproutassets/components/angular-resource/angular-resource.js"></script>
 <script src="/sproutassets/components/angular-cookies/angular-cookies.js"></script>
 <script src="/sproutassets/components/angular-sanitize/angular-sanitize.js"></script>
@@ -134,9 +134,10 @@
 
 <script src="/sproutassets/components/angular-strap/angular-strap.js"></script>
 <script src="/sproutassets/components/angular-strap/bootstrap-datepicker.js"></script>
+<script type="text/javascript" src="assets/components/angular-ui-ace/ui-ace.min.js"></script>
 
-<script src="assets/components/angular-hotkeys/build/hotkeys.min.js"></script>
 <script src="assets/scripts/external/splitter/js/splitter.js"></script>
+<script src="assets/scripts/external/handlebars/handlebars-v3.0.1.js"></script>
 
 <!-- build:js scripts/scripts.js -->
 <script src="scripts/app.js"></script>
@@ -188,6 +189,7 @@
     jQuerySprout(document).ready(function() {
 //        jQuerySprout(".study-tab:not('.study-tab-default')").hide();
 
+        sizeTransformPane();
         sizeAppFrame();
 
         var app = jQuerySprout(location).attr('hash').toString();
@@ -219,6 +221,48 @@
             deleteTab(instanceId);
             return false;
         });
+
+
+        Handlebars.registerHelper('compare', function (lvalue, operator, rvalue, options) {
+
+            var operators, result;
+
+            if (arguments.length < 3) {
+                throw new Error("Handlerbars Helper 'compare' needs 2 parameters");
+            }
+
+            if (options === undefined) {
+                options = rvalue;
+                rvalue = operator;
+                operator = "===";
+            }
+
+            operators = {
+                '==': function (l, r) { return l == r; },
+                '===': function (l, r) { return l === r; },
+                '!=': function (l, r) { return l != r; },
+                '!==': function (l, r) { return l !== r; },
+                '<': function (l, r) { return l < r; },
+                '>': function (l, r) { return l > r; },
+                '<=': function (l, r) { return l <= r; },
+                '>=': function (l, r) { return l >= r; },
+                'typeof': function (l, r) { return typeof l == r; }
+            };
+
+            if (!operators[operator]) {
+                throw new Error("Handlerbars Helper 'compare' doesn't know the operator " + operator);
+            }
+
+            result = operators[operator](lvalue, rvalue);
+
+            if (result) {
+                return options.fn(this);
+            } else {
+                return options.inverse(this);
+            }
+
+        });
+
     });
 
     function addPaneContentForm(form, nonce) {
@@ -246,6 +290,14 @@
         jQuerySprout(".sproutstudy-tab-" + instanceId).addClass("active");
 
         updateTransformButton(jQuerySprout(".sproutstudy-tab-" + instanceId));
+    }
+
+    function addTransformAdminContentForm(form, nonce) {
+        var title = form.title;
+        var instanceId = form.instanceId;
+
+        var content = '<div class="sprout-transform-content sprout-transform-content-form sprout-transform-content-' + instanceId + '" id="' + instanceId + '"><iframe id="iframe-' + instanceId + '" name="iframe-' + instanceId + '" src="/prompt/?instanceId=' + instanceId + '&nonce=' + nonce + '&debug=true&showThanks=false" class="appFrame sproutTransformFrame" /></div>';
+        jQuerySprout("#sproutTransformFormContent").append(content);
 
     }
 
@@ -350,6 +402,17 @@
             instanceTab.data("loaded", true);
             angular.element(jQuerySprout("#studyControllerDiv")).scope().formLoadUpdate(instanceId);
             angular.element(jQuerySprout("#studyControllerDiv")).scope().$apply();
+        } else if (angular.element(jQuerySprout("#transformControllerDiv")).scope() !== undefined) {
+            angular.element(jQuerySprout("#transformControllerDiv")).scope().formLoadUpdate(instanceId);
+            angular.element(jQuerySprout("#transformControllerDiv")).scope().onReloadModel();
+            angular.element(jQuerySprout("#transformControllerDiv")).scope().$apply();
+        }
+    }
+
+    function formSyncCallback(instanceId) {
+        if (angular.element(jQuerySprout("#studyControllerDiv")).scope() !== undefined) {
+        } else if (angular.element(jQuerySprout("#transformControllerDiv")).scope() !== undefined) {
+            angular.element(jQuerySprout("#transformControllerDiv")).scope().onSyncModel();
         }
     }
 
@@ -389,8 +452,10 @@
     // the delay will keep the two scrollbars from flipping
     // back and forth quickly
     $(window).resize(function() {
-        setTimeout(sizeAppFrame, 1000);
+        setTimeout(sizeAppFrame, 500);
+        setTimeout(sizeTransformPane, 500);
     });
+
 
     function sizeAppFrame() {
         var tNavBarHeight = $(".navbar-fixed-top").height();
@@ -401,9 +466,19 @@
         $(".appFrame").height(wHeight - aHeight);
     }
 
+    function sizeTransformPane() {
+        var modelToolbarHeight = $(".sprout-transform-model-toolbar").height();
+        var narrativeToolbarHeight = $(".sprout-transform-narrative-toolbar").height();
+
+        $(".sproutTransformFrame").height($(".sprout-transform-form-pane").height());
+        $(".sprout-transform-template-editor").height($(".sprout-transform-template-pane").height());
+        $("#sproutTransformNarrativeContent").height($(".sprout-transform-narrative-pane").height() - narrativeToolbarHeight - 40);
+        $("#sproutTransformModelContent").height($(".sprout-transform-model-pane").height() - modelToolbarHeight - 50);
+    }
+
     var formCallbackCatalog = {};
 
-    function getSerializedArray(getSerializedArray, narrativeUpdate, instanceId) {
+    function getSerializedArray(getSerializedArray, narrativeUpdate, paths, instanceId) {
         //console.log("sproutStudy.getSerializedArray.instanceId: " + instanceId);
         var callbackItem = {};
         if (formCallbackCatalog[instanceId]) {
@@ -411,19 +486,74 @@
         }
         callbackItem["getSerializedArray"] = getSerializedArray;
         callbackItem["narrativeUpdate"] = narrativeUpdate;
+        callbackItem["paths"] = paths;
         formCallbackCatalog[instanceId] = callbackItem;
     }
 
-    function getNarrativeModel() {
-        var activeTab = jQuerySprout(".sproutstudy-tab-li.active");
-        var instanceId = activeTab.attr("instance");
+    function getNarrativeModel(instanceId) {
+
+        if (instanceId == undefined || instanceId == null) {
+            var activeTab = jQuerySprout(".sproutstudy-tab-li.active");
+            instanceId = activeTab.attr("instance");
+        }
 
         if (formCallbackCatalog[instanceId]) {
             var callbackItem = formCallbackCatalog[instanceId];
             var narrativeModel = callbackItem.getSerializedArray();
+            var paths = callbackItem.paths();
+
+            if (paths !== undefined) {
+                angular.element(jQuerySprout("#transformControllerDiv")).scope().setPaths(paths);
+                angular.element(jQuerySprout("#transformControllerDiv")).scope().applyIfPossible();
+            }
+
             //console.log("model: " + JSON.stringify(narrativeModel, null, 4));
             return narrativeModel;
         }
+    }
+
+    function compileTemplate() {
+        var source = angular.element(jQuerySprout("#transformControllerDiv")).scope().getTemplateFromEditor();
+        var model = angular.element(jQuerySprout("#transformControllerDiv")).scope().getModel();
+        var template = Handlebars.compile(source);
+        try {
+            var narrative = template(model);
+            jQuerySprout("#sproutTransformNarrativeContent").html(narrative);
+            angular.element(jQuerySprout("#transformControllerDiv")).scope().setNarrative(narrative);
+            angular.element(jQuerySprout("#transformControllerDiv")).scope().setTemplateError(undefined);
+            angular.element(jQuerySprout("#transformControllerDiv")).scope().applyIfPossible();
+        } catch (exception) {
+            //console.log("compileTemplate.exception: " + exception);
+            angular.element(jQuerySprout("#transformControllerDiv")).scope().setTemplateError(exception);
+            angular.element(jQuerySprout("#transformControllerDiv")).scope().applyIfPossible();
+        }
+    }
+
+    function updateSproutTransformModelView(model) {
+        jQuerySprout("#sproutTransformModelContent").html(syntaxHighlight(model));
+    }
+
+    function syntaxHighlight(json) {
+        if (typeof json != 'string') {
+             json = JSON.stringify(json, undefined, 2);
+        }
+        json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+        return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+            var cls = 'sprout-transform-model-type-number';
+            if (/^"/.test(match)) {
+                if (/:$/.test(match)) {
+                    cls = 'sprout-transform-model-type-key';
+                } else {
+                    cls = 'sprout-transform-model-type-string';
+                }
+            } else if (/true|false/.test(match)) {
+                cls = 'sprout-transform-model-type-boolean';
+            } else if (/null/.test(match)) {
+                cls = 'sprout-transform-model-type-null';
+            }
+            return '<span class="' + cls + ' sprout-transform-model-handle">' + match + '</span>';
+        });
     }
 
     var sproutTransformTemplateChanged = false;

@@ -138,7 +138,7 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 
 	@Override
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public BooleanTO saveTemplate(String publicationKey, String instanceId, String template) {
+	public BooleanTO saveTemplate(String publicationKey, String instanceId, String template, String templateKey, boolean masterInd) {
 		if (StringUtils.isFull(instanceId)) {
 			TemplateCloneEntity templateCloneEntity = getTemplateCloneEntities(instanceId);
 			if (templateCloneEntity == null && StringUtils.isFull(publicationKey)) {
@@ -169,6 +169,24 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 				entityManager.persist(templateCloneEntityNew);
 				return new BooleanTO(true);
 			}
+		} else if (StringUtils.isFull(publicationKey, templateKey) && masterInd) {
+			TemplateMasterEntity templateMasterEntity = getTemplateMasterEntity(publicationKey);
+			if (templateMasterEntity != null && templateMasterEntity.getKey().equals(templateKey)) {
+				templateMasterEntity.setTemplate(template);
+				templateMasterEntity.setActivityDate(new Date());
+				entityManager.merge(templateMasterEntity);
+				return new BooleanTO(true);
+			} else {
+				templateMasterEntity = new TemplateMasterEntity();
+				templateMasterEntity.setPublicationKey(publicationKey);
+				templateMasterEntity.setTemplate(template);
+				templateMasterEntity.setKey(StringUtils.getGuid());
+				templateMasterEntity.setActive(true);
+				templateMasterEntity.setActivityDate(new Date());
+				entityManager.persist(templateMasterEntity);
+				return new BooleanTO(true, templateMasterEntity.getKey());
+			}
+
 		}
 		return new BooleanTO(false);
 	}

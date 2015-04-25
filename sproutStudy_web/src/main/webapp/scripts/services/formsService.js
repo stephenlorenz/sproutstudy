@@ -39,6 +39,11 @@ angular.module('sproutStudyApp')
                     callback(response.data);
                 });
             },
+            deliverOrOpenForm: function (params, callback) {
+                return $http.get(networkService.generateUrl("deliverOrOpenForm", params)).then(function (response) {
+                    callback(response.data);
+                });
+            },
             applyForNonce: function (params, callback) {
                 return $http.get(networkService.generateUrl("applyForNonce", params)).then(function (response) {
                     callback(response.data);

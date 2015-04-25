@@ -1,6 +1,6 @@
 'use strict';
 
-var sproutStudyApp = angular.module('sproutStudyApp', ['ui', 'ngResource', 'ngRoute', 'ui.bootstrap', 'cfp.hotkeys', 'bgDirectives', '$strap.directives'])
+var sproutStudyApp = angular.module('sproutStudyApp', ['ui', 'ngResource', 'ui.bootstrap', 'bgDirectives', 'ui.ace', '$strap.directives'])
     .value("sproutStudyProperties", {
 //    serverUrl: 'http://localhost:8080/study/api/command/secure'
     serverUrl: '/sproutstudy/api/command/secure'

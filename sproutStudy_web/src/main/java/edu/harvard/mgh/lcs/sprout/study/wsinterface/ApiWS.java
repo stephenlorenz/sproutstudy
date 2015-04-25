@@ -100,6 +100,11 @@ public interface ApiWS {
     public FormDeliveryStatus deliverForm(@Context HttpServletRequest request, @QueryParam("schema") String schema, @QueryParam("id") String id, @QueryParam("publicationKey") String publicationKey, @QueryParam("provider") String provider, @QueryParam("expirationDate") String expirationDateString) throws InvalidSessionRESTful;
 
     @GET
+    @Path("/secure/deliverOrOpenForm")
+    @Produces(MediaType.APPLICATION_JSON)
+    public FormDeliveryStatus deliverOrOpenForm(@Context HttpServletRequest request, @QueryParam("schema") String schema, @QueryParam("id") String id, @QueryParam("publicationKey") String publicationKey, @QueryParam("provider") String provider, @QueryParam("expirationDate") String expirationDateString) throws InvalidSessionRESTful;
+
+    @GET
     @Path("/secure/getSproutInbox")
     @Produces(MediaType.APPLICATION_JSON)
     public List<FormInstanceTO> getSproutInbox(@Context HttpServletRequest request, @QueryParam("identity") String[] identities) throws InvalidSessionRESTful;
@@ -237,7 +242,7 @@ public interface ApiWS {
     @GET
     @Path("/secure/saveTemplate")
     @Produces(MediaType.APPLICATION_JSON)
-    public BooleanTO saveTemplate(@Context HttpServletRequest request, @QueryParam("publicationKey") String publicationKey, @QueryParam("instanceId") String instanceId, @QueryParam("template") String template) throws InvalidSessionRESTful;
+    public BooleanTO saveTemplate(@Context HttpServletRequest request, @QueryParam("publicationKey") String publicationKey, @QueryParam("instanceId") String instanceId, @QueryParam("template") String template, @QueryParam("templateKey") String templateKey, @QueryParam("masterInd") boolean masterInd) throws InvalidSessionRESTful;
 
     @GET
     @Path("/secure/saveNarrative")

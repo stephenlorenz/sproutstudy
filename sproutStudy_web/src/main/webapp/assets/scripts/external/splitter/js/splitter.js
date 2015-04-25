@@ -10,8 +10,6 @@ angular.module('bgDirectives', [])
         template: '<div class="split-panes {{orientation}}" ng-transclude></div>',
         controller: function ($scope, $element) {
 
-          console.log("bgSplitter....");
-
           $scope.panes = [];
           this.addPane = function(pane){
             if ($scope.panes.length > 1)
@@ -63,7 +61,6 @@ angular.module('bgDirectives', [])
           };
         },
         link: function(scope, element, attrs) {
-
           var handler = angular.element('<div class="split-handler"></div>');
           scope.handler = handler;
           var pane1 = scope.panes[0];
@@ -134,15 +131,17 @@ angular.module('bgDirectives', [])
               pane2.elem.css('left', pos + 'px');
             }
 
-            setTimeout(sizeEditorPane, 0);
+            setTimeout(sizeTransformPane, 50);
           });
 
           handler.bind('mousedown', function (ev) {
             ev.preventDefault();
+            $(".sprout-transform-drag-dimme").addClass("dimmed");
             drag = true;
           });
 
           angular.element(document).bind('mouseup', function (ev) {
+            $(".sprout-transform-drag-dimme").removeClass("dimmed");
             drag = false;
           });
         }
