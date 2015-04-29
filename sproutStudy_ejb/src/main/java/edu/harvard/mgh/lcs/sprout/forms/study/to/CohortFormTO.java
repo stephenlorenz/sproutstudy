@@ -12,6 +12,7 @@ public class CohortFormTO implements Serializable, Comparable<CohortFormTO> {
     private boolean demographic;
     private boolean unique;
     private boolean active;
+    private boolean narrative;
     private Date activityDate;
 
     public String getId() {
@@ -68,6 +69,14 @@ public class CohortFormTO implements Serializable, Comparable<CohortFormTO> {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public boolean isNarrative() {
+        return narrative;
+    }
+
+    public void setNarrative(boolean narrative) {
+        this.narrative = narrative;
     }
 
     public Date getActivityDate() {

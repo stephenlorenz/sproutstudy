@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.InboxTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.AuditService;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.SproutStudyConstantService;
+import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.SproutTransformService;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.StudyService;
 import edu.harvard.mgh.lcs.sprout.forms.study.beanws.Result;
 import edu.harvard.mgh.lcs.sprout.forms.study.exception.DuplicateCohortNameException;
@@ -43,6 +44,9 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
 
     @EJB
     private AuditService auditService;
+
+    @EJB
+    private SproutTransformService sproutTransformService;
 
     public static final String COHORT_ATTR_QUERY_URL = "QUERY";
     public static final String COHORT_ATTR_IDENTITY_SCHEMA_PRIMARY = "IDENTITY_SCHEMA_PRIMARY";
@@ -770,6 +774,7 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
                 cohortFormTO.setPublicationKey(cohortFormEntity.getForm().getPublicationKey());
                 cohortFormTO.setFormKey(cohortFormEntity.getForm().getFormKey());
                 cohortFormTO.setDemographic(cohortFormEntity.getForm().getDemographic());
+                cohortFormTO.setNarrative(hasNarrativeTemplate(cohortFormEntity.getForm().getPublicationKey()));
                 cohortFormTO.setActive(cohortFormEntity.getForm().getActive());
                 cohortFormTO.setActivityDate(cohortFormEntity.getForm().getActivityDate());
 
@@ -786,6 +791,10 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
             Collections.sort(cohortFormTOList);
         }
         return cohortFormTOList;
+    }
+
+    private boolean hasNarrativeTemplate(String publicationKey) {
+        return sproutTransformService.getTemplateTO(publicationKey, null) != null;
     }
 
     @Override

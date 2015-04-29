@@ -34,7 +34,7 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public TemplateTO getTemplateTO(String publicationKey, String instanceId) {
 		TemplateTO templateTO = new TemplateTO();
-		if (StringUtils.isFull(instanceId)) {
+		if (StringUtils.isFull(instanceId) && !instanceId.equals("null")) {
 			TemplateCloneEntity templateCloneEntity = getTemplateCloneEntities(instanceId);
 			if (templateCloneEntity == null && StringUtils.isFull(publicationKey)) {
 				TemplateMasterEntity templateMasterEntity = getTemplateMasterEntity(publicationKey);
@@ -139,7 +139,7 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 	@Override
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public BooleanTO saveTemplate(String publicationKey, String instanceId, String template, String templateKey, boolean masterInd) {
-		if (StringUtils.isFull(instanceId)) {
+		if (StringUtils.isFull(instanceId) && !instanceId.equalsIgnoreCase("null")) {
 			TemplateCloneEntity templateCloneEntity = getTemplateCloneEntities(instanceId);
 			if (templateCloneEntity == null && StringUtils.isFull(publicationKey)) {
 				TemplateMasterEntity templateMasterEntity = getTemplateMasterEntity(publicationKey);
@@ -194,7 +194,7 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 	@Override
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public String getTemplate(String publicationKey, String instanceId) {
-		if (StringUtils.isFull(instanceId)) {
+		if (StringUtils.isFull(instanceId) && !instanceId.equalsIgnoreCase("null")) {
 			TemplateCloneEntity templateCloneEntity = getTemplateCloneEntities(instanceId);
 			if (templateCloneEntity == null && StringUtils.isFull(publicationKey)) {
 				TemplateMasterEntity templateMasterEntity = getTemplateMasterEntity(publicationKey);

@@ -630,7 +630,7 @@ angular.module('sproutStudyApp')
 //                console.log("data.instanceId: " + data.instanceId);
 //                console.log("data.status: " + data.status);
                 if (data.instanceId != null) {
-                    $scope.onDemographicFormByInstanceId(data.instanceId, form.name);
+                    $scope.onDemographicFormByInstanceId(data.instanceId, form);
                     $scope.deliverFormModal = false;
                     $scope.deliveringInd = false;
                     $scope.addSubjectInd = true;
@@ -952,14 +952,22 @@ angular.module('sproutStudyApp')
 //                setTimeout(sizeAppFrame, 1000);
 //            });
 //        };
-        $scope.onDemographicFormByInstanceId = function (instanceId, title) {
+        $scope.onDemographicFormByInstanceId = function (instanceId, form) {
 
             formsService.applyForNonce({instanceId: instanceId, subjectName: "New Subject", subjectId: "Unknown"}, function(data) {
                 var nonce = data.nonce;
-                var tabTitle = {fullName: title === undefined ? "New Subject" : title, id: 0};
+                var tabTitle = {fullName: form === undefined || form.name === undefined ? "New Subject" : form.name, id: 0};
                 cohortService.setMember(tabTitle);
+                setActiveTabData("form", form);
 
-                var content = '<iframe id="iframe-' + instanceId + '" name="iframe-' + instanceId + '" instanceId="' + instanceId + '" src="/prompt/?instanceId=' + instanceId + '&nonce=' + nonce + '&debug=true&showThanks=false&disableSave=true" class="appFrame sproutStudyFrame iframe-demographic-form-content" />';
+                $scope.getTemplate(form.publicationKey, instanceId, function(template) {
+                    setActiveTabData("template", template);
+                });
+
+                setActiveTabData("demographicInd", true);
+
+                //var content = '<iframe id="iframe-' + instanceId + '" name="iframe-' + instanceId + '" instanceId="' + instanceId + '" src="/prompt/?instanceId=' + instanceId + '&nonce=' + nonce + '&debug=true&showThanks=false&disableSave=true" class="appFrame sproutStudyFrame iframe-demographic-form-content" />';
+                var content = '<div class="sprout-study-form-narrative-split-frame sprout-study-form-narrative-split-frame-' + instanceId + '"><div class="sproutstudy-content sproutstudy-content-form sproutstudy-content-' + instanceId + '" id="' + instanceId + '"><iframe id="iframe-' + instanceId + '" name="iframe-' + instanceId + '" instanceId="' + instanceId + '" src="/prompt/?instanceId=' + instanceId + '&nonce=' + nonce + '&debug=true&showThanks=false&disableSave=true" class="appFrame sproutStudyFrame iframe-demographic-form-content" /></div></div>';
                 $scope.demographicFormContent = content;
 
 //                $scope.addPane(tabTitle, instanceId, nonce);
@@ -1029,48 +1037,47 @@ angular.module('sproutStudyApp')
         $scope.onViewNarrative = function() {
             $scope.model = getNarrativeModel();
             var form = getActiveForm();
-            if (form !== undefined) {
+            var template = getActiveTemplate();
+            if (form !== undefined && template !== undefined) {
                 var publicationKey = form.publicationKey;
                 var instanceId = form.instanceId;
-                $scope.setTemplate(publicationKey, instanceId);
+                enableSplitNarrativeFrame(instanceId);
+                setSproutTransformTemplate(template.template, instanceId)
+                //$scope.setTemplate(publicationKey, instanceId);
             }
         }
 
-        $scope.onSyncNarrativeModal = function(closeOnComplete) {
-            var narrative = getNarrativeHtml();
+        $scope.onSyncNarrative = function(callback) {
+            var form = getActiveForm();
+            if (form !== undefined) {
+                var publicationKey = form.publicationKey;
+                var instanceId = form.instanceId;
 
-            if (narrative !== undefined) {
-                var form = getActiveForm();
-                if (form !== undefined) {
-                    var publicationKey = form.publicationKey;
-                    var instanceId = form.instanceId;
-                    transformService.saveTemplate({publicationKey: publicationKey, instanceId: instanceId, template: syncNarrativeTemplate(), templateKey: null, masterInd: false}, function(data) {
+                var narrative = getNarrativeHtml(instanceId);
+                syncNarrativeTemplate(instanceId);
+                var template = stripNarrativeTextEditable(instanceId);
+
+                if (narrative !== undefined) {
+                    transformService.saveTemplate({publicationKey: publicationKey, instanceId: instanceId, template: syncNarrativeTemplate(instanceId), templateKey: null, masterInd: false}, function(data) {
                         if (data.value == 'false') {
-                            if (closeOnComplete) $scope.narrativeModal = false;
-                            $scope.errorMessageText = "Failed to save narrative template.";
-                            $scope.errorFormModal = true;
+                            callback(false, "Failed to save narrative template.");
                         } else {
                             transformService.saveNarrative({instanceId: instanceId, narrative: narrative, format: "HTML"}, function(data) {
                                 if (data.value == 'false') {
-                                    if (closeOnComplete) $scope.narrativeModal = false;
-                                    $scope.errorMessageText = "Failed to save narrative.";
-                                    $scope.errorFormModal = true;
+                                    callback(false, "Failed to save narrative.");
                                 } else {
-                                    if (closeOnComplete) $scope.narrativeModal = false;
+                                    setActiveTemplate(template);
+                                    callback(true);
+
                                 }
                             });
                         }
                     });
-                } else {
-                    if (closeOnComplete) $scope.narrativeModal = false;
-                    $scope.errorMessageText = "Failed to save narrative template.";
-                    $scope.errorFormModal = true;
                 }
+            } else {
+                callback(false, "Failed to save narrative template.");
             }
-        }
 
-        $scope.onCloseNarrativeModal = function() {
-            $scope.onSyncNarrativeModal(true);
         }
 
         $scope.onCloseErrorModal = function() {
@@ -1084,8 +1091,17 @@ angular.module('sproutStudyApp')
             transformService.getTemplate({publicationKey: publicationKey, instanceId: instanceId}, function(data) {
                 $scope.templateKey = data.key;
                 $scope.template = data.template;
-                setSproutTransformTemplate($scope.template);
-                $scope.narrativeModal = true;
+                setSproutTransformTemplate($scope.template, instanceId);
+            });
+        }
+
+        $scope.getTemplate = function(publicationKey, instanceId, callback) {
+            transformService.getTemplate({publicationKey: publicationKey, instanceId: instanceId}, function(template) {
+                if (template !== undefined && template.key !== undefined) {
+                    callback(template);
+                } else {
+                    return callback(null);
+                }
             });
         }
 
@@ -1099,7 +1115,8 @@ angular.module('sproutStudyApp')
         }
 
         $scope.formLoadUpdate = function(instanceId) {
-            if (getActiveForm().instanceId == instanceId) $scope.formLoaded = true;
+            var form = getActiveForm();
+            if (form !== undefined && form.instanceId == instanceId) $scope.formLoaded = true;
         }
 
 
