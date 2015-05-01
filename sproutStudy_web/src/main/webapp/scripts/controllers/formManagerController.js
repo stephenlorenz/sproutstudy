@@ -8,6 +8,9 @@ angular.module('sproutStudyApp')
     $scope.form = null;
     $scope.managedForms = undefined;
 
+    $scope.formListFilter = { active: true };
+        $scope.focusedForm = undefined;
+
     cohortService.setMember({fullName: "Form Manager", id: 0, url: "forms"});
 
     $scope.saveFormMessage = undefined;
@@ -30,12 +33,19 @@ angular.module('sproutStudyApp')
         }
     }
 
+    $scope.onFocusForm = function (form) {
+        $scope.formListFilter = { formKey: form.formKey };
+        $scope.focusedForm = form;
+    }
+
+    $scope.onUnFocusForm = function () {
+        $scope.formListFilter = { active: true };
+        $scope.focusedForm = undefined;
+    }
+
     $scope.onTransformAdmin = function(form) {
         $window.sessionStorage.setItem("sproutStudyForm", JSON.stringify(form));
         formManagerService.setForm(form);
-
-        console.log("formManagerService.getForm: " + formManagerService.getForm());
-
         $location.path("/transform");
     }
 

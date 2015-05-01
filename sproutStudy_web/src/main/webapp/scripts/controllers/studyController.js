@@ -975,6 +975,18 @@ angular.module('sproutStudyApp')
             });
         };
 
+        $scope.onClearForms = function (destination) {
+
+            console.log("onClearForms.destination: " + destination);
+
+            cohortService.clearMember();
+            clearAllFormTabs();
+
+
+
+            $location.path("#/" + destination);
+        }
+
         $scope.addSubjectButton = "";
         $scope.expandAddSubjectButton =  function() {
             $scope.addSubjectButton = "  Add New Subject";
@@ -1042,7 +1054,7 @@ angular.module('sproutStudyApp')
                 var publicationKey = form.publicationKey;
                 var instanceId = form.instanceId;
                 enableSplitNarrativeFrame(instanceId);
-                setSproutTransformTemplate(template.template, instanceId)
+                setSproutTransformTemplate(template.template, instanceId);
                 //$scope.setTemplate(publicationKey, instanceId);
             }
         }

@@ -33,6 +33,11 @@ angular.module('sproutStudyApp')
             return cohortService.getMember();
         }
 
+        $scope.onClearForms = function (destination) {
+            clearAllFormTabs();
+            cohortService.clearMember();
+        }
+
         $scope.isManagerOfCohort = function() {
             var manager = false;
             var cohortCurrent = $scope.cohort;

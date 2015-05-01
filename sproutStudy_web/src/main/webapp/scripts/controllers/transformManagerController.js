@@ -108,7 +108,7 @@ angular.module('sproutStudyApp')
 //                $scope.errorMessageText = "Failed to save narrative template.";
 //                $scope.errorFormModal = true;
             } else {
-                $scope.templateKey = data.message;
+                if ($scope.templateKey !== null && data.message !== undefined && data.message !== null) $scope.templateKey = data.message;
                 $scope.templateSavedSuccessfully = true;
                 $scope.templateHasChanges = false;
 

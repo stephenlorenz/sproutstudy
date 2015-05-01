@@ -94,9 +94,9 @@
                     </a>
                     <ul class="dropdown-menu" style="min-width: 150px;">
                         <li><a href="#/" ng-click="changeCohort()" class="sproutstudy-tab-button">Change Cohort</a></li>
-                        <li><a href="#/cohorts" class="sproutstudy-tab-button" ng-show="isCohortManager()">Cohort Admin</a></li>
-                        <li><a href="#/forms" class="sproutstudy-tab-button" ng-show="isManagerOfCohort() || isAdmin()  ">Form Admin</a></li>
-                        <li><a href="#/lists" class="sproutstudy-tab-button" ng-show="isManagerOfCohort() || isAdmin()  ">List Admin</a></li>
+                        <li><a ng-href="#/cohorts" ng-click="onClearForms()" class="sproutstudy-tab-button" ng-show="isCohortManager()">Cohort Admin</a></li>
+                        <li><a ng-href="#/forms" ng-click="onClearForms()" class="sproutstudy-tab-button" ng-show="isManagerOfCohort() || isAdmin()  ">Form Admin</a></li>
+                        <li><a ng-href="#/lists" class="sproutstudy-tab-button" ng-show="isManagerOfCohort() || isAdmin()  ">List Admin</a></li>
                         <li><a id="btn_logout" href="logout">Logout</a></li>
                     <%--<li><a href="#/settings">Account Settings</a></li>--%>
                     </ul>
@@ -325,6 +325,12 @@
 
     }
 
+    function enableNarrative() {
+        if (angular.element(jQuerySprout("#studyControllerDiv")).scope() !== undefined) {
+            angular.element(jQuerySprout("#studyControllerDiv")).scope().onViewNarrative();
+        }
+    }
+
     function enableSplitNarrativeFrame(instanceId) {
         var splitter = jQuerySprout(".sprout-study-form-narrative-split-frame-" + instanceId).splitter({
             "type": "v",
@@ -419,6 +425,7 @@
 
             var targetInstanceId = targetTab.attr("instance");
             jQuerySprout(".sprout-study-form-narrative-split-frame-" + targetInstanceId).show();
+            if (targetInstanceId == 'home') jQuerySprout(".sproutstudy-content-" + targetInstanceId).show();
             angular.element(jQuerySprout("#studyControllerDiv")).scope().getSubjectInbox();
 
             if (!sproutFormsDoneInd) angular.element(jQuerySprout("#studyControllerDiv")).scope().onComposeMessage(form);
@@ -466,12 +473,23 @@
             angular.element(jQuerySprout("#transformControllerDiv")).scope().formLoadUpdate(instanceId);
             angular.element(jQuerySprout("#transformControllerDiv")).scope().onReloadModel();
             angular.element(jQuerySprout("#transformControllerDiv")).scope().$apply();
+            if (formCallbackCatalog[instanceId]) {
+                var callbackItem = formCallbackCatalog[instanceId];
+                callbackItem.hideSproutControlButtons();
+            }
         }
     }
 
-    function formSyncCallback(instanceId) {
+    function formSyncCallback(instanceId, loadingInd) {
         if (angular.element(jQuerySprout("#studyControllerDiv")).scope() !== undefined) {
             setSproutTransformTemplate(null, instanceId);
+
+            if (jQuerySprout(".sproutstudy-split-frame-content-narrative-" + instanceId).filter(":visible").length == 0 && !loadingInd) {
+                if (formCallbackCatalog[instanceId]) {
+                    var callbackItem = formCallbackCatalog[instanceId];
+                    callbackItem.narrativeUpdate("");
+                }
+            }
         } else if (angular.element(jQuerySprout("#transformControllerDiv")).scope() !== undefined) {
             angular.element(jQuerySprout("#transformControllerDiv")).scope().onSyncModel();
         }
@@ -549,14 +567,16 @@
 
     var formCallbackCatalog = {};
 
-    function getSerializedArray(getSerializedArray, narrativeUpdate, paths, instanceId) {
-        //console.log("sproutStudy.getSerializedArray.instanceId: " + instanceId);
+    function registerSproutFormsCallbackMethods(getSerializedArray, resetSignatures, paths, narrativeUpdate, hideSproutControlButtons, instanceId) {
+        //console.log("sproutStudy.registerSproutFormsCallbackMethods.instanceId: " + instanceId);
         var callbackItem = {};
         if (formCallbackCatalog[instanceId]) {
             callbackItem = formCallbackCatalog[instanceId];
         }
         callbackItem["getSerializedArray"] = getSerializedArray;
+        callbackItem["resetSignatures"] = resetSignatures;
         callbackItem["narrativeUpdate"] = narrativeUpdate;
+        callbackItem["hideSproutControlButtons"] = hideSproutControlButtons;
         callbackItem["paths"] = paths;
         formCallbackCatalog[instanceId] = callbackItem;
     }
@@ -678,6 +698,14 @@
             jQuerySprout("#sproutTransformNarrativeContent").html(narrative);
             jQuerySprout(".sprout-study-narrative-content-" + instanceId).html(narrative);
 
+
+            if (formCallbackCatalog[instanceId]) {
+                var callbackItem = formCallbackCatalog[instanceId];
+                if (narrative !== undefined && narrative.length > 0) {
+                    callbackItem.narrativeUpdate(escape(narrative));
+                }
+            }
+
             jQuerySprout(".sprout-study-narrative-content-" + instanceId).off('focus blur keyup paste change', '[contenteditable]');
 
             jQuerySprout(".sprout-study-narrative-content-" + instanceId).on('focus', '[contenteditable]', function() {
@@ -706,7 +734,7 @@
                         if (result) {
                             if (formCallbackCatalog[instanceId]) {
                                 var callbackItem = formCallbackCatalog[instanceId];
-                                callbackItem.narrativeUpdate();
+                                callbackItem.resetSignatures();
                             }
                             jQuerySprout(".sprout-study-narrative-content-save-button-" + instanceId).hide();
                         } else {

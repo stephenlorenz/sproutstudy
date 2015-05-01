@@ -1,7 +1,8 @@
 <div>
-    <legend ng-show="isManagerOfCohort() || isAdmin()">Active Form Listing for {{cohort.name}}
+    <legend ng-show="isManagerOfCohort() || isAdmin()"><span ng-show="formListFilter.active == true">Active Form Listing for {{cohort.name}}</span><span ng-show="formListFilter.active == undefined">{{focusedForm.name}} Versions</span>
         <span style="float: right;" ng-show="isManagerOfCohort() || isAdmin()">
-            <a class="btn btn-primary" ng-click="onAddForm()">Add Form</a>
+            <a class="btn btn-primary" ng-click="onAddForm()" ng-show="formListFilter.active == true">Add Form</a>
+            <a class="btn btn-success" ng-click="onUnFocusForm()" ng-show="formListFilter.active == undefined"><i class="fa fa-undo"></i> Show All Forms</a>
         </span>
     </legend>
 
@@ -9,29 +10,31 @@
     <table class="table table-condensed table-striped" ng-show="isManagerOfCohort() || isAdmin()">
         <thead class="inbox">
         <tr>
-            <th>Name</th>
+            <th ng-show="formListFilter.active == true">Name</th>
             <th>Publication Key</th>
             <th>Form Key</th>
             <th>Timestamp</th>
+            <th ng-show="formListFilter.active == undefined">Active</th>
             <th ng-show="cohort.transformEnabled == true">Transform</th>
 
-            <th style="text-align: center; width: 60px;">Delete</th>
-            <th style="text-align: center; width: 60px;">Save</th>
-            <!--<th style="text-align: center; width: 60px;">Delete</th>-->
+            <th style="text-align: center; width: 60px;" ng-show="formListFilter.active == true">Delete</th>
+            <th style="text-align: center; width: 60px;" ng-show="formListFilter.active == true">Save</th>
         </tr>
         </thead>
-        <tr ng-repeat="form in cohort.forms | filter: { active: true } | orderBy:name" >
-            <td>{{form.name}}</a></td>
-            <td><input ng-model="form.publicationKey" style="min-width: 320px; font-family: 'Courier New', Courier, monospace" ng-change="onPubIdModified(form)"></a></td>
+        <tr ng-repeat="form in cohort.forms | filter: formListFilter | orderBy:name" >
+            <td class="list-cell" ng-show="formListFilter.active == true"><a ng-href="" ng-click="onFocusForm(form)">{{form.name}}</a></td>
+            <td ng-show="formListFilter.active == true"><input ng-disabled="formListFilter.active == undefined" ng-model="form.publicationKey" style="min-width: 320px; font-family: 'Courier New', Courier, monospace" ng-change="onPubIdModified(form)"></a></td>
+            <td style="font-family: 'Courier New', Courier, monospace" ng-show="formListFilter.active == undefined">{{form.publicationKey}}</a></td>
             <td style="font-family: 'Courier New', Courier, monospace">{{form.formKey}}</a></td>
             <td>{{form.activityDate | date:'medium' }}</a></td>
+            <td ng-show="formListFilter.active == undefined" style="text-align: center;"><i class="fa fa-check-square form-active-icon" ng-show="form.active"></i></td>
             <td ng-show="cohort.transformEnabled == true" style="text-align: center; width: 80px;">
                 <button class="btn btn-mini btn-success" ng-click="onTransformAdmin(form)"><i class="fa fa-circle-o-notch"></i></button>
             </td>
-            <td style="text-align: center; width: 80px;">
+            <td style="text-align: center; width: 80px;" ng-show="formListFilter.active == true">
                 <button class="btn btn-mini btn-warning" ng-click="onDeleteForm(form.formKey)"><i class="icon-trash icon-white" style="margin-right: 0px;"></i></button>
             </td>
-            <td style="text-align: center; width: 80px;">
+            <td style="text-align: center; width: 80px;" ng-show="formListFilter.active == true">
                 <button class="btn btn-mini" ng-class="{'btn-primary': form.modified}" ng-disabled="!form.modified" ng-click="onSaveForm(form)" ></i>Save</button>
             </td>
         </tr>
