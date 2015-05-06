@@ -381,6 +381,21 @@
             <artifactId>freemarker</artifactId>
             <version>2.3.16</version>
         </dependency>
+        <dependency>
+            <groupId>edu.harvard.mgh.lcs.sprout</groupId>
+            <artifactId>sprout_ejb</artifactId>
+            <version>0.0.3-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>edu.harvard.mgh.lcs.sprout</groupId>
+            <artifactId>sprout_ejb</artifactId>
+            <version>0.0.3-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>edu.harvard.mgh.lcs.sprout</groupId>
+            <artifactId>sprout_ejb</artifactId>
+            <version>0.0.3-SNAPSHOT</version>
+        </dependency>
 
 
     </dependencies>

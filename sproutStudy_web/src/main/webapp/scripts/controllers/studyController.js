@@ -35,6 +35,7 @@ angular.module('sproutStudyApp')
         $scope.template = undefined;
 
         $scope.activeSproutInboxStatuses = null;
+        $scope.assignments = null;
 
         $scope.query = "";
 
@@ -110,7 +111,25 @@ angular.module('sproutStudyApp')
         $scope.formFilterRule = undefined;
         $scope.statusesIncomplete = null;
         $scope.allFormsFilterStatus = null;
+        $scope.allFormsFilterAssignment = undefined;
+        $scope.allFormsFilterExpirationDate = undefined;
+        $scope.allFormsFilterExpirationDateProxy = undefined;
         $scope.allFormsFilterForm = null;
+
+        $scope.$watch('allFormsFilterExpirationDateProxy', function() {
+            if ($scope.allFormsFilterExpirationDateProxy !== undefined) {
+                var year = $scope.allFormsFilterExpirationDateProxy.getFullYear();
+                var month = (1 + $scope.allFormsFilterExpirationDateProxy.getMonth()).toString();
+                month = month.length > 1 ? month : '0' + month;
+                var day = $scope.allFormsFilterExpirationDateProxy.getDate().toString();
+                day = day.length > 1 ? day : '0' + day;
+
+                $scope.allFormsFilterExpirationDate = month + '/' + day + '/' + year;
+
+                $scope.getAllForms();
+                console.log("allFormsFilterExpirationDate changed: " + $scope.allFormsFilterExpirationDate);
+            }
+        });
 
         $scope.allFormsFirstPage = function() {
             if ($scope.allFormsCurrentPage > 1) {
@@ -384,6 +403,18 @@ angular.module('sproutStudyApp')
 
         };
 
+        $scope.onFilterByAssignmentAll = function(assignment) {
+            $scope.allFormsCurrentPage = 1;
+            if (assignment !== undefined) {
+                $scope.allFormsFilterAssignment = assignment;
+            } else {
+                $scope.allFormsFilterAssignment = undefined;
+            }
+
+            $scope.getAllForms();
+
+        };
+
 //        $scope.getMutableForms = function() {
 //            $scope.mutableForms = undefined;
 //            studyService.getMutableForms({}, function(data) {
@@ -413,14 +444,22 @@ angular.module('sproutStudyApp')
             $scope.activeSproutInboxStatuses = data;
         });
 
+        $scope.getAssignments = function() {
+            studyService.getAssignments({"status": $scope.allFormsFilterStatus, "expirationDate": $scope.expirationDate}, function(data) {
+                $scope.assignments = data;
+            });
+        };
+
+        $scope.getAssignments();
+
         $scope.getAllForms = function() {
             $scope.allForms = undefined;
 
-            studyService.getAllFormsPageCount({rows: $scope.allFormsRowsPerPage, form: $scope.allFormsFilterFormPublicationKey, status: $scope.allFormsFilterStatus}, function(data) {
+            studyService.getAllFormsPageCount({rows: $scope.allFormsRowsPerPage, form: $scope.allFormsFilterFormPublicationKey, status: $scope.allFormsFilterStatus, expirationDate: $scope.allFormsFilterExpirationDate, assignment: $scope.allFormsFilterAssignment !== undefined && $scope.allFormsFilterAssignment.value !== undefined ? $scope.allFormsFilterAssignment.value : null}, function(data) {
                 $scope.allFormsPageCount = data;
             });
 
-            studyService.getAllForms({page: $scope.allFormsCurrentPage, rows: $scope.allFormsRowsPerPage, orderBy: $scope.allFormsOrderBy, orderDirection: $scope.allFormsOrderDirection, form: $scope.allFormsFilterFormPublicationKey, status: $scope.allFormsFilterStatus}, function(data) {
+            studyService.getAllForms({page: $scope.allFormsCurrentPage, rows: $scope.allFormsRowsPerPage, orderBy: $scope.allFormsOrderBy, orderDirection: $scope.allFormsOrderDirection, form: $scope.allFormsFilterFormPublicationKey, status: $scope.allFormsFilterStatus, expirationDate: $scope.allFormsFilterExpirationDate, assignment: $scope.allFormsFilterAssignment !== undefined && $scope.allFormsFilterAssignment.value !== undefined ? $scope.allFormsFilterAssignment.value : null}, function(data) {
 //                $scope.allFormsFilterFormPublicationKey = null;
 
                 $scope.allForms = data;

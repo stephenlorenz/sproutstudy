@@ -21,9 +21,10 @@ public interface SproutFormsService {
     public abstract List<FormInstanceTO> getSproutInbox(String username, CohortTO cohortTO, String[] identityArray, Set<String> publicationKeys);
     public abstract String applyForNonce(String user, String instanceId, String subjectName, String subjectId);
     public abstract List<FormInstanceTO> getMutableForms(String username, CohortTO cohortTO, Set<String> publicationKeys);
-    public List<FormInstanceTO> getAllForms(String username, CohortTO cohortTO, Set<String> publicationKeys, int page, int rows, String orderBy, String orderDirection, String status);
+    public List<FormInstanceTO> getAllForms(String username, CohortTO cohortTO, Set<String> publicationKeys, int page, int rows, String orderBy, String orderDirection, String status, String expirationDate, String assignment);
     public BooleanTO deleteForm(String instanceId);
-    public int getAllFormsPageCount(String username, CohortTO cohortTO, Set<String> publicationKeys, int rows, String status);
+    public int getAllFormsPageCount(String username, CohortTO cohortTO, Set<String> publicationKeys, int rows, String status, String expirationDate, String assignment);
     public List<NameValue> getActiveSproutInboxStatuses();
     public String getMostRecentInstanceId(String schema, String id, String publicationKey);
+    public List<NameValue> getAssignments(Set<String> publicationKeys, String status, String expirationDate);
 }

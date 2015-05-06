@@ -74,6 +74,7 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
                         List<CohortAttrTO> cohortAttrTOList = getCohortAttributes(cohortEntity);
                         cohortTO.setAttributes(cohortAttrTOList);
                         cohortTO.setForms(getCohortForms(cohortEntity));
+                        cohortTO.setLists(getCohortLists(cohortEntity));
                         cohortTO.setCohortQueryURL(getCohortAttr(cohortAttrTOList, COHORT_ATTR_QUERY_URL));
                         cohortTO.setCohortSubjectSchema(getCohortAttr(cohortAttrTOList, COHORT_ATTR_IDENTITY_SCHEMA_PRIMARY));
 
@@ -84,6 +85,58 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
         } catch (NoResultException e) {
         }
         return cohortTOList;
+    }
+
+    private List<CohortListTO> getCohortLists(CohortEntity cohortEntity) {
+        if (cohortEntity != null && cohortEntity.getCohortLists() != null && cohortEntity.getCohortLists().size() > 0) {
+            List<CohortListTO> cohortListTOList = new ArrayList<CohortListTO>();
+            for (CohortListEntity cohortListEntity : cohortEntity.getCohortLists()) {
+                CohortListTO cohortListTO = new CohortListTO();
+                cohortListTO.setId(cohortListEntity.getId() + "");
+                cohortListTO.setName(cohortListEntity.getName());
+                cohortListTO.setDescription(cohortListEntity.getDescription());
+                cohortListTO.setNameColumnTitle(cohortListEntity.getNameColumnTitle());
+                cohortListTO.setValueColumnTitle(cohortListEntity.getValueColumnTitle());
+                cohortListTO.setData(getCohortListData(cohortListEntity));
+                cohortListTO.setActivityDate(cohortListEntity.getActivityDate());
+                cohortListTOList.add(cohortListTO);
+            }
+            return cohortListTOList;
+        }
+        return null;
+    }
+
+    private List<CohortListDataTO> getCohortListData(CohortListEntity cohortListEntity) {
+        if (cohortListEntity != null && cohortListEntity.getCohortListData() != null) {
+            List<CohortListDataTO> cohortListDataTOList = new ArrayList<CohortListDataTO>();
+            for (CohortListDataEntity cohortListDataEntity : cohortListEntity.getCohortListData()) {
+                CohortListDataTO cohortListDataTO = new CohortListDataTO();
+                cohortListDataTO.setId("" + cohortListDataEntity.getId());
+                cohortListDataTO.setName(cohortListDataEntity.getName());
+                cohortListDataTO.setValue(cohortListDataEntity.getValue());
+                cohortListDataTO.setDiscriminators(getCohortListDataDiscriminators(cohortListDataEntity));
+                cohortListDataTO.setActivityDate(cohortListDataEntity.getActivityDate());
+                cohortListDataTOList.add(cohortListDataTO);
+            }
+            return cohortListDataTOList;
+        }
+        return null;
+    }
+
+    private List<CohortListDataDiscriminatorTO> getCohortListDataDiscriminators(CohortListDataEntity cohortListDataEntity) {
+        if (cohortListDataEntity != null && cohortListDataEntity.getCohortListDataDiscriminators() != null) {
+            List<CohortListDataDiscriminatorTO> cohortListDataDiscriminatorTOList = new ArrayList<CohortListDataDiscriminatorTO>();
+            for (CohortListDataDiscriminatorEntity cohortListDataDiscriminatorEntity : cohortListDataEntity.getCohortListDataDiscriminators()) {
+                CohortListDataDiscriminatorTO cohortListDataDiscriminatorTO = new CohortListDataDiscriminatorTO();
+                cohortListDataDiscriminatorTO.setId("" + cohortListDataDiscriminatorEntity.getId());
+                cohortListDataDiscriminatorTO.setName(cohortListDataDiscriminatorEntity.getCohortListDiscriminator().getName());
+                cohortListDataDiscriminatorTO.setValue(cohortListDataDiscriminatorEntity.getValue());
+                cohortListDataDiscriminatorTO.setActivityDate(cohortListDataDiscriminatorEntity.getActivityDate());
+                cohortListDataDiscriminatorTOList.add(cohortListDataDiscriminatorTO);
+            }
+            return cohortListDataDiscriminatorTOList;
+        }
+        return null;
     }
 
     private String getCohortAttr(List<CohortAttrTO> cohortAttrTOList, String attrKey) {

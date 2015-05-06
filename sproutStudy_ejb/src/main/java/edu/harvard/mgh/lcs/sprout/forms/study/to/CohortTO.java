@@ -13,6 +13,7 @@ public class CohortTO implements Serializable {
     private Date activityDate;
     private List<CohortAttrTO> attributes;
     private List<CohortFormTO> forms;
+    private List<CohortListTO> lists;
     private String cohortQueryURL;
     private String cohortSubjectSchema;
     private boolean active;
@@ -85,6 +86,18 @@ public class CohortTO implements Serializable {
 
     public String getCohortKey() {
         return cohortKey;
+    }
+
+    public List<CohortListTO> getLists() {
+        return lists;
+    }
+
+    public void setLists(List<CohortListTO> lists) {
+        this.lists = lists;
+    }
+
+    public void setTransformEnabled(boolean transformEnabled) {
+        this.transformEnabled = transformEnabled;
     }
 
     public void setCohortKey(String cohortKey) {

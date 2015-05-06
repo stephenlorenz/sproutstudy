@@ -117,12 +117,12 @@ public interface ApiWS {
     @GET
     @Path("/secure/getAllForms")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<FormInstanceTO> getAllForms(@Context HttpServletRequest request, @QueryParam("page") int page, @QueryParam("rows") int rows, @QueryParam("orderBy") String orderBy, @QueryParam("orderDirection") String orderDirection, @QueryParam("form") String publicationKey, @QueryParam("status") String status) throws InvalidSessionRESTful;
+    public List<FormInstanceTO> getAllForms(@Context HttpServletRequest request, @QueryParam("page") int page, @QueryParam("rows") int rows, @QueryParam("orderBy") String orderBy, @QueryParam("orderDirection") String orderDirection, @QueryParam("form") String publicationKey, @QueryParam("status") String status, @QueryParam("expirationDate") String expirationDate, @QueryParam("assignment") String assignment) throws InvalidSessionRESTful;
 
     @GET
     @Path("/secure/getAllFormsPageCount")
     @Produces(MediaType.APPLICATION_JSON)
-    public int getAllFormsPageCount(@Context HttpServletRequest request, @QueryParam("rows") int rows, @QueryParam("form") String publicationKey, @QueryParam("status") String status) throws InvalidSessionRESTful;
+    public int getAllFormsPageCount(@Context HttpServletRequest request, @QueryParam("rows") int rows, @QueryParam("form") String publicationKey, @QueryParam("status") String status, @QueryParam("expirationDate") String expirationDate, @QueryParam("assignment") String assignment) throws InvalidSessionRESTful;
 
     @GET
     @Path("/secure/getRecentCohortMembers")
@@ -249,4 +249,9 @@ public interface ApiWS {
     @Produces(MediaType.APPLICATION_JSON)
     public BooleanTO saveNarrative(@Context HttpServletRequest request, @QueryParam("instanceId") String instanceId, @QueryParam("narrative") String narrative, @QueryParam("format") String format) throws InvalidSessionRESTful;
 
-}
+    @GET
+    @Path("/secure/getAssignments")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.NameValue> getAssignments(@Context HttpServletRequest request, @QueryParam("status") String status, @QueryParam("expirationDate") String expirationDate) throws InvalidSessionRESTful;
+
+    }

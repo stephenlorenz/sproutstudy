@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.harvard.mgh.lcs.sprout.forms.core.ejb.bean.FormsWebServiceImplService;
 import edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.*;
+import edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.NameValue;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.*;
 import edu.harvard.mgh.lcs.sprout.forms.study.beanws.Result;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.BooleanTO;
@@ -12,6 +13,7 @@ import edu.harvard.mgh.lcs.sprout.forms.study.to.CohortTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.SproutStudyPayloadTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.util.DateUtils;
 import edu.harvard.mgh.lcs.sprout.forms.study.util.StringUtils;
+import edu.harvard.mgh.lcs.sprout.forms.utils.*;
 import edu.harvard.mgh.lcs.sprout.study.model.formSubmission.AssertionEntity;
 import edu.harvard.mgh.lcs.sprout.study.model.formSubmission.SubmissionEntity;
 import edu.harvard.mgh.lcs.sprout.study.model.study.CohortAttrEntity;
@@ -365,7 +367,7 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
     }
 
     @Override
-    public int getAllFormsPageCount(String username, CohortTO cohortTO, Set<String> publicationKeys, int rows, String status) {
+    public int getAllFormsPageCount(String username, CohortTO cohortTO, Set<String> publicationKeys, int rows, String status, String expirationDate, String assignment) {
         if (publicationKeys != null && publicationKeys.size() > 0 && cohortTO != null) {
 
             List<String> publicationKeysList = new ArrayList<String>();
@@ -379,9 +381,21 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
 
                 if (!StringUtils.isEmpty(orgAuthKey)) {
 
+                    String schema = getCohortPrimaryIdentitySchema(cohortTO);
+
 //                    auditService.log(username, AuditType.GET_INBOX, SproutStudyConstantService.AuditVerbosity.INFO, "Retrieving subject inbox", cohortTO, cohortPrimaryIdentitySchema, cohortPrimaryIdentityId, String.format("Retrieving subject, %s, inbox.", getIdentityArrayAsString(identityArray)));
 
-                    return formsWebService.getPageCountByPublications(orgAuthKey, publicationKeysList, rows, status);
+                    List<IdentityTO> identities= null;
+
+                    if (StringUtils.isFull(assignment) && !assignment.equalsIgnoreCase("null")) {
+                        identities = new ArrayList<IdentityTO>();
+                        IdentityTO identityMrn = new IdentityTO();
+                        identityMrn.setScheme("partnerscn");
+                        identityMrn.setId(assignment);
+                        identities.add(identityMrn);
+                    }
+
+                    return formsWebService.getPageCountByPublications(orgAuthKey, publicationKeysList, rows, status, schema, expirationDate, identities);
                 }
             }
         }
@@ -389,7 +403,23 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
     }
 
     @Override
-    public List<FormInstanceTO> getAllForms(String username, CohortTO cohortTO, Set<String> publicationKeys, int page, int rows, String orderBy, String orderDirection, String status) {
+    public List<NameValue> getAssignments(Set<String> publicationKeys, String status, String expirationDate) {
+        if (publicationKeys != null && publicationKeys.size() > 0) {
+
+            List<String> publicationKeysList = new ArrayList<String>();
+            for (String publicationKey : publicationKeys) publicationKeysList.add(publicationKey);
+
+            if (formsWebService == null) init();
+
+            if (formsWebService != null) {
+                return formsWebService.getAssignments(publicationKeysList, status, expirationDate);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public List<FormInstanceTO> getAllForms(String username, CohortTO cohortTO, Set<String> publicationKeys, int page, int rows, String orderBy, String orderDirection, String status, String expirationDate, String assignment) {
 
         if (publicationKeys != null && publicationKeys.size() > 0 && cohortTO != null) {
 
@@ -406,7 +436,19 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
 
 //                    auditService.log(username, AuditType.GET_INBOX, SproutStudyConstantService.AuditVerbosity.INFO, "Retrieving subject inbox", cohortTO, cohortPrimaryIdentitySchema, cohortPrimaryIdentityId, String.format("Retrieving subject, %s, inbox.", getIdentityArrayAsString(identityArray)));
 
-                    FormDeliveryTO formDeliveryTO = formsWebService.getFormsByPublications(orgAuthKey, publicationKeysList, page, rows, orderBy, orderDirection, status);
+                    String schema = getCohortPrimaryIdentitySchema(cohortTO);
+
+                    List<IdentityTO> identities= null;
+
+                    if (StringUtils.isFull(assignment) && !assignment.equalsIgnoreCase("null")) {
+                        identities = new ArrayList<IdentityTO>();
+                        IdentityTO identityMrn = new IdentityTO();
+                        identityMrn.setScheme("partnerscn");
+                        identityMrn.setId(assignment);
+                        identities.add(identityMrn);
+                    }
+
+                    FormDeliveryTO formDeliveryTO = formsWebService.getFormsByPublications(orgAuthKey, publicationKeysList, page, rows, orderBy, orderDirection, status, schema, expirationDate, identities);
 //                    FormDeliveryTO formDeliveryTO = formsWebService.getFormsByPublications(orgAuthKey, publicationKeysList, page, rows);
 
                     int hasSubjectIds = 0;
