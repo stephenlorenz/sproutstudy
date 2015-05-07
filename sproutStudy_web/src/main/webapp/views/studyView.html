@@ -386,15 +386,15 @@
     </div>
 
     <div modal="deleteFormModal" close="onCloseDeleteFormModal()" options="modalSmallOpts">
-        <div class="modal-header">
-            <h4>Delete Form?</h4>
+        <div class="modal-header" ng-class="{'alert alert-danger': deleteFormButtonText == undefined}" ng-style="deleteFormButtonText == undefined && {'padding-top': '20px', 'padding-bottom': '20px'}">
+            <h4>{{deleteMessageTitle}}</h4>
         </div>
         <div class="modal-body modal-body-short">
             <h4>{{deleteMessageText}}</h4>
         </div>
         <div class="modal-footer">
-            <button class="btn cancel" ng-click="onCloseDeleteFormModal()">Cancel</button>
-            <button class="btn btn-primary" ng-disabled="deletingForm" ng-click="onDeleteForm()">{{deleteFormButtonText}}</button>
+            <button class="btn cancel" ng-click="onCloseDeleteFormModal()">Close</button>
+            <button class="btn btn-primary" ng-disabled="deletingForm" ng-click="onDeleteForm()" ng-show="deleteFormButtonText != undefined">{{deleteFormButtonText}}</button>
         </div>
     </div>
 </div>

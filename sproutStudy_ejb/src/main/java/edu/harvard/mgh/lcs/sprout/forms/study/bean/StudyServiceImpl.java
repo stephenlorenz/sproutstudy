@@ -13,6 +13,7 @@ import edu.harvard.mgh.lcs.sprout.forms.study.exception.UnauthorizedActionExcept
 import edu.harvard.mgh.lcs.sprout.forms.study.to.*;
 import edu.harvard.mgh.lcs.sprout.forms.study.util.StringUtils;
 import edu.harvard.mgh.lcs.sprout.study.model.study.*;
+import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
 
@@ -27,6 +28,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -600,10 +602,10 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
     }
 
     @Override
-    public BooleanTO deleteSubmission(CohortTO cohortTO, String instanceId) {
+    public BooleanTO deleteSubmission(SessionTO sessionTO, CohortTO cohortTO, String instanceId) {
         GetMethod getMethod = null;
         try {
-            String queryUrl = String.format(cohortTO.getCohortQueryURL() + "&mode=delete", URLEncoder.encode(instanceId, "UTF-8"));
+            String queryUrl = String.format(cohortTO.getCohortQueryURL() + String.format("&mode=delete&uid=%s", sessionTO.getUser()), URLEncoder.encode(instanceId, "UTF-8"));
 
             HttpClient httpClient = new HttpClient();
             //				client.getState().setCredentials(
@@ -615,7 +617,7 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
             getMethod = new GetMethod(queryUrl);
             int status = httpClient.executeMethod(getMethod);
 
-            if (status == 200) {
+            if (status == HttpServletResponse.SC_OK) {
                 String response = getMethod.getResponseBodyAsString();
                 if (!StringUtils.isEmpty(response)) {
                     List<Result> results = new ObjectMapper().readValue(response, new TypeReference<List<Result>>() {});
@@ -623,11 +625,18 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
                         Result result = results.get(0);
                         if (result != null && result.getId().equalsIgnoreCase("true")) {
                             return new BooleanTO(true);
+                        } else if (result != null) {
+                            return new BooleanTO(false, result.getFullName());
                         }
                         return new BooleanTO(false);
                     } else {
                         return new BooleanTO(false);
                     }
+                }
+            } else if (status == HttpServletResponse.SC_INTERNAL_SERVER_ERROR) {
+                Header sproutExceptionDetailsHeader = getMethod.getResponseHeader("sproutExceptionDetails");
+                if (sproutExceptionDetailsHeader != null) {
+                    return new BooleanTO(false, sproutExceptionDetailsHeader.getValue());
                 }
             }
 

@@ -22,6 +22,7 @@ angular.module('sproutStudyApp')
         $scope.sendingMessage = false;
 
         $scope.deleteFormButtonText = "Delete";
+        $scope.deleteMessageTitle = "Delete Form?";
         $scope.deletingMessage = false;
 
         $scope.allFormsCurrentPage = 1;
@@ -687,13 +688,19 @@ angular.module('sproutStudyApp')
             $scope.deleteFormButtonText = "Deleting";
             $scope.deletingForm = true;
             $scope.deleteMessageText = "Deleting form...please wait...";
+            $scope.deleteMessageTitle = "Deleting...";
+
 
             studyService.deleteSubmission({instanceId: $scope.deleteFormInstance}, function(data) {
                 if (data.value == 'false') {
+                    $scope.deleteMessageText = data.message;
+                    $scope.deleteFormButtonText = undefined;
+                    $scope.deleteMessageTitle = "Failed to delete form.";
                 } else {
                     $scope.getSubjectInbox();
+                    $scope.onCloseDeleteFormModal();
                 }
-                $scope.onCloseDeleteFormModal();
+
             });
 
         }
@@ -995,6 +1002,7 @@ angular.module('sproutStudyApp')
         $scope.onDeleteSubmission = function (instanceId) {
             $scope.deleteFormInstance = instanceId;
             $scope.deleteMessageText = "Are you sure you want to delete this form?  This action cannot be undone!";
+            $scope.deleteMessageTitle = "Delete Form?";
             $scope.deleteFormButtonText = "Delete";
             $scope.deletingForm = false;
             $scope.deleteFormModal = true;

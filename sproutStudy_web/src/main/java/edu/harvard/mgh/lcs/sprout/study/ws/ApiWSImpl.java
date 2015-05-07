@@ -113,9 +113,11 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
         SessionTO sessionTO = getSessionTO(request);
         if (sessionTO != null) {
             CohortTO cohortTO = getLastSelectedCohort(request);
-            BooleanTO booleanTO = studyService.deleteSubmission(cohortTO, instanceId);
+            BooleanTO booleanTO = studyService.deleteSubmission(sessionTO, cohortTO, instanceId);
             if (booleanTO.isTrue()) {
                 return sproutFormsService.deleteForm(instanceId);
+            } else {
+                return booleanTO;
             }
         }
         return new BooleanTO(false);
