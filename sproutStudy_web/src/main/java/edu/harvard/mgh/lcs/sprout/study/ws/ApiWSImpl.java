@@ -3,10 +3,10 @@ package edu.harvard.mgh.lcs.sprout.study.ws;
 import edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.*;
 import edu.harvard.mgh.lcs.sprout.forms.study.beanws.Result;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.*;
-import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.SproutStudyConstantService.SubmissionStatus;
 import edu.harvard.mgh.lcs.sprout.forms.study.exception.InvalidSessionRESTful;
 import edu.harvard.mgh.lcs.sprout.forms.study.exception.UnauthorizedActionException;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.*;
+import edu.harvard.mgh.lcs.sprout.forms.study.to.NameValue;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.PublicationTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.util.StringUtils;
 import edu.harvard.mgh.lcs.sprout.study.web.security.SproutStudyUserDetails;
@@ -27,7 +27,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.jar.Attributes;
 
 @ApplicationPath("api")
 @Named
@@ -153,6 +152,15 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
         }
         return null;
     }
+    @Override
+    @WebMethod(operationName = "getUserPreferences")
+    public List<NameValue> getUserPreferences(@Context HttpServletRequest request) throws InvalidSessionRESTful {
+        SessionTO sessionTO = getSessionTO(request);
+        if (sessionTO != null) {
+            return studyService.getUserPreferences(sessionTO.getUser());
+        }
+        return null;
+    }
 
     @Override
     @WebMethod(operationName="getSproutInbox")
@@ -235,7 +243,7 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
     }
     @Override
     @WebMethod(operationName="getAllForms")
-    public List<FormInstanceTO> getAllForms(@Context HttpServletRequest request, @QueryParam("page") int page, @QueryParam("rows") int rows, @QueryParam("orderBy") String orderBy, @QueryParam("orderDirection") String orderDirection, @QueryParam("form") String publicationKey, @QueryParam("status") String status, @QueryParam("expirationDate") String expirationDate, @QueryParam("assignment") String assignment) throws InvalidSessionRESTful {
+    public List<FormInstanceTO> getAllForms(@Context HttpServletRequest request, @QueryParam("page") int page, @QueryParam("rows") int rows, @QueryParam("orderBy") String orderBy, @QueryParam("orderDirection") String orderDirection, @QueryParam("form") String publicationKey, @QueryParam("status") String status, @QueryParam("targetDate") String targetDate, @QueryParam("assignment") String assignment) throws InvalidSessionRESTful {
 
         SessionTO sessionTO = getSessionTO(request);
         if (sessionTO != null) {
@@ -251,7 +259,7 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
                             for (CohortFormTO cohortFormTO : cohortFormTOList) {
                                 if (publicationKeySet.contains(cohortFormTO.getPublicationKey())) publicationKeys.add(cohortFormTO.getPublicationKey());
                             }
-                            return sproutFormsService.getAllForms(sessionTO.getUser(), sessionTO.getCohortTO(), publicationKeys, page, rows, orderBy, orderDirection, status, expirationDate, assignment);
+                            return sproutFormsService.getAllForms(sessionTO.getUser(), sessionTO.getCohortTO(), publicationKeys, page, rows, orderBy, orderDirection, status, targetDate, assignment);
                         }
                     }
                 } else {
@@ -259,7 +267,7 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
                         for (CohortFormTO cohortFormTO : cohortFormTOList) {
                             publicationKeys.add(cohortFormTO.getPublicationKey());
                         }
-                        return sproutFormsService.getAllForms(sessionTO.getUser(), sessionTO.getCohortTO(), publicationKeys, page, rows, orderBy, orderDirection, status, expirationDate, assignment);
+                        return sproutFormsService.getAllForms(sessionTO.getUser(), sessionTO.getCohortTO(), publicationKeys, page, rows, orderBy, orderDirection, status, targetDate, assignment);
                     }
                 }
             }
@@ -278,7 +286,7 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
 
     @Override
     @WebMethod(operationName="getAssignments")
-    public List<edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.NameValue> getAssignments(@Context HttpServletRequest request, @QueryParam("status") String status, @QueryParam("expirationDate") String expirationDate) throws InvalidSessionRESTful {
+    public List<edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.NameValue> getAssignments(@Context HttpServletRequest request, @QueryParam("status") String status, @QueryParam("targetDate") String targetDate) throws InvalidSessionRESTful {
         SessionTO sessionTO = getSessionTO(request);
         if (sessionTO != null) {
             CohortTO cohortTO = getLastSelectedCohort(request);
@@ -289,7 +297,12 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
                     for (CohortFormTO cohortFormTO : cohortFormTOList) {
                         publicationKeys.add(cohortFormTO.getPublicationKey());
                     }
-                    return sproutFormsService.getAssignments(publicationKeys, status, expirationDate);
+                    List<edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.NameValue> assignments = sproutFormsService.getAssignments(publicationKeys, status, targetDate);
+                    edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.NameValue me = new edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.NameValue();
+                    me.setName("me");
+                    me.setValue(sessionTO.getUser());
+                    assignments.add(0, me);
+                    return assignments;
                 }
             }
         }
@@ -298,7 +311,7 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
 
     @Override
     @WebMethod(operationName="getAllFormsPageCount")
-    public int getAllFormsPageCount(@Context HttpServletRequest request, @QueryParam("rows") int rows, @QueryParam("form") String publicationKey, @QueryParam("status") String status, @QueryParam("expirationDate") String expirationDate, @QueryParam("assignment") String assignment) throws InvalidSessionRESTful {
+    public int getAllFormsPageCount(@Context HttpServletRequest request, @QueryParam("rows") int rows, @QueryParam("form") String publicationKey, @QueryParam("status") String status, @QueryParam("targetDate") String targetDate, @QueryParam("assignment") String assignment) throws InvalidSessionRESTful {
         SessionTO sessionTO = getSessionTO(request);
         if (sessionTO != null) {
             CohortTO cohortTO = getLastSelectedCohort(request);
@@ -312,7 +325,7 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
                             for (CohortFormTO cohortFormTO : cohortFormTOList) {
                                 if (publicationKeySet.contains(cohortFormTO.getPublicationKey())) publicationKeys.add(cohortFormTO.getPublicationKey());
                             }
-                            return sproutFormsService.getAllFormsPageCount(sessionTO.getUser(), sessionTO.getCohortTO(), publicationKeys, rows, status, expirationDate, assignment);
+                            return sproutFormsService.getAllFormsPageCount(sessionTO.getUser(), sessionTO.getCohortTO(), publicationKeys, rows, status, targetDate, assignment);
                         }
                     }
                 } else {
@@ -320,12 +333,44 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
                         for (CohortFormTO cohortFormTO : cohortFormTOList) {
                             publicationKeys.add(cohortFormTO.getPublicationKey());
                         }
-                        return sproutFormsService.getAllFormsPageCount(sessionTO.getUser(), sessionTO.getCohortTO(), publicationKeys, rows, status, expirationDate, assignment);
+                        return sproutFormsService.getAllFormsPageCount(sessionTO.getUser(), sessionTO.getCohortTO(), publicationKeys, rows, status, targetDate, assignment);
                     }
                 }
             }
         }
         return 1;
+    }
+
+    @Override
+    @WebMethod(operationName="getAllFormsMetadata")
+    public FormListMetadataTO getAllFormsMetadata(@Context HttpServletRequest request, @QueryParam("rows") int rows, @QueryParam("form") String publicationKey, @QueryParam("status") String status, @QueryParam("targetDate") String targetDate, @QueryParam("assignment") String assignment) throws InvalidSessionRESTful {
+        SessionTO sessionTO = getSessionTO(request);
+        if (sessionTO != null) {
+            CohortTO cohortTO = getLastSelectedCohort(request);
+            if (cohortTO != null) {
+                List<CohortFormTO> cohortFormTOList = cohortTO.getForms();
+                Set<String> publicationKeys = new HashSet<String>();
+                if (StringUtils.isFull(publicationKey) && !publicationKey.equalsIgnoreCase("null")) {
+                    Set<String> publicationKeySet = studyService.getPublicationKeysFromPublicationKey(publicationKey);
+                    if (publicationKeySet != null && publicationKeySet.size() > 0) {
+                        if (cohortFormTOList != null && cohortFormTOList.size() > 0) {
+                            for (CohortFormTO cohortFormTO : cohortFormTOList) {
+                                if (publicationKeySet.contains(cohortFormTO.getPublicationKey())) publicationKeys.add(cohortFormTO.getPublicationKey());
+                            }
+                            return sproutFormsService.getAllFormsMetadata(sessionTO.getUser(), sessionTO.getCohortTO(), publicationKeys, rows, status, targetDate, assignment);
+                        }
+                    }
+                } else {
+                    if (cohortFormTOList != null && cohortFormTOList.size() > 0) {
+                        for (CohortFormTO cohortFormTO : cohortFormTOList) {
+                            publicationKeys.add(cohortFormTO.getPublicationKey());
+                        }
+                        return sproutFormsService.getAllFormsMetadata(sessionTO.getUser(), sessionTO.getCohortTO(), publicationKeys, rows, status, targetDate, assignment);
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     @Override
@@ -426,6 +471,33 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
         return null;
     }
 
+
+
+
+	@Override
+	@WebMethod(operationName="setSessionFormFilter")
+    public BooleanTO setSessionFormFilter(@Context HttpServletRequest request, @QueryParam("formFilter") String formFilter, @QueryParam("assignmentFilter") String assignmentFilter, @QueryParam("statusFilter") String statusFilter, @QueryParam("targetDateFilter") String targetDateFilter) throws InvalidSessionRESTful {
+		SessionTO sessionTO = getSessionTO(request);
+		if (sessionTO != null) {
+            studyService.persistUserPreference(sessionTO.getUser(), StudyService.USER_PREFERENCE_FORM_FILTER_FORM, formFilter);
+            studyService.persistUserPreference(sessionTO.getUser(), StudyService.USER_PREFERENCE_FORM_FILTER_ASSIGNED_TO, assignmentFilter);
+            studyService.persistUserPreference(sessionTO.getUser(), StudyService.USER_PREFERENCE_FORM_FILTER_STATUS, statusFilter);
+            studyService.persistUserPreference(sessionTO.getUser(), StudyService.USER_PREFERENCE_FORM_FILTER_STUDY_DATE, targetDateFilter);
+            return new BooleanTO(true);
+		}
+		return new BooleanTO(false);
+	}
+
+	@Override
+	@WebMethod(operationName="setDefaultTab")
+    public BooleanTO setDefaultTab(@Context HttpServletRequest request, @QueryParam("defaultTab") String defaultTab) throws InvalidSessionRESTful {
+		SessionTO sessionTO = getSessionTO(request);
+		if (sessionTO != null) {
+            studyService.persistUserPreference(sessionTO.getUser(), StudyService.USER_PREFERENCE_DEFAULT_TAB, defaultTab);
+            return new BooleanTO(true);
+		}
+		return new BooleanTO(false);
+	}
 
 	@Override
 	@WebMethod(operationName="setSessionCohort")
@@ -700,6 +772,15 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
             } else {
                 return booleanTO;
             }
+        }
+        return new BooleanTO(false);
+    }
+
+    @Override
+    public BooleanTO persistFormAttribute(HttpServletRequest request, String cohortKey, String formKey, String attributeKey, String attributeValue) throws InvalidSessionRESTful, UnauthorizedActionException {
+        SessionTO sessionTO = getSessionTO(request);
+        if (sessionTO != null) {
+            return studyService.persistFormAttribute(sessionTO, cohortKey, formKey, attributeKey, attributeValue);
         }
         return new BooleanTO(false);
     }

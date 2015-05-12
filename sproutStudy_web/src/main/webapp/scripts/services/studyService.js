@@ -88,6 +88,11 @@ angular.module('sproutStudyApp')
                     callback(response.data);
                 });
             },
+            getAllFormsMetadata: function (params, callback) {
+                $http.get(networkService.generateUrl("getAllFormsMetadata", params)).then(function (response) {
+                    callback(response.data);
+                });
+            },
             getCohortAuthorizations: function (params, callback) {
                 $http.get(networkService.generateUrl("getCohortAuthorizations", params)).then(function (response) {
                     callback(response.data);
@@ -130,6 +135,21 @@ angular.module('sproutStudyApp')
             },
             setSessionCohort: function (params, callback) {
                 $http.get(networkService.generateUrl("setSessionCohort", params)).then(function (response) {
+                    callback(response.data);
+                });
+            },
+            setSessionFormFilter: function (params, callback) {
+                $http.get(networkService.generateUrl("setSessionFormFilter", params)).then(function (response) {
+                    callback(response.data);
+                });
+            },
+            getUserPreferences: function (params, callback) {
+                $http.get(networkService.generateUrl("getUserPreferences", params)).then(function (response) {
+                    callback(response.data);
+                });
+            },
+            setDefaultTab: function (params, callback) {
+                $http.get(networkService.generateUrl("setDefaultTab", params)).then(function (response) {
                     callback(response.data);
                 });
             },

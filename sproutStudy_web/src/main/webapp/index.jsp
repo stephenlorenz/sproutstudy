@@ -136,6 +136,7 @@
 <script src="/sproutassets/components/angular-strap/angular-strap.js"></script>
 <script src="/sproutassets/components/angular-strap/bootstrap-datepicker.js"></script>
 <script type="text/javascript" src="assets/components/angular-ui-ace/ui-ace.min.js"></script>
+<script type="text/javascript" src="assets/components/angular-bootstrap-contextmenu/contextMenu.js"></script>
 
 <script src="assets/scripts/external/splitter/js/splitter.js"></script>
 <script src="assets/scripts/external/splitterJQuery/splitter.js"></script>
@@ -402,6 +403,10 @@
                 jQuerySprout(".sproutstudy-content-home").show();
                 jQuerySprout('#modal-wait').modal('hide');
             }
+
+
+
+
         }
 
         angular.element(jQuerySprout("#studyControllerDiv")).scope().getAllForms();
@@ -413,26 +418,33 @@
         var instanceId = jQuerySprout(".sproutstudy-tab-li.active").attr("instance");
         var form = jQuerySprout(".sproutstudy-tab-li.active").data("form");
 
-        if (instanceId != null && instanceId != 'home') {
-            var sourceTab = jQuerySprout(".sproutstudy-tab-" + instanceId);
-            var targetTab = jQuerySprout(".sproutstudy-tab-" + instanceId).prev();
+        var destination = form.destination;
 
-            jQuerySprout(".sprout-study-form-narrative-split-frame-" + instanceId).remove();
-
-            sourceTab.remove();
-            targetTab.addClass("active");
-            updateTransformButton(targetTab, true);
-
-            var targetInstanceId = targetTab.attr("instance");
-            jQuerySprout(".sprout-study-form-narrative-split-frame-" + targetInstanceId).show();
-            if (targetInstanceId == 'home') jQuerySprout(".sproutstudy-content-" + targetInstanceId).show();
-            angular.element(jQuerySprout("#studyControllerDiv")).scope().getSubjectInbox();
-
+        if (destination !== undefined && destination == 'HOME') {
             if (!sproutFormsDoneInd) angular.element(jQuerySprout("#studyControllerDiv")).scope().onComposeMessage(form);
+            angular.element(jQuerySprout("#studyControllerDiv")).scope().enableSearch();
         } else {
-            // demographic form was just submitted
-            instanceId = jQuerySprout(".iframe-demographic-form-content").attr("instanceId");
-            angular.element(jQuerySprout("#studyControllerDiv")).scope().setNewSubject(id, instanceId);
+            if (instanceId != null && instanceId != 'home') {
+                var sourceTab = jQuerySprout(".sproutstudy-tab-" + instanceId);
+                var targetTab = jQuerySprout(".sproutstudy-tab-" + instanceId).prev();
+
+                jQuerySprout(".sprout-study-form-narrative-split-frame-" + instanceId).remove();
+
+                sourceTab.remove();
+                targetTab.addClass("active");
+                updateTransformButton(targetTab, true);
+
+                var targetInstanceId = targetTab.attr("instance");
+                jQuerySprout(".sprout-study-form-narrative-split-frame-" + targetInstanceId).show();
+                if (targetInstanceId == 'home') jQuerySprout(".sproutstudy-content-" + targetInstanceId).show();
+                angular.element(jQuerySprout("#studyControllerDiv")).scope().getSubjectInbox();
+
+                if (!sproutFormsDoneInd) angular.element(jQuerySprout("#studyControllerDiv")).scope().onComposeMessage(form);
+            } else {
+                // demographic form was just submitted
+                instanceId = jQuerySprout(".iframe-demographic-form-content").attr("instanceId");
+                angular.element(jQuerySprout("#studyControllerDiv")).scope().setNewSubject(id, instanceId);
+            }
         }
 
         angular.element(jQuerySprout("#studyControllerDiv")).scope().getAllForms();

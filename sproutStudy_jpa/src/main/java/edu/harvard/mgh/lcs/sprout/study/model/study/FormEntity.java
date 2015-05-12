@@ -52,7 +52,7 @@ public class FormEntity implements Serializable {
     @OneToMany(targetEntity=CohortFormEntity.class, mappedBy="form", cascade=CascadeType.MERGE)
     private List<CohortFormEntity> cohortForms = new ArrayList<CohortFormEntity>();
 
-    @OneToMany(targetEntity=FormAttrEntity.class, mappedBy="form", cascade=CascadeType.MERGE)
+    @OneToMany(targetEntity=FormAttrEntity.class, mappedBy="form", cascade=CascadeType.MERGE, fetch = FetchType.EAGER)
     private Set<FormAttrEntity> formAttributes = new HashSet<FormAttrEntity>();
 
     public int getId() {

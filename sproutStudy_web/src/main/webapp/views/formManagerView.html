@@ -14,9 +14,9 @@
             <th>Publication Key</th>
             <th>Form Key</th>
             <th>Timestamp</th>
+            <th style="text-align: center; width: 60px;">Return<br/>Home?</th>
             <th ng-show="formListFilter.active == undefined">Active</th>
             <th ng-show="cohort.transformEnabled == true">Transform</th>
-
             <th style="text-align: center; width: 60px;" ng-show="formListFilter.active == true">Delete</th>
             <th style="text-align: center; width: 60px;" ng-show="formListFilter.active == true">Save</th>
         </tr>
@@ -27,6 +27,7 @@
             <td style="font-family: 'Courier New', Courier, monospace" ng-show="formListFilter.active == undefined">{{form.publicationKey}}</a></td>
             <td style="font-family: 'Courier New', Courier, monospace">{{form.formKey}}</a></td>
             <td>{{form.activityDate | date:'medium' }}</a></td>
+            <td style="text-align: center; width: 60px;"><input ng-model="form.returnToHome" id="manager" rautocomplete="false" class="field-label message-text" ng-change="onReturnToHomeUpdate(form)" type="checkbox" /></td>
             <td ng-show="formListFilter.active == undefined" style="text-align: center;"><i class="fa fa-check-square form-active-icon" ng-show="form.active"></i></td>
             <td ng-show="cohort.transformEnabled == true" style="text-align: center; width: 80px;">
                 <button class="btn btn-mini btn-success" ng-click="onTransformAdmin(form)"><i class="fa fa-circle-o-notch"></i></button>

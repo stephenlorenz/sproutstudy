@@ -107,6 +107,28 @@ angular.module('sproutStudyApp')
 
     };
 
+    $scope.onReturnToHomeUpdate = function (form) {
+        var returnToHome = '';
+
+        if (form.returnToHome) returnToHome = 'HOME';
+
+        formManagerService.persistFormAttribute({"formKey": form.formKey, "cohort": $scope.cohort.cohortKey, "attributeKey": 'DESTINATION', "attributeValue": returnToHome}, function(data) {
+            if (data.value != 'true') {
+                $scope.saveFormMessage = data.message;
+            } else {
+                studyService.getCohortByKey({"cohortKey": $scope.cohort.cohortKey}, function(cohort) {
+                    $scope.cohort = cohort;
+                    cohortService.setCohort(cohort);
+                    formManagerService.setCohort(cohortService.getCohort());
+                    $window.sessionStorage.setItem("sproutStudyCohort", JSON.stringify($scope.cohort));
+                    $location.path("/forms");
+                });
+
+            }
+        });
+
+    };
+
     $scope.onSaveNewForm = function() {
         formManagerService.saveForm({"formKey": $scope.form.formKey, "publicationKey": $scope.form.publicationKey, "name": $scope.form.name, "demographicInd": $scope.form.demographicInd, "cohort": $scope.cohort.cohortKey}, function(data) {
             if (data.value == 'true') {

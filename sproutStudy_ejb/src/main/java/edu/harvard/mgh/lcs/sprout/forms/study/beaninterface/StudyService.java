@@ -4,6 +4,7 @@ import edu.harvard.mgh.lcs.sprout.forms.study.beanws.Result;
 import edu.harvard.mgh.lcs.sprout.forms.study.exception.UnauthorizedActionException;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.*;
 import edu.harvard.mgh.lcs.sprout.study.model.study.CohortEntity;
+import edu.harvard.mgh.lcs.sprout.study.model.study.FormAttrEntity;
 
 import javax.jms.Session;
 import java.util.List;
@@ -11,6 +12,11 @@ import java.util.Set;
 
 public interface StudyService {
     public static final String USER_PREFERENCE_COHORT_ID = "COHORT_ID";
+    public static final String USER_PREFERENCE_FORM_FILTER_FORM = "FORM_FILTER_FORM";
+    public static final String USER_PREFERENCE_FORM_FILTER_ASSIGNED_TO = "FORM_FILTER_ASSIGNED_TO";
+    public static final String USER_PREFERENCE_FORM_FILTER_STATUS = "FORM_FILTER_STATUS";
+    public static final String USER_PREFERENCE_FORM_FILTER_STUDY_DATE = "FORM_FILTER_STUDY_DATE";
+    public static final String USER_PREFERENCE_DEFAULT_TAB = "USER_PREFERENCE_DEFAULT_TAB";
 
     public abstract List<CohortTO> getAuthorizedCohorts(String username);
     public List<Result> findCohortMember(String user, String cohortId, String query);
@@ -51,4 +57,7 @@ public interface StudyService {
     public BooleanTO updateCohortAuthorization(SessionTO sessionTO, String cohortKey, String username, Boolean manager) throws UnauthorizedActionException;
     public BooleanTO saveForm(SessionTO sessionTO, String cohort, String name, String formKey, String publicationKey, Boolean demographicInd) throws UnauthorizedActionException;
     public BooleanTO deleteForm(SessionTO sessionTO, String cohortKey, String formKey) throws UnauthorizedActionException;
+    public List<NameValue> getUserPreferences(String username);
+    public Set<FormAttrEntity> getFormAttributesFromPublicationKey(String publicationKey);
+    public BooleanTO persistFormAttribute(SessionTO sessionTO, String cohortKey, String formKey, String attributeKey, String attributeValue) throws UnauthorizedActionException;
 }

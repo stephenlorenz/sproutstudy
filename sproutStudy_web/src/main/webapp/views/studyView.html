@@ -68,18 +68,19 @@
             <div id="tabPane" style="margin-top: 40px;" ng-show="searchEnabled == true && cohort() != null && demographicFormContent == null && openingForm == false && searchReturned == false">
 
                 <ul class="nav nav-tabs">
-                    <li class="active">
-                        <a href="#tab0" data-toggle="tab"><i class="icon-envelope" style="padding-right: 5px;"></i>Inbox</a>
+                    <li class="sprout-study-app-tab" tab="inbox" ng-class="{'active': defaultTab == 'inbox'}" context-menu="applicationTabContextMenu('inbox')">
+                        <a href="#tab0" data-toggle="tab" ng-class="{'sprout-default-tab': defaultTab == 'inbox'}"><i class="icon-envelope" style="padding-right: 5px;" ></i>Inbox<i class="fa fa-star-o sprout-default-tab-icon" ng-show="defaultTab == 'inbox'"></i></a>
                     </li>
-                    <li>
-                        <a href="#tab1" data-toggle="tab"><i class="icon-time" style="padding-right: 5px;"></i>Recent Subjects</a>
+                    <li class="sprout-study-app-tab" tab="recentSubjects" ng-class="{'active': defaultTab == 'recentSubjects'}"  context-menu="applicationTabContextMenu('recentSubjects')">
+                        <a href="#tab1" data-toggle="tab" ng-class="{'sprout-default-tab': defaultTab == 'recentSubjects'}"><i class="icon-time" style="padding-right: 5px;"></i>Recent Subjects<i class="fa fa-star-o sprout-default-tab-icon" ng-show="defaultTab == 'recentSubjects'"></i>
+                        </a>
                     </li>
-                    <li>
-                        <a href="#tab2" data-toggle="tab"><i class="icon-list" style="padding-right: 5px;"></i>Forms</a>
+                    <li class="sprout-study-app-tab" tab="forms" ng-class="{'active': defaultTab == 'forms'}"  context-menu="applicationTabContextMenu('forms')">
+                        <a href="#tab2" data-toggle="tab" ng-class="{'sprout-default-tab': defaultTab == 'forms'}"><i class="icon-list" style="padding-right: 5px;"></i>Forms<i class="fa fa-star-o sprout-default-tab-icon" ng-show="defaultTab == 'forms'"></i></a>
                     </li>
                 </ul>
                 <div class="tab-content">
-                    <div class="tab-pane fade in active" id="tab0" >
+                    <div class="tab-pane fade in" id="tab0" ng-class="{'active': defaultTab == 'inbox'}">
                         <div ng-show="message != null">
                             <form class="form-horizontal">
                                 <div class="control-group">
@@ -150,7 +151,7 @@
                         <div class="alert alert-info" ng-show="studyInbox == undefined && demographicFormContent == null && openingForm == false">Loading Inbox...</div>
                         <div class="alert alert-info" ng-show="(studyInbox | filter: { status.mutable: true }).length == 0 && demographicFormContent == null && openingForm == false">You have no messages in your inbox.</div>
                     </div>
-                    <div class="tab-pane fade in" id="tab1" >
+                    <div class="tab-pane fade in" id="tab1" ng-class="{'active': defaultTab == 'recentSubjects'}">
                         <div class="" ng-show="recentCohortMembers != undefined && searchEnabled == true && cohort() != null && demographicFormContent == null && openingForm == false && (patientMatches.length == undefined || patientMatches.length < 1)">
                             <table style="width: 100%;" class="table table-condensed table-striped">
                                 <tr ng-repeat="subject in recentCohortMembers">
@@ -171,16 +172,22 @@
                         <div class="alert alert-info" ng-show="recentCohortMembers.length == 0 && demographicFormContent == null && openingForm == false">You have no recent subjects.</div>
 
                     </div>
-                    <div class="tab-pane fade in" id="tab2" style="min-height: 500px;">
-                        <div class="" ng-show="(allForms.length > 0 || allFormsFilterFormPublicationKey != null || allFormsFilterStatus != null || allFormsFilterAssignment != null || allFormsFilterExpirationDate != null) && demographicFormContent == null && openingForm == false" >
+                    <div class="tab-pane fade in" id="tab2" style="min-height: 500px; "ng-class="{'active': defaultTab == 'forms'}">
+                        <div class="" ng-show="(allForms.length > 0 || allFormsFilterFormPublicationKey != null || allFormsFilterStatus != null || allFormsFilterAssignment != null || allFormsFilterTargetDate != null) && demographicFormContent == null && openingForm == false" >
+
+                            <div style="float: right;">
+                                <div ng-show="filterChanged">
+                                    <a href="" ng-click="onSaveDefaultFilter()" ><i class="fa fa-floppy-o"></i> Save as Default Filter</a>
+                                </div>
+                            </div>
+
                             <table class="table table-condensed table-striped" >
                                 <thead class="inbox">
                                 <tr>
                                     <th>Subject</th>
                                     <th>
-                                        <span class="dropdown">
-                                            <span ng-show="allFormsFilterFormTitle == null">Forms</span>
-                                            <span ng-show="allFormsFilterFormTitle != null">{{allFormsFilterFormTitle}}</span>
+                                        <span class="dropdown sprout-dropdown-header">
+                                            <span>Forms<span ng-show="allFormsFilterFormTitle != null">:<br/><span class="badge badge-info">{{allFormsFilterFormTitle}}<span ng-click="clearFilterForm()" style="margin-left: 5px;" class="sprout-study-badge-close"><i class="fa fa-times-circle"></i></span></span></span></span>
                                             <a class="dropdown-toggle btn btn-mini" style="margin-left: 8px;"><b class="caret"></b></a>
                                             <ul class="dropdown-menu">
                                                 <li><a ng-click="onFilterByFormAll()" prevent-default>ALL FORMS</a></li>
@@ -191,9 +198,9 @@
                                         </span>
                                     </th>
                                     <th><span class="sortable" ng-click="allFormsChangeSort('date_of_entry')">Delivery Date<i ng-class="allFormsSortClass('date_of_entry')" ng-style="{'margin-left': mutableFormsSortStyle('date_of_entry')}" ></i></span></th>
-                                    <th>
-                                        <span class="dropdown">
-                                            <span>Assigned To<span ng-show="allFormsFilterAssignment != undefined">:<br/><span class="badge badge-info">{{allFormsFilterAssignment.name}}</span></span></span>
+                                    <th ng-show="assignments.length > 1">
+                                        <span class="dropdown sprout-dropdown-header">
+                                            <span>Assigned To<span ng-show="allFormsFilterAssignment != undefined">:<br/><span class="badge badge-info">{{allFormsFilterAssignment.name}}<span ng-click="clearFilterAssignment()" style="margin-left: 5px;" class="sprout-study-badge-close"><i class="fa fa-times-circle"></i></span></span></span></span>
                                             <a class="dropdown-toggle btn btn-mini" style="margin-left: 8px;"><b class="caret"></b></a>
                                             <ul class="dropdown-menu">
                                                 <li><a ng-click="onFilterByAssignmentAll()" ng-show="assignments.length > 0" prevent-default>ALL ASSIGNMENTS</a></li>
@@ -204,8 +211,8 @@
                                         </span>
                                     </th>
                                     <th>
-                                        <span class="dropdown">
-                                            <span class="" ng-click="mutableFormsChangeSort('inboxStatus')">Status<span ng-show="allFormsFilterStatus != null">:<br/><span class="badge badge-info">{{allFormsFilterStatus}}</span></span><i ng-class="allFormsSortClass('inboxStatus')" ng-style="{'margin-left': mutableFormsSortStyle('inboxStatus')}" ></i></span>
+                                        <span class="dropdown sprout-dropdown-header">
+                                            <span class="" ng-click="mutableFormsChangeSort('inboxStatus')">Status<span ng-show="allFormsFilterStatus != null">:<br/><span class="badge badge-info">{{allFormsFilterStatus}}<span ng-click="clearFilterStatus()" style="margin-left: 5px;" class="sprout-study-badge-close"><i class="fa fa-times-circle"></i></span></span></span><i ng-class="allFormsSortClass('inboxStatus')" ng-style="{'margin-left': mutableFormsSortStyle('inboxStatus')}" ></i></span>
                                             <a class="dropdown-toggle btn btn-mini" style="margin-left: 8px;"><b class="caret"></b></a>
                                             <ul class="dropdown-menu">
                                                 <li><a ng-click="onFilterByStatusAll()" ng-show="activeSproutInboxStatuses.length > 0" prevent-default>ALL STATUSES</a></li>
@@ -215,12 +222,13 @@
                                             </ul>
                                         </span>
                                     </th>
-                                    <th>
-                                        <span class="dropdown">
-                                            <span class="">Study Date<span ng-show="allFormsFilterExpirationDate != null">:<br/><span class="badge badge-info">{{allFormsFilterExpirationDate}}</span></span></span>
-                                            <input type="text" class="input-small date datepicker" ng-model="allFormsFilterExpirationDateProxy" data-model-date-format="mm/dd/yyyy" data-date-format="mm/dd/yyyy" autoclose="true" style="margin-bottom: 0px; display: none;" bs-datepicker />
-                                            <button  type="button" class="btn btn-mini" data-toggle="datepicker"><i class="icon-calendar"></i></button>
+                                    <th ng-show="allFormsMetadata.hasStudyDates">
+                                        <span class="dropdown sprout-dropdown-header">
+                                            <span class="">Study Date<span ng-show="allFormsFilterTargetDate != null">:<br/><span class="badge badge-info">{{allFormsFilterTargetDate}}<span ng-click="clearFilterTargetDate()" style="margin-left: 5px;" class="sprout-study-badge-close"><i class="fa fa-times-circle"></i></span></span></span></span>
+                                            <input type="text" class="input-small date datepicker" ng-model="allFormsFilterTargetDateProxy" data-model-date-format="mm/dd/yyyy" data-date-format="mm/dd/yyyy" autoclose="true" style="margin-bottom: 0px; display: none;" bs-datepicker />
+                                            <button  type="button" class="btn btn-mini" data-toggle="datepicker" style="margin-left: 8px;"><i class="icon-calendar"></i></button>
                                         </span>
+                                    </th>
                                     <!--<th><span class="sortable" ng-click="allFormsChangeSort('date_of_status')">Status Date<i ng-class="allFormsSortClass('date_of_status')" ng-style="{'margin-left': mutableFormsSortStyle('date_of_status')}" ></i></span></th>-->
                                     <th style="text-align: center; width: 100px;">Open Form</th>
                                 </tr>
@@ -230,7 +238,7 @@
                                     <td class="inbox-cell" ng-click="onOpenMutableForm(form)">{{form.title}}</a></td>
                                     <td class="inbox-cell" ng-click="onOpenMutableForm(form)">{{form.deliveryDate | date:'medium' }}</td>
 
-                                    <td class="inbox-cell" ng-click="onOpenMutableForm(form)" >
+                                    <td class="inbox-cell" ng-click="onOpenMutableForm(form)" ng-show="assignments.length > 1">
                                         <ul style="list-style-type: none;" ng-show="form.inboxProxies.length > 0">
                                             <li ng-repeat="proxy in form.inboxProxies">{{proxy.assignedToDisplayName}}</li>
                                         </ul>
@@ -242,7 +250,7 @@
                                             <li ng-repeat="proxy in form.inboxProxies">{{proxy.status}}</li>
                                         </ul>
                                     </td>
-                                    <td class="inbox-cell" ng-click="onOpenMutableForm(form)">{{form.appointmentDate | date:'medium' }}</td>
+                                    <td class="inbox-cell" ng-click="onOpenMutableForm(form)" ng-show="allFormsMetadata.hasStudyDates">{{form.targetDate | date:'medium' }}</td>
                                     <!--<td class="inbox-cell" ng-click="onOpenMutableForm(form)">{{form.statusDate | date:'medium' }}</td>-->
                                     <td style="text-align: center; width: 80px;">
                                         <button class="btn btn-info btn-mini" ng-click="onOpenMutableForm(form)"><i class="icon-play icon-white" style="margin-right: 0px;"></i></button>
@@ -348,28 +356,59 @@
                 <tr>
                     <th class="sortable" ng-click="formsChangeSort('title')">Name<i ng-class="formsSortClass('title')" ng-style="{'margin-left': formsSortStyle('title')}" ></i></th>
                     <th class="sortable" ng-click="formsChangeSort('deliveryDate')">Delivery Date<i ng-class="formsSortClass('deliveryDate')" ng-style="{'margin-left': formsSortStyle('deliveryDate')}" ></i></th>
+                    <th ng-show="assignments.length > 1">
+                        <span class="dropdown sprout-dropdown-header">
+                            <span>Assigned To<span ng-show="assignment != undefined">:<br/><span class="badge badge-info">{{assignment.name}}<span ng-click="onFilterByAssignment()" style="margin-left: 5px;" class="sprout-study-badge-close"><i class="fa fa-times-circle"></i></span></span></span></span>
+                            <a class="dropdown-toggle btn btn-mini" style="margin-left: 8px;"><b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a ng-click="onFilterByAssignment()" ng-show="assignments.length > 0" prevent-default>ALL ASSIGNMENTS</a></li>
+                                <li ng-repeat="assignment in assignments">
+                                    <a ng-click="onFilterByAssignment(assignment)" prevent-default>{{assignment.name}}</a>
+                                </li>
+                            </ul>
+                        </span>
+                    </th>
                     <th class="sortable" ng-click="formsChangeSort('inboxStatus')">
                     <span class="dropdown">
-		                Status<i ng-class="formsSortClass('inboxStatus')" ng-style="{'margin-left': formsSortStyle('inboxStatus')}" ></i>
+		                <span>Status<i ng-class="formsSortClass('inboxStatus')" ng-style="{'margin-left': formsSortStyle('inboxStatus')}" ></i><span ng-show="status != undefined">:<br/><span class="badge badge-info">{{status.name}}<span ng-click="onFilterByStatus(); $event.stopPropagation();" style="margin-left: 5px;" class="sprout-study-badge-close"><i class="fa fa-times-circle"></i></span></span></span></span>
 		                <a class="dropdown-toggle btn btn-mini" style="margin-left: 8px;"><b class="caret"></b></a>
 		                <ul class="dropdown-menu">
                             <li><a ng-click="onFilterByStatus()" ng-show="statuses.length > 0" prevent-default>ALL STATUSES</a></li>
-                            <li ng-repeat="value in statuses">
-                                <a ng-click="onFilterByStatus(value)" prevent-default>{{value}}</a>
+                            <li ng-repeat="status in activeSproutInboxStatuses">
+                                <a ng-click="onFilterByStatus(status)" prevent-default>{{status.name}}</a>
                             </li>
                         </ul>
 		            </span>
                     </th>
-                    <th class="sortable" ng-click="formsChangeSort('statusDate')">Status Date<i ng-class="formsSortClass('statusDate')" ng-style="{'margin-left': formsSortStyle('statusDate')}" ></i></th>
+                    <th ng-show="allFormsMetadata.hasStudyDates">
+                        <span class="dropdown sprout-dropdown-header">
+                            <span class="">Study Date<span ng-show="targetDate != null">:<br/><span class="badge badge-info">{{targetDate}}<span ng-click="clearTargetDate()" style="margin-left: 5px;" class="sprout-study-badge-close"><i class="fa fa-times-circle"></i></span></span></span></span>
+                            <input type="text" class="input-small date datepicker" ng-model="targetDateProxy" data-model-date-format="mm/dd/yyyy" data-date-format="mm/dd/yyyy" autoclose="true" style="margin-bottom: 0px; display: none;" bs-datepicker />
+                            <button  type="button" class="btn btn-mini" data-toggle="datepicker" style="margin-left: 8px;"><i class="icon-calendar"></i></button>
+                        </span>
+                    </th>
+                    <!--<th class="sortable" ng-click="formsChangeSort('statusDate')">Status Date<i ng-class="formsSortClass('statusDate')" ng-style="{'margin-left': formsSortStyle('statusDate')}" ></i></th>-->
                     <!--<th style="text-align: center; width: 60px;">Delete</th>-->
                     <th style="text-align: center; width: 60px;">Open</th>
                 </tr>
                 </thead>
-                <tr class="inbox-row" ng-repeat='form in inbox | filter: formFilter | orderBy:formsSort.column:formsSort.descending' >
+                <tr class="inbox-row" ng-repeat='form in filtered = (inbox | filter: formFilter | orderBy:formsSort.column:formsSort.descending)' >
                     <td class="inbox-cell" ng-click="onOpenForm(form)">{{form.title}}</a></td>
                     <td class="inbox-cell" ng-click="onOpenForm(form)">{{form.deliveryDate | date:'medium' }}</td>
-                    <td class="inbox-cell" ng-click="onOpenForm(form)">{{form.inboxStatus}}</td>
-                    <td class="inbox-cell" ng-click="onOpenForm(form)">{{form.statusDate | date:'medium' }}</td>
+                    <td class="inbox-cell" ng-click="onOpenForm(form)" ng-show="assignments.length > 1">
+                        <ul style="list-style-type: none;" ng-show="form.inboxProxies.length > 0">
+                            <li ng-repeat="proxy in form.inboxProxies">{{proxy.assignedToDisplayName}}</li>
+                        </ul>
+                    </td>
+
+                    <td class="inbox-cell" ng-click="onOpenForm(form)">
+                        <span ng-show="form.inboxProxies.length == 0">{{form.inboxStatus}}</span>
+                        <ul style="list-style-type: none;" ng-show="form.inboxProxies.length > 0">
+                            <li ng-repeat="proxy in form.inboxProxies">{{proxy.status}}</li>
+                        </ul>
+                    </td>
+                    <td class="inbox-cell" ng-click="onOpenForm(form)" ng-show="allFormsMetadata.hasStudyDates">{{form.targetDate | date:'medium' }}</td>
+                    <!--<td class="inbox-cell" ng-click="onOpenForm(form)">{{form.statusDate | date:'medium' }}</td>-->
                     <!--<td style="text-align: center; width: 80px;">-->
                         <!--<button class="btn btn-warning btn-mini" ng-click="onDeleteSubmission(form.instanceId)"><i class="icon-trash icon-white" style="margin-right: 0px;"></i></button>-->
                     <!--</td>-->
@@ -378,6 +417,8 @@
                     </td>
                 </tr>
             </table>
+            <div class="alert alert-info" ng-show="inbox == undefined && demographicFormContent == null && openingForm == false">Loading Forms...</div>
+            <div class="alert alert-info" ng-show="filtered.length == 0 && demographicFormContent == null && openingForm == false">No forms found for this subject which match your filter.</div>
         </div>
 
         <!--<div class="alert alert-info" ng-show="openingForm && demographicFormContent == null">-->

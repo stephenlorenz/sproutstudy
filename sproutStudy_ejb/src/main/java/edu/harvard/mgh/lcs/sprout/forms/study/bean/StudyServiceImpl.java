@@ -355,6 +355,21 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
     }
 
     @Override
+    public Set<FormAttrEntity> getFormAttributesFromPublicationKey(String publicationKey) {
+        if (StringUtils.isFull(publicationKey)) {
+            try {
+                Query query = entityManager.createNamedQuery(FormEntity.FIND_BY_PUBLICATION_KEY);
+                query.setParameter("publicationKey", publicationKey);
+                FormEntity formEntity = (FormEntity) query.getSingleResult();
+                if (formEntity != null) {
+                    return formEntity.getFormAttributes();
+                }
+            } catch (NoResultException e) {}
+        }
+        return null;
+    }
+
+    @Override
     public String getFormFromPublicationKey(String publicationKey) {
         if (StringUtils.isFull(publicationKey)) {
             try {
@@ -763,6 +778,26 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
         return null;
     }
 
+    @Override
+    public List<NameValue> getUserPreferences(String username) {
+        if (!StringUtils.isEmpty(username)) {
+            UserEntity userEntity = getUserFromUsername(username);
+            if (userEntity != null) {
+                Set<UsersPreferenceEntity> usersPreferenceEntities = userEntity.getPreferences();
+                if (usersPreferenceEntities != null) {
+                    List<NameValue> userPreferences = new ArrayList<NameValue>();
+                    for (UsersPreferenceEntity usersPreferenceEntity : usersPreferenceEntities) {
+//                        if (usersPreferenceEntity.getUserPreference().isUserEditable()) {
+                            userPreferences.add(new NameValue(usersPreferenceEntity.getUserPreference().getCode(), usersPreferenceEntity.getValue()));
+//                        }
+                    }
+                    return userPreferences;
+                }
+            }
+        }
+        return null;
+    }
+
     private VUserPreferenceEntity getVUserPreferenceEntity(String key) {
         try {
             Query query = entityManager.createNamedQuery(VUserPreferenceEntity.FIND_BY_CODE);
@@ -828,6 +863,7 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
                 cohortFormTO.setFormKey(cohortFormEntity.getForm().getFormKey());
                 cohortFormTO.setDemographic(cohortFormEntity.getForm().getDemographic());
                 cohortFormTO.setNarrative(hasNarrativeTemplate(cohortFormEntity.getForm().getPublicationKey()));
+                cohortFormTO.setReturnToHome(isReturnToHome(cohortFormEntity.getForm()));
                 cohortFormTO.setActive(cohortFormEntity.getForm().getActive());
                 cohortFormTO.setActivityDate(cohortFormEntity.getForm().getActivityDate());
 
@@ -844,6 +880,17 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
             Collections.sort(cohortFormTOList);
         }
         return cohortFormTOList;
+    }
+
+    private boolean isReturnToHome(FormEntity formEntity) {
+        if (formEntity != null && formEntity.getFormAttributes() != null && formEntity.getFormAttributes().size() > 0) {
+            for (FormAttrEntity formAttrEntity : formEntity.getFormAttributes()) {
+                if (formAttrEntity.getFormAttr().getCode().equalsIgnoreCase("DESTINATION") && formAttrEntity.getValue().equalsIgnoreCase("HOME")) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private boolean hasNarrativeTemplate(String publicationKey) {
@@ -1112,6 +1159,72 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
             }
         }
         return new BooleanTO(false);
+    }
+
+    @Override
+    public BooleanTO persistFormAttribute(SessionTO sessionTO, String cohortKey, String formKey, String attributeKey, String attributeValue) throws UnauthorizedActionException {
+        if (sessionTO != null && StringUtils.isFull(cohortKey, formKey)) {
+            if (StringUtils.isFull(cohortKey) && !cohortKey.equalsIgnoreCase("undefined")) {
+                CohortEntity cohortEntity = null;
+                if (isAdmin(sessionTO)) {
+                    cohortEntity = getAuthorizedCohortByKey(sessionTO, cohortKey);
+                } else {
+                    cohortEntity = getManagedCohortByKey(sessionTO, cohortKey);
+                }
+                if (cohortEntity != null) {
+                    if (isAdmin(sessionTO) || isManager(sessionTO, cohortEntity)) {
+                        List<FormEntity> formEntities = getFormsByFormKey(formKey);
+                        if (formEntities != null) {
+                            for (FormEntity formEntity : formEntities) {
+                                if (formEntity.getFormAttributes() != null) {
+                                    boolean formAttrExists = false;
+                                    for (FormAttrEntity formAttrEntity : formEntity.getFormAttributes()) {
+                                        if (formAttrEntity.getFormAttr().getCode().equalsIgnoreCase(attributeKey)) {
+                                            formAttrExists = true;
+                                            if (edu.harvard.mgh.lcs.sprout.forms.utils.StringUtils.isFull(attributeValue)) {
+                                                formAttrEntity.setValue(attributeValue);
+                                                formAttrEntity.setActivityDate(new Date());
+                                                entityManager.merge(formAttrEntity);
+                                            } else {
+                                                entityManager.remove(formAttrEntity);
+                                            }
+                                        }
+                                    }
+                                    if (!formAttrExists && edu.harvard.mgh.lcs.sprout.forms.utils.StringUtils.isFull(attributeKey, attributeValue)) {
+                                        VFormAttrEntity vFormAttrEntity = getVFormAttrEntity(attributeKey);
+                                        if (vFormAttrEntity != null) {
+                                            FormAttrEntity formAttrEntity = new FormAttrEntity();
+                                            formAttrEntity.setForm(formEntity);
+                                            formAttrEntity.setFormAttr(vFormAttrEntity);
+                                            formAttrEntity.setValue(attributeValue);
+                                            formAttrEntity.setActivityDate(new Date());
+                                            entityManager.persist(formAttrEntity);
+                                        } else {
+                                            return new BooleanTO(false, String.format("Invalid Form Attribute Key: %s", attributeKey));
+                                        }
+                                    }
+                                }
+                            }
+                            return new BooleanTO(true);
+                        }
+                    } else {
+                        throw new UnauthorizedActionException("You are not authorized to modify this form.");
+                    }
+                }
+            }
+        }
+        return new BooleanTO(false);
+    }
+
+    private VFormAttrEntity getVFormAttrEntity(String attributeKey) {
+        if (edu.harvard.mgh.lcs.sprout.forms.utils.StringUtils.isFull(attributeKey)) {
+            try {
+                Query query = entityManager.createNamedQuery(VFormAttrEntity.FIND_BY_CODE);
+                query.setParameter("code", attributeKey);
+                return (VFormAttrEntity) query.getSingleResult();
+            } catch (NoResultException e) {}
+        }
+        return null;
     }
 
     @Override

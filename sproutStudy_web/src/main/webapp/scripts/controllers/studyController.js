@@ -3,6 +3,7 @@
 angular.module('sproutStudyApp')
     .controller('studyController', function ($log, $scope, $filter, $timeout, $window, studyService, patientService, formsService, cohortService, sessionService, transformService) {
 
+        $scope.defaultTab = 'inbox';
 
         $scope.cohortLoaded = false;
 
@@ -26,16 +27,22 @@ angular.module('sproutStudyApp')
 
         $scope.allFormsCurrentPage = 1;
         $scope.allFormsPageCount = 1;
+        $scope.allFormsMetadata = undefined;
         $scope.allFormsRowsPerPage = 15;
         $scope.allFormsOrderBy = "date_of_status";
         $scope.allFormsOrderDirection = "DESC"
         $scope.allFormsFilterFormPublicationKey = null;
         $scope.allFormsFilterFormTitle = null;
 
+        $scope.filterChanged = false;
+
         $scope.template = undefined;
 
         $scope.activeSproutInboxStatuses = null;
         $scope.assignments = null;
+
+        $scope.targetDateProxy = undefined;
+        $scope.targetDate = undefined;
 
         $scope.query = "";
 
@@ -112,24 +119,104 @@ angular.module('sproutStudyApp')
         $scope.statusesIncomplete = null;
         $scope.allFormsFilterStatus = null;
         $scope.allFormsFilterAssignment = undefined;
-        $scope.allFormsFilterExpirationDate = undefined;
-        $scope.allFormsFilterExpirationDateProxy = undefined;
+        $scope.allFormsFilterTargetDate = undefined;
+        $scope.allFormsFilterTargetDateProxy = undefined;
         $scope.allFormsFilterForm = null;
 
-        $scope.$watch('allFormsFilterExpirationDateProxy', function() {
-            if ($scope.allFormsFilterExpirationDateProxy !== undefined) {
-                var year = $scope.allFormsFilterExpirationDateProxy.getFullYear();
-                var month = (1 + $scope.allFormsFilterExpirationDateProxy.getMonth()).toString();
+        $scope.$watch('allFormsFilterTargetDateProxy', function() {
+            $scope.applyAllFormsFilterTargetDateProxy();
+        });
+
+        $scope.$watch('targetDateProxy', function() {
+            $scope.setTargetDate();
+        });
+
+        $scope.getTodayAsDateString = function () {
+            var tmpDate = new Date();
+            var year = tmpDate.getFullYear();
+            var month = (1 + tmpDate.getMonth()).toString();
+            month = month.length > 1 ? month : '0' + month;
+            var day = tmpDate.getDate().toString();
+            day = day.length > 1 ? day : '0' + day;
+
+            return month + '/' + day + '/' + year;
+        }
+
+        $scope.applyAllFormsFilterTargetDateProxy = function() {
+            //console.log("allFormsFilterTargetDateProxy changed: " + $scope.allFormsFilterTargetDateProxy);
+            if ($scope.allFormsFilterTargetDateProxy !== undefined) {
+                var year = $scope.allFormsFilterTargetDateProxy.getFullYear();
+                var month = (1 + $scope.allFormsFilterTargetDateProxy.getMonth()).toString();
                 month = month.length > 1 ? month : '0' + month;
-                var day = $scope.allFormsFilterExpirationDateProxy.getDate().toString();
+                var day = $scope.allFormsFilterTargetDateProxy.getDate().toString();
                 day = day.length > 1 ? day : '0' + day;
 
-                $scope.allFormsFilterExpirationDate = month + '/' + day + '/' + year;
+                $scope.allFormsFilterTargetDate = month + '/' + day + '/' + year;
 
-                $scope.getAllForms();
-                console.log("allFormsFilterExpirationDate changed: " + $scope.allFormsFilterExpirationDate);
+                var tmpDate = new Date();
+                var year = tmpDate.getFullYear();
+                var month = (1 + tmpDate.getMonth()).toString();
+                month = month.length > 1 ? month : '0' + month;
+                var day = tmpDate.getDate().toString();
+                day = day.length > 1 ? day : '0' + day;
+
+                var tmpDateString = month + '/' + day + '/' + year;
+
+                if (tmpDateString == $scope.allFormsFilterTargetDate) {
+                    $scope.allFormsFilterTargetDate = 'today';
+                }
+                $scope.filterChanged = true;
+
+            } else {
+                if ($scope.allFormsFilterTargetDate !== undefined) {
+                    $scope.filterChanged = true;
+                }
+                $scope.allFormsFilterTargetDate = undefined;
             }
-        });
+            $scope.getAllForms();
+        }
+
+        $scope.clearFilterTargetDate = function() {
+            $scope.allFormsFilterTargetDateProxy = undefined;
+            $scope.filterChanged = true;
+            $scope.applyAllFormsFilterTargetDateProxy();
+        }
+
+        $scope.clearFilterAssignment = function() {
+            $scope.allFormsFilterAssignment = undefined;
+            $scope.filterChanged = true;
+            $scope.getAllForms();
+        };
+
+        $scope.onResetFilters = function () {
+            $scope.allFormsFilterStatus = null;
+            $scope.allFormsFilterAssignment = undefined;
+            $scope.allFormsFilterTargetDate = undefined;
+            $scope.allFormsFilterTargetDateProxy = undefined;
+            $scope.allFormsFilterForm = null;
+            $scope.allFormsFilterFormTitle = null;
+            $scope.filterChanged = false;
+            $scope.getAllForms();
+        };
+
+        $scope.onSaveDefaultFilter = function () {
+            $scope.setSessionFormFilter();
+        };
+
+        $scope.clearFilterForm = function() {
+            $scope.allFormsFilterForm = null;
+            $scope.allFormsFilterFormTitle = null;
+            $scope.getAllForms();
+        }
+
+        $scope.clearFilterStatus = function() {
+            $scope.allFormsFilterStatus = null;
+            $scope.getAllForms();
+        }
+
+        $scope.applyIfPossible = function() {
+            $timeout(function() {});
+        }
 
         $scope.allFormsFirstPage = function() {
             if ($scope.allFormsCurrentPage > 1) {
@@ -157,7 +244,88 @@ angular.module('sproutStudyApp')
                 $scope.allFormsCurrentPage--;
                 $scope.getAllForms();
             }
+        };
+
+        $scope.getUserPreferences = function () {
+            studyService.getUserPreferences({}, function(data) {
+                var updatedFilter = false;
+                $.each(data, function(index, preference) {
+                    if (preference.name == 'FORM_FILTER_FORM') {
+                        if (preference.value !== undefined && preference.value !== null && preference.value != 'null' && preference.value != 'undefined' && preference.value != '') {
+                            //$scope.allFormsFilterForm = preference.value;
+
+                            var formParts = preference.value.split(":");
+
+                            if (formParts !== null && formParts.length == 2) {
+                                $scope.allFormsFilterFormPublicationKey = formParts[0];
+                                $scope.allFormsFilterFormTitle = formParts[1];
+                                updatedFilter = true;
+                            }
+                        }
+                    } else if (preference.name == 'FORM_FILTER_STATUS') {
+                        if (preference.value !== undefined && preference.value !== null && preference.value != 'null' && preference.value != 'undefined' && preference.value != '') {
+                            $scope.allFormsFilterStatus = preference.value;
+                            updatedFilter = true;
+                        }
+                    } else if (preference.name == 'FORM_FILTER_ASSIGNED_TO') {
+                        if (preference.value !== undefined && preference.value !== null && preference.value != 'null' && preference.value != 'undefined' && preference.value != '') {
+                            $scope.allFormsFilterAssignment = preference.value;
+
+
+                            if ($scope.assignments !== null) {
+                                $.each($scope.assignments, function(index, assignment) {
+                                    if (assignment.value == preference.value) {
+                                        $scope.allFormsFilterAssignment = assignment;
+                                    }
+                                });
+                                updatedFilter = true;
+
+                            } else {
+                                studyService.getAssignments({"status": $scope.allFormsFilterStatus, "targetDate": $scope.targetDate}, function(assignments) {
+                                    $.each(assignments, function(index, assignment) {
+                                        if (assignment.value == preference.value) {
+                                            $scope.allFormsFilterAssignment = assignment;
+                                            $scope.getAllForms();
+                                        }
+                                    });
+                                });
+                            }
+
+                        }
+                    } else if (preference.name == 'FORM_FILTER_STUDY_DATE') {
+                        if (preference.value !== undefined && preference.value !== null && preference.value != 'null' && preference.value != 'undefined' && preference.value != '') {
+                            $scope.allFormsFilterTargetDate = preference.value;
+                            updatedFilter = true;
+                        }
+                    } else if (preference.name == 'USER_PREFERENCE_DEFAULT_TAB') {
+                        if (preference.value !== undefined && preference.value !== null && preference.value != 'null' && preference.value != 'undefined' && preference.value != '') {
+                            $scope.defaultTab = preference.value;
+                        }
+                    }
+                });
+                if (updatedFilter) {
+                    $scope.getAllForms();
+                }
+            });
+        };
+
+        $scope.setInitialTab = function (tab) {
+            //$('.nav-tabs a[href="#' + tab + '"]').tab('show');
+
         }
+
+        $scope.getUserPreferences();
+
+        $scope.setSessionFormFilter = function () {
+            studyService.setSessionFormFilter({"formFilter": ($scope.allFormsFilterFormPublicationKey !== null && $scope.allFormsFilterForm !== undefined && $scope.allFormsFilterForm.length > 0) ? $scope.allFormsFilterFormPublicationKey + ":" + $scope.allFormsFilterForm : null, "assignmentFilter": $scope.allFormsFilterAssignment !== undefined ? $scope.allFormsFilterAssignment.value : $scope.allFormsFilterAssignment, "statusFilter": $scope.allFormsFilterStatus, "targetDateFilter": $scope.allFormsFilterTargetDate}, function(data) {
+                if (data.value == false) {
+                    $scope.errorMessageText = "Failed to save filter.";
+                    $scope.errorFormModal = true;
+                } else {
+                    $scope.filterChanged = false;
+                }
+            });
+        };
 
         $scope.addPaneOrig = function(title, instanceId, nonce) {
             addPaneContent(title, instanceId, nonce);
@@ -169,7 +337,42 @@ angular.module('sproutStudyApp')
 
         $scope.formFilter = function (item){
             if ($scope.status !== undefined) {
-                if (item.inboxStatus != $scope.status) return false;
+                if (item.inboxProxies !== undefined && item.inboxProxies.length > 0) {
+                    var hasMatch = false;
+                    $.each(item.inboxProxies, function (index, proxy) {
+                       if (proxy.status == $scope.status.name) hasMatch = true;
+                    });
+                    if (!hasMatch) return false;
+                } else {
+                    if (item.inboxStatus != $scope.status.name) return false;
+                }
+            }
+            if ($scope.targetDate !== undefined) {
+                try {
+                    var tmpDate = new Date(item.targetDate);
+
+                    var year = tmpDate.getFullYear();
+                    var month = (1 + tmpDate.getMonth()).toString();
+                    month = month.length > 1 ? month : '0' + month;
+                    var day = tmpDate.getDate().toString();
+                    day = day.length > 1 ? day : '0' + day;
+
+                    var targetDateTmp = month + '/' + day + '/' + year;
+                    if ($scope.targetDate != targetDateTmp) return false;
+                } catch (e) {
+                    return false;
+                }
+            }
+            if ($scope.assignment !== undefined) {
+                if (item.inboxProxies !== undefined && item.inboxProxies.length > 0) {
+                    var hasMatch = false;
+                    $.each(item.inboxProxies, function (index, proxy) {
+                        if (proxy.assignedToDisplayName == $scope.assignment.name) hasMatch = true;
+                    });
+                    if (!hasMatch) return false;
+                } else {
+                    return false;
+                }
             }
             if ($scope.formFilterRule !== undefined) {
                 if (item.title != $scope.formFilterRule) return false;
@@ -177,13 +380,63 @@ angular.module('sproutStudyApp')
             return true;
         };
 
+
+
+        $scope.clearTargetDate = function(targetDate) {
+            $scope.targetDate = undefined;
+            $scope.filterChanged = true;
+        }
+
+        $scope.setTargetDate = function(targetDate) {
+            if (targetDate !== undefined) {
+                $scope.targetDate = targetDate;
+            } else {
+                if ($scope.targetDateProxy !== undefined) {
+                    var year = $scope.targetDateProxy.getFullYear();
+                    var month = (1 + $scope.targetDateProxy.getMonth()).toString();
+                    month = month.length > 1 ? month : '0' + month;
+                    var day = $scope.targetDateProxy.getDate().toString();
+                    day = day.length > 1 ? day : '0' + day;
+
+                    $scope.targetDate = month + '/' + day + '/' + year;
+
+                    //var tmpDate = new Date();
+                    //var year = tmpDate.getFullYear();
+                    //var month = (1 + tmpDate.getMonth()).toString();
+                    //month = month.length > 1 ? month : '0' + month;
+                    //var day = tmpDate.getDate().toString();
+                    //day = day.length > 1 ? day : '0' + day;
+                    //
+                    //var tmpDateString = month + '/' + day + '/' + year;
+                    //
+                    //if (tmpDateString == $scope.targetDate) {
+                    //    $scope.targetDate = 'today';
+                    //}
+                    $scope.filterChanged = true;
+
+                } else {
+                    if (targetDate !== undefined) {
+                        $scope.filterChanged = true;
+                        $scope.targetDate = undefined;
+                    }
+                }
+            }
+        }
         $scope.onFilterByStatus = function(status) {
-//            console.log("filtering by status: " + status);
             if (status !== undefined) {
                 $scope.status = status;
             } else {
                 $scope.status = undefined;
             }
+            $scope.filterChanged = true;
+        }
+        $scope.onFilterByAssignment = function(assignment) {
+            if (assignment !== undefined) {
+                $scope.assignment = assignment;
+            } else {
+                $scope.assignment = undefined;
+            }
+            $scope.filterChanged = true;
         }
         $scope.onFilterByForm = function(formFilterRule) {
 //            console.log("filtering by status: " + status);
@@ -192,6 +445,7 @@ angular.module('sproutStudyApp')
             } else {
                 $scope.formFilterRule = undefined;
             }
+            $scope.filterChanged = true;
         }
 
         studyService.getSession({}, function(data) {
@@ -386,9 +640,8 @@ angular.module('sproutStudyApp')
                 $scope.allFormsFilterFormPublicationKey = null;
                 $scope.allFormsFilterFormTitle = null;
             }
-
+            $scope.filterChanged = true;
             $scope.getAllForms();
-
         };
 
         $scope.onFilterByStatusAll = function(status) {
@@ -398,9 +651,8 @@ angular.module('sproutStudyApp')
             } else {
                 $scope.allFormsFilterStatus = null;
             }
-
+            $scope.filterChanged = true;
             $scope.getAllForms();
-
         };
 
         $scope.onFilterByAssignmentAll = function(assignment) {
@@ -410,42 +662,16 @@ angular.module('sproutStudyApp')
             } else {
                 $scope.allFormsFilterAssignment = undefined;
             }
-
+            $scope.filterChanged = true;
             $scope.getAllForms();
-
         };
-
-//        $scope.getMutableForms = function() {
-//            $scope.mutableForms = undefined;
-//            studyService.getMutableForms({}, function(data) {
-//                $scope.mutableForms = data;
-//
-//                $scope.statusesIncomplete = new Array();
-//
-//                for (var i = 0; i < data.length; i++) {
-//                    var includeInd = true;
-//                    if ($scope.statusesIncomplete !== undefined && $scope.statusesIncomplete.length > 0) {
-//                        for (var i2=0;i2<$scope.statusesIncomplete.length;i2++) {
-//                            if ($scope.statusesIncomplete[i2] == data[i].inboxStatus) {
-//                                includeInd = false;
-//                            }
-//                        }
-//
-//                    }
-//
-//                    if (includeInd) $scope.statusesIncomplete.push(data[i].inboxStatus);
-//                }
-//
-//
-//            });
-//        }
 
         studyService.getActiveSproutInboxStatuses({}, function(data) {
             $scope.activeSproutInboxStatuses = data;
         });
 
         $scope.getAssignments = function() {
-            studyService.getAssignments({"status": $scope.allFormsFilterStatus, "expirationDate": $scope.expirationDate}, function(data) {
+            studyService.getAssignments({"status": $scope.allFormsFilterStatus, "targetDate": $scope.targetDate}, function(data) {
                 $scope.assignments = data;
             });
         };
@@ -455,44 +681,52 @@ angular.module('sproutStudyApp')
         $scope.getAllForms = function() {
             $scope.allForms = undefined;
 
-            studyService.getAllFormsPageCount({rows: $scope.allFormsRowsPerPage, form: $scope.allFormsFilterFormPublicationKey, status: $scope.allFormsFilterStatus, expirationDate: $scope.allFormsFilterExpirationDate, assignment: $scope.allFormsFilterAssignment !== undefined && $scope.allFormsFilterAssignment.value !== undefined ? $scope.allFormsFilterAssignment.value : null}, function(data) {
-                $scope.allFormsPageCount = data;
-            });
+            //studyService.getAllFormsPageCount({rows: $scope.allFormsRowsPerPage, form: $scope.allFormsFilterFormPublicationKey, status: $scope.allFormsFilterStatus, expirationDate: $scope.allFormsMetadata.hasStudyDates $scope.allFormsFilterTargetDate !== undefined && $scope.allFormsFilterTargetDate == 'today' ? $scope.getTodayAsDateString() : $scope.allFormsFilterTargetDate, assignment: $scope.allFormsFilterAssignment !== undefined && $scope.allFormsFilterAssignment.value !== undefined ? $scope.allFormsFilterAssignment.value : null}, function(data) {
+            //    $scope.allFormsPageCount = data;
+            //});
 
-            studyService.getAllForms({page: $scope.allFormsCurrentPage, rows: $scope.allFormsRowsPerPage, orderBy: $scope.allFormsOrderBy, orderDirection: $scope.allFormsOrderDirection, form: $scope.allFormsFilterFormPublicationKey, status: $scope.allFormsFilterStatus, expirationDate: $scope.allFormsFilterExpirationDate, assignment: $scope.allFormsFilterAssignment !== undefined && $scope.allFormsFilterAssignment.value !== undefined ? $scope.allFormsFilterAssignment.value : null}, function(data) {
+            studyService.getAllFormsMetadata({rows: $scope.allFormsRowsPerPage, form: $scope.allFormsFilterFormPublicationKey, status: $scope.allFormsFilterStatus, expirationDate: $scope.allFormsFilterTargetDate !== undefined && $scope.allFormsFilterTargetDate == 'today' ? $scope.getTodayAsDateString() : $scope.allFormsFilterTargetDate, assignment: $scope.allFormsFilterAssignment !== undefined && $scope.allFormsFilterAssignment.value !== undefined ? $scope.allFormsFilterAssignment.value : null}, function(data) {
+                $scope.allFormsMetadata = data;
+                $scope.allFormsPageCount = $scope.allFormsMetadata.count;
+
+                studyService.getAllForms({page: $scope.allFormsCurrentPage, rows: $scope.allFormsRowsPerPage, orderBy: $scope.allFormsOrderBy, orderDirection: $scope.allFormsOrderDirection, form: $scope.allFormsFilterFormPublicationKey, status: $scope.allFormsFilterStatus, targetDate: $scope.allFormsMetadata.hasStudyDates ? $scope.allFormsFilterTargetDate !== undefined && $scope.allFormsFilterTargetDate == 'today' ? $scope.getTodayAsDateString() : $scope.allFormsFilterTargetDate : null, assignment: $scope.allFormsFilterAssignment !== undefined && $scope.allFormsFilterAssignment.value !== undefined ? $scope.allFormsFilterAssignment.value : null}, function(data) {
 //                $scope.allFormsFilterFormPublicationKey = null;
 
-                $scope.allForms = data;
+                    $scope.allForms = data;
 
-                $scope.allFormsFilterForm = new Array();
+                    $scope.allFormsFilterForm = new Array();
 
 //                $log.log("getAllForms.data.length: " + data.length);
 
-                for (var i = 0; i < data.length; i++) {
-                    var statusIncludeInd = true;
-                    var formIncludeInd = true;
+                    for (var i = 0; i < data.length; i++) {
+                        var statusIncludeInd = true;
+                        var formIncludeInd = true;
 
-                    var publicationKey = data[i].publicationKey;
+                        var publicationKey = data[i].publicationKey;
 
-                    $.each(cohortService.getCohort().forms, function(index, tmpForm) {
-                        if (tmpForm.publicationKey == publicationKey) data[i].title = tmpForm.name;
-                    });
+                        $.each(cohortService.getCohort().forms, function(index, tmpForm) {
+                            if (tmpForm.publicationKey == publicationKey) data[i].title = tmpForm.name;
+                        });
 
-                    if ($scope.allFormsFilterForm !== undefined && $scope.allFormsFilterForm.length > 0) {
-                        for (var i2=0;i2<$scope.allFormsFilterForm.length;i2++) {
-                            if ($scope.allFormsFilterForm[i2] == data[i].title) {
-                                formIncludeInd = false;
+                        if ($scope.allFormsFilterForm !== undefined && $scope.allFormsFilterForm.length > 0) {
+                            for (var i2=0;i2<$scope.allFormsFilterForm.length;i2++) {
+                                if ($scope.allFormsFilterForm[i2] == data[i].title) {
+                                    formIncludeInd = false;
+                                }
                             }
+
                         }
 
+                        if (formIncludeInd) $scope.allFormsFilterForm.push(data[i].title);
                     }
 
-                    if (formIncludeInd) $scope.allFormsFilterForm.push(data[i].title);
-                }
+                    $scope.allFormsFilterForm.sort();
 
-                $scope.allFormsFilterForm.sort();
+                });
+
 
             });
+
         }
 
         $scope.getStudyInbox = function() {
@@ -551,6 +785,7 @@ angular.module('sproutStudyApp')
         }
 
         $scope.getSubjectInbox = function(params) {
+
             $scope.addSubjectInd = false;
             $scope.demographicFormContent = null;
             $scope.inbox = 1;
@@ -854,6 +1089,7 @@ angular.module('sproutStudyApp')
             $scope.searchEnabled = true;
             $scope.searchReturned = false;
             $scope.addSubjectInd = false;
+            $scope.subject = undefined;
             $scope.patient = null;
             $scope.ihsMrn = false;
             $scope.inbox = undefined;
@@ -1170,7 +1406,35 @@ angular.module('sproutStudyApp')
             if (form !== undefined && form.instanceId == instanceId) $scope.formLoaded = true;
         }
 
+        //$scope.makeDefaultTab = function (tabName) {
+        //    $scope.defaultTab = tabName;
+        //    studyService.setDefaultTab({defaultTab: tabName}, function(data) {
+        //        if (data.value == false) {
+        //            $scope.errorMessageText = "Failed to save default tab.";
+        //            $scope.errorFormModal = true;
+        //        } else {
+        //            $scope.filterChanged = false;
+        //        }
+        //    });
+        //}
 
-//        $('.nav-tabs a[href="#tab2"]').tab('show');
+        $scope.applicationTabContextMenu = function (tab) {
+            var tabName = tab;
+            return [
+                [function ($itemScope) { return 'Make Default Tab'; }, function ($itemScope) {
+                    console.log("tabName: " + tabName);
+                    $scope.defaultTab = tabName;
+                    studyService.setDefaultTab({defaultTab: tabName}, function(data) {
+                        if (data.value == false) {
+                            $scope.errorMessageText = "Failed to save default tab.";
+                            $scope.errorFormModal = true;
+                        } else {
+                            $scope.filterChanged = false;
+                        }
+                    });
+
+                }]
+            ];
+        };
 
     });

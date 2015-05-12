@@ -3,8 +3,10 @@ package edu.harvard.mgh.lcs.sprout.study.wsinterface;
 import com.sun.org.apache.xpath.internal.operations.Bool;
 import edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.FormDeliveryStatus;
 import edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.FormInstanceTO;
+import edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.FormListMetadataTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.beanws.Result;
 import edu.harvard.mgh.lcs.sprout.forms.study.exception.InvalidSessionRESTful;
+import edu.harvard.mgh.lcs.sprout.forms.study.exception.UnauthorizedActionException;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -65,6 +67,11 @@ public interface ApiWS {
     public BooleanTO deleteForm(@Context HttpServletRequest request, @QueryParam("cohort") String cohortKey, @QueryParam("formKey") String formKey) throws InvalidSessionRESTful;
 
     @GET
+    @Path("/secure/persistFormAttribute")
+    @Produces(MediaType.APPLICATION_JSON)
+    public BooleanTO persistFormAttribute(@Context HttpServletRequest request, @QueryParam("cohort") String cohortKey, @QueryParam("formKey") String formKey, @QueryParam("attributeKey") String attributeKey, @QueryParam("attributeValue") String attributeValue) throws InvalidSessionRESTful, UnauthorizedActionException;
+
+    @GET
     @Path("/secure/applyForNonce")
     @Produces(MediaType.APPLICATION_JSON)
     public NonceTO applyForNonce(@Context HttpServletRequest request, @QueryParam("instanceId") String instanceId, @QueryParam("subjectName") String subjectName, @QueryParam("subjectId") String subjectId) throws InvalidSessionRESTful;
@@ -117,12 +124,17 @@ public interface ApiWS {
     @GET
     @Path("/secure/getAllForms")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<FormInstanceTO> getAllForms(@Context HttpServletRequest request, @QueryParam("page") int page, @QueryParam("rows") int rows, @QueryParam("orderBy") String orderBy, @QueryParam("orderDirection") String orderDirection, @QueryParam("form") String publicationKey, @QueryParam("status") String status, @QueryParam("expirationDate") String expirationDate, @QueryParam("assignment") String assignment) throws InvalidSessionRESTful;
+    public List<FormInstanceTO> getAllForms(@Context HttpServletRequest request, @QueryParam("page") int page, @QueryParam("rows") int rows, @QueryParam("orderBy") String orderBy, @QueryParam("orderDirection") String orderDirection, @QueryParam("form") String publicationKey, @QueryParam("status") String status, @QueryParam("targetDate") String targetDate, @QueryParam("assignment") String assignment) throws InvalidSessionRESTful;
 
     @GET
     @Path("/secure/getAllFormsPageCount")
     @Produces(MediaType.APPLICATION_JSON)
-    public int getAllFormsPageCount(@Context HttpServletRequest request, @QueryParam("rows") int rows, @QueryParam("form") String publicationKey, @QueryParam("status") String status, @QueryParam("expirationDate") String expirationDate, @QueryParam("assignment") String assignment) throws InvalidSessionRESTful;
+    public int getAllFormsPageCount(@Context HttpServletRequest request, @QueryParam("rows") int rows, @QueryParam("form") String publicationKey, @QueryParam("status") String status, @QueryParam("targetDate") String targetDate, @QueryParam("assignment") String assignment) throws InvalidSessionRESTful;
+
+    @GET
+    @Path("/secure/getAllFormsMetadata")
+    @Produces(MediaType.APPLICATION_JSON)
+    public FormListMetadataTO getAllFormsMetadata(@Context HttpServletRequest request, @QueryParam("rows") int rows, @QueryParam("form") String publicationKey, @QueryParam("status") String status, @QueryParam("targetDate") String targetDate, @QueryParam("assignment") String assignment) throws InvalidSessionRESTful;
 
     @GET
     @Path("/secure/getRecentCohortMembers")
@@ -252,6 +264,21 @@ public interface ApiWS {
     @GET
     @Path("/secure/getAssignments")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.NameValue> getAssignments(@Context HttpServletRequest request, @QueryParam("status") String status, @QueryParam("expirationDate") String expirationDate) throws InvalidSessionRESTful;
+    public List<edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.NameValue> getAssignments(@Context HttpServletRequest request, @QueryParam("status") String status, @QueryParam("targetDate") String targetDate) throws InvalidSessionRESTful;
 
-    }
+    @GET
+    @Path("/secure/setSessionFormFilter")
+    @Produces(MediaType.APPLICATION_JSON)
+    public BooleanTO setSessionFormFilter(@Context HttpServletRequest request, @QueryParam("formFilter") String formFilter, @QueryParam("assignmentFilter") String assignmentFilter, @QueryParam("statusFilter") String statusFilter, @QueryParam("targetDateFilter") String targetDateFilter) throws InvalidSessionRESTful;
+
+    @GET
+    @Path("/secure/getUserPreferences")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<NameValue> getUserPreferences(@Context HttpServletRequest request) throws InvalidSessionRESTful;
+
+    @GET
+    @Path("/secure/setDefaultTab")
+    @Produces(MediaType.APPLICATION_JSON)
+    public BooleanTO setDefaultTab(@Context HttpServletRequest request, @QueryParam("defaultTab") String defaultTab) throws InvalidSessionRESTful;
+
+}

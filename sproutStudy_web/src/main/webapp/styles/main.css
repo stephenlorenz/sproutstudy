@@ -160,3 +160,27 @@ div.sprout-transform-narrative-content {
 .form-active-icon {
     color: rgb(43, 80, 226);
 }
+
+.sprout-study-badge-close {
+    cursor: pointer;
+}
+
+.sprout-dropdown-header {
+    white-space: nowrap;
+}
+
+.sprout-default-tab-icon {
+    margin-left: 5px;
+    /*color: #5EA845;*/
+}
+
+.sprout-default-tab {
+    /*font-weight: bold;*/
+    /*text-decoration: underline ;*/
+    /*-moz-text-decoration-color: #5EA845; /!* Code for Firefox *!/*/
+    /*-webkit-text-decoration-color: #5EA845; /!* Code for Firefox *!/*/
+    /*text-decoration-color: #5EA845;*/
+    /*text-decoration-style: dashed;*/
+    /*-moz-text-decoration-style: dashed;*/
+    /*-webkit-text-decoration-style: dashed;*/
+}

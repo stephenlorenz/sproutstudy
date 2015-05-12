@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.harvard.mgh.lcs.sprout.forms.core.ejb.bean.FormsWebServiceImplService;
 import edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.*;
 import edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.NameValue;
+import edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.FormListMetadataTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.*;
 import edu.harvard.mgh.lcs.sprout.forms.study.beanws.Result;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.BooleanTO;
@@ -19,6 +20,7 @@ import edu.harvard.mgh.lcs.sprout.study.model.formSubmission.SubmissionEntity;
 import edu.harvard.mgh.lcs.sprout.study.model.study.CohortAttrEntity;
 import edu.harvard.mgh.lcs.sprout.study.model.study.CohortEntity;
 import edu.harvard.mgh.lcs.sprout.study.model.study.CohortFormEntity;
+import edu.harvard.mgh.lcs.sprout.study.model.study.FormAttrEntity;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
@@ -221,7 +223,34 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
 
                             List<FormInstanceTO> formInstanceTOList = formDeliveryTO.getFormInstances();
                             if (formInstanceTOList != null && formInstanceTOList.size() > 0) {
+
+                                Map<String, String> formDestinationMap = new HashMap<String, String>();
+
                                 for (FormInstanceTO formInstanceTO : formInstanceTOList) {
+                                    String publicationKey = formInstanceTO.getPublicationKey();
+
+                                    String destination = null;
+                                    if (edu.harvard.mgh.lcs.sprout.forms.utils.StringUtils.isFull(publicationKey)) {
+                                        if (formDestinationMap.containsKey(publicationKey)) {
+                                            destination = formDestinationMap.get(publicationKey);
+                                            formInstanceTO.setDestination(destination);
+                                        } else {
+                                            Set<FormAttrEntity> formAttrEntities = studyService.getFormAttributesFromPublicationKey(publicationKey);
+                                            if (formAttrEntities != null && formAttrEntities.size() > 0) {
+                                                for (FormAttrEntity formAttrEntity : formAttrEntities) {
+                                                    if (formAttrEntity.getFormAttr().getCode().equalsIgnoreCase("DESTINATION")) {
+                                                        destination = formAttrEntity.getValue();
+                                                        formDestinationMap.put(publicationKey, destination);
+                                                        formInstanceTO.setDestination(destination);
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    formInstanceTO.setDestination(destination);
+
 //                                    if (!StringUtils.isEmpty(formInstanceTO.getDeliveryKey())) {
 //                                        SproutStudyConstantService.SubmissionStatus submissionStatus = formSubmissionService.getSubmissionStatus(formInstanceTO.getPublicationKey(), formInstanceTO.getInstanceId(), formInstanceTO.getDeliveryKey());
 //                                        if (submissionStatus != null) {
@@ -286,6 +315,7 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
 
                         List<FormInstanceTO> formInstanceTOList = formDeliveryTO.getFormInstances();
                         if (formInstanceTOList != null && formInstanceTOList.size() > 0) {
+                            Map<String, String> formDestinationMap = new HashMap<String, String>();
                             for (FormInstanceTO formInstanceTO : formInstanceTOList) {
 //                                if (!StringUtils.isEmpty(formInstanceTO.getDeliveryKey())) {
 //                                    SproutStudyConstantService.SubmissionStatus submissionStatus = formSubmissionService.getSubmissionStatus(formInstanceTO.getPublicationKey(), formInstanceTO.getInstanceId(), formInstanceTO.getDeliveryKey());
@@ -293,6 +323,29 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
 //                                        formInstanceTO.setAdminStatus(submissionStatus.toString());
 //                                    }
 //                                }
+                                String publicationKey = formInstanceTO.getPublicationKey();
+
+                                String destination = null;
+                                if (edu.harvard.mgh.lcs.sprout.forms.utils.StringUtils.isFull(publicationKey)) {
+                                    if (formDestinationMap.containsKey(publicationKey)) {
+                                        destination = formDestinationMap.get(publicationKey);
+                                        formInstanceTO.setDestination(destination);
+                                    } else {
+                                        Set<FormAttrEntity> formAttrEntities = studyService.getFormAttributesFromPublicationKey(publicationKey);
+                                        if (formAttrEntities != null && formAttrEntities.size() > 0) {
+                                            for (FormAttrEntity formAttrEntity : formAttrEntities) {
+                                                if (formAttrEntity.getFormAttr().getCode().equalsIgnoreCase("DESTINATION")) {
+                                                    destination = formAttrEntity.getValue();
+                                                    formDestinationMap.put(publicationKey, destination);
+                                                    formInstanceTO.setDestination(destination);
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                formInstanceTO.setDestination(destination);
 
                                 if (formInstanceTO.getIdentities() != null && formInstanceTO.getIdentities().size() > 0) {
                                     StringBuilder subjectIds = new StringBuilder();
@@ -367,7 +420,7 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
     }
 
     @Override
-    public int getAllFormsPageCount(String username, CohortTO cohortTO, Set<String> publicationKeys, int rows, String status, String expirationDate, String assignment) {
+    public int getAllFormsPageCount(String username, CohortTO cohortTO, Set<String> publicationKeys, int rows, String status, String targetDate, String assignment) {
         if (publicationKeys != null && publicationKeys.size() > 0 && cohortTO != null) {
 
             List<String> publicationKeysList = new ArrayList<String>();
@@ -395,7 +448,7 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
                         identities.add(identityMrn);
                     }
 
-                    return formsWebService.getPageCountByPublications(orgAuthKey, publicationKeysList, rows, status, schema, expirationDate, identities);
+                    return formsWebService.getPageCountByPublications(orgAuthKey, publicationKeysList, rows, status, schema, targetDate, identities);
                 }
             }
         }
@@ -403,7 +456,43 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
     }
 
     @Override
-    public List<NameValue> getAssignments(Set<String> publicationKeys, String status, String expirationDate) {
+    public FormListMetadataTO getAllFormsMetadata(String username, CohortTO cohortTO, Set<String> publicationKeys, int rows, String status, String targetDate, String assignment) {
+        if (publicationKeys != null && publicationKeys.size() > 0 && cohortTO != null) {
+
+            List<String> publicationKeysList = new ArrayList<String>();
+            for (String publicationKey : publicationKeys) publicationKeysList.add(publicationKey);
+
+            if (formsWebService == null) init();
+
+            if (formsWebService != null) {
+
+                String orgAuthKey = System.getProperty("edu.harvard.mgh.lcs.ihealthspace.module.forms.sprout.authToken");
+
+                if (!StringUtils.isEmpty(orgAuthKey)) {
+
+                    String schema = getCohortPrimaryIdentitySchema(cohortTO);
+
+//                    auditService.log(username, AuditType.GET_INBOX, SproutStudyConstantService.AuditVerbosity.INFO, "Retrieving subject inbox", cohortTO, cohortPrimaryIdentitySchema, cohortPrimaryIdentityId, String.format("Retrieving subject, %s, inbox.", getIdentityArrayAsString(identityArray)));
+
+                    List<IdentityTO> identities= null;
+
+                    if (StringUtils.isFull(assignment) && !assignment.equalsIgnoreCase("null")) {
+                        identities = new ArrayList<IdentityTO>();
+                        IdentityTO identityMrn = new IdentityTO();
+                        identityMrn.setScheme("partnerscn");
+                        identityMrn.setId(assignment);
+                        identities.add(identityMrn);
+                    }
+
+                    return formsWebService.getFormMetadataByPublications(orgAuthKey, publicationKeysList, rows, status, schema, targetDate, identities);
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public List<NameValue> getAssignments(Set<String> publicationKeys, String status, String targetDate) {
         if (publicationKeys != null && publicationKeys.size() > 0) {
 
             List<String> publicationKeysList = new ArrayList<String>();
@@ -412,14 +501,14 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
             if (formsWebService == null) init();
 
             if (formsWebService != null) {
-                return formsWebService.getAssignments(publicationKeysList, status, expirationDate);
+                return formsWebService.getAssignments(publicationKeysList, status, targetDate);
             }
         }
         return null;
     }
 
     @Override
-    public List<FormInstanceTO> getAllForms(String username, CohortTO cohortTO, Set<String> publicationKeys, int page, int rows, String orderBy, String orderDirection, String status, String expirationDate, String assignment) {
+    public List<FormInstanceTO> getAllForms(String username, CohortTO cohortTO, Set<String> publicationKeys, int page, int rows, String orderBy, String orderDirection, String status, String targetDate, String assignment) {
 
         if (publicationKeys != null && publicationKeys.size() > 0 && cohortTO != null) {
 
@@ -448,7 +537,7 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
                         identities.add(identityMrn);
                     }
 
-                    FormDeliveryTO formDeliveryTO = formsWebService.getFormsByPublications(orgAuthKey, publicationKeysList, page, rows, orderBy, orderDirection, status, schema, expirationDate, identities);
+                    FormDeliveryTO formDeliveryTO = formsWebService.getFormsByPublications(orgAuthKey, publicationKeysList, page, rows, orderBy, orderDirection, status, schema, targetDate, identities);
 //                    FormDeliveryTO formDeliveryTO = formsWebService.getFormsByPublications(orgAuthKey, publicationKeysList, page, rows);
 
                     int hasSubjectIds = 0;
@@ -458,6 +547,7 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
 
                         List<FormInstanceTO> formInstanceTOList = formDeliveryTO.getFormInstances();
                         if (formInstanceTOList != null && formInstanceTOList.size() > 0) {
+                            Map<String, String> formDestinationMap = new HashMap<String, String>();
                             for (FormInstanceTO formInstanceTO : formInstanceTOList) {
 //                                if (!StringUtils.isEmpty(formInstanceTO.getDeliveryKey())) {
 //                                    SproutStudyConstantService.SubmissionStatus submissionStatus = formSubmissionService.getSubmissionStatus(formInstanceTO.getPublicationKey(), formInstanceTO.getInstanceId(), formInstanceTO.getDeliveryKey());
@@ -465,6 +555,29 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
 //                                        formInstanceTO.setAdminStatus(submissionStatus.toString());
 //                                    }
 //                                }
+
+                                String publicationKey = formInstanceTO.getPublicationKey();
+
+                                String destination = null;
+                                if (edu.harvard.mgh.lcs.sprout.forms.utils.StringUtils.isFull(publicationKey)) {
+                                    if (formDestinationMap.containsKey(publicationKey)) {
+                                        destination = formDestinationMap.get(publicationKey);
+                                        formInstanceTO.setDestination(destination);
+                                    } else {
+                                        Set<FormAttrEntity> formAttrEntities = studyService.getFormAttributesFromPublicationKey(publicationKey);
+                                        if (formAttrEntities != null && formAttrEntities.size() > 0) {
+                                            for (FormAttrEntity formAttrEntity : formAttrEntities) {
+                                                if (formAttrEntity.getFormAttr().getCode().equalsIgnoreCase("DESTINATION")) {
+                                                    destination = formAttrEntity.getValue();
+                                                    formDestinationMap.put(publicationKey, destination);
+                                                    formInstanceTO.setDestination(destination);
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
 
                                 if (formInstanceTO.getIdentities() != null && formInstanceTO.getIdentities().size() > 0) {
                                     StringBuilder subjectIds = new StringBuilder();
