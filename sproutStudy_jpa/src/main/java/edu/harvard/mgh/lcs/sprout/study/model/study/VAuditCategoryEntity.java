@@ -7,9 +7,16 @@ import javax.persistence.*;
 
 @Entity
 @Table(schema="dbo", name="v_audit_category")
+@NamedQueries({
+		@NamedQuery(name = VAuditCategoryEntity.BY_CODE, query = "FROM VAuditCategoryEntity WHERE UPPER(code) = UPPER(:code)"),
+		@NamedQuery(name = VAuditCategoryEntity.ALL_AUDIT_CATEGORIES, query = "FROM VAuditCategoryEntity")
+})
 public class VAuditCategoryEntity implements Serializable {
 
 	private static final long serialVersionUID = 7902967846126374089L;
+
+	public static final String BY_CODE = "VAuditCategoryEntity.byCode";
+	public static final String ALL_AUDIT_CATEGORIES = "VAuditCategoryEntity.all";
 
 	@Id
     @GeneratedValue (strategy = GenerationType.IDENTITY)

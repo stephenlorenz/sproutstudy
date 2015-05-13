@@ -691,7 +691,8 @@ angular.module('sproutStudyApp')
             $scope.deleteMessageTitle = "Deleting...";
 
 
-            studyService.deleteSubmission({instanceId: $scope.deleteFormInstance}, function(data) {
+
+            studyService.deleteSubmission({instanceId: $scope.deleteFormInstance, demographicInd: $scope.deleteFormDemographicInd, identity: $scope.subject.id + "@mgh"}, function(data) {
                 if (data.value == 'false') {
                     $scope.deleteMessageText = data.message;
                     $scope.deleteFormButtonText = undefined;
@@ -999,8 +1000,18 @@ angular.module('sproutStudyApp')
 //            $scope.sendFormButton = "";
         }
 
-        $scope.onDeleteSubmission = function (instanceId) {
-            $scope.deleteFormInstance = instanceId;
+        $scope.onDeleteSubmission = function (form) {
+            $scope.deleteFormInstance = form.instanceId;
+
+            var demographicInd = false;
+
+            $.each(cohortService.getCohort().forms, function(index, tmpForm) {
+                if (tmpForm.demographic && tmpForm.active && tmpForm.publicationKey == form.publicationKey) {
+                    demographicInd = true;
+                }
+            });
+
+            $scope.deleteFormDemographicInd = demographicInd;
             $scope.deleteMessageText = "Are you sure you want to delete this form?  This action cannot be undone!";
             $scope.deleteMessageTitle = "Delete Form?";
             $scope.deleteFormButtonText = "Delete";

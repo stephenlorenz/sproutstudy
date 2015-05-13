@@ -27,7 +27,7 @@ public interface StudyService {
     public StudyInboxTO deleteInboxMessage(int id, CohortTO cohortTO);
     public StudyInboxTO markInboxMessageAsRead(int id, CohortTO cohortTO);
     public StudyInboxTO changeInboxMessageStatus(int id, CohortTO cohortTO, SproutStudyConstantService.InboxStatus inboxStatus);
-    public BooleanTO deleteSubmission(SessionTO sessionTO, CohortTO cohortTO, String instanceId);
+    public BooleanTO deleteSubmission(SessionTO sessionTO, CohortTO cohortTO, String instanceId, Boolean demographicInd, String[] identities);
     public BooleanTO markInboxMessageAsRead(String instanceId);
     public UserTO getUser(String username);
 

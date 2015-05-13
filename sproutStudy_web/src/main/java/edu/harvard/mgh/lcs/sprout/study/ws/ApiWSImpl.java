@@ -3,7 +3,6 @@ package edu.harvard.mgh.lcs.sprout.study.ws;
 import edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.*;
 import edu.harvard.mgh.lcs.sprout.forms.study.beanws.Result;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.*;
-import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.SproutStudyConstantService.SubmissionStatus;
 import edu.harvard.mgh.lcs.sprout.forms.study.exception.InvalidSessionRESTful;
 import edu.harvard.mgh.lcs.sprout.forms.study.exception.UnauthorizedActionException;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.*;
@@ -27,7 +26,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.jar.Attributes;
 
 @ApplicationPath("api")
 @Named
@@ -109,11 +107,11 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
 
     @Override
     @WebMethod(operationName = "deleteSubmission")
-    public BooleanTO deleteSubmission(@Context HttpServletRequest request, String instanceId) throws InvalidSessionRESTful {
+    public BooleanTO deleteSubmission(@Context HttpServletRequest request, String instanceId, Boolean demographicInd, String[] identities) throws InvalidSessionRESTful {
         SessionTO sessionTO = getSessionTO(request);
         if (sessionTO != null) {
             CohortTO cohortTO = getLastSelectedCohort(request);
-            BooleanTO booleanTO = studyService.deleteSubmission(sessionTO, cohortTO, instanceId);
+            BooleanTO booleanTO = studyService.deleteSubmission(sessionTO, cohortTO, instanceId, demographicInd, identities);
             if (booleanTO.isTrue()) {
                 return sproutFormsService.deleteForm(instanceId);
             } else {

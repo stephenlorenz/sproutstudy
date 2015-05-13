@@ -156,7 +156,7 @@ public interface ApiWS {
     @GET
     @Path("/secure/deleteSubmission")
     @Produces(MediaType.APPLICATION_JSON)
-    public BooleanTO deleteSubmission(@Context HttpServletRequest request, @QueryParam("instanceId") String instanceId) throws InvalidSessionRESTful;
+    public BooleanTO deleteSubmission(@Context HttpServletRequest request, @QueryParam("instanceId") String instanceId, @QueryParam("demographicInd") Boolean demographicInd, @QueryParam("identity") String[] identities) throws InvalidSessionRESTful;
 
     @GET
     @Path("/secure/getUser")

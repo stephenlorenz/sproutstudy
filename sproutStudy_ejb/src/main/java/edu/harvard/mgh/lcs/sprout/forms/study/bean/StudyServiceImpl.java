@@ -3,7 +3,7 @@ package edu.harvard.mgh.lcs.sprout.forms.study.bean;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.InboxTO;
+import edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.*;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.AuditService;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.SproutStudyConstantService;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.StudyService;
@@ -11,6 +11,7 @@ import edu.harvard.mgh.lcs.sprout.forms.study.beanws.Result;
 import edu.harvard.mgh.lcs.sprout.forms.study.exception.DuplicateCohortNameException;
 import edu.harvard.mgh.lcs.sprout.forms.study.exception.UnauthorizedActionException;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.*;
+import edu.harvard.mgh.lcs.sprout.forms.study.to.IdentityTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.util.StringUtils;
 import edu.harvard.mgh.lcs.sprout.study.model.study.*;
 import org.apache.commons.httpclient.Header;
@@ -33,7 +34,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.*;
-import java.util.Queue;
 
 @Stateless
 @Remote(StudyService.class)
@@ -602,7 +602,7 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
     }
 
     @Override
-    public BooleanTO deleteSubmission(SessionTO sessionTO, CohortTO cohortTO, String instanceId) {
+    public BooleanTO deleteSubmission(SessionTO sessionTO, CohortTO cohortTO, String instanceId, Boolean demographicInd, String[] identityArray) {
         GetMethod getMethod = null;
         try {
             String queryUrl = String.format(cohortTO.getCohortQueryURL() + String.format("&mode=delete&uid=%s", sessionTO.getUser()), URLEncoder.encode(instanceId, "UTF-8"));
@@ -624,6 +624,27 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
                     if (results != null && results.size() == 1) {
                         Result result = results.get(0);
                         if (result != null && result.getId().equalsIgnoreCase("true")) {
+
+                            if (demographicInd != null && demographicInd) {
+
+                                List<edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.IdentityTO> identities = parseIdentityArray(identityArray);
+
+                                String cohortPrimaryIdentitySchema = getCohortPrimaryIdentitySchema(cohortTO);
+                                String cohortPrimaryIdentityId = null;
+
+                                if (cohortPrimaryIdentitySchema != null) {
+                                    for (edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.IdentityTO identity : identities) {
+                                        if (identity.getScheme().equalsIgnoreCase(cohortPrimaryIdentitySchema)) {
+                                            cohortPrimaryIdentityId = identity.getId();
+                                        }
+                                    }
+                                }
+
+                                auditService.log(findUserEntity(sessionTO).getUsername(), AuditType.DELETE_INBOX, SproutStudyConstantService.AuditVerbosity.INFO, "Deleting User Inbox", cohortTO, cohortPrimaryIdentitySchema, cohortPrimaryIdentityId, String.format("Retrieving subject, %s, inbox.", getIdentityArrayAsString(identityArray)));
+
+
+                            }
+
                             return new BooleanTO(true);
                         } else if (result != null) {
                             return new BooleanTO(false, result.getFullName());
@@ -1402,8 +1423,58 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
         return null;
     }
 
+    private String getCohortPrimaryIdentitySchema(CohortTO cohortTO) {
+        if (cohortTO != null) {
+            try {
+                CohortEntity cohortEntity = entityManager.find(CohortEntity.class, cohortTO.getId());
+                if (cohortEntity != null) {
+                    for (CohortAttrEntity cohortAttrEntity : cohortEntity.getCohortAttributes()) {
+                        if (cohortAttrEntity.getCohortAttr().getCode().equalsIgnoreCase(IDENTITY_SCHEMA_PRIMARY)) {
+                            return cohortAttrEntity.getValue();
+                        }
+                    }
+                }
+            } catch (NoResultException e) {
+            }
+
+        }
+        return null;
+    }
+
+    private List<edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.IdentityTO> parseIdentityArray(String[] identityArray) {
+        List<edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.IdentityTO> identities = new ArrayList<edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.IdentityTO>();
+
+        if (identityArray != null && identityArray.length > 0) {
+            for (String identity : identityArray) {
+                if (identity.indexOf("@") > -1) {
+                    String[] identityParts = identity.split("@");
+                    if (identityParts.length == 2) {
+                        edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.IdentityTO identityTO = new edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.IdentityTO();
+                        identityTO.setId(identityParts[0]);
+                        identityTO.setScheme(identityParts[1]);
+                        identities.add(identityTO);
+                    }
+                }
+            }
+            return identities;
+        }
+        return null;
+    }
+
+    private String getIdentityArrayAsString(String[] identityArray) {
+        StringBuilder stringBuilder = new StringBuilder();
+        if (identityArray != null && identityArray.length > 0) {
+            List<edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.IdentityTO> identities = parseIdentityArray(identityArray);
+            for (edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.IdentityTO identity : identities) {
+                if (stringBuilder.length() > 0) {
+                    stringBuilder.append(", ");
+                }
+                stringBuilder.append(String.format("%s@%s", identity.getId(), identity.getScheme()));
+            }
+        }
 
 
-
+        return null;
+    }
 
 }

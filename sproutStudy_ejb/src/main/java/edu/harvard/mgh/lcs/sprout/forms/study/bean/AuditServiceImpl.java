@@ -14,9 +14,11 @@ import org.apache.log4j.Logger;
 import javax.annotation.Resource;
 import javax.ejb.*;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.transaction.*;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -344,7 +346,27 @@ public class AuditServiceImpl implements AuditService, SproutStudyConstantServic
                 auditTypeMap.put(vAuditTypeEntity.getCode().trim().toUpperCase(), vAuditTypeEntity);
             }
         }
-        return auditTypeMap.get(code.trim().toUpperCase());
+        VAuditTypeEntity vAuditTypeEntity = auditTypeMap.get(code.trim().toUpperCase());
+        if (vAuditTypeEntity == null) {
+            vAuditTypeEntity = new VAuditTypeEntity();
+            vAuditTypeEntity.setActivityDate(new Date());
+            vAuditTypeEntity.setCode(code);
+            vAuditTypeEntity.setDescription(String.format("Auto-generated Audit Type: %s", code));
+            vAuditTypeEntity.setCategory(getVAuditCategoryEntity(AuditCategory.APPLICATION));
+            entityManager.persist(vAuditTypeEntity);
+            auditTypeMap.put(vAuditTypeEntity.getCode().trim().toUpperCase(), vAuditTypeEntity);
+        }
+
+        return vAuditTypeEntity;
+    }
+
+    private VAuditCategoryEntity getVAuditCategoryEntity(AuditCategory auditCategory) {
+        try {
+            Query query = entityManager.createNamedQuery(VAuditCategoryEntity.BY_CODE);
+            query.setParameter("code", auditCategory.toString());
+            return (VAuditCategoryEntity) query.getSingleResult();
+        } catch (NoResultException e) {}
+        return null;
     }
 
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
