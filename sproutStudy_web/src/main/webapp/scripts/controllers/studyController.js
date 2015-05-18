@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('sproutStudyApp')
-    .controller('studyController', function ($log, $scope, $filter, $timeout, $window, studyService, patientService, formsService, cohortService, sessionService, transformService) {
+    .controller('studyController', function ($log, $scope, $filter, $timeout, $window, $websocket, studyService, patientService, formsService, cohortService, sessionService, transformService) {
 
         $scope.defaultTab = 'inbox';
 
@@ -1422,7 +1422,6 @@ angular.module('sproutStudyApp')
             var tabName = tab;
             return [
                 [function ($itemScope) { return 'Make Default Tab'; }, function ($itemScope) {
-                    console.log("tabName: " + tabName);
                     $scope.defaultTab = tabName;
                     studyService.setDefaultTab({defaultTab: tabName}, function(data) {
                         if (data.value == false) {
@@ -1436,5 +1435,90 @@ angular.module('sproutStudyApp')
                 }]
             ];
         };
+
+
+        var ws = $websocket.$new('wss://scl30.partners.org:8443/sproutstudy/sproutStudyFormState'); // instance of ngWebsocket, handled by $websocket service
+
+        ws.$on('$open', function () {});
+        ws.$on('$close', function () {});
+
+        ws.$on('$message', function(data) {
+            console.log("data: " + data);
+
+            if (data !== undefined && data !== null && data.indexOf("|") > 0) {
+                try {
+                    var dataJSON = data.substring(data.indexOf("|") + 1);
+
+                    var message = JSON.parse(dataJSON);
+
+                    var instanceId = message.instanceId;
+                    var lockInd = message.lock;
+                    console.log("instanceId: " + instanceId);
+                    console.log("lockInd: " + lockInd);
+
+                    if (instanceId !== null) {
+                        var inboxRecordIndex = undefined;
+                        var allFormsRecordIndex = undefined;
+
+                        if ($scope.inbox !== undefined) {
+                            $.each($scope.inbox, function (index, data) {
+                                console.log("inbox.instanceId: " + data.instanceId);
+                                if (instanceId == data.instanceId) inboxRecordIndex = index;
+                            });
+                        }
+                        if ($scope.allForms !== undefined) {
+                            $.each($scope.allForms, function (index, data) {
+                                console.log("allForms.instanceId: " + data.instanceId);
+                                if (instanceId == data.instanceId) allFormsRecordIndex = index;
+                            });
+                        }
+
+                        console.log("inboxRecordIndex: " + inboxRecordIndex);
+                        console.log("allFormsRecordIndex: " + allFormsRecordIndex);
+
+                        var applyInd = false;
+
+                        if (inboxRecordIndex !== undefined) {
+                            if (lockInd) {
+                                $scope.inbox[inboxRecordIndex].locked = true;
+                            } else {
+                                $scope.inbox[inboxRecordIndex].locked = false;
+                            }
+                            applyInd = true;
+                        }
+                        if (allFormsRecordIndex !== undefined) {
+                            console.log("allFormsRecordIndex 123");
+                            if (lockInd) {
+                                console.log("locking allForms " + instanceId);
+                                $scope.allForms[allFormsRecordIndex].locked = true;
+                            } else {
+                                console.log("locking allForms " + instanceId);
+                                $scope.allForms[allFormsRecordIndex].locked = false;
+                            }
+                            applyInd = true;
+                        }
+
+                        console.log("applyingINd: " + applyInd);
+
+                        if (applyInd) {
+                            console.log("applying changes...");
+                            $scope.applyIfPossible();
+                        }
+
+
+
+                    }
+
+                } catch (e) {
+                    console.log("e: " + e);
+                }
+            }
+        });
+
+
+
+
+
+
 
     });

@@ -233,27 +233,29 @@
                                     <th style="text-align: center; width: 100px;">Open Form</th>
                                 </tr>
                                 </thead>
-                                <tr class="inbox-row" ng-repeat='form in allForms | filter: formFilter ' ng-class="{'unknown': form.identityFullName == 'Unknown'}"  >
-                                    <td class="inbox-cell" ng-click="onOpenMutableForm(form)">{{form.identityFullName}} ({{form.identityPrimaryId}})</td>
-                                    <td class="inbox-cell" ng-click="onOpenMutableForm(form)">{{form.title}}</a></td>
-                                    <td class="inbox-cell" ng-click="onOpenMutableForm(form)">{{form.deliveryDate | date:'medium' }}</td>
+                                <tr ng-repeat='form in allForms | filter: formFilter ' ng-class="{'inbox-row': !form.locked, 'unknown': form.identityFullName == 'Unknown'}"  >
+                                    <td class="inbox-cell" ng-click="form.locked || onOpenMutableForm(form)">{{form.identityFullName}} ({{form.identityPrimaryId}})</td>
+                                    <td class="inbox-cell" ng-click="form.locked || onOpenMutableForm(form)">{{form.title}}</a></td>
+                                    <td class="inbox-cell" ng-click="form.locked || onOpenMutableForm(form)">{{form.deliveryDate | date:'medium' }}</td>
 
-                                    <td class="inbox-cell" ng-click="onOpenMutableForm(form)" ng-show="assignments.length > 1">
+                                    <td class="inbox-cell" ng-click="form.locked || onOpenMutableForm(form)" ng-show="assignments.length > 1">
                                         <ul style="list-style-type: none;" ng-show="form.inboxProxies.length > 0">
                                             <li ng-repeat="proxy in form.inboxProxies">{{proxy.assignedToDisplayName}}</li>
                                         </ul>
                                     </td>
 
-                                    <td class="inbox-cell" ng-click="onOpenMutableForm(form)">
+                                    <td class="inbox-cell" ng-click="form.locked || onOpenMutableForm(form)">
                                         <span ng-show="form.inboxProxies.length == 0">{{form.inboxStatus}}</span>
                                         <ul style="list-style-type: none;" ng-show="form.inboxProxies.length > 0">
                                             <li ng-repeat="proxy in form.inboxProxies">{{proxy.status}}</li>
                                         </ul>
                                     </td>
-                                    <td class="inbox-cell" ng-click="onOpenMutableForm(form)" ng-show="allFormsMetadata.hasStudyDates">{{form.targetDate | date:'medium' }}</td>
+                                    <td class="inbox-cell" ng-click="form.locked || onOpenMutableForm(form)" ng-show="allFormsMetadata.hasStudyDates">{{form.targetDate | date:'medium' }}</td>
                                     <!--<td class="inbox-cell" ng-click="onOpenMutableForm(form)">{{form.statusDate | date:'medium' }}</td>-->
                                     <td style="text-align: center; width: 80px;">
-                                        <button class="btn btn-info btn-mini" ng-click="onOpenMutableForm(form)"><i class="icon-play icon-white" style="margin-right: 0px;"></i></button>
+                                        <button class="btn btn-info btn-mini" ng-click="form.locked || onOpenMutableForm(form)" ng-show="!form.locked"><i class="icon-play icon-white" style="margin-right: 0px;"></i></button>
+                                        <button class="btn btn-warning btn-mini" ng-click="onOpenMutableForm(form)" ng-show="form.locked && 1 == 2"><i class="icon-play icon-white" style="margin-right: 0px;"></i></button>
+                                        <span ng-show="form.locked"><i class="fa fa-lock"></i></span>
                                     </td>
                                 </tr>
                             </table>
@@ -392,28 +394,29 @@
                     <th style="text-align: center; width: 60px;">Open</th>
                 </tr>
                 </thead>
-                <tr class="inbox-row" ng-repeat='form in filtered = (inbox | filter: formFilter | orderBy:formsSort.column:formsSort.descending)' >
-                    <td class="inbox-cell" ng-click="onOpenForm(form)">{{form.title}}</a></td>
-                    <td class="inbox-cell" ng-click="onOpenForm(form)">{{form.deliveryDate | date:'medium' }}</td>
-                    <td class="inbox-cell" ng-click="onOpenForm(form)" ng-show="assignments.length > 1">
+                <tr ng-class="{'inbox-row': !form.locked}" ng-repeat='form in filtered = (inbox | filter: formFilter | orderBy:formsSort.column:formsSort.descending)' >
+                    <td class="inbox-cell" ng-click="form.locked || onOpenForm(form)">{{form.title}}</a></td>
+                    <td class="inbox-cell" ng-click="form.locked || onOpenForm(form)">{{form.deliveryDate | date:'medium' }}</td>
+                    <td class="inbox-cell" ng-click="form.locked || onOpenForm(form)" ng-show="assignments.length > 1">
                         <ul style="list-style-type: none;" ng-show="form.inboxProxies.length > 0">
                             <li ng-repeat="proxy in form.inboxProxies">{{proxy.assignedToDisplayName}}</li>
                         </ul>
                     </td>
 
-                    <td class="inbox-cell" ng-click="onOpenForm(form)">
+                    <td class="inbox-cell" ng-click="form.locked || onOpenForm(form)">
                         <span ng-show="form.inboxProxies.length == 0">{{form.inboxStatus}}</span>
                         <ul style="list-style-type: none;" ng-show="form.inboxProxies.length > 0">
                             <li ng-repeat="proxy in form.inboxProxies">{{proxy.status}}</li>
                         </ul>
                     </td>
-                    <td class="inbox-cell" ng-click="onOpenForm(form)" ng-show="allFormsMetadata.hasStudyDates">{{form.targetDate | date:'medium' }}</td>
+                    <td class="inbox-cell" ng-click="form.locked || onOpenForm(form)" ng-show="allFormsMetadata.hasStudyDates">{{form.targetDate | date:'medium' }}</td>
                     <!--<td class="inbox-cell" ng-click="onOpenForm(form)">{{form.statusDate | date:'medium' }}</td>-->
                     <!--<td style="text-align: center; width: 80px;">-->
                         <!--<button class="btn btn-warning btn-mini" ng-click="onDeleteSubmission(form.instanceId)"><i class="icon-trash icon-white" style="margin-right: 0px;"></i></button>-->
                     <!--</td>-->
                     <td style="text-align: center; width: 80px;">
-                        <button class="btn btn-info btn-mini" ng-click="onOpenForm(form)"><i class="icon-play icon-white" style="margin-right: 0px;"></i></button>
+                        <button class="btn btn-info btn-mini" ng-click="form.locked || onOpenForm(form)" ng-show="!form.locked"><i class="icon-play icon-white" style="margin-right: 0px;"></i></button>
+                        <span ng-show="form.locked"><i class="fa fa-lock"></i></span>
                     </td>
                 </tr>
             </table>

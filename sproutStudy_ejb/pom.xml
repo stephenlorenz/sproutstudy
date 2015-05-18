@@ -74,6 +74,7 @@
                     <clientIncludes>
                         <clientInclude>**/exception/*.class</clientInclude>
                         <clientInclude>**/beaninterface/*.class</clientInclude>
+                        <clientInclude>**/websocketsinterface/*.class</clientInclude>
                         <clientInclude>**/beanws/*.class</clientInclude>
                         <clientInclude>**/to/*.class</clientInclude>
                         <clientInclude>**/util/*.class</clientInclude>
@@ -87,6 +88,26 @@
 
     </build>
     <dependencies>
+        <dependency>
+            <groupId>org.atmosphere</groupId>
+            <artifactId>atmosphere-runtime-native</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.atmosphere.jboss.as</groupId>
+            <artifactId>jboss-as-websockets</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.java-websocket</groupId>
+            <artifactId>Java-WebSocket</artifactId>
+        </dependency>
+
+
+        <!--<dependency>-->
+            <!--<groupId>edu.harvard.mgh.lcs.sprout</groupId>-->
+            <!--<artifactId>sproutStudy_web</artifactId>-->
+            <!--<type>war</type>-->
+        <!--</dependency>-->
+
         <dependency>
             <groupId>edu.harvard.mgh.lcs.sprout</groupId>
             <artifactId>sproutStudy_sprout_ws</artifactId>

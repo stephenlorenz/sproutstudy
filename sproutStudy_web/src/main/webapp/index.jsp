@@ -137,6 +137,7 @@
 <script src="/sproutassets/components/angular-strap/bootstrap-datepicker.js"></script>
 <script type="text/javascript" src="assets/components/angular-ui-ace/ui-ace.min.js"></script>
 <script type="text/javascript" src="assets/components/angular-bootstrap-contextmenu/contextMenu.js"></script>
+<script type="text/javascript" src="assets/components/ng-websocket/ng-websocket.js"></script>
 
 <script src="assets/scripts/external/splitter/js/splitter.js"></script>
 <script src="assets/scripts/external/splitterJQuery/splitter.js"></script>
@@ -788,6 +789,19 @@
         }
         return null;
     }
+
+    function displayErrorModal(title, message, callback) {
+        jQuerySprout("#modal-error-title").html(title);
+        jQuerySprout("#modal-error-message").html(message);
+        jQuerySprout('#modal-error').modal({
+            keyboard: false
+        });
+        sproutFormsDoneInd = true;
+        deletePaneContent();
+        if (callback !== undefined && typeof callback == 'function') callback();
+
+    }
+
 </script>
 
 <script src="/sproutassets/scripts/idletimer/jquery.idletimer.js" type="text/javascript"></script>
@@ -826,6 +840,20 @@
     });
 
 </script>
+
+<div class="modal modal-error hide fade in modal-200-600" id="modal-error" style="display: none;" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" options="modalSmallOpts" aria-hidden="true">
+    <div class="modal-header">
+        <h3 id="modal-error-title"></h3>
+    </div>
+    <div class="modal-body-short">
+        <p>
+        <h4 id="modal-error-message"></h4>
+        </p>
+    </div>
+    <div class="modal-footer">
+        <a href="#" data-dismiss="modal"  class="btn btn-danger">Close</a>
+    </div>
+</div>
 
 <div class="modal modal-timeout hide fade in" id="modal-timeout" style="display: none;" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-header">
