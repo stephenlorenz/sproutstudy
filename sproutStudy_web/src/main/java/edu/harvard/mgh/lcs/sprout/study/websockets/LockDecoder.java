@@ -24,7 +24,7 @@ import java.io.IOException;
 /**
  * Decode a String into a {@link LockTO}.
  */
-public class JacksonDecoder implements Decoder<String, LockTO> {
+public class LockDecoder implements Decoder<String, LockTO> {
 
     private final ObjectMapper mapper = new ObjectMapper();
 

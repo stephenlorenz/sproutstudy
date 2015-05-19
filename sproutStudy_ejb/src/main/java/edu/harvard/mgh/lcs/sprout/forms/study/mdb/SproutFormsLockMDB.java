@@ -1,13 +1,19 @@
 package edu.harvard.mgh.lcs.sprout.forms.study.mdb;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.harvard.mgh.lcs.sprout.forms.core.exceptions.InvalidPublicationKeyException;
 import edu.harvard.mgh.lcs.sprout.forms.core.to.LockTO;
+import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.StudyService;
+import edu.harvard.mgh.lcs.sprout.forms.study.to.CohortTO;
+import edu.harvard.mgh.lcs.sprout.forms.utils.StringUtils;
 import edu.harvard.mgh.lcs.sprout.study.websocketsinterface.SproutStudyFormStateInterface;
 
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.EJB;
 import javax.ejb.MessageDriven;
 import javax.jms.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @MessageDriven(
         activationConfig = {
@@ -20,6 +26,9 @@ public class SproutFormsLockMDB implements MessageListener {
     @SuppressWarnings("EjbEnvironmentInspection")
     @EJB
     private SproutStudyFormStateInterface sproutStudyFormState;
+
+    @EJB
+    private StudyService studyService;
 
     @Override
     public void onMessage(Message message) {
@@ -36,7 +45,15 @@ public class SproutFormsLockMDB implements MessageListener {
 
             System.out.println("lockTO.getInstanceId() = " + lockTO.getInstanceId());
 
-            sproutStudyFormState.broadcast(lockTO);
+            String publicationKey = lockTO.getPublicationKey();
+
+            if (StringUtils.isFull(publicationKey)) {
+                Set<CohortTO> cohorts = studyService.getCohortsFromPublicationKey(publicationKey);
+//                sproutStudyFormState.broadcast(cohorts, lockTO);
+            } else {
+                throw new InvalidPublicationKeyException(null);
+            }
+
 //            SproutStudyFormState.broadcaster.broadcast(lockTO);
 
         } catch (Exception e) {

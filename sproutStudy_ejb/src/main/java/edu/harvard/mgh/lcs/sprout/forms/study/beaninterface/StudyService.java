@@ -60,4 +60,5 @@ public interface StudyService {
     public List<NameValue> getUserPreferences(String username);
     public Set<FormAttrEntity> getFormAttributesFromPublicationKey(String publicationKey);
     public BooleanTO persistFormAttribute(SessionTO sessionTO, String cohortKey, String formKey, String attributeKey, String attributeValue) throws UnauthorizedActionException;
+    public Set<CohortTO> getCohortsFromPublicationKey(String publicationKey);
 }

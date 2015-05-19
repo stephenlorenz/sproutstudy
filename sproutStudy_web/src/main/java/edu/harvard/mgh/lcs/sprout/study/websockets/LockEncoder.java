@@ -16,30 +16,24 @@
 package edu.harvard.mgh.lcs.sprout.study.websockets;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.harvard.mgh.lcs.sprout.forms.core.to.LockTO;
 import org.atmosphere.config.managed.Encoder;
 
 import java.io.IOException;
 
 /**
- * Encode a {@link CohortProtocol} into a String
+ * Encode a {@link LockTO} into a String
  */
-public class JacksonEncoder implements Encoder<JacksonEncoder.Encodable, String> {
+public class LockEncoder implements Encoder<LockTO, String> {
 
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Override
-    public String encode(Encodable m) {
+    public String encode(LockTO lockTO) {
         try {
-            return mapper.writeValueAsString(m);
+            return mapper.writeValueAsString(lockTO);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-
-    /**
-     * Marker interface for Jackson.
-     */
-    public static interface Encodable {
-    }
-
 }

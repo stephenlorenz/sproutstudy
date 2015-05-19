@@ -16,30 +16,25 @@
 package edu.harvard.mgh.lcs.sprout.study.websockets;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.atmosphere.config.managed.Encoder;
+import edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.FormInstanceTO;
+import edu.harvard.mgh.lcs.sprout.forms.core.to.LockTO;
+import org.atmosphere.config.managed.Decoder;
 
 import java.io.IOException;
 
 /**
- * Encode a {@link CohortProtocol} into a String
+ * Decode a String into a {@link FormInstanceTO}.
  */
-public class JacksonEncoder implements Encoder<JacksonEncoder.Encodable, String> {
+public class FormInstanceTODecoder implements Decoder<String, FormInstanceTO> {
 
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Override
-    public String encode(Encodable m) {
+    public FormInstanceTO decode(String formInstanceTO) {
         try {
-            return mapper.writeValueAsString(m);
+            return mapper.readValue(formInstanceTO, FormInstanceTO.class);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-
-    /**
-     * Marker interface for Jackson.
-     */
-    public static interface Encodable {
-    }
-
 }

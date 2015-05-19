@@ -1244,6 +1244,8 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
         return false;
     }
 
+
+
     private boolean isManager(SessionTO sessionTO, CohortEntity cohortEntity) {
         if (cohortEntity != null) {
             UserEntity userEntity = findUserEntity(sessionTO);
@@ -1278,6 +1280,32 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
                     }
                     return cohortAuthorizationTOList;
                 }
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Set<CohortTO> getCohortsFromPublicationKey(String publicationKey) {
+        if (edu.harvard.mgh.lcs.sprout.forms.utils.StringUtils.isFull(publicationKey)) {
+            Set<CohortTO> cohortTOList = new HashSet<CohortTO>();
+            try {
+                Query query = entityManager.createNamedQuery(FormEntity.FIND_BY_PUBLICATION_KEY);
+                query.setParameter("publicationKey", publicationKey);
+                List<FormEntity> formEntities = query.getResultList();
+                if (formEntities != null && formEntities.size() > 0) {
+                    for (FormEntity formEntity : formEntities) {
+                        List<CohortFormEntity> cohortFormEntities = formEntity.getCohortForms();
+                        if (cohortFormEntities != null) {
+                            for (CohortFormEntity cohortFormEntity : cohortFormEntities) {
+                                CohortEntity cohortEntity = cohortFormEntity.getCohort();
+                                if (cohortEntity != null) cohortTOList.add(constructCohortTO(cohortEntity));
+                            }
+                        }
+                    }
+                    if (cohortTOList.size() > 0) return cohortTOList;
+                }
+            } catch (Exception e) {
             }
         }
         return null;

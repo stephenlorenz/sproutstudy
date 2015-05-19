@@ -69,14 +69,14 @@
 
                 <ul class="nav nav-tabs">
                     <li class="sprout-study-app-tab" tab="inbox" ng-class="{'active': defaultTab == 'inbox'}" context-menu="applicationTabContextMenu('inbox')">
-                        <a href="#tab0" data-toggle="tab" ng-class="{'sprout-default-tab': defaultTab == 'inbox'}"><i class="icon-envelope" style="padding-right: 5px;" ></i>Inbox<i class="fa fa-star-o sprout-default-tab-icon" ng-show="defaultTab == 'inbox'"></i></a>
+                        <a href="#tab0" data-toggle="tab" ng-class="{'sprout-default-tab': defaultTab == 'inbox'}"><i class="icon-envelope" style="padding-right: 5px;" ></i>Inbox<i class="fa fa-thumb-tack sprout-default-tab-icon" ng-show="defaultTab == 'inbox'"></i></a>
                     </li>
                     <li class="sprout-study-app-tab" tab="recentSubjects" ng-class="{'active': defaultTab == 'recentSubjects'}"  context-menu="applicationTabContextMenu('recentSubjects')">
-                        <a href="#tab1" data-toggle="tab" ng-class="{'sprout-default-tab': defaultTab == 'recentSubjects'}"><i class="icon-time" style="padding-right: 5px;"></i>Recent Subjects<i class="fa fa-star-o sprout-default-tab-icon" ng-show="defaultTab == 'recentSubjects'"></i>
+                        <a href="#tab1" data-toggle="tab" ng-class="{'sprout-default-tab': defaultTab == 'recentSubjects'}"><i class="icon-time" style="padding-right: 5px;"></i>Recent Subjects<i class="fa fa-thumb-tack sprout-default-tab-icon" ng-show="defaultTab == 'recentSubjects'"></i>
                         </a>
                     </li>
                     <li class="sprout-study-app-tab" tab="forms" ng-class="{'active': defaultTab == 'forms'}"  context-menu="applicationTabContextMenu('forms')">
-                        <a href="#tab2" data-toggle="tab" ng-class="{'sprout-default-tab': defaultTab == 'forms'}"><i class="icon-list" style="padding-right: 5px;"></i>Forms<i class="fa fa-star-o sprout-default-tab-icon" ng-show="defaultTab == 'forms'"></i></a>
+                        <a href="#tab2" data-toggle="tab" ng-class="{'sprout-default-tab': defaultTab == 'forms'}"><i class="icon-list" style="padding-right: 5px;"></i>Forms<i class="fa fa-thumb-tack sprout-default-tab-icon" ng-show="defaultTab == 'forms'"></i></a>
                     </li>
                 </ul>
                 <div class="tab-content">
@@ -233,7 +233,7 @@
                                     <th style="text-align: center; width: 100px;">Open Form</th>
                                 </tr>
                                 </thead>
-                                <tr ng-repeat='form in allForms | filter: formFilter ' ng-class="{'inbox-row': !form.locked, 'unknown': form.identityFullName == 'Unknown'}"  >
+                                <tr ng-repeat='form in allForms | filter: allFormsFilter ' ng-class="{'inbox-row': !form.locked, 'unknown': form.identityFullName == 'Unknown'}"  >
                                     <td class="inbox-cell" ng-click="form.locked || onOpenMutableForm(form)">{{form.identityFullName}} ({{form.identityPrimaryId}})</td>
                                     <td class="inbox-cell" ng-click="form.locked || onOpenMutableForm(form)">{{form.title}}</a></td>
                                     <td class="inbox-cell" ng-click="form.locked || onOpenMutableForm(form)">{{form.deliveryDate | date:'medium' }}</td>
