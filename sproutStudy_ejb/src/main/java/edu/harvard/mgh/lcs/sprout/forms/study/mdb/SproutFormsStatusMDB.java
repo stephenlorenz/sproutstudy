@@ -29,6 +29,7 @@ import java.util.Set;
         activationConfig = {
                 @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Topic"),
                 @ActivationConfigProperty(propertyName="destination", propertyValue="topic/sproutFormStatusTopic"),
+                @ActivationConfigProperty(propertyName = "consumerWindowSize", propertyValue = "0"),
                 @ActivationConfigProperty(propertyName="clientID", propertyValue = "SproutStudyFormsStatusMDB")
         })
 public class SproutFormsStatusMDB implements MessageListener {
