@@ -205,6 +205,15 @@ angular.module('sproutStudyApp')
             $scope.searchInprogress = true;
             studyService.findCohortMember({cohortQueryURL: cohortService.getCohort().cohortQueryURL ,query: $scope.query}, function(data) {
                 $scope.searchInprogress = false;
+
+                $.each(data, function(index, row) {
+                    var birthDateRaw = row.birthDate;
+                    if (birthDateRaw !== undefined) {
+                        var birthDate = new Date(birthDateRaw);
+                        var birthDateUTC = $scope.convertToUTC(birthDate);
+                    }
+                    data[index].birthDate = birthDateUTC;
+                });
                 $scope.patientMatches = data;
             });
         }
@@ -212,10 +221,25 @@ angular.module('sproutStudyApp')
         $scope.getRecentCohortMembers = function() {
             $scope.recentCohortMembers = undefined;
             studyService.getRecentCohortMembers({}, function(data) {
+                $.each(data, function(index, row) {
+                    var birthDateRaw = row.birthDate;
+                    if (birthDateRaw !== undefined) {
+                        var birthDate = new Date(birthDateRaw);
+                        var birthDateUTC = $scope.convertToUTC(birthDate);
+                    }
+                    data[index].birthDate = birthDateUTC;
+                });
                 $scope.recentCohortMembers = data;
 //                console.log("data: " + data.length);
             });
         }
+
+        $scope.convertToUTC = function(dt) {
+            var localDate = new Date(dt);
+            var localTime = localDate.getTime();
+            var localOffset = localDate.getTimezoneOffset() * 60000;
+            return new Date(localTime + localOffset);
+        };
 
         $scope.studyInboxSort = {
             column: 'deliveryDate',
@@ -778,6 +802,10 @@ angular.module('sproutStudyApp')
             $scope.criteria["lastname"] = $scope.query;
             $scope.page = 0;
             $scope.patientMatches = patientService.patientLookup($scope.criteria, $scope.page);
+            var patientMatches = patientService.patientLookup($scope.criteria, $scope.page);
+            $.each(patientMatches, function(index, data) {
+                console.log("onPatientLookup: " + data.birthdate);
+            });
         };
 
         $scope.chooseCohort = function(cohort) {
