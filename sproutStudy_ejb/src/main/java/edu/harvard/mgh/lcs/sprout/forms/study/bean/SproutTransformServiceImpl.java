@@ -1,13 +1,22 @@
 package edu.harvard.mgh.lcs.sprout.forms.study.bean;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.jknack.handlebars.*;
+import com.github.jknack.handlebars.context.FieldValueResolver;
+import com.github.jknack.handlebars.context.JavaBeanValueResolver;
+import com.github.jknack.handlebars.context.MapValueResolver;
+import com.github.jknack.handlebars.context.MethodValueResolver;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.PatientService;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.SproutStudyConstantService.PatientVerificationSearchSelector;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.SproutTransformService;
+import edu.harvard.mgh.lcs.sprout.forms.study.handlebars.Helpers;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.BooleanTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.NameValue;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.PatientDetailTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.TemplateTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.util.StringUtils;
+import edu.harvard.mgh.lcs.sprout.forms.utils.XmlUtils;
 import edu.harvard.mgh.lcs.sprout.study.model.transform.*;
 
 import javax.ejb.*;
@@ -15,6 +24,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.xml.transform.*;
+import javax.xml.transform.stream.StreamSource;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -102,6 +114,106 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 
 		}
 		return new BooleanTO(false);
+	}
+
+	@Override
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	public String getNarrative(String publicationKey, String instanceId, String jsonData) {
+		return getNarrative(publicationKey, instanceId, jsonData, "HTML");
+	}
+
+	@Override
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	public String getNarrative(String publicationKey, String instanceId, String jsonData, String format) {
+
+		System.out.println("SproutTransformServiceImpl.getNarrative");
+		System.out.println("publicationKey = [" + publicationKey + "], instanceId = [" + instanceId + "], jsonData = [" + jsonData + "]");
+
+		if (StringUtils.isFull(publicationKey, instanceId, jsonData)) {
+			NarrativeEntity narrativeEntity = getNarrative(instanceId);
+			if (narrativeEntity != null && narrativeEntity.getFormats() != null) {
+				for (NarrativeFormatEntity narrativeFormatEntity : narrativeEntity.getFormats()) {
+					if (narrativeFormatEntity.getFormat().getCode().equalsIgnoreCase("HTML")) {
+						return narrativeFormatEntity.getData();
+					}
+				}
+			} else {
+				String templateText = null;
+
+				TemplateCloneEntity templateCloneEntity = getTemplateCloneEntities(instanceId);
+				if (templateCloneEntity != null && StringUtils.isFull(templateCloneEntity.getTemplate())) {
+					templateText = templateCloneEntity.getTemplate();
+				} else {
+					TemplateMasterEntity templateMasterEntity = getTemplateMasterEntity(publicationKey);
+					if (templateMasterEntity != null) templateText = templateMasterEntity.getTemplate();
+				}
+
+				if (StringUtils.isFull(templateText)) {
+
+					System.out.println("templateText = " + templateText);
+
+					try {
+						Handlebars handlebars = new Handlebars();
+
+						handlebars.registerHelpers(new Helpers());
+
+						Template template = handlebars.compileInline(templateText);
+
+						JsonNode jsonNode = new ObjectMapper().readValue(jsonData, JsonNode.class);
+						handlebars.registerHelper("json", Jackson2Helper.INSTANCE);
+
+						Context context = Context
+								.newBuilder(jsonNode)
+								.resolver(JsonNodeValueResolver.INSTANCE,
+										JavaBeanValueResolver.INSTANCE,
+										FieldValueResolver.INSTANCE,
+										MapValueResolver.INSTANCE,
+										MethodValueResolver.INSTANCE
+								)
+								.build();
+						String narrative = template.apply(context);
+
+						System.out.println("narrative = " + narrative);
+
+						if (StringUtils.isEmpty(format) || format.equalsIgnoreCase("html")) {
+							return narrative;
+						} else {
+							if (format.equalsIgnoreCase("rtf")) {
+								return transformHtml2RTF(narrative);
+							}
+						}
+
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	private String transformHtml2RTF(String narrative) {
+		if (StringUtils.isFull(narrative)) {
+			try {
+				TransformerFactory factory = TransformerFactory.newInstance();
+				factory.setAttribute("indent-number", new Integer(4));
+				InputStream stream = SproutTransformService.class.getClassLoader().getResourceAsStream("/edu/harvard/mgh/lcs/sprout/forms/study/stylesheets/xhtml2rtf.xsl");
+				Transformer transformer = factory.newTransformer(new javax.xml.transform.stream.StreamSource(stream));
+				transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+				transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+				StreamSource streamSource = new StreamSource(new StringReader(narrative));
+				StringWriter writer = new StringWriter();
+				transformer.transform(streamSource, new javax.xml.transform.stream.StreamResult(writer));
+				String rtf = writer.toString();
+				System.out.println("rtf = " + rtf);
+				return rtf;
+			} catch (TransformerConfigurationException e) {
+				e.printStackTrace();
+			} catch (TransformerException e) {
+				e.printStackTrace();
+			}
+		}
+		return null;
 	}
 
 	private BooleanTO saveNarrativeFormat(String narrative, VNarrativeFormatEntity vNarrativeFormatEntity, NarrativeEntity narrativeEntity) {

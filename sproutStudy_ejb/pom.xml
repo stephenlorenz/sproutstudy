@@ -101,6 +101,23 @@
             <artifactId>Java-WebSocket</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.github.jknack</groupId>
+            <artifactId>handlebars</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.jknack</groupId>
+            <artifactId>handlebars-jackson2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>bsf</groupId>
+            <artifactId>bsf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mozilla</groupId>
+            <artifactId>rhino</artifactId>
+        </dependency>
+
 
         <!--<dependency>-->
             <!--<groupId>edu.harvard.mgh.lcs.sprout</groupId>-->

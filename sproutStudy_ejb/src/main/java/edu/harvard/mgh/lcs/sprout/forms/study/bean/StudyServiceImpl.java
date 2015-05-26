@@ -395,6 +395,19 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
         return null;
     }
 
+    @Override
+    public String getPublicationKeyFromFormKey(String formKey) {
+        if (StringUtils.isFull(formKey)) {
+            try {
+                Query query = entityManager.createNamedQuery(FormEntity.FIND_BY_FORM_KEY_ACTIVE);
+                query.setParameter("formKey", formKey);
+                FormEntity formEntity = (FormEntity) query.getSingleResult();
+                if (formEntity != null) return formEntity.getPublicationKey();
+            } catch (NoResultException e) {}
+        }
+        return null;
+    }
+
     public List<FormEntity> getFormsKeyFromFormKey(String formKey) {
         if (StringUtils.isFull(formKey)) {
             Query query = entityManager.createNamedQuery(FormEntity.FIND_BY_FORM_KEY);

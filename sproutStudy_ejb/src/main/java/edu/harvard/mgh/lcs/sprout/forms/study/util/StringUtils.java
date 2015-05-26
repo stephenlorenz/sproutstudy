@@ -64,6 +64,14 @@ public class StringUtils {
 		return null;
 	}
 
+	public static Float getFloat(String input) {
+		try {
+			return Float.parseFloat(input);
+		} catch (Exception e) {}
+
+		return null;
+	}
+
 	public static String encode(String input) {
 		try {
 			return URLEncoder.encode(input != null ? input : "", "UTF-8").replaceAll("\\+", "%20");

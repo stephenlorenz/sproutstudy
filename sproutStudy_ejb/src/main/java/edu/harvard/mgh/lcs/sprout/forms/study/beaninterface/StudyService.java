@@ -61,4 +61,5 @@ public interface StudyService {
     public Set<FormAttrEntity> getFormAttributesFromPublicationKey(String publicationKey);
     public BooleanTO persistFormAttribute(SessionTO sessionTO, String cohortKey, String formKey, String attributeKey, String attributeValue) throws UnauthorizedActionException;
     public Set<CohortTO> getCohortsFromPublicationKey(String publicationKey);
+    public String getPublicationKeyFromFormKey(String formKey);
 }
