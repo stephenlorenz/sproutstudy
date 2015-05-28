@@ -1,4 +1,4 @@
-package edu.harvard.mgh.lcs.sprout.forms.study.handlebars;
+package edu.harvard.mgh.lcs.sprout.forms.transform.handlebars;
 
 import com.github.jknack.handlebars.Options;
 import edu.harvard.mgh.lcs.sprout.forms.study.util.StringUtils;

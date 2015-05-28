@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="Windows-1252" ?>
+<?xml version="1.0"?>
 <!-- $Id: xhtml2rtf.xsl 166 2005-12-15 09:38:34Z wpc0756\Emmanuel $ -->
 <!-- 
 
@@ -21,14 +21,17 @@
     http://www.gnu.org/licenses/lgpl.txt
 
 -->
+
 <xsl:stylesheet version="1.0"
                 xmlns:xhtml="http://www.w3.org/1999/xhtml"
                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-                xmlns:java="http://xml.apache.org/xalan/java"
                 xmlns:xalan="http://xml.apache.org/xalan"
-                xmlns:xhtml2rtf="http://xml.apache.org/xhtml2rtf"
+                xmlns:xhtml2rtf="XHTML2RTF"
                 extension-element-prefixes="xhtml2rtf">
-    <xsl:output method="text" encoding="Windows-1252" omit-xml-declaration="yes" indent="no" />
+
+    <xalan:component prefix="xhtml2rtf" functions="charCode rtfEncode tableCellWidthFill getTableColumnWidth">
+        <xalan:script lang="javaclass" src="xalan://edu.harvard.mgh.lcs.sprout.forms.transform.xalan.extension.XHTML2RTF"/>
+    </xalan:component>
 
     <!--
          NOTE ON RTF:
@@ -126,207 +129,6 @@
 
     <!--     * Generate RTF Stylesheet (some RTF reader do not support this) -->
     <xsl:param name="no-rtf-stylesheet"         select="0" /><!-- 0 use stylesheet, 1 no stylesheet -->
-
-
-    <!-- JavaScript use to ENCODE special characters (backslash, left curly bracket, right curly bracket, etc...) -->
-    <xalan:component prefix="xhtml2rtf" functions="RTFEncode">
-        <xalan:script lang="javascript">
-            function CharCode(strText)
-            {
-            var strCharCodes = "###";
-            var strSeparator = "";
-            for (var intChar = 0; intChar &lt; strText.length; intChar++)
-            {
-            strCharCodes += strText.charCodeAt(intChar).toString() + strSeparator;
-            strSeparator = ","
-            }
-            strCharCodes += "###";
-            return(strCharCodes);
-            }
-            function RTFEncode(objXMLNodes, strText, intMyNormalizeSpaces)
-            {
-            // Encode text, character by character
-
-            if (intMyNormalizeSpaces == 1)
-            {
-            // Replace multiple spaces by one single space
-            strText = strText.replace(/ +/g, " ");
-            }
-
-            var blnAppendParagraphBreak = false;
-
-            // Build an array of characters
-            var arrChars = strText.split("");
-            for (var intChar = 0; intChar &lt; arrChars.length; intChar++)
-            {
-            var strChar = arrChars[intChar];
-            switch (strChar.valueOf())
-            {
-            case "\\":
-            case "{":
-            case "}":
-            // Encode backslashes, left curly bracket, right curly bracket (prefix with a backslash)
-            arrChars[intChar] = "\\" + strChar;
-            break;
-
-            case "&#160;":
-            // Encode non-breacking space (backslash+tilda)
-            arrChars[intChar] = "\\~";
-            break;
-
-            case "\n":
-            if (intMyNormalizeSpaces == 2)
-            {
-            // Preformatted mode - use \line for all EOL characters
-            arrChars[intChar] = "\\line ";
-            // Check if next node is a paragraph - if yes, we will use a paragraph break INSTEAD of line break
-            if (objXMLNodes != null &amp;&amp; objXMLNodes.length != 0)
-            {
-            var objXMLContext = objXMLNodes[0];
-            var objNextNode = objXMLContext.selectSingleNode("following-sibling::node()[position() = 1]");
-            if (objNextNode != null)
-            {
-            if (objNextNode.nodeName == "p")
-            {
-            blnAppendParagraphBreak = true;
-            }
-            }
-            }
-            }
-            break;
-
-            default:
-            var intCharCode = strChar.charCodeAt(0);
-            if (intCharCode &gt; 255)
-            {
-            // Non-ascii: encode as UNICODE (\u)
-            arrChars[intChar] = "\\u" + intCharCode.toString() + "  ";
-            }
-            else
-            {
-            // TODO Handle control characters (ASCII code lesser than 32 - TAB, EOL, etc...)
-            // No encoding
-            }
-            break;
-
-            }
-            }
-
-            // Convert back array to string
-            var strRTFEncoded = arrChars.join("");
-
-            if (blnAppendParagraphBreak)
-            {
-            // Append a paragraph break - next node is a p tag, but we are not inside a p tag (bad!)
-            strRTFEncoded += "\\par ";
-            }
-
-            return(strRTFEncoded);
-            }
-
-            var multiplyWidth = 192;
-            var marginWidth = 196;
-            var arrMaxLen;
-            var arrTotLen;
-            function TableCellWidthFill(objXMLNodes, tableWidth)
-            {
-            var strText = "";
-            if (objXMLNodes != null &amp;&amp; objXMLNodes.length != 0)
-            {
-            var objRowNodes = objXMLNodes[0].selectNodes("./*");
-            var objRowNode;
-            var objColNodes;
-            arrMaxLen = new Array();
-            arrTotLen = new Array();
-            var maxWordLen;
-            for(var i = 0; i &lt; objRowNodes.length; i++ )
-            {
-            objRowNode = objRowNodes[i];
-            objColNodes = objRowNode.selectNodes("./*");
-            for(var j = 0; j &lt; objColNodes.length; j++ )
-            {
-            var arrWords = objColNodes[j].text.split(/[\s+]/);
-            maxWordLen = 0;
-            arrTotLen[j] = objColNodes[j].text.length;
-            for(var iWord = 0; iWord &lt; arrWords.length; iWord++)
-            {
-            if(arrWords[iWord].length > maxWordLen )
-            {
-            maxWordLen = arrWords[iWord].length;
-            }
-            }
-            arrMaxLen[j] = arrMaxLen[j] &gt; maxWordLen ? arrMaxLen[j] : (maxWordLen+1);
-            }
-            }
-            if( tableWidth &gt; 0 )
-            {
-            var totalWidthTot = 0;
-            var totalWidthMax = 0;
-
-            for(var i = 0; i &lt; arrMaxLen.length; i++ )
-            {
-            totalWidthTot += (arrTotLen[i]*multiplyWidth + 2*marginWidth);
-            totalWidthMax += (arrMaxLen[i]*multiplyWidth + 2*marginWidth);
-            }
-
-            var tableWidthTot = tableWidth;
-            var tableWidthMax = tableWidth;
-            var midWidthTot = tableWidth / arrTotLen.length;
-            var midWidthMax = tableWidth / arrMaxLen.length;
-            var midAddTot = (tableWidth - totalWidthTot) / arrTotLen.length;
-            var midAddMax = (tableWidth - totalWidthMax) / arrMaxLen.length;
-
-            //strText += "totalWidthTot = " + totalWidthTot.toString() + " \n";
-            //strText += "totalWidthMax = " + totalWidthMax.toString() + " \n";
-            //strText += "midAddTot = " + midAddTot.toString() + " \n";
-            //strText += "midAddMax = " + midAddMax.toString() + " \n";
-            for(var i = 0; i &lt; arrMaxLen.length; i++ )
-            {
-            arrMaxLen[i] = (arrMaxLen[i]*multiplyWidth + 2*marginWidth)*tableWidth/totalWidthTot/multiplyWidth;
-            }
-            }
-            }
-            return(strText);
-            }
-            function GetTableColumnWidth(iColumn, bSum, font_size)
-            {
-            multiplyWidth = font_size*8;
-            var sum = 0;
-            iColumn = iColumn-1;
-            if( iColumn &lt; arrMaxLen.length &amp;&amp; iColumn &gt;= 0 )
-            {
-            if( bSum == 0 )
-            {
-            return(2*marginWidth +  arrMaxLen[iColumn]*multiplyWidth);
-            }
-            else if( bSum == 1 )
-            {
-            return(2*marginWidth +  arrTotLen[iColumn]*multiplyWidth);
-            }
-            else if( bSum == 2 )
-            {
-            for(var i = 0; i &lt;= iColumn; i++ )
-            {
-            sum += (2*marginWidth + arrMaxLen[i]*multiplyWidth);
-            }
-            return(sum);
-            }
-            else if( bSum == 3 )
-            {
-            for(var i = 0; i &lt;= iColumn; i++ )
-            {
-            sum += (2*marginWidth + arrTotLen[i]*multiplyWidth);
-            }
-            return(sum);
-            }
-            }
-            return 0;
-            }
-        </xalan:script>
-    </xalan:component>
-
-
-
 
     <!-- ***************************************************************************************************** -->
     <!-- ENTRY POINT - RECURSE -->
@@ -533,7 +335,8 @@
                 <xsl:otherwise>0</xsl:otherwise>
             </xsl:choose>
         </xsl:variable>
-        <xsl:variable name="temp" select="xhtml2rtf:TableCellWidthFill(., number($tableWidthVar))" />
+        <!--<xsl:variable name="temp" select="xhtml2rtf:tableCellWidthFill(., number($tableWidthVar))" />-->
+        <xsl:variable name="temp" select="10" />
         <xsl:apply-templates>
             <xsl:with-param name="tableWidth" select="number($tableWidthVar)" />
             <xsl:with-param name="tableBorder" select="@border" />
@@ -559,8 +362,8 @@
                 \clbrdrb\brdrs\brdrw<xsl:value-of select="format-number($tableBorder*15,'#')"/>
                 \clbrdrr\brdrs\brdrw<xsl:value-of select="format-number($tableBorder*15,'#')"/>
             </xsl:if>
-            \cellx<xsl:value-of select="format-number(xhtml2rtf:GetTableColumnWidth(position(), 2, $font-size-default), '#')"/>
-            \clwWidth<xsl:value-of select="format-number(xhtml2rtf:GetTableColumnWidth(position(), 0, $font-size-default), '#')"/>
+            \cellx<xsl:value-of select="format-number(2, '#')"/>
+            \clwWidth<xsl:value-of select="format-number(2, '#')"/>
         </xsl:for-each>
         {\intbl \ql
         <xsl:apply-templates/>
@@ -685,9 +488,12 @@
     <xsl:template match="text()">
         <xsl:param name="preformatted" select="0"/>
         <xsl:choose>
-            <xsl:when test="$preformatted = '1'"><xsl:value-of select="xhtml2rtf:RTFEncode(., string(.), 2)"/></xsl:when>
-            <xsl:when test="$normalize-space = '1'"><xsl:value-of select="xhtml2rtf:RTFEncode(., string(normalize-space(.)))"/></xsl:when>
-            <xsl:otherwise><xsl:value-of select="xhtml2rtf:RTFEncode(., string(.), $my-normalize-space)"/></xsl:otherwise>
+            <!--<xsl:when test="$preformatted = '1'"><xsl:value-of select="xhtml2rtf:rtfEncode(., string(.), 2)"/></xsl:when>-->
+            <!--<xsl:when test="$normalize-space = '1'"><xsl:value-of select="xhtml2rtf:rtfEncode(., string(normalize-space(.)))"/></xsl:when>-->
+            <!--<xsl:otherwise><xsl:value-of select="xhtml2rtf:rtfEncode(., string(.), $my-normalize-space)"/></xsl:otherwise>-->
+            <xsl:when test="$preformatted = '1'"><xsl:value-of select="."/></xsl:when>
+            <xsl:when test="$normalize-space = '1'"><xsl:value-of select="."/></xsl:when>
+            <xsl:otherwise><xsl:value-of select="."/></xsl:otherwise>
         </xsl:choose>
     </xsl:template>
 

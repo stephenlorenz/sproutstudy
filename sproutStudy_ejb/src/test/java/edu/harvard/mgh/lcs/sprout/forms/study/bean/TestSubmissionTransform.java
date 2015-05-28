@@ -12,7 +12,6 @@ import com.thoughtworks.xstream.io.naming.NameCoder;
 import com.thoughtworks.xstream.io.xml.DocumentReader;
 import com.thoughtworks.xstream.io.xml.SaxWriter;
 import com.thoughtworks.xstream.mapper.Mapper;
-import edu.harvard.mgh.lcs.ihealthspace.enrollment.model.ReenrollPatientData;
 import edu.harvard.mgh.lcs.partnersPatientLookup.core.beaninterface.PartnersPatientLookupService;
 import edu.harvard.mgh.lcs.partnersPatientLookup.to.PatientTO;
 import edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.InvalidNameException;
@@ -20,8 +19,6 @@ import edu.harvard.mgh.lcs.sprout.forms.study.to.PracticeTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.util.StringUtils;
 import edu.harvard.mgh.lcs.sprout.study.model.cas.ApplicationAuthorityEntity;
 import edu.harvard.mgh.lcs.sprout.study.model.formSubmission.SubmissionEntity;
-import edu.harvard.mgh.lcs.sprout.study.model.oncall.IHealthSpaceEnrollmentSvpEntity;
-import edu.harvard.mgh.lcs.sprout.study.model.registrycommon.PatientNameEntity;
 import org.jaxen.saxpath.SAXPathException;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
@@ -82,6 +79,7 @@ import java.io.IOException;
 @RunWith(Arquillian.class)
 public class TestSubmissionTransform {
 
+/*
 	@Deployment
 	public static Archive<?>createDeployment(){
 		File[] libs = DependencyResolvers
@@ -158,6 +156,7 @@ public class TestSubmissionTransform {
 //                .addAsResource("META-INF/test-persistence.xml", "META-INF/persistence.xml")
                 .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml");
 	} 
+*/
 
 
 	@Inject 

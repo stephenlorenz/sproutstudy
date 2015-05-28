@@ -23,14 +23,11 @@ import com.thoughtworks.xstream.io.naming.NameCoder;
 import com.thoughtworks.xstream.io.xml.DocumentReader;
 import com.thoughtworks.xstream.io.xml.SaxWriter;
 import com.thoughtworks.xstream.mapper.Mapper;
-import edu.harvard.mgh.lcs.ihealthspace.enrollment.model.ReenrollPatientData;
 import edu.harvard.mgh.lcs.partnersPatientLookup.core.beaninterface.PartnersPatientLookupService;
 import edu.harvard.mgh.lcs.partnersPatientLookup.to.PatientTO;
 import edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.InvalidNameException;
 import edu.harvard.mgh.lcs.sprout.study.model.cas.ApplicationAuthorityEntity;
 import edu.harvard.mgh.lcs.sprout.study.model.formSubmission.SubmissionEntity;
-import edu.harvard.mgh.lcs.sprout.study.model.oncall.IHealthSpaceEnrollmentSvpEntity;
-import edu.harvard.mgh.lcs.sprout.study.model.registrycommon.PatientNameEntity;
 import org.jaxen.saxpath.SAXPathException;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
@@ -45,8 +42,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import edu.harvard.mgh.lcs.sprout.forms.study.bean.FormSubmissionServiceImpl;
-import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.FormSubmissionService;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.PracticeTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.util.StringUtils;
 import org.milyn.Smooks;
@@ -101,10 +96,7 @@ public class TestFormSubmissionService {
 				.resolveAsFiles();
 
 		return ShrinkWrap.create(WebArchive.class, "testFrontOffice.war")
-				.addPackage(FormSubmissionService.class.getPackage())
-				.addPackage(FormSubmissionServiceImpl.class.getPackage())
                 .addPackage(InvalidNameException.class.getPackage())
-                .addPackage(IHealthSpaceEnrollmentSvpEntity.class.getPackage())
                 .addPackage(SubmissionEntity.class.getPackage())
                 .addPackage(ApplicationContext.class.getPackage())
                 .addPackage(EnvironmentCapable.class.getPackage())
@@ -118,8 +110,6 @@ public class TestFormSubmissionService {
                 .addPackage(ApplicationAuthorityEntity.class.getPackage())
                 .addPackage(PartnersPatientLookupService.class.getPackage())
                 .addPackage(PatientTO.class.getPackage())
-                .addPackage(PatientNameEntity.class.getPackage())
-                .addPackage(ReenrollPatientData.class.getPackage())
 				.addPackage(PracticeTO.class.getPackage())
                 .addPackage(FatalBeanException.class.getPackage())
                 .addPackage(ReflectionUtils.class.getPackage())
@@ -171,10 +161,7 @@ public class TestFormSubmissionService {
 	} 
 
 	
-	@EJB
-	private FormSubmissionService formSubmissionService;
-
-	@Inject 
+	@Inject
 	UserTransaction utx;
 
 	@Before
@@ -202,23 +189,6 @@ public class TestFormSubmissionService {
 	public void test() throws IOException {
 
 
-		List<File> files = getFilesForFolder(new File("C:/Users/slorenz/workspace/frontOffice/frontOffice/frontoffice_ejb/src/test/resources/submissions"));
-		if (files != null && files.size() > 0) {
-			for (File file : files) {
-				System.out.println("file: " + file.getAbsolutePath());
-				
-				if (file.getName().startsWith("submission")) {
-					String fileContents = readFile(file);
-					//System.out.println(fileContents);
-
-				
-					String result = formSubmissionService.postFormSubmission("2BDA7398-DBAB-4074-ADF8-96F307F503B7", "00B23690-B204-4F92-AF3E-38CD195A6F2D", fileContents);
-
-					System.out.println("result: " + result);
-				}
-			
-			}
-		}
 
 
 	}

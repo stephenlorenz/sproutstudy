@@ -7,13 +7,10 @@ import com.github.jknack.handlebars.context.FieldValueResolver;
 import com.github.jknack.handlebars.context.JavaBeanValueResolver;
 import com.github.jknack.handlebars.context.MapValueResolver;
 import com.github.jknack.handlebars.context.MethodValueResolver;
-import edu.harvard.mgh.lcs.sprout.forms.study.handlebars.Helpers;
+import edu.harvard.mgh.lcs.sprout.forms.transform.handlebars.Helpers;
 import org.junit.Test;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.math.BigInteger;
 import java.security.SecureRandom;
 
 public class HandlebarTest {

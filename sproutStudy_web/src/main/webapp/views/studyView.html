@@ -245,8 +245,8 @@
                                     </td>
 
                                     <td class="inbox-cell" ng-click="form.locked || onOpenMutableForm(form)">
-                                        <span ng-show="form.inboxProxies.length == 0">{{form.inboxStatus}}</span>
-                                        <ul style="list-style-type: none;" ng-show="form.inboxProxies.length > 0">
+                                        <span ng-show="form.inboxProxies.length == 0 || form.inboxStatus == 'COMPLETED'">{{form.inboxStatus}}</span>
+                                        <ul style="list-style-type: none;" ng-show="form.inboxProxies.length > 0 && form.inboxStatus != 'COMPLETED'">
                                             <li ng-repeat="proxy in form.inboxProxies">{{proxy.status}}</li>
                                         </ul>
                                     </td>
@@ -404,8 +404,8 @@
                     </td>
 
                     <td class="inbox-cell" ng-click="form.locked || onOpenForm(form)">
-                        <span ng-show="form.inboxProxies.length == 0">{{form.inboxStatus}}</span>
-                        <ul style="list-style-type: none;" ng-show="form.inboxProxies.length > 0">
+                        <span ng-show="form.inboxProxies.length == 0 || form.inboxStatus == 'COMPLETED'">{{form.inboxStatus}}</span>
+                        <ul style="list-style-type: none;" ng-show="form.inboxProxies.length > 0 && form.inboxStatus != 'COMPLETED'">
                             <li ng-repeat="proxy in form.inboxProxies">{{proxy.status}}</li>
                         </ul>
                     </td>

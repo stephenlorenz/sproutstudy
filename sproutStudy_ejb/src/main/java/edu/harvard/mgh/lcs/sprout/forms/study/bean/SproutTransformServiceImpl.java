@@ -7,16 +7,11 @@ import com.github.jknack.handlebars.context.FieldValueResolver;
 import com.github.jknack.handlebars.context.JavaBeanValueResolver;
 import com.github.jknack.handlebars.context.MapValueResolver;
 import com.github.jknack.handlebars.context.MethodValueResolver;
-import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.PatientService;
-import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.SproutStudyConstantService.PatientVerificationSearchSelector;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.SproutTransformService;
-import edu.harvard.mgh.lcs.sprout.forms.study.handlebars.Helpers;
+import edu.harvard.mgh.lcs.sprout.forms.transform.handlebars.Helpers;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.BooleanTO;
-import edu.harvard.mgh.lcs.sprout.forms.study.to.NameValue;
-import edu.harvard.mgh.lcs.sprout.forms.study.to.PatientDetailTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.TemplateTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.util.StringUtils;
-import edu.harvard.mgh.lcs.sprout.forms.utils.XmlUtils;
 import edu.harvard.mgh.lcs.sprout.study.model.transform.*;
 
 import javax.ejb.*;
@@ -27,12 +22,8 @@ import javax.persistence.Query;
 import javax.xml.transform.*;
 import javax.xml.transform.stream.StreamSource;
 import java.io.*;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.Future;
 
 @Stateless
 @Remote(SproutTransformService.class)
@@ -195,22 +186,33 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 	private String transformHtml2RTF(String narrative) {
 		if (StringUtils.isFull(narrative)) {
 			try {
-				TransformerFactory factory = TransformerFactory.newInstance();
-				factory.setAttribute("indent-number", new Integer(4));
-				InputStream stream = SproutTransformService.class.getClassLoader().getResourceAsStream("/edu/harvard/mgh/lcs/sprout/forms/study/stylesheets/xhtml2rtf.xsl");
-				Transformer transformer = factory.newTransformer(new javax.xml.transform.stream.StreamSource(stream));
-				transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-				transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-				StreamSource streamSource = new StreamSource(new StringReader(narrative));
-				StringWriter writer = new StringWriter();
-				transformer.transform(streamSource, new javax.xml.transform.stream.StreamResult(writer));
-				String rtf = writer.toString();
-				System.out.println("rtf = " + rtf);
-				return rtf;
-			} catch (TransformerConfigurationException e) {
-				e.printStackTrace();
-			} catch (TransformerException e) {
-				e.printStackTrace();
+				ProcessBuilder processBuilder = new ProcessBuilder("pandoc", "-s", "--from=html", "--to=rtf");
+//				ProcessBuilder processBuilder = new ProcessBuilder("pandoc", "-s", "--from=html", "--to=markdown_github");
+//				ProcessBuilder processBuilder = new ProcessBuilder("pandoc", "-s", "--from=html", "--to=plain");
+				processBuilder.redirectErrorStream(true);
+				Process process = processBuilder.start();
+
+				OutputStream outStream = process.getOutputStream();
+				PrintWriter printWriter = new PrintWriter(outStream);
+				printWriter.print(narrative);
+				printWriter.flush();
+				printWriter.close();
+
+				BufferedReader reader =
+						new BufferedReader(new InputStreamReader(process.getInputStream()));
+				StringBuilder builder = new StringBuilder();
+				String line = null;
+				while ( (line = reader.readLine()) != null) {
+					builder.append(line);
+					builder.append(System.getProperty("line.separator"));
+				}
+				return builder.toString();
+			} catch (IOException e) {
+				if (e.getMessage().startsWith("Cannot run program")) {
+					System.out.println("\n\n################# Pandoc (http://pandoc.org) does not appear to be installed on this server. Pandoc is required to convert output between formats. #################\n(Source: edu.harvard.mgh.lcs.sprout.forms.study.bean.SproutTransformServiceImpl.transformHtml2RTF)");
+				} else {
+					e.printStackTrace();
+				}
 			}
 		}
 		return null;
