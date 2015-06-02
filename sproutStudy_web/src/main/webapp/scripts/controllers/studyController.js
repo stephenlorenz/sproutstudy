@@ -386,6 +386,9 @@ angular.module('sproutStudyApp')
             //console.log("allFormsFilter...");
             //console.log("$scope.targetDate: " + $scope.allFormsFilterTargetDate);
 
+            if (item.inboxStatus !== undefined && item.inboxStatus == 'REVOKED') return false;
+
+
             if ($scope.status !== undefined) {
                 if (item.inboxProxies !== undefined && item.inboxProxies.length > 0) {
                     var hasMatch = false;
@@ -672,6 +675,8 @@ angular.module('sproutStudyApp')
                 tmpOrderByColumn = "date_of_entry";
             } else if (column == 'date_of_status') {
                 tmpOrderByColumn = "date_of_status";
+            } else if (column == 'instance_key') {
+                tmpOrderByColumn = "instance_key";
             }
 
             if (tmpOrderByColumn != null) {

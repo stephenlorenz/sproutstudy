@@ -808,6 +808,10 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
 
     @Override
     public LdapUserTO getUser(HttpServletRequest request, String cn) throws InvalidSessionRESTful {
+
+        System.out.println("ApiWSImpl.getUser");
+        System.out.println("request = [" + request + "], cn = [" + cn + "]");
+
         SessionTO sessionTO = getSessionTO(request);
         if (sessionTO != null) {
             return securityService.getUser(cn);

@@ -197,6 +197,7 @@
                                             </ul>
                                         </span>
                                     </th>
+                                    <th ng-show="allFormsMetadata.hasInstanceKeys"><span class="sortable" ng-click="allFormsChangeSort('instance_key')">Form Identifier<i ng-class="allFormsSortClass('instance_key')" ng-style="{'margin-left': mutableFormsSortStyle('instance_key')}" ></i></span></th>
                                     <th><span class="sortable" ng-click="allFormsChangeSort('date_of_entry')">Delivery Date<i ng-class="allFormsSortClass('date_of_entry')" ng-style="{'margin-left': mutableFormsSortStyle('date_of_entry')}" ></i></span></th>
                                     <th ng-show="assignments.length > 1">
                                         <span class="dropdown sprout-dropdown-header">
@@ -236,6 +237,7 @@
                                 <tr ng-repeat='form in allForms | filter: allFormsFilter ' ng-class="{'inbox-row': !form.locked, 'unknown': form.identityFullName == 'Unknown'}"  >
                                     <td class="inbox-cell" ng-click="form.locked || onOpenMutableForm(form)">{{form.identityFullName}} ({{form.identityPrimaryId}})</td>
                                     <td class="inbox-cell" ng-click="form.locked || onOpenMutableForm(form)">{{form.title}}</a></td>
+                                    <td ng-show="allFormsMetadata.hasInstanceKeys" class="inbox-cell" ng-click="form.locked || onOpenMutableForm(form)">{{form.instanceKey}}</a></td>
                                     <td class="inbox-cell" ng-click="form.locked || onOpenMutableForm(form)">{{form.deliveryDate | date:'medium' }}</td>
 
                                     <td class="inbox-cell" ng-click="form.locked || onOpenMutableForm(form)" ng-show="assignments.length > 1">
@@ -357,6 +359,7 @@
                 <thead class="inbox">
                 <tr>
                     <th class="sortable" ng-click="formsChangeSort('title')">Name<i ng-class="formsSortClass('title')" ng-style="{'margin-left': formsSortStyle('title')}" ></i></th>
+                    <th ng-show="allFormsMetadata.hasInstanceKeys" class="sortable" ng-click="formsChangeSort('instanceKey')">Form Identifier<i ng-class="formsSortClass('instanceKey')" ng-style="{'margin-left': formsSortStyle('instanceKey')}" ></i></th>
                     <th class="sortable" ng-click="formsChangeSort('deliveryDate')">Delivery Date<i ng-class="formsSortClass('deliveryDate')" ng-style="{'margin-left': formsSortStyle('deliveryDate')}" ></i></th>
                     <th ng-show="assignments.length > 1">
                         <span class="dropdown sprout-dropdown-header">
@@ -396,6 +399,7 @@
                 </thead>
                 <tr ng-class="{'inbox-row': !form.locked}" ng-repeat='form in filtered = (inbox | filter: formFilter | orderBy:formsSort.column:formsSort.descending)' >
                     <td class="inbox-cell" ng-click="form.locked || onOpenForm(form)">{{form.title}}</a></td>
+                    <td ng-show="allFormsMetadata.hasInstanceKeys" class="inbox-cell" ng-click="form.locked || onOpenForm(form)">{{form.instanceKey}}</a></td>
                     <td class="inbox-cell" ng-click="form.locked || onOpenForm(form)">{{form.deliveryDate | date:'medium' }}</td>
                     <td class="inbox-cell" ng-click="form.locked || onOpenForm(form)" ng-show="assignments.length > 1">
                         <ul style="list-style-type: none;" ng-show="form.inboxProxies.length > 0">

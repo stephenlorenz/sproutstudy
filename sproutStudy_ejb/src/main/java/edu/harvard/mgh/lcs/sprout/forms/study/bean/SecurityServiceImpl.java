@@ -50,9 +50,16 @@ public class SecurityServiceImpl implements SecurityService {
         return null;
     }
 
-    //    @Override
-    public LdapUserTO getUserReal(String cn) {
+    @Override
+    public LdapUserTO getUser(String cn) {
+
+        System.out.println("SecurityServiceImpl.getUser");
+        System.out.println("cn = [" + cn + "]");
+
         DirContextAdapter dirContextAdapter = findPartnersUser(cn);
+
+        System.out.println("dirContextAdapter = " + dirContextAdapter);
+
         if (dirContextAdapter != null) {
             Attributes attributes = dirContextAdapter.getAttributes();
             if (attributes != null) {
@@ -71,7 +78,7 @@ public class SecurityServiceImpl implements SecurityService {
         return null;
     }
 
-    public LdapUserTO getUser(String cn) {
+    public LdapUserTO getUserDummy(String cn) {
         LdapUserTO ldapUserTO = new LdapUserTO();
 
         ldapUserTO.setSn("Rogers");
@@ -83,6 +90,12 @@ public class SecurityServiceImpl implements SecurityService {
     }
 
     private DirContextAdapter findPartnersUser(String principal) {
+
+        System.out.println("SecurityServiceImpl.findPartnersUser");
+        System.out.println("principal = [" + principal + "]");
+
+        System.out.println("ldapTemplate = " + ldapTemplate);
+
         if (ldapTemplate != null) {
             try {
                 LdapName ldapName = new LdapName(String.format("cn=%s", principal));
@@ -107,8 +120,17 @@ public class SecurityServiceImpl implements SecurityService {
 
     @PostConstruct
     private void init() {
+
+        System.out.println("SecurityServiceImpl.init");
+
         applicationContext = new ClassPathXmlApplicationContext("applicationContext-ldap.xml");
+
+        System.out.println("applicationContext = " + applicationContext);
+
         if (applicationContext != null) ldapTemplate = (LdapTemplate) applicationContext.getBean("ldapTemplate");
+
+        System.out.println("ldapTemplate = " + ldapTemplate);
+
     }
 
 

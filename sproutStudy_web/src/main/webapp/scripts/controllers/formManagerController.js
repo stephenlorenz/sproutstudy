@@ -1,15 +1,21 @@
 'use strict';
 
 angular.module('sproutStudyApp')
-    .controller('formManagerController', function ($scope, $location, $routeParams, $window, formManagerService, studyService, cohortService) {
+    .controller('formManagerController', function ($scope, $location, $routeParams, $window, formManagerService, studyService, cohortService, cohortManagerService) {
 
     $scope.forms = null;
     $scope.form = null;
     $scope.form = null;
     $scope.managedForms = undefined;
 
+    $scope.managedCohorts = undefined;
+
+    cohortManagerService.getManagedCohorts({}, function(data) {
+        $scope.managedCohorts = data;
+    });
+
     $scope.formListFilter = { active: true };
-        $scope.focusedForm = undefined;
+    $scope.focusedForm = undefined;
 
     cohortService.setMember({fullName: "Form Manager", id: 0, url: "forms"});
 
@@ -65,7 +71,23 @@ angular.module('sproutStudyApp')
        return studyService.isManager();
     }
 
-    $scope.isManagerOfForm = function() {
+    $scope.isManagerOfCohort = function() {
+        var manager = false;
+        var cohortCurrent = $scope.cohort;
+
+        if (cohortCurrent !== undefined && cohortCurrent !== null) {
+            if ($scope.managedCohorts !== undefined) {
+                $.each($scope.managedCohorts, function(index, tmpCohort) {
+                    if (tmpCohort.name == cohortCurrent.name) {
+                        manager = true;
+                    }
+                });
+            }
+        }
+        return manager;
+    }
+
+        $scope.isManagerOfForm = function() {
         var manager = false;
         var formCurrent = $scope.form;
         if (formCurrent !== undefined && formCurrent !== null) {
@@ -85,9 +107,9 @@ angular.module('sproutStudyApp')
         $location.path("/forms/add");
     }
 
-//    formManagerService.getManagedForms({}, function(data) {
-//        $scope.managedForms = data;
-//    });
+    //formManagerService.getManagedForms({}, function(data) {
+    //    $scope.managedForms = data;
+    //});
 
 //    studyService.getLastSelectedForm({}, function(data) {
 //        $scope.form = data;
