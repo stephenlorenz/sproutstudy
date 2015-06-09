@@ -82,7 +82,8 @@
                 <%--<li class="sproutstudy-tab-reset" ><a href="/sproutstudy" class="sproutstudy-tab-button" instance="reset"><img style="width: 20px; height: 20px; " src="/sproutstudy/images/sprout-study-60-2.png" alt="Sprout Study Logo" /></a></li>--%>
 		    </ul>
 			<ul class="nav" id="sproutstudy-tab-container">
-                <li class="sproutstudy-tab-li sproutstudy-tab-home" instance="home"><a ng-href="#/{{member().url}}" class="sproutstudy-tab-button" instance="home">{{member().fullName}}<span ng-show="member().id > 0"> ({{member().id}})</span></a></li>
+                <li class="sproutstudy-tab-li sproutstudy-tab-home" instance="home" ng-show="member().click == undefined"><a ng-href="#/{{member().url}}" class="sproutstudy-tab-button" instance="home">{{member().fullName}}<span ng-show="member().id > 0"> ({{member().id}})</span></a></li>
+                <li class="sproutstudy-tab-li sproutstudy-tab-home" instance="home" ng-show="member().click != undefined"><a href ng-click="member().click" class="sproutstudy-tab-button" instance="home">{{member().fullName}}<span ng-show="member().id > 0"> ({{member().id}})</span></a></li>
 		    </ul>
 
             <ul class="nav pull-right">
@@ -406,7 +407,7 @@
             }
 
 
-
+            unlockForm(instanceId);
 
         }
 
@@ -416,6 +417,8 @@
         sproutFormsDoneInd = false;
     }
     function deletePaneContent(id) {
+        console.log("deletePaneContent...");
+
         var instanceId = jQuerySprout(".sproutstudy-tab-li.active").attr("instance");
         var form = jQuerySprout(".sproutstudy-tab-li.active").data("form");
 
@@ -446,6 +449,8 @@
                 instanceId = jQuerySprout(".iframe-demographic-form-content").attr("instanceId");
                 angular.element(jQuerySprout("#studyControllerDiv")).scope().setNewSubject(id, instanceId);
             }
+
+            unlockForm(instanceId);
         }
 
         angular.element(jQuerySprout("#studyControllerDiv")).scope().getAllForms();
@@ -453,6 +458,11 @@
 
         sproutFormsDoneInd = false;
     }
+
+    function unlockForm(instanceId) {
+        angular.element(jQuerySprout("#studyControllerDiv")).scope().unlockForm(instanceId);
+    }
+
 
     function stripNarrativeTextEditable(instanceId) {
         var scratch = jQuerySprout(".sprout-study-template-scratch-" + instanceId);
@@ -817,11 +827,21 @@
     $(document).ready(function() {
         $.idleTimeout('#modal-timeout', '#idletimeout-resume', {
             idleAfter: timeoutSeconds,
-            pollingInterval: 60,
+//            pollingInterval: 60,
+            pollingInterval: 5,
+            failedRequests: 2,
             keepAliveURL: '<%=request.getContextPath()%>/public/keepalive.jsp',
             serverResponseEquals: 'OK',
             onTimeout: function() {
                 $('#modal-timeout').modal('hide');
+                window.location = "<%=request.getContextPath()%>/logout";
+            },
+            onExpiration: function() {
+                alert("Your session has expired.  You will now be logged out.");
+                window.location = "<%=request.getContextPath()%>/logout";
+            },
+            onError: function() {
+                alert("SproutStudy has experienced an error and is no logger available.  You will now be logged out.");
                 window.location = "<%=request.getContextPath()%>/logout";
             },
             onIdle: function () {

@@ -103,6 +103,11 @@ angular.module('sproutStudyApp')
                     callback(response.data);
                 });
             },
+            unlock: function (params, callback) {
+                $http.get(networkService.generateUrl("unlock", params)).then(function (response) {
+                    callback(response.data);
+                });
+            },
             deleteInboxMessage: function (params, callback) {
                 $http.get(networkService.generateUrl("deleteInboxMessage", params)).then(function (response) {
                     callback(response.data);

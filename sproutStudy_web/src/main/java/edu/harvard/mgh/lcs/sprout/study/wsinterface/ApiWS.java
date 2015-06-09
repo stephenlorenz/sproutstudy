@@ -281,4 +281,9 @@ public interface ApiWS {
     @Produces(MediaType.APPLICATION_JSON)
     public BooleanTO setDefaultTab(@Context HttpServletRequest request, @QueryParam("defaultTab") String defaultTab) throws InvalidSessionRESTful;
 
+    @GET
+    @Path("/secure/unlock")
+    @Produces(MediaType.APPLICATION_JSON)
+    public BooleanTO unlock(@Context HttpServletRequest request, @QueryParam("instanceId") String instanceId) throws InvalidSessionRESTful, UnauthorizedActionException;
+
 }

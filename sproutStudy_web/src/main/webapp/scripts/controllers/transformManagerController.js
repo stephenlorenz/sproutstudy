@@ -28,7 +28,7 @@ angular.module('sproutStudyApp')
     $scope.model = "";
     $scope.template = "";
 
-    cohortService.setMember({fullName: "Transform Manager", id: 0, url: "forms"});
+    cohortService.setMember({fullName: "Transform Manager", id: 0, url: "forms", click: "closeForm"});
 
     $scope.form = formManagerService.getForm();
     $scope.subject = {"id": 1, "schema": "sprouttransform", "firstName": "User", "lastName": "SproutTransform", "fullName": "SproutTransform User"};
@@ -43,6 +43,8 @@ angular.module('sproutStudyApp')
             $scope.form = undefined;
         }
     }
+
+    $scope.closeForm = function () {}
 
     $scope.applyIfPossible = function() {
         $timeout(function() {});

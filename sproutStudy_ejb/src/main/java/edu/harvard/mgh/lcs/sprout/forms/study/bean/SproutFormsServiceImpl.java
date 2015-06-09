@@ -307,6 +307,22 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
     }
 
     @Override
+    public BooleanTO unlock(String instanceId) {
+
+        if (formsWebService == null) init();
+
+        if (formsWebService != null) {
+
+            String orgAuthKey = System.getProperty("edu.harvard.mgh.lcs.ihealthspace.module.forms.sprout.authToken");
+
+            if (!StringUtils.isEmpty(orgAuthKey)) {
+                return new BooleanTO(formsWebService.unlock(orgAuthKey, instanceId).getValue().equalsIgnoreCase("true"));
+            }
+        }
+        return null;
+    }
+
+    @Override
     public List<FormInstanceTO> getMutableForms(String username, CohortTO cohortTO, Set<String> publicationKeys) {
 
         if (publicationKeys != null && publicationKeys.size() > 0 && cohortTO != null) {

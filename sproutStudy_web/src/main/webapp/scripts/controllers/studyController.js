@@ -445,7 +445,7 @@ angular.module('sproutStudyApp')
 
         $scope.setTargetDate = function(targetDate) {
 
-            console.log("setTargetDate");
+            //console.log("setTargetDate");
 
             if (targetDate !== undefined) {
                 $scope.targetDate = targetDate;
@@ -459,7 +459,7 @@ angular.module('sproutStudyApp')
 
                     $scope.targetDate = month + '/' + day + '/' + year;
 
-                    console.log("$scope.targetDate: " + $scope.targetDate);
+                    //console.log("$scope.targetDate: " + $scope.targetDate);
 
                     //var tmpDate = new Date();
                     //var year = tmpDate.getFullYear();
@@ -1501,9 +1501,22 @@ angular.module('sproutStudyApp')
             ];
         };
 
+        $scope.unlockForm = function (instanceId) {
+            if (instanceId !== undefined) {
+                studyService.unlock({instanceId: instanceId}, function(data) {
+                    if (data.value == false) {
+                        $scope.errorMessageText = "Failed to unlock form.";
+                        $scope.errorFormModal = true;
+                    } else {
+                        $scope.filterChanged = false;
+                    }
+                })
+            }
+        };
+
         $scope.bootWebsockets = function (cohort) {
 
-            console.log("$scope.bootWebsockets.cohort.cohortKey: " + cohort.cohortKey);
+            //console.log("$scope.bootWebsockets.cohort.cohortKey: " + cohort.cohortKey);
 
             var ws = $websocket.$new('wss://scl30.partners.org:8443/sproutstudy/sproutStudyFormState/' + cohort.cohortKey); // instance of ngWebsocket, handled by $websocket service
 
@@ -1519,17 +1532,17 @@ angular.module('sproutStudyApp')
 
                         var message = JSON.parse(dataJSON);
 
-                        console.log("data: " + data);
+                        //console.log("data: " + data);
 
                         var instanceId = message.instanceId;
                         var publicationKey = message.publicationKey;
                         var lockInd = message.locked;
-                        console.log("instanceId: " + instanceId);
-                        console.log("publicationKey: " + publicationKey);
+                        //console.log("instanceId: " + instanceId);
+                        //console.log("publicationKey: " + publicationKey);
 
                         if (instanceId !== undefined && publicationKey !== undefined && instanceId !== null && publicationKey !== null) {
 
-                            console.log("Considering message....");
+                            //console.log("Considering message....");
 
                             var inboxRecordIndex = undefined;
                             var allFormsRecordIndex = undefined;
@@ -1537,13 +1550,13 @@ angular.module('sproutStudyApp')
 
                             if ($scope.inbox !== undefined) {
                                 $.each($scope.inbox, function (index, data) {
-                                    console.log("inbox.instanceId: " + data.instanceId);
+                                    //console.log("inbox.instanceId: " + data.instanceId);
                                     if (instanceId == data.instanceId) inboxRecordIndex = index;
                                 });
                             }
                             if ($scope.allForms !== undefined) {
                                 $.each($scope.allForms, function (index, data) {
-                                    console.log("allForms.instanceId: " + data.instanceId);
+                                    //console.log("allForms.instanceId: " + data.instanceId);
                                     if (instanceId == data.instanceId) {
                                         allFormsRecordIndex = index;
                                         if (data.inboxStatus != 'REVOKED' && data.inboxStatus != 'EXPIRED') {
@@ -1574,9 +1587,9 @@ angular.module('sproutStudyApp')
                             $scope.allFormsFilterForm.sort();
 
 
-                            console.log("inboxRecordIndex: " + inboxRecordIndex);
-                            console.log("allFormsRecordIndex: " + allFormsRecordIndex);
-                            console.log("allFormsRecordAction: " + allFormsRecordAction);
+                            //console.log("inboxRecordIndex: " + inboxRecordIndex);
+                            //console.log("allFormsRecordIndex: " + allFormsRecordIndex);
+                            //console.log("allFormsRecordAction: " + allFormsRecordAction);
 
                             var applyInd = false;
 
@@ -1596,7 +1609,7 @@ angular.module('sproutStudyApp')
                                 $scope.allForms.splice(allFormsRecordIndex, 1);
                             }
 
-                            console.log("applying changes...");
+                            //console.log("applying changes...");
                             $scope.applyIfPossible();
                             $scope.getAssignments();
                         }

@@ -786,6 +786,15 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
     }
 
     @Override
+    public BooleanTO unlock(HttpServletRequest request, String instanceId) throws InvalidSessionRESTful, UnauthorizedActionException {
+        SessionTO sessionTO = getSessionTO(request);
+        if (sessionTO != null) {
+            return sproutFormsService.unlock(instanceId);
+        }
+        return new BooleanTO(false);
+    }
+
+    @Override
     public List<CohortAuthorizationTO> getCohortAuthorizationsByKey(HttpServletRequest request, String cohortKey) throws InvalidSessionRESTful {
         SessionTO sessionTO = getSessionTO(request);
         if (sessionTO != null) {
