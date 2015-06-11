@@ -242,7 +242,8 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
                                                         destination = formAttrEntity.getValue();
                                                         formDestinationMap.put(publicationKey, destination);
                                                         formInstanceTO.setDestination(destination);
-                                                        break;
+                                                    } else if (formAttrEntity.getFormAttr().getCode().equalsIgnoreCase("UNEDITABLE")) {
+                                                        formInstanceTO.setUneditable(formAttrEntity.getValue() != null && formAttrEntity.getValue().equalsIgnoreCase("true"));
                                                     }
                                                 }
                                             }
@@ -370,7 +371,8 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
                                                     destination = formAttrEntity.getValue();
                                                     formDestinationMap.put(publicationKey, destination);
                                                     formInstanceTO.setDestination(destination);
-                                                    break;
+                                                } else if (formAttrEntity.getFormAttr().getCode().equalsIgnoreCase("UNEDITABLE")) {
+                                                    formInstanceTO.setUneditable(formAttrEntity.getValue() != null && formAttrEntity.getValue().equalsIgnoreCase("true"));
                                                 }
                                             }
                                         }
@@ -603,7 +605,8 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
                                                     destination = formAttrEntity.getValue();
                                                     formDestinationMap.put(publicationKey, destination);
                                                     formInstanceTO.setDestination(destination);
-                                                    break;
+                                                } else if (formAttrEntity.getFormAttr().getCode().equalsIgnoreCase("UNEDITABLE")) {
+                                                    formInstanceTO.setUneditable(formAttrEntity.getValue() != null && formAttrEntity.getValue().equalsIgnoreCase("true"));
                                                 }
                                             }
                                         }

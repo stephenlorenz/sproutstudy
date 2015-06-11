@@ -104,7 +104,8 @@ angular.module('sproutStudyApp')
     $scope.onSaveTemplate = function() {
         $scope.aceCursorPosition = $scope.editor.getCursorPosition();
         $scope.getTemplateFromEditor();
-        transformService.saveTemplate({publicationKey: $scope.form.publicationKey, instanceId: null, template: $scope.template, templateKey: $scope.templateKey, masterInd: true}, function(data) {
+        //transformService.saveTemplate({publicationKey: $scope.form.publicationKey, instanceId: null, template: $scope.template, templateKey: $scope.templateKey, masterInd: true}, function(data) {
+        transformService.saveTemplate({publicationKey: $scope.form.publicationKey, instanceId: null, templateKey: $scope.templateKey, masterInd: true}, $scope.template, function(data) {
             if (data.value == 'false') {
                 alert("Failed to save narrative template.");
 //                $scope.errorMessageText = "Failed to save narrative template.";

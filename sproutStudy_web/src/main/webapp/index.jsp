@@ -304,7 +304,10 @@
         if (jQuerySprout(".sproutstudy-tab-" + instanceId).length > 0) {
             jQuerySprout(".sprout-study-form-narrative-split-frame-" + instanceId).show();
         } else {
-            var content = '<div class="sprout-study-form-narrative-split-frame sprout-study-form-narrative-split-frame-' + instanceId + '"><div class="sproutstudy-content sproutstudy-split-frame-content sprout-study-drag-dimme sproutstudy-content-form sproutstudy-content-' + instanceId + '" id="' + instanceId + '"><iframe id="iframe-' + instanceId + '" name="iframe-' + instanceId + '" src="/prompt/?instanceId=' + instanceId + '&nonce=' + nonce + '&debug=true&showThanks=false" class="appFrame sproutStudyFrame" /></div><div class="sproutstudy-split-frame-content sproutstudy-split-frame-content-narrative sproutstudy-split-frame-content-narrative-' + instanceId + '"><legend>Narrative <button class="btn btn-danger sprout-study-narrative-content-save-button sprout-study-narrative-content-save-button-' + instanceId + '" style="display: none;" instanceId="' + instanceId + '"><i class="fa fa-save"></i> Save Narrative Changes</button></legend><div class="sprout-study-narrative-content sprout-study-narrative-content-' + instanceId + '"></div><div class="sprout-study-template-content sprout-study-template-content-' + instanceId + '" style="display: none;" /><div class="sprout-study-template-scratch sprout-study-template-scratch-' + instanceId + '" style="display: none;"/></div></div>';
+
+            var uneditable = form.uneditable;
+
+            var content = '<div class="sprout-study-form-narrative-split-frame sprout-study-form-narrative-split-frame-' + instanceId + '"><div class="sproutstudy-content sproutstudy-split-frame-content sprout-study-drag-dimme sproutstudy-content-form sproutstudy-content-' + instanceId + '" id="' + instanceId + '"><iframe id="iframe-' + instanceId + '" name="iframe-' + instanceId + '" src="/prompt/?instanceId=' + instanceId + '&nonce=' + nonce + '&debug=true&showThanks=false&uneditable=' + uneditable + '" class="appFrame sproutStudyFrame" /></div><div class="sproutstudy-split-frame-content sproutstudy-split-frame-content-narrative sproutstudy-split-frame-content-narrative-' + instanceId + '"><legend>Narrative <button class="btn btn-danger sprout-study-narrative-content-save-button sprout-study-narrative-content-save-button-' + instanceId + '" style="display: none;" instanceId="' + instanceId + '"><i class="fa fa-save"></i> Save Narrative Changes</button></legend><div class="sprout-study-narrative-content sprout-study-narrative-content-' + instanceId + '"></div><div class="sprout-study-template-content sprout-study-template-content-' + instanceId + '" style="display: none;" /><div class="sprout-study-template-scratch sprout-study-template-scratch-' + instanceId + '" style="display: none;"/></div></div>';
             var tab = '<li class="sproutstudy-tab-li sproutstudy-tab-form sproutstudy-tab-' + instanceId + '" title="' + title + '" instance="' + instanceId + '"><a href="#/" class="sproutstudy-tab-button"  title="' + title + '" instance="' + instanceId + '">' + title + '<span class="sproutstudy-close-tab" instance="' + instanceId + '"><i class="icon-remove-sign"></i></span></a></li>';
             jQuerySprout("#sproutstudy-tab-container").append(tab);
             jQuerySprout("#sproutStudyFormContent").append(content);
@@ -352,7 +355,9 @@
         var title = form.title;
         var instanceId = form.instanceId;
 
-        var content = '<div class="sprout-transform-content sprout-transform-content-form sprout-transform-content-' + instanceId + '" id="' + instanceId + '"><iframe id="iframe-' + instanceId + '" name="iframe-' + instanceId + '" src="/prompt/?instanceId=' + instanceId + '&nonce=' + nonce + '&debug=true&showThanks=false" class="appFrame sproutTransformFrame" /></div>';
+        var uneditable = false;
+
+        var content = '<div class="sprout-transform-content sprout-transform-content-form sprout-transform-content-' + instanceId + '" id="' + instanceId + '"><iframe id="iframe-' + instanceId + '" name="iframe-' + instanceId + '" src="/prompt/?instanceId=' + instanceId + '&nonce=' + nonce + '&debug=true&showThanks=falseshowThanks=false&uneditable=' + uneditable + '" class="appFrame sproutTransformFrame" /></div>';
         jQuerySprout("#sproutTransformFormContent").append(content);
 
     }
@@ -416,9 +421,10 @@
 
         sproutFormsDoneInd = false;
     }
+    function sproutEnableReviewByInstanceId(instanceId) {
+        console.log("sproutEnableReviewByInstanceId.instanceId: " + instanceId);
+    }
     function deletePaneContent(id) {
-        console.log("deletePaneContent...");
-
         var instanceId = jQuerySprout(".sproutstudy-tab-li.active").attr("instance");
         var form = jQuerySprout(".sproutstudy-tab-li.active").data("form");
 
@@ -829,7 +835,7 @@
             idleAfter: timeoutSeconds,
 //            pollingInterval: 60,
             pollingInterval: 5,
-            failedRequests: 2,
+            failedRequests: 3,
             keepAliveURL: '<%=request.getContextPath()%>/public/keepalive.jsp',
             serverResponseEquals: 'OK',
             onTimeout: function() {

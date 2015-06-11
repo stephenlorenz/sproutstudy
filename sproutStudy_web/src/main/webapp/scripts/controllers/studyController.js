@@ -1306,8 +1306,10 @@ angular.module('sproutStudyApp')
 
                 setActiveTabData("demographicInd", true);
 
+                var uneditable = form.uneditable;
+
                 //var content = '<iframe id="iframe-' + instanceId + '" name="iframe-' + instanceId + '" instanceId="' + instanceId + '" src="/prompt/?instanceId=' + instanceId + '&nonce=' + nonce + '&debug=true&showThanks=false&disableSave=true" class="appFrame sproutStudyFrame iframe-demographic-form-content" />';
-                var content = '<div class="sprout-study-form-narrative-split-frame sprout-study-form-narrative-split-frame-' + instanceId + '"><div class="sproutstudy-content sproutstudy-content-form sproutstudy-content-' + instanceId + '" id="' + instanceId + '"><iframe id="iframe-' + instanceId + '" name="iframe-' + instanceId + '" instanceId="' + instanceId + '" src="/prompt/?instanceId=' + instanceId + '&nonce=' + nonce + '&debug=true&showThanks=false&disableSave=true" class="appFrame sproutStudyFrame iframe-demographic-form-content" /></div></div>';
+                var content = '<div class="sprout-study-form-narrative-split-frame sprout-study-form-narrative-split-frame-' + instanceId + '"><div class="sproutstudy-content sproutstudy-content-form sproutstudy-content-' + instanceId + '" id="' + instanceId + '"><iframe id="iframe-' + instanceId + '" name="iframe-' + instanceId + '" instanceId="' + instanceId + '" src="/prompt/?instanceId=' + instanceId + '&nonce=' + nonce + '&debug=true&showThanks=false&disableSave=trueshowThanks=false&uneditable=' + uneditable + '" class="appFrame sproutStudyFrame iframe-demographic-form-content" /></div></div>';
                 $scope.demographicFormContent = content;
 
 //                $scope.addPane(tabTitle, instanceId, nonce);
@@ -1316,14 +1318,9 @@ angular.module('sproutStudyApp')
         };
 
         $scope.onClearForms = function (destination) {
-
-            console.log("onClearForms.destination: " + destination);
-
+            //console.log("onClearForms.destination: " + destination);
             cohortService.clearMember();
             clearAllFormTabs();
-
-
-
             $location.path("#/" + destination);
         }
 

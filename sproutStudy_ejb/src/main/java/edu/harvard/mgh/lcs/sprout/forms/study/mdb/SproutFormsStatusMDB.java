@@ -85,7 +85,8 @@ public class SproutFormsStatusMDB implements MessageListener {
                                             destination = formAttrEntity.getValue();
                                             formDestinationMap.put(publicationKey, destination);
                                             formInstanceTO.setDestination(destination);
-                                            break;
+                                        } else if (formAttrEntity.getFormAttr().getCode().equalsIgnoreCase("UNEDITABLE")) {
+                                            formInstanceTO.setUneditable(formAttrEntity.getValue() != null && formAttrEntity.getValue().equalsIgnoreCase("true"));
                                         }
                                     }
                                 }

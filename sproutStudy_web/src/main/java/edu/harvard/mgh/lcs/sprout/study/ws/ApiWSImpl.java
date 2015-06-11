@@ -530,7 +530,9 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
     }
 
     @Override
-    public BooleanTO saveTemplate(HttpServletRequest request, String publicationKey, String instanceId, String template, String templateKey, boolean masterInd) throws InvalidSessionRESTful {
+    public BooleanTO saveTemplate(HttpServletRequest request, String publicationKey, String instanceId, String templateKey, boolean masterInd, String template) throws InvalidSessionRESTful {
+        System.out.println("ApiWSImpl.saveTemplate");
+        System.out.println("request = [" + request + "], publicationKey = [" + publicationKey + "], instanceId = [" + instanceId + "], templateKey = [" + templateKey + "], masterInd = [" + masterInd + "], template = [" + template + "]");
         return transformService.saveTemplate(publicationKey, instanceId, template, templateKey, masterInd);
     }
 

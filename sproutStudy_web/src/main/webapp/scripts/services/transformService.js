@@ -9,8 +9,8 @@ angular.module('sproutStudyApp')
                     callback(response.data);
                 });
              },
-            saveTemplate: function (params, callback) {
-                $http.get(networkService.generateUrl("saveTemplate", params)).then(function (response) {
+            saveTemplate: function (params, data, callback) {
+                $http.post(networkService.generateUrl("saveTemplate", params), data).then(function (response) {
                     callback(response.data);
                 });
              },

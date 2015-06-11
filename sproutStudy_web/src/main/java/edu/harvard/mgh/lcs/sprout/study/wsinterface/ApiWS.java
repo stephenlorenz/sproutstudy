@@ -10,10 +10,7 @@ import edu.harvard.mgh.lcs.sprout.forms.study.exception.UnauthorizedActionExcept
 import edu.harvard.mgh.lcs.sprout.forms.study.to.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
@@ -251,10 +248,11 @@ public interface ApiWS {
     @Produces(MediaType.APPLICATION_JSON)
     public TemplateTO getTemplate(@Context HttpServletRequest request, @QueryParam("publicationKey") String publicationKey, @QueryParam("instanceId") String instanceId) throws InvalidSessionRESTful;
 
-    @GET
+    @POST
     @Path("/secure/saveTemplate")
     @Produces(MediaType.APPLICATION_JSON)
-    public BooleanTO saveTemplate(@Context HttpServletRequest request, @QueryParam("publicationKey") String publicationKey, @QueryParam("instanceId") String instanceId, @QueryParam("template") String template, @QueryParam("templateKey") String templateKey, @QueryParam("masterInd") boolean masterInd) throws InvalidSessionRESTful;
+    public BooleanTO saveTemplate(@Context HttpServletRequest request, @QueryParam("publicationKey") String publicationKey, @QueryParam("instanceId") String instanceId, @QueryParam("templateKey") String templateKey, @QueryParam("masterInd") boolean masterInd, String template) throws InvalidSessionRESTful;
+//    public BooleanTO saveTemplate(@Context HttpServletRequest request, @QueryParam("publicationKey") String publicationKey, @QueryParam("instanceId") String instanceId, @QueryParam("template") String template, @QueryParam("templateKey") String templateKey, @QueryParam("masterInd") boolean masterInd) throws InvalidSessionRESTful;
 
     @GET
     @Path("/secure/saveNarrative")
