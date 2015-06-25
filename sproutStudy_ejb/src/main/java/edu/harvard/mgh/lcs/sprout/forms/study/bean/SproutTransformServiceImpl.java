@@ -24,6 +24,7 @@ import javax.xml.transform.stream.StreamSource;
 import java.io.*;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @Stateless
 @Remote(SproutTransformService.class)
@@ -32,6 +33,9 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 
 	@PersistenceContext(unitName = "sproutTransform_PU")
 	private EntityManager entityManager;
+
+	@EJB
+	private SproutTransformService sproutTransformService;
 
 	@Override
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
@@ -61,6 +65,35 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 		}
 		return templateTO;
 
+	}
+
+	@Override
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	public void saveNarrativeModel(String instanceId, String model) {
+		if (StringUtils.isFull(instanceId, model)) {
+			NarrativeEntity narrativeEntity = getNarrative(instanceId);
+			if (narrativeEntity == null) {
+				narrativeEntity = new NarrativeEntity();
+				narrativeEntity.setInstanceId(instanceId);
+				narrativeEntity.setKey(StringUtils.getGuid());
+				narrativeEntity.setActivityDate(new Date());
+				entityManager.persist(narrativeEntity);
+			}
+			if (narrativeEntity.getModel() != null && narrativeEntity.getModel().size() > 0) {
+				NarrativeModelEntity narrativeModelEntity = narrativeEntity.getModel().get(0);
+				if (narrativeModelEntity != null) {
+					narrativeModelEntity.setModel(model);
+					narrativeModelEntity.setActivityDate(new Date());
+					entityManager.merge(narrativeModelEntity);
+				}
+			} else {
+				NarrativeModelEntity narrativeModelEntity = new NarrativeModelEntity();
+				narrativeModelEntity.setNarrative(narrativeEntity);
+				narrativeModelEntity.setModel(model);
+				narrativeModelEntity.setActivityDate(new Date());
+				entityManager.persist(narrativeModelEntity);
+			}
+		}
 	}
 
 	@Override
@@ -109,6 +142,30 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 
 	@Override
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	public String getNarrativeByInstanceId(String instanceId) {
+		return getNarrativeByInstanceId(instanceId, "HTML");
+	}
+
+	@Override
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	public String getNarrativeByInstanceId(String instanceId, String format) {
+		if (StringUtils.isEmpty(format)) format = "HTML";
+		NarrativeEntity narrativeEntity = getNarrative(instanceId);
+		if (narrativeEntity != null && narrativeEntity.getFormats() != null) {
+			Set<NarrativeFormatEntity> narrativeFormatEntitySet = narrativeEntity.getFormats();
+			if (narrativeFormatEntitySet != null && narrativeFormatEntitySet.size() > 0) {
+				for (NarrativeFormatEntity narrativeFormatEntity : narrativeFormatEntitySet) {
+					if (narrativeFormatEntity.getFormat().getCode().equalsIgnoreCase(format)) {
+						return narrativeFormatEntity.getData();
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	@Override
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public String getNarrative(String publicationKey, String instanceId, String jsonData) {
 		return getNarrative(publicationKey, instanceId, jsonData, "HTML");
 	}
@@ -124,59 +181,65 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 			NarrativeEntity narrativeEntity = getNarrative(instanceId);
 			if (narrativeEntity != null && narrativeEntity.getFormats() != null) {
 				for (NarrativeFormatEntity narrativeFormatEntity : narrativeEntity.getFormats()) {
-					if (narrativeFormatEntity.getFormat().getCode().equalsIgnoreCase("HTML")) {
+					if (narrativeFormatEntity.getFormat().getCode().equalsIgnoreCase(format)) {
 						return narrativeFormatEntity.getData();
 					}
 				}
+			}
+
+			String templateText = null;
+
+			TemplateCloneEntity templateCloneEntity = getTemplateCloneEntities(instanceId);
+			if (templateCloneEntity != null && StringUtils.isFull(templateCloneEntity.getTemplate())) {
+				templateText = templateCloneEntity.getTemplate();
 			} else {
-				String templateText = null;
+				TemplateMasterEntity templateMasterEntity = getTemplateMasterEntity(publicationKey);
+				if (templateMasterEntity != null) templateText = templateMasterEntity.getTemplate();
+			}
 
-				TemplateCloneEntity templateCloneEntity = getTemplateCloneEntities(instanceId);
-				if (templateCloneEntity != null && StringUtils.isFull(templateCloneEntity.getTemplate())) {
-					templateText = templateCloneEntity.getTemplate();
-				} else {
-					TemplateMasterEntity templateMasterEntity = getTemplateMasterEntity(publicationKey);
-					if (templateMasterEntity != null) templateText = templateMasterEntity.getTemplate();
-				}
+			if (StringUtils.isFull(templateText)) {
 
-				if (StringUtils.isFull(templateText)) {
+//					System.out.println("templateText = " + templateText);
 
-					System.out.println("templateText = " + templateText);
+				try {
+					Handlebars handlebars = new Handlebars();
 
-					try {
-						Handlebars handlebars = new Handlebars();
+					handlebars.registerHelpers(new Helpers());
 
-						handlebars.registerHelpers(new Helpers());
+					Template template = handlebars.compileInline(templateText);
 
-						Template template = handlebars.compileInline(templateText);
+					JsonNode jsonNode = new ObjectMapper().readValue(jsonData, JsonNode.class);
+					handlebars.registerHelper("json", Jackson2Helper.INSTANCE);
 
-						JsonNode jsonNode = new ObjectMapper().readValue(jsonData, JsonNode.class);
-						handlebars.registerHelper("json", Jackson2Helper.INSTANCE);
+					Context context = Context
+							.newBuilder(jsonNode)
+							.resolver(JsonNodeValueResolver.INSTANCE,
+									JavaBeanValueResolver.INSTANCE,
+									FieldValueResolver.INSTANCE,
+									MapValueResolver.INSTANCE,
+									MethodValueResolver.INSTANCE
+							)
+							.build();
+					String narrative = template.apply(context);
 
-						Context context = Context
-								.newBuilder(jsonNode)
-								.resolver(JsonNodeValueResolver.INSTANCE,
-										JavaBeanValueResolver.INSTANCE,
-										FieldValueResolver.INSTANCE,
-										MapValueResolver.INSTANCE,
-										MethodValueResolver.INSTANCE
-								)
-								.build();
-						String narrative = template.apply(context);
+//					System.out.println("narrative = " + narrative);
 
-						System.out.println("narrative = " + narrative);
+					sproutTransformService.saveNarrative(instanceId, narrative, "html");
 
-						if (StringUtils.isEmpty(format) || format.equalsIgnoreCase("html")) {
-							return narrative;
-						} else {
-							if (format.equalsIgnoreCase("rtf")) {
-								return transformHtml2RTF(narrative);
-							}
+					saveNarrativeModel(instanceId, jsonData);
+
+					if (StringUtils.isEmpty(format) || format.equalsIgnoreCase("html")) {
+						return narrative;
+					} else {
+						if (format.equalsIgnoreCase("rtf")) {
+							String narrativeRtf = transformHtml2RTF(narrative);
+							sproutTransformService.saveNarrative(instanceId, narrativeRtf, "rtf");
+							return narrativeRtf;
 						}
-
-					} catch (IOException e) {
-						e.printStackTrace();
 					}
+
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
 			}
 		}

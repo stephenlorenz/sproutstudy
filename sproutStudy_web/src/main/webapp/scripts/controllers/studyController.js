@@ -1407,7 +1407,7 @@ angular.module('sproutStudyApp')
                 var template = stripNarrativeTextEditable(instanceId);
 
                 if (narrative !== undefined) {
-                    transformService.saveTemplate({publicationKey: publicationKey, instanceId: instanceId, template: syncNarrativeTemplate(instanceId), templateKey: null, masterInd: false}, function(data) {
+                    transformService.saveTemplate({publicationKey: publicationKey, instanceId: instanceId, templateKey: null, masterInd: false}, syncNarrativeTemplate(instanceId), function(data) {
                         if (data.value == 'false') {
                             callback(false, "Failed to save narrative template.");
                         } else {

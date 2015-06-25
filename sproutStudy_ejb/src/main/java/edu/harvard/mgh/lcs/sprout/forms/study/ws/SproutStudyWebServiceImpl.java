@@ -41,6 +41,16 @@ public class SproutStudyWebServiceImpl implements SproutStudyWebService {
         return studyService.getPublicationKeyFromFormKey(formKey);
     }
 
+    @Override
+    public String getNarrativeByInstanceId(String instanceId) {
+        return sproutTransformService.getNarrativeByInstanceId(instanceId);
+    }
+
+    @Override
+    public String getNarrativeByInstanceIdWithFormat(String instanceId, String format) {
+        return sproutTransformService.getNarrativeByInstanceId(instanceId, format);
+    }
+
     public String getNarrative(String publicationKey, String instanceId, String jsonData) {
         return sproutTransformService.getNarrative(publicationKey, instanceId, jsonData);
     }

@@ -42,10 +42,57 @@ public class HandlebarTest {
 //			});
 
 
-			String templateText = "Hello {{name}}!<br/>{{#compare name \"=\" \"world\"}}The name is equal to world!{{/compare}}<br/>{{#compare \"1.2\" \"===\" \"1.2\"}}1 and 2!{{/compare}}";
+//			String templateText = "Hello {{name}}!<br/>{{#compare name \"=\" \"world\"}}The name is equal to world!{{/compare}}<br/>{{#compare \"1.2\" \"===\" \"1.2\"}}1 and 2!{{/compare}}";
+			String templateText = "{{#each signature.purpose_grid}}\n" +
+//					"Name: {{this}}\n" +
+					"{{#each this}}\n" +
+					"<li>{{this.name}}</li>\n" +
+					"{{/each}}\n" +
+					"{{/each}}\n" +
+					"\n" +
+					"{{#getNode signature.purpose_grid 'p_arrhythmia'}}\n" +
+					"Name: {{this.name}}\n" +
+					"{{/getNode}}" +
+//					"{{#each signature.purpose_grid}}\n" +
+//					"Name: {{this}}\n" +
+//					"{{/each}}"
+					""
+					;
 
 
-			String json = "{\"name\": \"world\"}";
+			String json = "{\n" +
+					"  \"form\": {\n" +
+					"    \"id\": \"123\",\n" +
+					"    \"version\": \"12\"\n" +
+					"  },\n" +
+					"  \"signature\": {\n" +
+					"    \"firstName\": \"Stephen\",\n" +
+					"    \"lastName\": \"Lorenz\",\n" +
+					"    \"middleName\": \"Charles\",\n" +
+					"    \"ecg_twnl\": {\n" +
+					"      \"name\": \"TWNL\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"ecg_imi\": {\n" +
+					"      \"name\": \"IMI\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"purpose_grid\": [\n" +
+					"      {\"p_arrhythmia\": \n" +
+					"      {\n" +
+					"        \"key\": \"p_arrhythmia\",\n" +
+					"        \"name\": \"Assess arryhthmia\",\n" +
+					"        \"value\": \"2\"\n" +
+					"      }},\n" +
+					"      {\"p_angio\": \n" +
+					"      {\n" +
+					"        \"key\": \"p_angio\",\n" +
+					"        \"name\": \"Angiographic correlation\",\n" +
+					"        \"value\": \"1\"\n" +
+					"      }}\n" +
+					"    ]\n" +
+					"  }\n" +
+					"}";
 			JsonNode jsonNode = new ObjectMapper().readValue(json, JsonNode.class);
 //			Handlebars handlebars = new Handlebars();
 			handlebars.registerHelper("json", Jackson2Helper.INSTANCE);

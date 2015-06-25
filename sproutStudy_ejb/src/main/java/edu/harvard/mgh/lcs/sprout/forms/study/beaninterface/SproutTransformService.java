@@ -12,6 +12,9 @@ public interface SproutTransformService {
 	public TemplateTO getTemplateTO(String publicationKey, String instanceId);
 	public BooleanTO saveTemplate(String publicationKey, String instanceId, String template, String templateKey, boolean masterInd);
 	public BooleanTO saveNarrative(String instanceId, String narrative, String format);
+	public String getNarrativeByInstanceId(String instanceId);
+	public String getNarrativeByInstanceId(String instanceId, String format);
 	public String getNarrative(String publicationKey, String instanceId, String jsonData);
 	public String getNarrative(String publicationKey, String instanceId, String jsonData, String format);
+	public void saveNarrativeModel(String instanceId, String model);
 }

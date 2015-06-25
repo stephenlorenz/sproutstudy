@@ -1,9 +1,14 @@
 package edu.harvard.mgh.lcs.sprout.forms.transform.handlebars;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.github.jknack.handlebars.Context;
 import com.github.jknack.handlebars.Options;
+import com.sun.crypto.provider.BlowfishKeyGenerator;
 import edu.harvard.mgh.lcs.sprout.forms.study.util.StringUtils;
 
 import java.io.IOException;
+import java.util.Iterator;
 
 public class Helpers {
 
@@ -41,6 +46,36 @@ public class Helpers {
 
 
         return result ? options.fn(true) : null;
+    }
+
+    public CharSequence getNode(Object context, String queryKey, Options options) throws IOException {
+
+//        System.out.println("Helpers.getNode");
+//        System.out.println("sourceNode = [" + context + "], queryKey = [" + queryKey + "], options = [" + options + "]");
+
+        StringBuilder buffer = new StringBuilder();
+
+        if (queryKey != null) {
+            if (context instanceof Iterable) {
+                Iterable iterable = (Iterable) context;
+                Iterator<Object> iterator = iterable.iterator();
+                Context parent = options.context;
+                while (iterator.hasNext()) {
+                    Object element = iterator.next();
+                    if (element instanceof ObjectNode) {
+                        ObjectNode elementNode = (ObjectNode) element;
+                        JsonNode jsonNode = elementNode.get(queryKey);
+                        if (jsonNode != null) {
+                            Context current = Context.newBuilder(parent, jsonNode).build();
+                            buffer.append(options.fn(current));
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        return buffer.toString();
     }
 
 

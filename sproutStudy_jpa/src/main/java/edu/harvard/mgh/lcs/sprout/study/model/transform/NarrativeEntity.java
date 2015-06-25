@@ -2,9 +2,7 @@ package edu.harvard.mgh.lcs.sprout.study.model.transform;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(schema="dbo", name="narrative")
@@ -31,6 +29,9 @@ public class NarrativeEntity implements Serializable {
 
     @OneToMany(targetEntity=NarrativeFormatEntity.class, mappedBy="narrative", cascade=CascadeType.MERGE)
     private Set<NarrativeFormatEntity> formats = new HashSet<NarrativeFormatEntity>();
+
+    @OneToMany(targetEntity=NarrativeModelEntity.class, mappedBy="narrative", cascade=CascadeType.MERGE)
+    private List<NarrativeModelEntity> model = new ArrayList<NarrativeModelEntity>();
 
     @Basic
     @Column(name="activity_date", columnDefinition="datetime", nullable=false)
@@ -66,6 +67,14 @@ public class NarrativeEntity implements Serializable {
 
     public void setFormats(Set<NarrativeFormatEntity> formats) {
         this.formats = formats;
+    }
+
+    public List<NarrativeModelEntity> getModel() {
+        return model;
+    }
+
+    public void setModel(List<NarrativeModelEntity> model) {
+        this.model = model;
     }
 
     public Date getActivityDate() {

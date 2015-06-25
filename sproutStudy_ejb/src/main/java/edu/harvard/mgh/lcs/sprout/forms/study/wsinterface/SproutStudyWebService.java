@@ -14,4 +14,6 @@ public interface SproutStudyWebService {
     public abstract String getFormKeyFromPublicationKey(@WebParam(name = "publicationKey") String publicationKey);
     public String getPublicationKeyFromFormKey(@WebParam(name = "formKey") String formKey);
     public String getNarrative(@WebParam(name = "publicationKey") String publicationKey, @WebParam(name = "instanceId") String instanceId, @WebParam(name = "jsonData") String jsonData, @WebParam(name = "format") String format);
+    public String getNarrativeByInstanceId(@WebParam(name = "instanceId") String instanceId);
+    public String getNarrativeByInstanceIdWithFormat(@WebParam(name = "instanceId") String instanceId, @WebParam(name = "format") String format);
 }
