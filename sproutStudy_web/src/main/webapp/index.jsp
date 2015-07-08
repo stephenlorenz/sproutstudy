@@ -378,7 +378,7 @@
 
         var uneditable = false;
 
-        var content = '<div class="sprout-transform-content sprout-transform-content-form sprout-transform-content-' + instanceId + '" id="' + instanceId + '"><iframe id="iframe-' + instanceId + '" name="iframe-' + instanceId + '" src="/prompt/?instanceId=' + instanceId + '&nonce=' + nonce + '&debug=true&showThanks=falseshowThanks=false&uneditable=' + uneditable + '" class="appFrame sproutTransformFrame" /></div>';
+        var content = '<div class="sprout-transform-content sprout-transform-content-form sprout-transform-content-' + instanceId + '" id="' + instanceId + '"><iframe id="iframe-' + instanceId + '" name="iframe-' + instanceId + '" src="/prompt/?instanceId=' + instanceId + '&nonce=' + nonce + '&debug=true&showThanks=false&uneditable=' + uneditable + '" class="appFrame sproutTransformFrame" /></div>';
         jQuerySprout("#sproutTransformFormContent").append(content);
 
     }
