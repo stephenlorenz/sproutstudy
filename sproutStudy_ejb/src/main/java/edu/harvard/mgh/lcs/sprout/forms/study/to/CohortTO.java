@@ -18,6 +18,7 @@ public class CohortTO implements Serializable {
     private String cohortSubjectSchema;
     private boolean active;
     private String cohortKey;
+    private String websocketURL;
     private boolean transformEnabled;
 
     public int getId() {
@@ -102,6 +103,14 @@ public class CohortTO implements Serializable {
 
     public void setCohortKey(String cohortKey) {
         this.cohortKey = cohortKey;
+    }
+
+    public String getWebsocketURL() {
+        return websocketURL;
+    }
+
+    public void setWebsocketURL(String websocketURL) {
+        this.websocketURL = websocketURL;
     }
 
     public boolean isActive() {

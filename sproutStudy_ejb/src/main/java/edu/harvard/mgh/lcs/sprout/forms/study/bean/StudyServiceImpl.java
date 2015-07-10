@@ -69,6 +69,7 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
                         cohortTO.setDescription(cohortEntity.getDescription());
                         cohortTO.setActivityDate(cohortEntity.getActivityDate());
                         cohortTO.setCohortKey(cohortEntity.getCohortKey());
+                        cohortTO.setWebsocketURL(constructWebSocketURL(cohortAuthEntity.getCohort().getCohortKey()));
                         cohortTO.setActive(cohortEntity.isActive());
 
                         List<CohortAttrTO> cohortAttrTOList = getCohortAttributes(cohortEntity);
@@ -287,6 +288,7 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
             cohortTO.setName(cohortEntity.getName());
             cohortTO.setDescription(cohortEntity.getDescription());
             cohortTO.setCohortKey(cohortEntity.getCohortKey());
+            cohortTO.setWebsocketURL(constructWebSocketURL(cohortEntity.getCohortKey()));
             cohortTO.setActivityDate(cohortEntity.getActivityDate());
 
             List<CohortAttrTO> cohortAttrTOList = getCohortAttributes(cohortEntity);
@@ -978,6 +980,7 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
                                 cohortTO.setName(cohortAuthEntity.getCohort().getName());
                                 cohortTO.setDescription(cohortAuthEntity.getCohort().getDescription());
                                 cohortTO.setCohortKey(cohortAuthEntity.getCohort().getCohortKey());
+                                cohortTO.setWebsocketURL(constructWebSocketURL(cohortAuthEntity.getCohort().getCohortKey()));
                                 cohortTO.setActive(cohortAuthEntity.getCohort().isActive());
                                 cohortTO.setActivityDate(cohortAuthEntity.getCohort().getActivityDate());
                                 cohortTOList.add(cohortTO);
@@ -991,6 +994,11 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
             e.printStackTrace();
         }
         return null;
+    }
+
+    private String constructWebSocketURL(String cohortKey) {
+        String webSocketUrl = System.getProperty("edu.harvard.mgh.lcs.sprout.forms.study.websocket.url.mask", DEFAULT_WEB_SOCKET_URL_MASK);
+        return webSocketUrl != null ? String.format(webSocketUrl, cohortKey) : null;
     }
 
     @Override

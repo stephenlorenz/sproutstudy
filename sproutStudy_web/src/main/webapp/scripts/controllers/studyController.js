@@ -1515,7 +1515,8 @@ angular.module('sproutStudyApp')
 
             //console.log("$scope.bootWebsockets.cohort.cohortKey: " + cohort.cohortKey);
 
-            var ws = $websocket.$new('wss://scl30.partners.org:8443/sproutstudy/sproutStudyFormState/' + cohort.cohortKey); // instance of ngWebsocket, handled by $websocket service
+            //var ws = $websocket.$new('wss://scl30.partners.org:8443/sproutstudy/sproutStudyFormState/' + cohort.cohortKey); // instance of ngWebsocket, handled by $websocket service
+            var ws = $websocket.$new(cohort.websocketURL); // instance of ngWebsocket, handled by $websocket service
 
             ws.$on('$open', function () {});
             ws.$on('$close', function () {});
