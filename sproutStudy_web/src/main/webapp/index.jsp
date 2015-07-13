@@ -855,8 +855,8 @@
         $.idleTimeout('#modal-timeout', '#idletimeout-resume', {
             idleAfter: timeoutSeconds,
 //            pollingInterval: 60,
-            pollingInterval: 5,
-            failedRequests: 3,
+            pollingInterval: 30,
+            failedRequests: 6,
             keepAliveURL: '<%=request.getContextPath()%>/public/keepalive.jsp',
             serverResponseEquals: 'OK',
             onTimeout: function() {

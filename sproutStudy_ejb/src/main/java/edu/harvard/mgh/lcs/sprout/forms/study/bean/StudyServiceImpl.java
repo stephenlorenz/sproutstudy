@@ -671,17 +671,26 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
 
             if (status == 200) {
                 String response = getMethod.getResponseBodyAsString();
-                if (!StringUtils.isEmpty(response)) {
-                    return new ObjectMapper().readValue(response, new TypeReference<List<Result>>() {});
+                if (StringUtils.isFull(response)) {
+                    return new ObjectMapper().readValue(cleanJSON(response), new TypeReference<List<Result>>() {});
                 }
             }
-
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
             if (getMethod != null) getMethod.releaseConnection();
+        }
+        return null;
+    }
+
+    private String cleanJSON(String response) {
+        if (StringUtils.isFull(response)) {
+            if (!response.trim().startsWith("{") && response.indexOf("{") >= 0) {
+                return response.substring(response.indexOf("{"));
+            }
+            return response;
         }
         return null;
     }
