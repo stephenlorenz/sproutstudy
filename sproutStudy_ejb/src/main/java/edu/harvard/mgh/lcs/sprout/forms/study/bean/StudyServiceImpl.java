@@ -33,11 +33,14 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.Queue;
+import java.util.logging.Logger;
 
 @Stateless
 @Remote(StudyService.class)
 @TransactionManagement
 public class StudyServiceImpl implements StudyService, SproutStudyConstantService {
+
+    private static final Logger LOGGER = Logger.getLogger(StudyServiceImpl.class.getName());
 
     @PersistenceContext(unitName = "sproutStudy_PU")
     private EntityManager entityManager;
@@ -686,11 +689,27 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
     }
 
     private String cleanJSON(String response) {
+        LOGGER.fine("StudyServiceImpl.cleanJSON");
+        LOGGER.fine("cleanJSON.response (orig): " + response);
         if (StringUtils.isFull(response)) {
-            if (!response.trim().startsWith("{") && response.indexOf("{") >= 0) {
-                return response.substring(response.indexOf("{"));
+            if (!response.trim().startsWith("{") && !response.trim().startsWith("[") && (response.indexOf("{") >= 0 || response.indexOf("[") >= 0)) {
+                String frontierDelimiter = getFrontierDelimiter(response);
+                LOGGER.fine("cleanJSON.frontierDelimiter = " + frontierDelimiter);
+                if (StringUtils.isFull(frontierDelimiter)) {
+                    LOGGER.fine("cleanJSON.response = " + response.substring(response.indexOf(frontierDelimiter)));
+                    return response.substring(response.indexOf(frontierDelimiter));
+                }
             }
+            LOGGER.fine("cleanJSON.response = " + response);
             return response;
+        }
+        return null;
+    }
+
+    private String getFrontierDelimiter(String response) {
+        for(char responseChar : response.toCharArray()) {
+            if (responseChar == '[') return "[";
+            if (responseChar == '{') return "{";
         }
         return null;
     }
@@ -1007,6 +1026,7 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
 
     private String constructWebSocketURL(String cohortKey) {
         String webSocketUrl = System.getProperty("edu.harvard.mgh.lcs.sprout.forms.study.websocket.url.mask", DEFAULT_WEB_SOCKET_URL_MASK);
+//        String webSocketUrl = DEFAULT_WEB_SOCKET_URL_MASK;
         return webSocketUrl != null ? String.format(webSocketUrl, cohortKey) : null;
     }
 
