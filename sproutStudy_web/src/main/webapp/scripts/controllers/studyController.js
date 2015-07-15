@@ -484,12 +484,25 @@ angular.module('sproutStudyApp')
         $scope.getAllForms();
 
         $scope.setNewSubject = function(id, instanceId) {
+
+            log.info("$scope.setNewSubject.start");
+
             studyService.findCohortMember({cohortQueryURL: cohortService.getCohort().cohortQueryURL, query: id}, function(data) {
+
+
+                log.info("$scope.setNewSubject.data (on next line)");
+                log.info(data);
 
                 $scope.patientMatches = data;
                 $scope.searchReturned = true;
+
+                log.info("$scope.setNewSubject: $scope.patientMatches.length: " + $scope.patientMatches.length);
+
                 if ($scope.patientMatches.length == 1) {
+
                     $scope.subject = $scope.patientMatches[0];
+
+                    log.info($scope.subject);
 
                     if ($scope.subject != null) {
                         var formObject = $scope.newFormConstructor(instanceId, null, "New Subject", $scope.subject.fullName, $scope.subject.firstName, $scope.subject.lastName, $scope.subject.id);
@@ -506,6 +519,9 @@ angular.module('sproutStudyApp')
                     $scope.searchEnabled = false;
                     $scope.patientMatches = undefined;
                 } else {
+
+                    log.info("$scope.setNewSubject: Patient matches did not equal 1; user will now see blank screen.");
+
                     $scope.searchEnabled = true;
                     $scope.searchReturned = false;
 //                    $scope.getRecentCohortMembers();
@@ -513,6 +529,9 @@ angular.module('sproutStudyApp')
                     cohortService.clearMember();
                 }
             });
+
+            log.info("$scope.setNewSubject.end (callback method not necessarily complete)");
+
         };
 
         $scope.onDeleteStudyInboxForm = function(message) {

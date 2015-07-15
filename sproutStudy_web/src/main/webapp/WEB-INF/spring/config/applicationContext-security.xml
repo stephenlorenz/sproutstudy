@@ -12,6 +12,8 @@
 		entry-point-ref="casProcessingFilterEntryPoint">
  		<security:intercept-url pattern="/api/command/secure/auth"
 			access="permitAll" />
+ 		<!--<security:intercept-url pattern="/log4javascript"-->
+			<!--access="permitAll" />-->
  		<security:intercept-url pattern="/**"
 			access="hasRole('ROLE_USER')" />
 

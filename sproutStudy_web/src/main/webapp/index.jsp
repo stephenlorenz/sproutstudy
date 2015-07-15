@@ -129,6 +129,16 @@
 
 <script src="/sproutassets/components/angular-strap/angular-strap.js"></script>
 <script src="/sproutassets/components/angular-strap/bootstrap-datepicker.js"></script>
+<script src="/sproutassets/scripts/log4javascript/log4javascript.js"></script>
+
+<script type="text/javascript">
+    var log = log4javascript.getLogger();
+    var ajaxAppender = new log4javascript.AjaxAppender("/sproutstudy/log4javascript");
+    log.addAppender(ajaxAppender);
+
+    log.info("SproutStudy Dashboard loaded.");
+//    log.info("this is a debug statement, log4javascript!!!");
+</script>
 
 <!-- build:js scripts/scripts.js -->
 <script src="scripts/app.js"></script>
@@ -293,7 +303,12 @@
         var instanceId = jQuerySprout(".sproutstudy-tab-li.active").attr("instance");
         var form = jQuerySprout(".sproutstudy-tab-li.active").data("form");
 
+        log.info("deletePaneContent.instanceId: " + instanceId);
+
         if (instanceId != null && instanceId != 'home') {
+
+            log.info("deletePaneContent: non-demographic form was submitted...");
+
             var sourceTab = jQuerySprout(".sproutstudy-tab-" + instanceId);
             var targetTab = jQuerySprout(".sproutstudy-tab-" + instanceId).prev();
 
@@ -308,10 +323,17 @@
 
             if (!sproutFormsDoneInd) angular.element(jQuerySprout("#studyControllerDiv")).scope().onComposeMessage(form);
         } else {
+            log.info("deletePaneContent: demographic form was submitted...");
+
             // demographic form was just submitted
             instanceId = jQuerySprout(".iframe-demographic-form-content").attr("instanceId");
+
+            log.info("deletePaneContent.demographic.instanceId: " + instanceId);
+            log.info("deletePaneContent: calling setNewSubject(" + id + "," + instanceId + ")");
             angular.element(jQuerySprout("#studyControllerDiv")).scope().setNewSubject(id, instanceId);
         }
+
+        log.info("deletePaneContent: Calling getAllForms()...");
 
         angular.element(jQuerySprout("#studyControllerDiv")).scope().getAllForms();
         angular.element(jQuerySprout("#studyControllerDiv")).scope().$apply();
