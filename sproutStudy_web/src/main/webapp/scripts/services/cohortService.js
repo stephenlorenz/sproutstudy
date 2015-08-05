@@ -34,7 +34,7 @@ angular.module('sproutStudyApp')
         };
         cohortService.hasDemographicForm = function() {
             var demographicFound = false;
-            if (cohort !== null) {
+            if (cohort !== undefined && cohort !== null && cohort.forms !== undefined) {
                 $.each(cohort.forms, function(index, tmpForm) {
                     if (demographicFound == false) {
                         if (tmpForm.demographic && tmpForm.active) {

@@ -1,16 +1,20 @@
 package edu.harvard.mgh.lcs.sprout.forms.study.to;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-public class CohortListDataTO implements Serializable {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class CohortListDetailTO implements Serializable {
 
     private int id;
+    private String cohortListKey;
     private String name;
-    private String value;
+    private String description;
     private String key;
-    private List<CohortListDetailDataTO> details;
+    private boolean required;
     private boolean active;
     private Date activityDate;
 
@@ -22,6 +26,14 @@ public class CohortListDataTO implements Serializable {
         this.id = id;
     }
 
+    public String getCohortListKey() {
+        return cohortListKey;
+    }
+
+    public void setCohortListKey(String cohortListKey) {
+        this.cohortListKey = cohortListKey;
+    }
+
     public String getName() {
         return name;
     }
@@ -30,12 +42,12 @@ public class CohortListDataTO implements Serializable {
         this.name = name;
     }
 
-    public String getValue() {
-        return value;
+    public String getDescription() {
+        return description;
     }
 
-    public void setValue(String value) {
-        this.value = value;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getKey() {
@@ -46,12 +58,12 @@ public class CohortListDataTO implements Serializable {
         this.key = key;
     }
 
-    public List<CohortListDetailDataTO> getDetails() {
-        return details;
+    public boolean isRequired() {
+        return required;
     }
 
-    public void setDetails(List<CohortListDetailDataTO> details) {
-        this.details = details;
+    public void setRequired(boolean required) {
+        this.required = required;
     }
 
     public boolean isActive() {

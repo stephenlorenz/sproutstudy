@@ -2,6 +2,7 @@ package edu.harvard.mgh.lcs.sprout.forms.study.bean;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.InboxTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.AuditService;
@@ -101,11 +102,35 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
                 cohortListTO.setDescription(cohortListEntity.getDescription());
                 cohortListTO.setNameColumnTitle(cohortListEntity.getNameColumnTitle());
                 cohortListTO.setValueColumnTitle(cohortListEntity.getValueColumnTitle());
+                cohortListTO.setKey(cohortListEntity.getKey());
+                cohortListTO.setActive(cohortListEntity.isActive());
+                cohortListTO.setPublicInd(cohortListEntity.isPublicInd());
                 cohortListTO.setData(getCohortListData(cohortListEntity));
+                cohortListTO.setDetail(getCohortListDetail(cohortListEntity));
                 cohortListTO.setActivityDate(cohortListEntity.getActivityDate());
                 cohortListTOList.add(cohortListTO);
             }
             return cohortListTOList;
+        }
+        return null;
+    }
+
+    private List<CohortListDetailTO> getCohortListDetail(CohortListEntity cohortListEntity) {
+        if (cohortListEntity != null && cohortListEntity.getCohortListDetail() != null && cohortListEntity.getCohortListDetail().size() > 0) {
+            List<CohortListDetailTO> cohortListDetailTOList = new ArrayList<CohortListDetailTO>();
+            for (CohortListDetailEntity cohortListDetailEntity : cohortListEntity.getCohortListDetail()) {
+                CohortListDetailTO cohortListDetailTO = new CohortListDetailTO();
+                cohortListDetailTO.setId(cohortListDetailEntity.getId());
+                cohortListDetailTO.setName(cohortListDetailEntity.getName());
+                cohortListDetailTO.setDescription(cohortListDetailEntity.getDescription());
+                cohortListDetailTO.setCohortListKey(cohortListDetailEntity.getCohortList().getKey());
+                cohortListDetailTO.setKey(cohortListDetailEntity.getKey());
+                cohortListDetailTO.setRequired(cohortListDetailEntity.isRequired());
+                cohortListDetailTO.setActive(cohortListDetailEntity.getActive());
+                cohortListDetailTO.setActivityDate(cohortListDetailEntity.getActivityDate());
+                cohortListDetailTOList.add(cohortListDetailTO);
+            }
+            return cohortListDetailTOList;
         }
         return null;
     }
@@ -115,10 +140,12 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
             List<CohortListDataTO> cohortListDataTOList = new ArrayList<CohortListDataTO>();
             for (CohortListDataEntity cohortListDataEntity : cohortListEntity.getCohortListData()) {
                 CohortListDataTO cohortListDataTO = new CohortListDataTO();
-                cohortListDataTO.setId("" + cohortListDataEntity.getId());
+                cohortListDataTO.setId(cohortListDataEntity.getId());
                 cohortListDataTO.setName(cohortListDataEntity.getName());
                 cohortListDataTO.setValue(cohortListDataEntity.getValue());
-                cohortListDataTO.setDiscriminators(getCohortListDataDiscriminators(cohortListDataEntity));
+                cohortListDataTO.setKey(cohortListDataEntity.getKey());
+                cohortListDataTO.setDetails(getCohortListDetailsData(cohortListDataEntity));
+                cohortListDataTO.setActive(cohortListDataEntity.getActive());
                 cohortListDataTO.setActivityDate(cohortListDataEntity.getActivityDate());
                 cohortListDataTOList.add(cohortListDataTO);
             }
@@ -127,18 +154,36 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
         return null;
     }
 
-    private List<CohortListDataDiscriminatorTO> getCohortListDataDiscriminators(CohortListDataEntity cohortListDataEntity) {
-        if (cohortListDataEntity != null && cohortListDataEntity.getCohortListDataDiscriminators() != null) {
-            List<CohortListDataDiscriminatorTO> cohortListDataDiscriminatorTOList = new ArrayList<CohortListDataDiscriminatorTO>();
-            for (CohortListDataDiscriminatorEntity cohortListDataDiscriminatorEntity : cohortListDataEntity.getCohortListDataDiscriminators()) {
-                CohortListDataDiscriminatorTO cohortListDataDiscriminatorTO = new CohortListDataDiscriminatorTO();
-                cohortListDataDiscriminatorTO.setId("" + cohortListDataDiscriminatorEntity.getId());
-                cohortListDataDiscriminatorTO.setName(cohortListDataDiscriminatorEntity.getCohortListDiscriminator().getName());
-                cohortListDataDiscriminatorTO.setValue(cohortListDataDiscriminatorEntity.getValue());
-                cohortListDataDiscriminatorTO.setActivityDate(cohortListDataDiscriminatorEntity.getActivityDate());
-                cohortListDataDiscriminatorTOList.add(cohortListDataDiscriminatorTO);
+    private List<CohortListDetailDataTO> getCohortListDetailsData(CohortListDataEntity cohortListDataEntity) {
+        if (cohortListDataEntity != null && cohortListDataEntity.getCohortList() != null && cohortListDataEntity.getCohortList().getCohortListDetail() != null) {
+            List<CohortListDetailDataTO> cohortListDetailDataTOList = new ArrayList<CohortListDetailDataTO>();
+
+            Map<String, CohortListDetailDataEntity> detailMap = new HashMap<String, CohortListDetailDataEntity>();
+
+            for (CohortListDetailDataEntity cohortListDetailDataEntity : cohortListDataEntity.getCohortListDetailData()) {
+                detailMap.put(cohortListDetailDataEntity.getCohortListDetail().getKey(), cohortListDetailDataEntity);
             }
-            return cohortListDataDiscriminatorTOList;
+
+            for (CohortListDetailEntity cohortListDetailEntity : cohortListDataEntity.getCohortList().getCohortListDetail()) {
+                CohortListDetailDataTO cohortListDetailDataTO = new CohortListDetailDataTO();
+                cohortListDetailDataTO.setName(cohortListDetailEntity.getName());
+                cohortListDetailDataTO.setDetailId(cohortListDetailEntity.getId());
+                cohortListDetailDataTO.setDetailKey(cohortListDetailEntity.getKey());
+
+                CohortListDetailDataEntity cohortListDetailDataEntity = detailMap.get(cohortListDetailEntity.getKey());
+
+                if (cohortListDetailDataEntity != null) {
+                    cohortListDetailDataTO.setId(cohortListDetailDataEntity.getId());
+                    cohortListDetailDataTO.setValue(cohortListDetailDataEntity.getValue());
+                    cohortListDetailDataTO.setActivityDate(cohortListDetailDataEntity.getActivityDate());
+                } else {
+                    cohortListDetailDataTO.setId(0);
+                    cohortListDetailDataTO.setValue("");
+                }
+
+                cohortListDetailDataTOList.add(cohortListDetailDataTO);
+            }
+            return cohortListDetailDataTOList;
         }
         return null;
     }
@@ -297,6 +342,7 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
             List<CohortAttrTO> cohortAttrTOList = getCohortAttributes(cohortEntity);
             cohortTO.setAttributes(cohortAttrTOList);
             cohortTO.setForms(getCohortForms(cohortEntity));
+            cohortTO.setLists(getCohortLists(cohortEntity));
             cohortTO.setCohortQueryURL(getCohortAttr(cohortAttrTOList, COHORT_ATTR_QUERY_URL));
             cohortTO.setCohortSubjectSchema(getCohortAttr(cohortAttrTOList, COHORT_ATTR_IDENTITY_SCHEMA_PRIMARY));
             return cohortTO;
@@ -1622,6 +1668,337 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
             }
         }
         return new BooleanTO(false, "Failed to delete form.");
+    }
+    @Override
+    public BooleanTO deleteList(SessionTO sessionTO, String cohortKey, String listKey) throws UnauthorizedActionException {
+        if (sessionTO != null && StringUtils.isFull(cohortKey, listKey)) {
+            if (StringUtils.isFull(cohortKey) && !cohortKey.equalsIgnoreCase("undefined")) {
+                CohortEntity cohortEntity = null;
+                if (isAdmin(sessionTO)) {
+                    cohortEntity = getAuthorizedCohortByKey(sessionTO, cohortKey);
+                } else {
+                    cohortEntity = getManagedCohortByKey(sessionTO, cohortKey);
+                }
+                if (cohortEntity != null) {
+                    if (isAdmin(sessionTO) || isManager(sessionTO, cohortEntity)) {
+                        CohortListEntity cohortListEntity = getListByListKey(listKey);
+                        if (cohortListEntity != null) {
+                            cohortListEntity.setActive(false);
+                            cohortListEntity.setActivityDate(new Date());
+                            entityManager.merge(cohortListEntity);
+                            return new BooleanTO(true);
+                        }
+                    } else {
+                        throw new UnauthorizedActionException("You are not authorized to delete this list.");
+                    }
+                }
+            }
+        }
+        return new BooleanTO(false, "Failed to delete list.");
+    }
+
+    @Override
+    public BooleanTO saveList(SessionTO sessionTO, String listKey, String listKeyFormer, String name, String description, String nameColumnTitle, String valueColumnTitle, String cohortKey, Boolean publicInd, Boolean active, String details) throws UnauthorizedActionException {
+        if (sessionTO != null && StringUtils.isFull(name, description, nameColumnTitle, valueColumnTitle, cohortKey)) {
+            if (StringUtils.isFull(cohortKey) && !cohortKey.equalsIgnoreCase("undefined")) {
+                CohortEntity cohortEntity = null;
+                if (isAdmin(sessionTO)) {
+                    cohortEntity = getAuthorizedCohortByKey(sessionTO, cohortKey);
+                } else {
+                    cohortEntity = getManagedCohortByKey(sessionTO, cohortKey);
+                }
+                if (cohortEntity != null) {
+                    if (isAdmin(sessionTO) || isManager(sessionTO, cohortEntity)) {
+                        CohortListEntity cohortListEntity = null;
+                        boolean isNew = true;
+                        if (StringUtils.isFull(listKeyFormer) && !listKeyFormer.equalsIgnoreCase("undefined")) {
+                            cohortListEntity = getListByListKey(listKeyFormer);
+                            if (cohortListEntity != null) {
+                                cohortListEntity.setName(name);
+                                cohortListEntity.setDescription(description);
+                                cohortListEntity.setNameColumnTitle(nameColumnTitle);
+                                cohortListEntity.setValueColumnTitle(valueColumnTitle);
+                                cohortListEntity.setActive(active);
+                                cohortListEntity.setPublicInd(publicInd != null ? publicInd : false);
+                                cohortListEntity.setKey(StringUtils.isFull(listKey) ? listKey : listKeyFormer);
+                                cohortListEntity.setActivityDate(new Date());
+                                cohortListEntity = entityManager.merge(cohortListEntity);
+                                isNew = false;
+                            } else {
+                                cohortListEntity = new CohortListEntity();
+                                cohortListEntity.setName(name);
+                                cohortListEntity.setDescription(description);
+                                cohortListEntity.setNameColumnTitle(nameColumnTitle);
+                                cohortListEntity.setValueColumnTitle(valueColumnTitle);
+                                cohortListEntity.setActive(active);
+                                cohortListEntity.setPublicInd(publicInd != null ? publicInd : false);
+                                cohortListEntity.setKey(StringUtils.isFull(listKey) ? listKey : StringUtils.getGuid());
+                                cohortListEntity.setCohort(cohortEntity);
+                                cohortListEntity.setActivityDate(new Date());
+                                entityManager.persist(cohortListEntity);
+                            }
+                        } else {
+                            cohortListEntity = new CohortListEntity();
+                            cohortListEntity.setName(name);
+                            cohortListEntity.setDescription(description);
+                            cohortListEntity.setNameColumnTitle(nameColumnTitle);
+                            cohortListEntity.setValueColumnTitle(valueColumnTitle);
+                            cohortListEntity.setActive(active);
+                            cohortListEntity.setPublicInd(publicInd != null ? publicInd : false);
+                            cohortListEntity.setKey(StringUtils.isFull(listKey) ? listKey : StringUtils.getGuid());
+                            cohortListEntity.setCohort(cohortEntity);
+                            cohortListEntity.setActivityDate(new Date());
+                            entityManager.persist(cohortListEntity);
+                        }
+
+                        if (cohortListEntity != null  && StringUtils.isFull(details) && !details.equalsIgnoreCase("undefined")) {
+                            try {
+                                ObjectMapper objectMapper = new ObjectMapper();
+                                objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+                                List<CohortListDetailTO> cohortListDetailTOList = objectMapper.readValue(details, new TypeReference<List<CohortListDetailTO>>() {});
+
+                                if (!isNew && cohortListEntity.getCohortListDetail() != null && cohortListEntity.getCohortListDetail().size() > 0) {
+                                    List<CohortListDetailEntity> cohortListDetailEntities = cohortListEntity.getCohortListDetail();
+                                    for (CohortListDetailEntity cohortListDetailEntity : cohortListDetailEntities) {
+                                        if (cohortListDetailTOList == null || cohortListDetailTOList.size() == 0) {
+                                            cohortListDetailEntity.setActive(false);
+                                            cohortListDetailEntity.setActivityDate(new Date());
+                                            entityManager.merge(cohortListDetailEntity);
+                                        } else {
+                                            boolean existsInd = false;
+
+                                            for (CohortListDetailTO cohortListDetailTO : cohortListDetailTOList) {
+                                                if (cohortListDetailTO.getKey().equals(cohortListDetailEntity.getKey())) existsInd = true;
+                                            }
+                                            if (!existsInd) {
+                                                cohortListDetailEntity.setActive(false);
+                                                cohortListDetailEntity.setActivityDate(new Date());
+                                                entityManager.merge(cohortListDetailEntity);
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if (cohortListDetailTOList != null) {
+                                    for (CohortListDetailTO cohortListDetailTO : cohortListDetailTOList) {
+                                        LOGGER.fine("saveList.cohortListDetailTO.getName() = " + cohortListDetailTO.getName());
+                                        CohortListDetailEntity cohortListDetailEntity = getCohortListDetailFromKey(cohortListDetailTO.getKey());
+                                        if (cohortListDetailEntity != null) {
+                                            cohortListDetailEntity.setName(cohortListDetailTO.getName());
+                                            cohortListDetailEntity.setDescription(cohortListDetailTO.getDescription());
+                                            cohortListDetailEntity.setRequired(cohortListDetailTO.isRequired());
+                                            cohortListDetailEntity.setActivityDate(new Date());
+                                            cohortListDetailEntity = entityManager.merge(cohortListDetailEntity);
+                                        } else {
+                                            cohortListDetailEntity = new CohortListDetailEntity();
+                                            cohortListDetailEntity.setName(cohortListDetailTO.getName());
+                                            cohortListDetailEntity.setDescription(cohortListDetailTO.getDescription());
+                                            cohortListDetailEntity.setRequired(cohortListDetailTO.isRequired());
+                                            cohortListDetailEntity.setActive(true);
+                                            cohortListDetailEntity.setCohortList(cohortListEntity);
+                                            cohortListDetailEntity.setKey(cohortListDetailTO.getKey());
+                                            cohortListDetailEntity.setActivityDate(new Date());
+                                            entityManager.persist(cohortListDetailEntity);
+                                        }
+                                    }
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        return new BooleanTO(true);
+
+                    } else {
+                        throw new UnauthorizedActionException("You are not authorized to save this list.");
+                    }
+                }
+            }
+        }
+        return new BooleanTO(false);
+    }
+
+    @Override
+    public BooleanTO saveListData(SessionTO sessionTO, String listKey, String cohortKey, String data) throws UnauthorizedActionException {
+        if (sessionTO != null && StringUtils.isFull(cohortKey, listKey, data)) {
+            if (!cohortKey.equalsIgnoreCase("undefined")) {
+                CohortEntity cohortEntity = null;
+                if (isAdmin(sessionTO)) {
+                    cohortEntity = getAuthorizedCohortByKey(sessionTO, cohortKey);
+                } else {
+                    cohortEntity = getManagedCohortByKey(sessionTO, cohortKey);
+                }
+                if (cohortEntity != null) {
+                    if (isAdmin(sessionTO) || isManager(sessionTO, cohortEntity)) {
+                        CohortListEntity cohortListEntity = null;
+                        if (StringUtils.isFull(listKey) && !listKey.equalsIgnoreCase("undefined")) {
+                            cohortListEntity = getListByListKey(listKey);
+                            if (cohortListEntity != null) {
+                                try {
+                                    ObjectMapper objectMapper = new ObjectMapper();
+                                    objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+                                    List<CohortListDataTO> cohortListDataTOList = objectMapper.readValue(data, new TypeReference<List<CohortListDataTO>>() {});
+
+                                    if (cohortListEntity.getCohortListData() != null && cohortListEntity.getCohortListData().size() > 0) {
+                                        Set<CohortListDataEntity> cohortListDataEntities = cohortListEntity.getCohortListData();
+
+                                        Set<CohortListDataEntity> cohortListDataEntitiesInactivate = new HashSet<CohortListDataEntity>();
+
+                                        for (CohortListDataEntity cohortListDataEntity : cohortListDataEntities) {
+                                            if (cohortListDataTOList == null || cohortListDataTOList.size() == 0) {
+//                                                cohortListDataEntity.setActive(false);
+//                                                cohortListDataEntity.setActivityDate(new Date());
+//                                                entityManager.merge(cohortListDataEntity);
+                                                cohortListDataEntitiesInactivate.add(cohortListDataEntity);
+                                            } else {
+                                                boolean existsInd = false;
+                                                for (CohortListDataTO cohortListDataTO : cohortListDataTOList) {
+                                                    if (cohortListDataTO.getKey().equals(cohortListDataEntity.getKey())) existsInd = true;
+                                                }
+                                                if (!existsInd) {
+//                                                    cohortListDataEntity.setActive(false);
+//                                                    cohortListDataEntity.setActivityDate(new Date());
+//                                                    entityManager.merge(cohortListDataEntity);
+                                                    cohortListDataEntitiesInactivate.add(cohortListDataEntity);
+                                                }
+                                            }
+                                        }
+                                        for (CohortListDataEntity cohortListDataEntity : cohortListDataEntitiesInactivate) {
+                                            cohortListDataEntity.setActive(false);
+                                            cohortListDataEntity.setActivityDate(new Date());
+                                            entityManager.merge(cohortListDataEntity);
+                                        }
+                                    }
+
+
+
+
+                                    if (cohortListDataTOList != null) {
+                                        for (CohortListDataTO cohortListDataTO : cohortListDataTOList) {
+                                            LOGGER.fine("saveListData.cohortListDataTO.getName() = " + cohortListDataTO.getName());
+                                            CohortListDataEntity cohortListDataEntity = getCohortListDataFromKey(cohortListDataTO.getKey());
+                                            if (cohortListDataEntity != null) {
+                                                cohortListDataEntity.setName(cohortListDataTO.getName());
+                                                cohortListDataEntity.setValue(cohortListDataTO.getValue());
+                                                cohortListDataEntity.setActivityDate(new Date());
+                                                cohortListDataEntity = entityManager.merge(cohortListDataEntity);
+                                            } else {
+                                                cohortListDataEntity = new CohortListDataEntity();
+                                                cohortListDataEntity.setName(cohortListDataTO.getName());
+                                                cohortListDataEntity.setValue(cohortListDataTO.getValue());
+                                                cohortListDataEntity.setActive(true);
+                                                cohortListDataEntity.setCohortList(cohortListEntity);
+                                                cohortListDataEntity.setKey(cohortListDataTO.getKey());
+                                                cohortListDataEntity.setActivityDate(new Date());
+                                                entityManager.persist(cohortListDataEntity);
+                                            }
+                                            persistDataDetails(cohortListDataEntity, cohortListDataTO);
+                                        }
+                                    }
+
+                                    return new BooleanTO(true);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+
+
+                    } else {
+                        throw new UnauthorizedActionException("You are not authorized to save this list.");
+                    }
+                }
+            }
+        }
+        return new BooleanTO(false);
+    }
+
+    private void persistDataDetails(CohortListDataEntity cohortListDataEntity, CohortListDataTO cohortListDataTO) {
+        if (cohortListDataEntity != null) {
+            if (cohortListDataTO != null && cohortListDataTO.getDetails() != null && cohortListDataTO.getDetails().size() > 0) {
+                if (cohortListDataEntity.getCohortListDetailData() != null && cohortListDataEntity.getCohortListDetailData().size() > 0) {
+                    for (CohortListDetailDataEntity cohortListDetailDataEntity : cohortListDataEntity.getCohortListDetailData()) {
+                        boolean existsInd = false;
+                        for (CohortListDetailDataTO cohortListDetailDataTO : cohortListDataTO.getDetails()) {
+                            if (cohortListDetailDataTO.getDetailKey().equals(cohortListDetailDataEntity.getCohortListDetail().getKey())) {
+                                existsInd = true;
+                            }
+                        }
+                        if (!existsInd) entityManager.remove(cohortListDetailDataEntity);
+                    }
+                }
+                for (CohortListDetailDataTO cohortListDetailDataTO : cohortListDataTO.getDetails()) {
+                    CohortListDetailEntity cohortListDetailEntity = getCohortListDetailFromKey(cohortListDetailDataTO.getDetailKey());
+
+
+
+                    if (cohortListDetailEntity != null) {
+                        CohortListDetailDataEntity cohortListDetailDataEntity = getCohortListDetailDataEntityFromKey(cohortListDetailEntity, cohortListDataEntity);
+                        if (cohortListDetailDataEntity != null) {
+                            cohortListDetailDataEntity.setValue(cohortListDetailDataTO.getValue());
+                            cohortListDetailDataEntity.setActivityDate(new Date());
+                            entityManager.merge(cohortListDetailDataEntity);
+                        } else {
+                            cohortListDetailDataEntity = new CohortListDetailDataEntity();
+                            cohortListDetailDataEntity.setCohortListData(cohortListDataEntity);
+                            cohortListDetailDataEntity.setCohortListDetail(cohortListDetailEntity);
+                            cohortListDetailDataEntity.setValue(cohortListDetailDataTO.getValue());
+                            cohortListDetailDataEntity.setActivityDate(new Date());
+                            entityManager.persist(cohortListDetailDataEntity);
+                        }
+                    }
+                }
+
+            }
+        }
+    }
+
+    private CohortListDetailDataEntity getCohortListDetailDataEntityFromKey(CohortListDetailEntity cohortListDetailEntity, CohortListDataEntity cohortListDataEntity) {
+        if (cohortListDetailEntity != null && cohortListDataEntity != null) {
+            try {
+                Query query = entityManager.createNamedQuery(CohortListDetailDataEntity.BY_KEY);
+                query.setParameter("cohortListData", cohortListDataEntity);
+                query.setParameter("cohortListDetail", cohortListDetailEntity);
+                return (CohortListDetailDataEntity) query.getSingleResult();
+            } catch (NoResultException e) {}
+        }
+        return null;
+    }
+
+    private CohortListDataEntity getCohortListDataFromKey(String key) {
+        if (StringUtils.isFull(key)) {
+            try {
+                Query query = entityManager.createNamedQuery(CohortListDataEntity.BY_KEY);
+                query.setParameter("key", key);
+                return (CohortListDataEntity) query.getSingleResult();
+            } catch (NoResultException e) {}
+        }
+        return null;
+    }
+
+    private CohortListDetailEntity getCohortListDetailFromKey(String key) {
+        if (StringUtils.isFull(key)) {
+            try {
+                Query query = entityManager.createNamedQuery(CohortListDetailEntity.BY_KEY);
+                query.setParameter("key", key);
+                return (CohortListDetailEntity) query.getSingleResult();
+            } catch (NoResultException e) {}
+        }
+        return null;
+    }
+
+    @Override
+    public CohortListEntity getListByListKey(String listKey) {
+        if (StringUtils.isFull(listKey)) {
+            try {
+                Query query = entityManager.createNamedQuery(CohortListEntity.BY_LIST_KEY);
+                query.setParameter("key", listKey);
+                return (CohortListEntity) query.getSingleResult();
+            } catch (NoResultException e) {}
+        }
+        return null;
     }
 
     private FormEntity getFormByFormOrPublicationKey(String formKey, String publicationKey) {

@@ -4,6 +4,7 @@ import edu.harvard.mgh.lcs.sprout.forms.study.beanws.Result;
 import edu.harvard.mgh.lcs.sprout.forms.study.exception.UnauthorizedActionException;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.*;
 import edu.harvard.mgh.lcs.sprout.study.model.study.CohortEntity;
+import edu.harvard.mgh.lcs.sprout.study.model.study.CohortListEntity;
 import edu.harvard.mgh.lcs.sprout.study.model.study.FormAttrEntity;
 
 import javax.jms.Session;
@@ -62,4 +63,8 @@ public interface StudyService {
     public BooleanTO persistFormAttribute(SessionTO sessionTO, String cohortKey, String formKey, String attributeKey, String attributeValue) throws UnauthorizedActionException;
     public Set<CohortTO> getCohortsFromPublicationKey(String publicationKey);
     public String getPublicationKeyFromFormKey(String formKey);
+    public BooleanTO deleteList(SessionTO sessionTO, String cohortKey, String listKey) throws UnauthorizedActionException;
+    public BooleanTO saveList(SessionTO sessionTO, String listKey, String listKeyFormer, String name, String description, String nameColumnTitle, String valueColumnTitle, String cohort, Boolean publicInd, Boolean active, String details) throws UnauthorizedActionException;
+    public BooleanTO saveListData(SessionTO sessionTO, String listKey, String cohortKey, String data) throws UnauthorizedActionException;
+    public CohortListEntity getListByListKey(String listKey);
 }

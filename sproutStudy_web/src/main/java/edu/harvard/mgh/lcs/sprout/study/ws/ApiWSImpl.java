@@ -27,6 +27,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.logging.Logger;
 
 @ApplicationPath("api")
 @Named
@@ -47,6 +48,7 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
 	@EJB(mappedName="java:global/sproutStudy/sproutStudy_ejb/StudyServiceImpl!edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.StudyService")
 	private SproutTransformService transformService;
 
+    private static final Logger LOGGER = Logger.getLogger(ApiWSImpl.class.getName());
 
     @Override
     @WebMethod(operationName = "getAuthorizedCohorts")
@@ -531,8 +533,8 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
 
     @Override
     public BooleanTO saveTemplate(HttpServletRequest request, String publicationKey, String instanceId, String templateKey, boolean masterInd, String template) throws InvalidSessionRESTful {
-        System.out.println("ApiWSImpl.saveTemplate");
-        System.out.println("request = [" + request + "], publicationKey = [" + publicationKey + "], instanceId = [" + instanceId + "], templateKey = [" + templateKey + "], masterInd = [" + masterInd + "], template = [" + template + "]");
+        LOGGER.fine("ApiWSImpl.saveTemplate");
+        LOGGER.fine("saveTemplate: " + "request = [" + request + "], publicationKey = [" + publicationKey + "], instanceId = [" + instanceId + "], templateKey = [" + templateKey + "], masterInd = [" + masterInd + "], template = [" + template + "]");
         return transformService.saveTemplate(publicationKey, instanceId, template, templateKey, masterInd);
     }
 
@@ -785,6 +787,46 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
             return studyService.persistFormAttribute(sessionTO, cohortKey, formKey, attributeKey, attributeValue);
         }
         return new BooleanTO(false);
+    }
+
+    @Override
+    public BooleanTO saveList(@Context HttpServletRequest request, String cohortKey, String name, String description, String nameColumnTitle, String valueColumnTitle, Boolean publicInd, Boolean active, String listKey, String listKeyFormer, String details) throws InvalidSessionRESTful {
+        SessionTO sessionTO = getSessionTO(request);
+        if (sessionTO != null && StringUtils.isFull(name, description, nameColumnTitle, valueColumnTitle, cohortKey)) {
+            try {
+                return studyService.saveList(sessionTO, listKey, listKeyFormer, name, description, nameColumnTitle, valueColumnTitle, cohortKey, publicInd, active, details);
+            } catch (UnauthorizedActionException e) {
+                return new BooleanTO(false, e.getMessage());
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public BooleanTO saveListData(@Context HttpServletRequest request, String cohortKey, String listKey, String data) throws InvalidSessionRESTful {
+        SessionTO sessionTO = getSessionTO(request);
+        if (sessionTO != null && StringUtils.isFull(cohortKey, listKey, data)) {
+            try {
+                return studyService.saveListData(sessionTO, listKey, cohortKey, data);
+            } catch (UnauthorizedActionException e) {
+                return new BooleanTO(false, e.getMessage());
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public BooleanTO deleteList(@Context HttpServletRequest request, String cohortKey, String listKey) throws InvalidSessionRESTful, UnauthorizedActionException {
+        SessionTO sessionTO = getSessionTO(request);
+        if (sessionTO != null && StringUtils.isFull(listKey, cohortKey)) {
+            return studyService.deleteList(sessionTO, cohortKey, listKey);
+        }
+        return null;
+    }
+
+    @Override
+    public BooleanTO persistListAttribute(@Context HttpServletRequest request, String cohortKey, String listKey, String attributeKey, String attributeValue) throws InvalidSessionRESTful, UnauthorizedActionException {
+        return null;
     }
 
     @Override

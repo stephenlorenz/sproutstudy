@@ -1,14 +1,18 @@
 package edu.harvard.mgh.lcs.sprout.forms.study.ws;
 
+import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.SproutListService;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.SproutTransformService;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.StudyService;
+import edu.harvard.mgh.lcs.sprout.forms.study.exception.UnauthorizedActionException;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.BooleanTO;
+import edu.harvard.mgh.lcs.sprout.forms.study.to.SproutListTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.wsinterface.SproutStudyWebService;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.jws.WebService;
+import java.util.List;
 
 @Stateless
 @WebService(name="SproutStudyAPIWS", endpointInterface="edu.harvard.mgh.lcs.sprout.forms.study.wsinterface.SproutStudyWebService")
@@ -17,6 +21,9 @@ public class SproutStudyWebServiceImpl implements SproutStudyWebService {
 
     @EJB
     private StudyService studyService;
+
+    @EJB
+    private SproutListService sproutListService;
 
     @EJB
     private SproutTransformService sproutTransformService;
@@ -34,6 +41,26 @@ public class SproutStudyWebServiceImpl implements SproutStudyWebService {
     @Override
     public String getFormKeyFromPublicationKey(String publicationKey) {
         return studyService.getFormKeyFromPublicationKey(publicationKey);
+    }
+
+    @Override
+    public List<SproutListTO> getSproutList(String listKey, String publicationKey) {
+        try {
+            return sproutListService.getList(listKey, publicationKey);
+        } catch (UnauthorizedActionException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public SproutListTO getSproutListTO(String listKey, String publicationKey, String value) {
+        try {
+            return sproutListService.getListTO(listKey, publicationKey, value);
+        } catch (UnauthorizedActionException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override

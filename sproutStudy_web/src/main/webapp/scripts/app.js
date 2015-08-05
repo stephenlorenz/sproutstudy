@@ -30,6 +30,22 @@ var sproutStudyApp = angular.module('sproutStudyApp', ['ui', 'ngResource', 'ui.b
                 templateUrl: 'views/formAddView.html',
                 controller: 'formManagerController'
             })
+            .when('/lists', {
+                templateUrl: 'views/lists/listManagerView.html',
+                controller: 'listManagerController'
+            })
+            .when('/lists/add', {
+                templateUrl: 'views/lists/listAddView.html',
+                controller: 'listManagerController'
+            })
+            .when('/lists/data', {
+                templateUrl: 'views/lists/listDataView.html',
+                controller: 'listManagerController'
+            })
+            .when('/lists/edit', {
+                templateUrl: 'views/lists/listEditView.html',
+                controller: 'listManagerController'
+            })
             .when('/transform', {
                 templateUrl: 'views/transformDesignerView.html',
                 controller: 'transformManagerController'

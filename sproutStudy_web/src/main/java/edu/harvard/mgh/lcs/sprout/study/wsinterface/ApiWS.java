@@ -69,6 +69,26 @@ public interface ApiWS {
     public BooleanTO persistFormAttribute(@Context HttpServletRequest request, @QueryParam("cohort") String cohortKey, @QueryParam("formKey") String formKey, @QueryParam("attributeKey") String attributeKey, @QueryParam("attributeValue") String attributeValue) throws InvalidSessionRESTful, UnauthorizedActionException;
 
     @GET
+    @Path("/secure/saveList")
+    @Produces(MediaType.APPLICATION_JSON)
+    public BooleanTO saveList(@Context HttpServletRequest request, @QueryParam("cohortKey") String cohortKey, @QueryParam("name") String name, @QueryParam("description") String description, @QueryParam("nameColumnTitle") String nameColumnTitle, @QueryParam("valueColumnTitle") String valueColumnTitle, @QueryParam("publicInd") Boolean publicInd, @QueryParam("active") Boolean active, @QueryParam("listKey") String listKey, @QueryParam("listKeyFormer") String listKeyFormer, @QueryParam("details") String details) throws InvalidSessionRESTful;
+
+    @POST
+    @Path("/secure/saveListData")
+    @Produces(MediaType.APPLICATION_JSON)
+    public BooleanTO saveListData(@Context HttpServletRequest request, @QueryParam("cohortKey") String cohortKey, @QueryParam("listKey") String listKey, String data) throws InvalidSessionRESTful;
+
+    @GET
+    @Path("/secure/deleteList")
+    @Produces(MediaType.APPLICATION_JSON)
+    public BooleanTO deleteList(@Context HttpServletRequest request, @QueryParam("cohort") String cohortKey, @QueryParam("listKey") String listKey) throws InvalidSessionRESTful, UnauthorizedActionException;
+
+    @GET
+    @Path("/secure/persistListAttribute")
+    @Produces(MediaType.APPLICATION_JSON)
+    public BooleanTO persistListAttribute(@Context HttpServletRequest request, @QueryParam("cohort") String cohortKey, @QueryParam("listKey") String listKey, @QueryParam("attributeKey") String attributeKey, @QueryParam("attributeValue") String attributeValue) throws InvalidSessionRESTful, UnauthorizedActionException;
+
+    @GET
     @Path("/secure/applyForNonce")
     @Produces(MediaType.APPLICATION_JSON)
     public NonceTO applyForNonce(@Context HttpServletRequest request, @QueryParam("instanceId") String instanceId, @QueryParam("subjectName") String subjectName, @QueryParam("subjectId") String subjectId) throws InvalidSessionRESTful;

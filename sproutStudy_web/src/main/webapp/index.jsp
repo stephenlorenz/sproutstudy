@@ -155,6 +155,7 @@
 <script src="scripts/controllers/cohortController.js"></script>
 <script src="scripts/controllers/settingsController.js"></script>
 <script src="scripts/controllers/formManagerController.js"></script>
+<script src="scripts/controllers/listManagerController.js"></script>
 <script src="scripts/controllers/transformManagerController.js"></script>
 <script src="scripts/controllers/cohortManagerController.js"></script>
 <script src="scripts/filters/filters.js"></script>
@@ -171,6 +172,7 @@
 <script src="scripts/services/patientService.js"></script>
 <script src="scripts/services/settingsService.js"></script>
 <script src="scripts/services/formManagerService.js"></script>
+<script src="scripts/services/listManagerService.js"></script>
 <script src="scripts/services/cohortManagerService.js"></script>
 <script src="scripts/services/userManagerService.js"></script>
 <script src="scripts/services/formsService.js"></script>
@@ -593,6 +595,10 @@
         setTimeout(sizeTransformPane, 500);
     });
 
+    function highlightRow(row) {
+//        console.log("row.class.3: " + row.attr("class"));
+        if (row !== undefined) row.effect('pulsate');
+    }
 
     function sizeAppFrame() {
         var tNavBarHeight = $(".navbar-fixed-top").height();

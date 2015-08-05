@@ -2,39 +2,59 @@ package edu.harvard.mgh.lcs.sprout.study.model.study;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Entity
 @Table(schema="dbo", name="cohort_list")
+@NamedQueries({
+        @NamedQuery(name = CohortListEntity.BY_LIST_KEY, query = "FROM CohortListEntity WHERE key = :key")
+})
 public class CohortListEntity implements Serializable {
 
-	@Id
+    public static final String BY_LIST_KEY = "CohortListEntity.byKey";
+
+    @Id
     @GeneratedValue (strategy = GenerationType.IDENTITY)
     private int id;
 
-    @ManyToOne(fetch=FetchType.LAZY, cascade=CascadeType.MERGE)
+    @ManyToOne(fetch=FetchType.EAGER, cascade=CascadeType.MERGE)
     @JoinColumn(name="cohort_id")
     private CohortEntity cohort;
 
-    @Column
+    @OneToMany(fetch = FetchType.EAGER, targetEntity=CohortListDataEntity.class, mappedBy="cohortList", cascade=CascadeType.MERGE)
+    private Set<CohortListDataEntity> cohortListData = new HashSet<CohortListDataEntity>();
+
+    @OneToMany(fetch = FetchType.EAGER, targetEntity=CohortListDetailEntity.class, mappedBy="cohortList", cascade=CascadeType.MERGE)
+    @OrderBy("id asc")
+    private List<CohortListDetailEntity> cohortListDetail = new ArrayList<CohortListDetailEntity>();
+
+    @Basic
+    @Column(name="name")
     private String name;
 
-    @Column
+    @Basic
+    @Column(name="description")
     private String description;
 
+    @Basic
     @Column(name="name_column_title")
     private String nameColumnTitle;
 
+    @Basic
     @Column(name="value_column_title")
     private String valueColumnTitle;
 
+    @Basic
+    @Column(name="list_key")
+    private String key;
+
+    @Basic
     @Column(name="active_ind")
     private boolean active = false;
 
-    @OneToMany(targetEntity=CohortListDataEntity.class, mappedBy="cohortList", cascade=CascadeType.MERGE)
-    private List<CohortListDataEntity> cohortListData = new ArrayList<CohortListDataEntity>();
+    @Basic
+    @Column(name="public_ind")
+    private boolean publicInd = false;
 
     @Basic
     @Column(name="activity_date", columnDefinition="datetime", nullable=false)
@@ -46,6 +66,22 @@ public class CohortListEntity implements Serializable {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public Set<CohortListDataEntity> getCohortListData() {
+        return cohortListData;
+    }
+
+    public void setCohortListData(Set<CohortListDataEntity> cohortListData) {
+        this.cohortListData = cohortListData;
+    }
+
+    public List<CohortListDetailEntity> getCohortListDetail() {
+        return cohortListDetail;
+    }
+
+    public void setCohortListDetail(List<CohortListDetailEntity> cohortListDetail) {
+        this.cohortListDetail = cohortListDetail;
     }
 
     public CohortEntity getCohort() {
@@ -88,6 +124,13 @@ public class CohortListEntity implements Serializable {
         this.valueColumnTitle = valueColumnTitle;
     }
 
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
 
     public boolean isActive() {
         return active;
@@ -97,12 +140,12 @@ public class CohortListEntity implements Serializable {
         this.active = active;
     }
 
-    public List<CohortListDataEntity> getCohortListData() {
-        return cohortListData;
+    public boolean isPublicInd() {
+        return publicInd;
     }
 
-    public void setCohortListData(List<CohortListDataEntity> cohortListData) {
-        this.cohortListData = cohortListData;
+    public void setPublicInd(boolean publicInd) {
+        this.publicInd = publicInd;
     }
 
     public Date getActivityDate() {

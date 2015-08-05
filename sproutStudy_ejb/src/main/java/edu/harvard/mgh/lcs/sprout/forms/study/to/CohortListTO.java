@@ -12,7 +12,12 @@ public class CohortListTO implements Serializable, Comparable<CohortListTO> {
     private String description;
     private String nameColumnTitle;
     private String valueColumnTitle;
+    private String key;
+    private String keyFormer;
+    private Boolean active;
+    private Boolean publicInd;
     private List<CohortListDataTO> data;
+    private List<CohortListDetailTO> detail;
     private Date activityDate;
 
     public String getId() {
@@ -55,6 +60,39 @@ public class CohortListTO implements Serializable, Comparable<CohortListTO> {
         this.valueColumnTitle = valueColumnTitle;
     }
 
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+        this.keyFormer = key;
+    }
+
+    public String getKeyFormer() {
+        return keyFormer;
+    }
+
+    public void setKeyFormer(String keyFormer) {
+        this.keyFormer = keyFormer;
+    }
+
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public Boolean getPublicInd() {
+        return publicInd;
+    }
+
+    public void setPublicInd(Boolean publicInd) {
+        this.publicInd = publicInd;
+    }
+
     public List<CohortListDataTO> getData() {
         return data;
     }
@@ -74,6 +112,22 @@ public class CohortListTO implements Serializable, Comparable<CohortListTO> {
     public void addData(CohortListDataTO cohortListDataTO) {
         if (data == null) data = new ArrayList<CohortListDataTO>();
         data.add(cohortListDataTO);
+    }
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
+
+    public List<CohortListDetailTO> getDetail() {
+        return detail;
+    }
+
+    public void setDetail(List<CohortListDetailTO> detail) {
+        this.detail = detail;
+    }
+
+    public void addDetail(CohortListDetailTO cohortListDetailTO) {
+        if (detail == null) detail = new ArrayList<CohortListDetailTO>();
+        detail.add(cohortListDetailTO);
     }
 
     @Override

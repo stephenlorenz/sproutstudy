@@ -184,3 +184,5 @@ div.sprout-transform-narrative-content {
     /*-moz-text-decoration-style: dashed;*/
     /*-webkit-text-decoration-style: dashed;*/
 }
+
+.table-striped tbody tr.highlight td { background-color: #f8ff00; }

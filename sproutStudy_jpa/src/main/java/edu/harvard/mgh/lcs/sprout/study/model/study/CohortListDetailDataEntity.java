@@ -2,15 +2,18 @@ package edu.harvard.mgh.lcs.sprout.study.model.study;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 @Entity
-@Table(schema="dbo", name="cohort_list_data_discriminator")
-public class CohortListDataDiscriminatorEntity implements Serializable {
+@Table(schema="dbo", name="cohort_list_detail_data")
+@NamedQueries({
+        @NamedQuery(name = CohortListDetailDataEntity.BY_KEY, query = "FROM CohortListDetailDataEntity WHERE cohortListData = :cohortListData AND cohortListDetail = :cohortListDetail")
+})
+public class CohortListDetailDataEntity implements Serializable {
 
-	@Id
+    public static final String BY_KEY = "CohortListDetailDataEntity.byKey";
+
+    @Id
     @GeneratedValue (strategy = GenerationType.IDENTITY)
     private int id;
 
@@ -19,10 +22,11 @@ public class CohortListDataDiscriminatorEntity implements Serializable {
     private CohortListDataEntity cohortListData;
 
     @ManyToOne(fetch=FetchType.LAZY, cascade=CascadeType.MERGE)
-    @JoinColumn(name="cohort_list_discriminator_id")
-    private CohortListDiscriminatorEntity cohortListDiscriminator;
+    @JoinColumn(name="cohort_list_detail_id")
+    private CohortListDetailEntity cohortListDetail;
 
-    @Column
+    @Basic
+    @Column(name="value")
     private String value;
 
     @Basic
@@ -45,12 +49,12 @@ public class CohortListDataDiscriminatorEntity implements Serializable {
         this.cohortListData = cohortListData;
     }
 
-    public CohortListDiscriminatorEntity getCohortListDiscriminator() {
-        return cohortListDiscriminator;
+    public CohortListDetailEntity getCohortListDetail() {
+        return cohortListDetail;
     }
 
-    public void setCohortListDiscriminator(CohortListDiscriminatorEntity cohortListDiscriminator) {
-        this.cohortListDiscriminator = cohortListDiscriminator;
+    public void setCohortListDetail(CohortListDetailEntity cohortListDetail) {
+        this.cohortListDetail = cohortListDetail;
     }
 
     public String getValue() {

@@ -7,17 +7,15 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(schema="dbo", name="cohort_list_data")
+@Table(schema="dbo", name="cohort_list_detail")
 @NamedQueries({
-        @NamedQuery(name = CohortListDataEntity.BY_KEY, query = "FROM CohortListDataEntity WHERE key = :key"),
-        @NamedQuery(name = CohortListDataEntity.BY_VALUE, query = "FROM CohortListDataEntity WHERE value = :value AND cohortList = :cohortList AND active = TRUE")
+        @NamedQuery(name = CohortListDetailEntity.BY_KEY, query = "FROM CohortListDetailEntity WHERE key = :key")
 })
-public class CohortListDataEntity implements Serializable {
+public class CohortListDetailEntity implements Serializable {
 
-    public static final String BY_KEY = "CohortListDataEntity.byKey";
-    public static final String BY_VALUE = "CohortListDataEntity.byValue";
+    public static final String BY_KEY = "CohortListDetailEntity.byKey";
 
-    @Id
+	@Id
     @GeneratedValue (strategy = GenerationType.IDENTITY)
     private int id;
 
@@ -25,7 +23,7 @@ public class CohortListDataEntity implements Serializable {
     @JoinColumn(name="cohort_list_id")
     private CohortListEntity cohortList;
 
-    @OneToMany(targetEntity=CohortListDetailDataEntity.class, mappedBy="cohortListData", cascade=CascadeType.MERGE)
+    @OneToMany(targetEntity=CohortListDetailDataEntity.class, mappedBy="cohortListDetail", cascade=CascadeType.MERGE)
     private Set<CohortListDetailDataEntity> cohortListDetailData = new HashSet<CohortListDetailDataEntity>();
 
     @Basic
@@ -33,16 +31,20 @@ public class CohortListDataEntity implements Serializable {
     private String name;
 
     @Basic
-    @Column(name="value")
-    private String value;
+    @Column(name="description")
+    private String description;
 
     @Basic
-    @Column(name="data_key")
+    @Column(name="detail_key")
     private String key;
 
     @Basic
+    @Column(name="required_ind")
+    private boolean required = false;
+
+    @Basic
     @Column(name="active_ind")
-    private Boolean active;
+    private boolean active = false;
 
     @Basic
     @Column(name="activity_date", columnDefinition="datetime", nullable=false)
@@ -80,12 +82,12 @@ public class CohortListDataEntity implements Serializable {
         this.name = name;
     }
 
-    public String getValue() {
-        return value;
+    public String getDescription() {
+        return description;
     }
 
-    public void setValue(String value) {
-        this.value = value;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getKey() {
@@ -96,11 +98,19 @@ public class CohortListDataEntity implements Serializable {
         this.key = key;
     }
 
+    public boolean isRequired() {
+        return required;
+    }
+
+    public void setRequired(boolean required) {
+        this.required = required;
+    }
+
     public Boolean getActive() {
         return active;
     }
 
-    public void setActive(Boolean active) {
+    public void setActive(boolean active) {
         this.active = active;
     }
 

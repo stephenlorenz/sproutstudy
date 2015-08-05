@@ -237,7 +237,7 @@
                                 <tr ng-repeat='form in allForms | filter: allFormsFilter ' ng-class="{'inbox-row': !form.locked, 'unknown': form.identityFullName == 'Unknown'}"  >
                                     <td class="inbox-cell" ng-click="form.locked || onOpenMutableForm(form)">{{form.identityFullName}} ({{form.identityPrimaryId}})</td>
                                     <td class="inbox-cell" ng-click="form.locked || onOpenMutableForm(form)">{{form.title}}</a></td>
-                                    <td ng-show="allFormsMetadata.hasInstanceKeys" class="inbox-cell" ng-click="form.locked || onOpenMutableForm(form)">{{form.instanceKey}}</a></td>
+                                    <td ng-show="allFormsMetadata.hasInstanceKeys" class="inbox-cell form-instance-id-{{form.instanceId}}" ng-click="form.locked || onOpenMutableForm(form)">{{form.instanceKey}}</a></td>
                                     <td class="inbox-cell" ng-click="form.locked || onOpenMutableForm(form)">{{form.deliveryDate | date:'medium' }}</td>
 
                                     <td class="inbox-cell" ng-click="form.locked || onOpenMutableForm(form)" ng-show="assignments.length > 1">

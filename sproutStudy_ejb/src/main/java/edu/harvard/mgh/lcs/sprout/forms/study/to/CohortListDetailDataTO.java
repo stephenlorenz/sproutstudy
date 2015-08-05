@@ -1,17 +1,19 @@
 package edu.harvard.mgh.lcs.sprout.forms.study.to;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 
-public class CohortListDataTO implements Serializable {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class CohortListDetailDataTO implements Serializable {
 
     private int id;
+    private int detailId;
+    private String detailKey;
     private String name;
     private String value;
     private String key;
-    private List<CohortListDetailDataTO> details;
-    private boolean active;
     private Date activityDate;
 
     public int getId() {
@@ -20,6 +22,22 @@ public class CohortListDataTO implements Serializable {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public int getDetailId() {
+        return detailId;
+    }
+
+    public void setDetailId(int detailId) {
+        this.detailId = detailId;
+    }
+
+    public String getDetailKey() {
+        return detailKey;
+    }
+
+    public void setDetailKey(String detailKey) {
+        this.detailKey = detailKey;
     }
 
     public String getName() {
@@ -44,22 +62,6 @@ public class CohortListDataTO implements Serializable {
 
     public void setKey(String key) {
         this.key = key;
-    }
-
-    public List<CohortListDetailDataTO> getDetails() {
-        return details;
-    }
-
-    public void setDetails(List<CohortListDetailDataTO> details) {
-        this.details = details;
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
     }
 
     public Date getActivityDate() {

@@ -5,7 +5,6 @@ angular.module('sproutStudyApp')
 
     $scope.forms = null;
     $scope.form = null;
-    $scope.form = null;
     $scope.managedForms = undefined;
 
     $scope.managedCohorts = undefined;

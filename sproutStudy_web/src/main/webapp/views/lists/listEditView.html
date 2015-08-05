@@ -1,0 +1,123 @@
+<div ng-controller="listManagerController" class="sproutstudy-tab sproutstudy-tab-patient container">
+
+    <legend>Edit List</legend>
+
+    <form method="post" id="user" name="addList" autocomplete="false" novalidate>
+
+        <div class="alert alert-error" ng-show="saveListMessage != undefined">
+            <h4>{{saveListMessage}}</h4>
+        </div>
+
+        <input type="hidden" ng-model="list.keyFormer" />
+
+        <div id="tabPane" style="margin-top: 0px;" >
+            <ul class="nav nav-tabs">
+                <li class="sprout-study-app-tab active" tab="settings">
+                    <a href="#tab0" data-toggle="tab">Basic Settings</a>
+                </li>
+                <li class="sprout-study-app-tab" tab="details">
+                    <a href="#tab1" data-toggle="tab">Supplemental Fields</a>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane fade in active" id="tab0">
+
+                    <div class="control-group">
+                        <label class="control-label" for="name">List Name</label>
+                        <div class="controls">
+                            <input ng-model="list.name" id="name" required  autocomplete="false"
+                                   class="field-label message-text" type="text" style="width: 20em;" />
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label" for="description">List Description</label>
+                        <div class="controls">
+                            <textarea ng-model="list.description" id="description" required  autocomplete="false"
+                                   class="field-label message-text" type="text" style="width: 20em;" />
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label" for="nameColumnTitle">Name Column Title</label>
+                        <div class="controls">
+                            <input ng-model="list.nameColumnTitle" id="nameColumnTitle" required  autocomplete="false"
+                                   class="field-label message-text" type="text" style="width: 20em;" />
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label" for="valueColumnTitle">Value Column Title</label>
+                        <div class="controls">
+                            <input ng-model="list.valueColumnTitle" id="valueColumnTitle" required  autocomplete="false"
+                                   class="field-label message-text" type="text" style="width: 20em;" />
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label" for="listKey">List Key</label>
+                        <div class="controls">
+                            <input ng-model="list.key" id="listKey" autocomplete="false"
+                                   class="field-label message-text" type="text" style="width: 20em;" />
+                            <span class="help-block">Optional, a key will be generated if left blank.</span>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label" for="active">Public?</label>
+                        <div class="controls">
+                            <input ng-model="list.publicInd" id="public" autocomplete="false"
+                                   class="field-label message-text" type="checkbox" />
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label" for="active">Active?</label>
+                        <div class="controls">
+                            <input ng-model="list.active" id="active" autocomplete="false" value="true"
+                                   class="field-label message-text" type="checkbox" />
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade in" id="tab1">
+                    <table class="table table-striped" ng-show="filteredData.length>0">
+                        <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th style="text-align: center; width: 60px;">Required?</th>
+                            <th style="text-align: center; width: 60px;">Remove?</th>
+                        </tr>
+                        </thead>
+                        <!--<tr ng-repeat="detail in list.detail | filter: { active: true } | orderBy:id" >-->
+                        <tr ng-repeat="detail in filteredData = (list.detail | filter:{ active: true }) | orderBy:id" >
+                            <td><input ng-model="detail.name" class="field-label message-text" required type="text" style="width: 15em;" /></td>
+                            <td><input ng-model="detail.description" class="field-label message-text" required type="text" style="width: 25em;" /></td>
+                            <td style="text-align: center; width: 120px;"><input ng-model="detail.required" class="field-label message-text" type="checkbox" /></td>
+                            <td style="text-align: center; width: 120px;" ng-show="listListFilter.active == true && isManager() == 'true'">
+                                <button class="btn btn-mini btn-warning" style="text-align: center; width: 55px;" ng-click="onOpenDeleteListDetailModal(detail)"><i class="icon-trash icon-white" style="margin-right: 0px;"></i></button>
+                            </td>
+                        </tr>
+                    </table>
+                    <button class="btn btn-primary btn-mini" ng-click="onAddListDetail(list)">Add Supplemental Field</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button class="btn btn-primary" ng-click="onSaveEditList()" ng-disabled="addList.$invalid">Submit</button>
+            <a ng-href="#/lists" class="btn">Cancel</a>
+
+        </div>
+
+    </form>
+
+    <div modal="deleteListDetailModal" close="onCloseDeleteListDetailModal()" options="modalSmallOpts">
+        <div class="modal-header">
+            <h4>Delete Field?</h4>
+        </div>
+        <div class="modal-body modal-body-short">
+            <h4>{{deleteMessageText}}</h4>
+        </div>
+        <div class="modal-footer">
+            <button class="btn cancel" ng-click="onCloseDeleteListDetailModal()">Cancel</button>
+            <button class="btn btn-primary" ng-disabled="deletingForm" ng-click="onDeleteEditListDetail()">{{deleteListDetailButtonText}}</button>
+        </div>
+    </div>
+
+
+</div>
