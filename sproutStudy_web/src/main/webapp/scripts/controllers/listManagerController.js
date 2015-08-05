@@ -7,6 +7,9 @@ angular.module('sproutStudyApp')
     $scope.list = null;
     $scope.managedLists = undefined;
 
+        $scope.saveButtonText = "Save";
+        $scope.saving = false;
+
     $scope.managedCohorts = undefined;
 
     if ($rootScope.list !== undefined) $scope.list = $rootScope.list;
@@ -163,7 +166,7 @@ angular.module('sproutStudyApp')
             });
         }
 
-        var row = {"id": "9999999999", "discriminators": [], "name": "", "value": "", "activityDate": "", "active": true, "key": generateUUID(), "details": detailsStub};
+        var row = {"id": "-1", "discriminators": [], "name": "", "value": "", "activityDate": "", "active": true, "key": generateUUID(), "details": detailsStub};
 
         if ($scope.list === null) {
             $scope.list = {};
@@ -189,8 +192,12 @@ angular.module('sproutStudyApp')
     }
 
     $scope.onSaveListData = function(list) {
+        $scope.saveButtonText = "Saving...";
+        $scope.saving = true;
         var data = JSON.stringify(list.data);
         listManagerService.saveListData({"cohortKey": $scope.cohort.cohortKey, "listKey": $scope.list.key}, data, function(data) {
+            $scope.saveButtonText = "Save";
+            $scope.saving = false;
             if (data.value == 'true') {
                 listManagerService.setList(null);
                 $scope.saveNewListMessage = undefined;

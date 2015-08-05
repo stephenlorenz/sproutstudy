@@ -32,7 +32,7 @@
         <button class="btn btn-primary btn-mini" ng-click="onAddDataRow(list, data)">Add Row</button>
 
         <div class="form-actions">
-            <button class="btn btn-primary" ng-click="onSaveListData(list)" ng-disabled="editListData.$invalid">Submit</button>
+            <button class="btn btn-primary" ng-click="onSaveListData(list)" ng-disabled="editListData.$invalid || saving">{{saveButtonText}}</button>
             <a ng-href="#/lists" class="btn">Cancel</a>
         </div>
 
