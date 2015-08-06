@@ -1538,7 +1538,7 @@ angular.module('sproutStudyApp')
 
                             var message = JSON.parse(dataJSON);
 
-                            console.log("dataJSON: " + dataJSON);
+                            //console.log("dataJSON: " + dataJSON);
 
                             var instanceId = message.instanceId;
                             var publicationKey = message.publicationKey;
@@ -1565,7 +1565,7 @@ angular.module('sproutStudyApp')
                                         if (instanceId == data.instanceId) {
                                             allFormsRecordIndex = index;
 
-                                            console.log("data.inboxStatus: " + message.inboxStatus + " vs " + data.inboxStatus);
+                                            //console.log("data.inboxStatus: " + message.inboxStatus + " vs " + data.inboxStatus);
 
                                             if (message.inboxStatus == 'REVOKED' || message.inboxStatus == 'EXPIRED') {
                                                 allFormsRecordAction = 'DELETE';
@@ -1595,8 +1595,8 @@ angular.module('sproutStudyApp')
                                 $scope.allFormsFilterForm.sort();
 
                                 //console.log("inboxRecordIndex: " + inboxRecordIndex);
-                                console.log("allFormsRecordIndex: " + allFormsRecordIndex);
-                                console.log("allFormsRecordAction: " + allFormsRecordAction);
+                                //console.log("allFormsRecordIndex: " + allFormsRecordIndex);
+                                //console.log("allFormsRecordAction: " + allFormsRecordAction);
 
                                 var applyInd = false;
 
@@ -1618,13 +1618,12 @@ angular.module('sproutStudyApp')
                                 }
 
 
-                                $.each($scope.allForms, function (index, data) {
-                                    //console.log("after.allForms.instanceId: " + data.instanceId);
-                                    if (instanceId == data.instanceId) {
-                                        console.log("INSTANCE STILL EXISTS...");
-                                    }
-                                });
-
+                                //$.each($scope.allForms, function (index, data) {
+                                //    //console.log("after.allForms.instanceId: " + data.instanceId);
+                                //    if (instanceId == data.instanceId) {
+                                //        console.log("INSTANCE STILL EXISTS...");
+                                //    }
+                                //});
 
                                 //console.log("applying changes...");
                                 $scope.applyIfPossible();
