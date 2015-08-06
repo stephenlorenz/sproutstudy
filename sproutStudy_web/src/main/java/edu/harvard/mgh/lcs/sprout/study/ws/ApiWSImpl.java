@@ -251,6 +251,13 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
         if (sessionTO != null) {
             CohortTO cohortTO = getLastSelectedCohort(request);
             if (cohortTO != null) {
+                if (StringUtils.isFull(status)) {
+                    if (status.equalsIgnoreCase("IN PROGRESS")) {
+                        status = "INPROGRESS";
+                    }
+                    status = status.replaceAll(" ", "_");
+                }
+
                 List<CohortFormTO> cohortFormTOList = cohortTO.getForms();
                 Set<String> publicationKeys = new HashSet<String>();
 
@@ -299,6 +306,15 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
                     for (CohortFormTO cohortFormTO : cohortFormTOList) {
                         publicationKeys.add(cohortFormTO.getPublicationKey());
                     }
+                    if (StringUtils.isFull(status)) {
+                        if (status.equalsIgnoreCase("IN PROGRESS")) {
+                            status = "INPROGRESS";
+                        }
+                        status = status.replaceAll(" ", "_");
+                    }
+
+
+
                     List<edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.NameValue> assignments = sproutFormsService.getAssignments(publicationKeys, status, targetDate);
                     edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.NameValue me = new edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.NameValue();
                     me.setName("me");
@@ -318,6 +334,14 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
         if (sessionTO != null) {
             CohortTO cohortTO = getLastSelectedCohort(request);
             if (cohortTO != null) {
+
+                if (StringUtils.isFull(status)) {
+                    if (status.equalsIgnoreCase("IN PROGRESS")) {
+                        status = "INPROGRESS";
+                    }
+                    status = status.replaceAll(" ", "_");
+                }
+
                 List<CohortFormTO> cohortFormTOList = cohortTO.getForms();
                 Set<String> publicationKeys = new HashSet<String>();
                 if (StringUtils.isFull(publicationKey) && !publicationKey.equalsIgnoreCase("null")) {
@@ -350,6 +374,14 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
         if (sessionTO != null) {
             CohortTO cohortTO = getLastSelectedCohort(request);
             if (cohortTO != null) {
+                if (StringUtils.isFull(status)) {
+                    if (status.equalsIgnoreCase("IN PROGRESS")) {
+                        status = "INPROGRESS";
+                    }
+                    status = status.replaceAll(" ", "_");
+                }
+
+
                 List<CohortFormTO> cohortFormTOList = cohortTO.getForms();
                 Set<String> publicationKeys = new HashSet<String>();
                 if (StringUtils.isFull(publicationKey) && !publicationKey.equalsIgnoreCase("null")) {

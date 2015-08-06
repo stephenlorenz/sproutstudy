@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 @MessageDriven(
         activationConfig = {
@@ -44,22 +45,22 @@ public class SproutFormsStatusMDB implements MessageListener {
     @EJB
     private StudyService studyService;
 
+    private static final Logger LOGGER = Logger.getLogger(SproutFormsStatusMDB.class.getName());
+
     @Override
     public void onMessage(Message message) {
 
-        System.out.println("SproutFormsStatusMDB.onMessage");
+        LOGGER.fine("SproutFormsStatusMDB.onMessage");
 
         TextMessage textMessage = (TextMessage) message;
         try {
             String content = textMessage.getText();
-            System.out.println("content = " + content);
+            LOGGER.fine("content = " + content);
 
             ObjectMapper mapper = new ObjectMapper();
             FormInstanceTO formInstanceTO = mapper.readValue(content, FormInstanceTO.class);
 
-            System.out.println("formInstanceTO.getInstanceId() = " + formInstanceTO.getInstanceId());
-
-            formInstanceTO = sproutFormsService.getFormInstance(formInstanceTO.getInstanceId());
+            LOGGER.fine("formInstanceTO.getInstanceId() = " + formInstanceTO.getInstanceId());
 
             String publicationKey = formInstanceTO.getPublicationKey();
 

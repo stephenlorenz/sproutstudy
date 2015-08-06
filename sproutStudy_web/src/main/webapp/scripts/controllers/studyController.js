@@ -342,11 +342,11 @@ angular.module('sproutStudyApp')
                 if (item.inboxProxies !== undefined && item.inboxProxies.length > 0) {
                     var hasMatch = false;
                     $.each(item.inboxProxies, function (index, proxy) {
-                       if (proxy.status == $scope.status.name) hasMatch = true;
+                       if (proxy.status == $scope.status.value) hasMatch = true;
                     });
                     if (!hasMatch) return false;
                 } else {
-                    if (item.inboxStatus != $scope.status.name) return false;
+                    if (item.inboxStatus != $scope.status.value) return false;
                 }
             }
             if ($scope.targetDate !== undefined) {
@@ -1517,13 +1517,20 @@ angular.module('sproutStudyApp')
                 //console.log("$scope.bootWebsockets.cohort.cohortKey: " + cohort.cohortKey);
 
                 //var ws = $websocket.$new('wss://scl30.partners.org:8443/sproutstudy/sproutStudyFormState/' + cohort.cohortKey); // instance of ngWebsocket, handled by $websocket service
-                var ws = $websocket.$new(cohort.websocketURL); // instance of ngWebsocket, handled by $websocket service
+                //var ws = $websocket.$new(cohort.websocketURL); // instance of ngWebsocket, handled by $websocket service
+                var ws = $websocket.$new({
+                    url: cohort.websocketURL,
+                    reconnect: true,
+                    reconnectInterval: 500 // it will reconnect after 0.5 seconds
+                });
 
-                ws.$on('$open', function () {});
-                ws.$on('$close', function () {});
-
-                ws.$on('$message', function(data) {
-                    //console.log("data: " + data);
+                ws.$on('$open', function () {
+                    //console.log("websocket connection was opened.");
+                }).$on('$close', function () {
+                    //console.log("websocket connection was closed!!!");
+                    ws = $websocket.$new(cohort.websocketURL); // instance of ngWebsocket, handled by $websocket service
+                }).$on('$message', function(data) {
+                    //console.log("ws.on.message: dataRaw: " + data);
 
                     if (data !== undefined && data !== null && data.indexOf("|") > 0) {
                         try {
@@ -1531,7 +1538,7 @@ angular.module('sproutStudyApp')
 
                             var message = JSON.parse(dataJSON);
 
-                            //console.log("data: " + data);
+                            console.log("dataJSON: " + dataJSON);
 
                             var instanceId = message.instanceId;
                             var publicationKey = message.publicationKey;
@@ -1540,7 +1547,6 @@ angular.module('sproutStudyApp')
                             //console.log("publicationKey: " + publicationKey);
 
                             if (instanceId !== undefined && publicationKey !== undefined && instanceId !== null && publicationKey !== null) {
-
                                 //console.log("Considering message....");
 
                                 var inboxRecordIndex = undefined;
@@ -1558,10 +1564,13 @@ angular.module('sproutStudyApp')
                                         //console.log("allForms.instanceId: " + data.instanceId);
                                         if (instanceId == data.instanceId) {
                                             allFormsRecordIndex = index;
-                                            if (data.inboxStatus != 'REVOKED' && data.inboxStatus != 'EXPIRED') {
-                                                allFormsRecordAction = 'UPDATE';
-                                            } else {
+
+                                            console.log("data.inboxStatus: " + message.inboxStatus + " vs " + data.inboxStatus);
+
+                                            if (message.inboxStatus == 'REVOKED' || message.inboxStatus == 'EXPIRED') {
                                                 allFormsRecordAction = 'DELETE';
+                                            } else {
+                                                allFormsRecordAction = 'UPDATE';
                                             }
                                         }
                                     });
@@ -1585,10 +1594,9 @@ angular.module('sproutStudyApp')
 
                                 $scope.allFormsFilterForm.sort();
 
-
                                 //console.log("inboxRecordIndex: " + inboxRecordIndex);
-                                //console.log("allFormsRecordIndex: " + allFormsRecordIndex);
-                                //console.log("allFormsRecordAction: " + allFormsRecordAction);
+                                console.log("allFormsRecordIndex: " + allFormsRecordIndex);
+                                console.log("allFormsRecordAction: " + allFormsRecordAction);
 
                                 var applyInd = false;
 
@@ -1608,6 +1616,15 @@ angular.module('sproutStudyApp')
                                 } else if (allFormsRecordAction == 'DELETE') {
                                     $scope.allForms.splice(allFormsRecordIndex, 1);
                                 }
+
+
+                                $.each($scope.allForms, function (index, data) {
+                                    //console.log("after.allForms.instanceId: " + data.instanceId);
+                                    if (instanceId == data.instanceId) {
+                                        console.log("INSTANCE STILL EXISTS...");
+                                    }
+                                });
+
 
                                 //console.log("applying changes...");
                                 $scope.applyIfPossible();
