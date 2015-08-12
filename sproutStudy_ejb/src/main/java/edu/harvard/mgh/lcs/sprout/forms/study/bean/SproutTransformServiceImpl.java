@@ -394,7 +394,11 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 			}
 		} else if (StringUtils.isFull(publicationKey, templateKey) && masterInd) {
 			TemplateMasterEntity templateMasterEntity = getTemplateMasterEntity(publicationKey);
-			if (templateMasterEntity != null && templateMasterEntity.getKey().equals(templateKey)) {
+
+			if (templateMasterEntity != null) System.out.println("templateMasterEntity.getKey() = " + templateMasterEntity.getKey() + " vs " + templateKey);
+
+//			if (templateMasterEntity != null && templateMasterEntity.getKey().equals(templateKey)) {
+			if (templateMasterEntity != null) {
 				templateMasterEntity.setTemplate(template);
 				templateMasterEntity.setActivityDate(new Date());
 				entityManager.merge(templateMasterEntity);
