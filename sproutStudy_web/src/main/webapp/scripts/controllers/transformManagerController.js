@@ -80,7 +80,8 @@ angular.module('sproutStudyApp')
 
     $scope.onReloadModel = function() {
         $scope.model = getNarrativeModel($scope.instanceId);
-        updateSproutTransformModelView($scope.model);
+        $scope.modelVerbose = getNarrativeModelVerbose($scope.instanceId);
+        updateSproutTransformModelView($scope.modelVerbose);
     }
 
     $scope.onReloadNarrative = function() {

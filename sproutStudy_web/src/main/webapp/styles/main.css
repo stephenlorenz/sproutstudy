@@ -72,7 +72,15 @@ pre {padding: 5px; margin: 5px; border-radius: 0px;}
 .sprout-transform-model-type-boolean { color: blue; }
 .sprout-transform-model-type-null { color: magenta; }
 .sprout-transform-model-type-key { color: #971885; }
+.sprout-transform-model-highlight { background-color: #f8ff00; }
 
+.sprout-transform-locate {
+    cursor: pointer;
+    margin-left: 5px;
+    color: #971885;
+    display: inline;
+    vertical-align: middle;
+}
 
 span.sprout-form-loading-message {
     padding-left: 10px;

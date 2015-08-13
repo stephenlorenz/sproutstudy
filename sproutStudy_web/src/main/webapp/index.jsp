@@ -140,6 +140,7 @@
 <script type="text/javascript" src="assets/components/angular-bootstrap-contextmenu/contextMenu.js"></script>
 <script type="text/javascript" src="assets/components/ng-websocket/ng-websocket.js"></script>
 
+<script src="assets/scripts/external/scrollTo/jquery.scrollTo.min.js"></script>
 <script src="assets/scripts/external/splitter/js/splitter.js"></script>
 <script src="assets/scripts/external/splitterJQuery/splitter.js"></script>
 <script src="assets/scripts/external/handlebars/handlebars-v3.0.1.js"></script>
@@ -532,6 +533,32 @@
         }
     }
 
+    function clearHighlightsFromJSONModel() {
+        jQuerySprout(".sprout-transform-model-highlight").removeClass("sprout-transform-model-highlight");
+    }
+
+    function highlightJSONModel(sproutJsonPath) {
+        if (sproutJsonPath !== undefined) {
+            keyParts = sproutJsonPath.split(".");
+            var keyPathLong = "";
+            for (var i=0;i<keyParts.length;i++) {
+                var keyPart = keyParts[i];
+                if (keyPart !== undefined && keyPart !== 'repeat') {
+                    if (keyPathLong.length > 0) keyPathLong += "-";
+                    keyPathLong += keyPart
+                }
+            }
+
+            jQuerySprout("." + keyPathLong).addClass("sprout-transform-model-highlight");
+            try {
+                var sproutTransformModelContent = jQuerySprout("#sproutTransformModelContent");
+                if (sproutTransformModelContent !== undefined) {
+                    jQuerySprout(sproutTransformModelContent).scrollTo("." + keyPathLong);
+                }
+            } catch (e) {};
+        }
+    }
+
     function formSyncCallback(instanceId, loadingInd) {
         if (angular.element(jQuerySprout("#studyControllerDiv")).scope() !== undefined) {
             setSproutTransformTemplate(null, instanceId);
@@ -637,8 +664,29 @@
         formCallbackCatalog[instanceId] = callbackItem;
     }
 
-    function getNarrativeModel(instanceId) {
+    function getNarrativeModelVerbose(instanceId) {
+        if (instanceId == undefined || instanceId == null) {
+            var activeTab = jQuerySprout(".sproutstudy-tab-li.active");
+            instanceId = activeTab.attr("instance");
+        }
 
+        if (formCallbackCatalog[instanceId]) {
+            var verbose = true;
+            var callbackItem = formCallbackCatalog[instanceId];
+            var narrativeModel = callbackItem.getSerializedArray(verbose);
+//            var paths = callbackItem.paths();
+//
+//            if (angular.element(jQuerySprout("#transformControllerDiv")).scope() !== undefined && paths !== undefined) {
+//                angular.element(jQuerySprout("#transformControllerDiv")).scope().setPaths(paths);
+//                angular.element(jQuerySprout("#transformControllerDiv")).scope().applyIfPossible();
+//            }
+
+            //console.log("model: " + JSON.stringify(narrativeModel, null, 4));
+            return narrativeModel;
+        }
+    }
+
+    function getNarrativeModel(instanceId) {
         if (instanceId == undefined || instanceId == null) {
             var activeTab = jQuerySprout(".sproutstudy-tab-li.active");
             instanceId = activeTab.attr("instance");
@@ -662,6 +710,15 @@
     function compileTemplate() {
         var source = angular.element(jQuerySprout("#transformControllerDiv")).scope().getTemplateFromEditor();
         var model = angular.element(jQuerySprout("#transformControllerDiv")).scope().getModel();
+
+//        if (typeof model != 'string') {
+//            json = JSON.stringify(model, undefined, 2);
+//            console.log("compileTemplate.model: " + json);
+//        } else {
+//            console.log("compileTemplate.model: " + model);
+//        }
+
+
         var template = Handlebars.compile(source);
         try {
             var narrative = template(model);
@@ -678,9 +735,18 @@
 
     function updateSproutTransformModelView(model) {
         jQuerySprout("#sproutTransformModelContent").html(syntaxHighlight(model));
+        jQuerySprout(".sprout-transform-key").off('dblclick');
+        jQuerySprout(".sprout-transform-key").on('dblclick', function() {
+            var sproutJsonPath = jQuerySprout(this).attr("sprout-json-path");
+//            console.log("sproutJsonPath: " + sproutJsonPath);
+            jQuerySprout("#handlebarjs-element-path").html("{{" + sproutJsonPath + "}}");
+            jQuerySprout('#modal-model-element').modal({
+                keyboard: false
+            });
+        });
     }
 
-    function syntaxHighlight(json) {
+    function syntaxHighlightLegacy(json) {
         if (typeof json != 'string') {
              json = JSON.stringify(json, undefined, 2);
         }
@@ -701,6 +767,41 @@
                     cls = 'sprout-transform-model-type-null';
                 }
                 return '<span class="' + cls + ' sprout-transform-model-handle">' + match + '</span>';
+            });
+        }
+    }
+    function syntaxHighlight(json) {
+        if (typeof json != 'string') {
+            json = JSON.stringify(json, undefined, 2);
+        }
+        if (json !== undefined) {
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                var cls = 'sprout-transform-model-type-number';
+                var key = '';
+                var sproutJsonPath = '';
+                var value = match;
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'sprout-transform-model-type-key sprout-transform-key';
+                        key = match.substring(1, match.length - 2).replace(/\%/g,'-');
+                        sproutJsonPath = match.substring(1, match.length - 2).replace(/\%/g,'.');
+                        var parts = match.split('%');
+                        if (parts.length > 1) {
+                            value = '"' + parts[parts.length - 1];
+                        } else {
+                            value = match;
+                        }
+                    } else {
+                        cls = 'sprout-transform-model-type-string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'sprout-transform-model-type-boolean';
+                } else if (/null/.test(match)) {
+                    cls = 'sprout-transform-model-type-null';
+                }
+
+                return '<span class="' + cls + ' sprout-transform-model-handle ' + key + '" sprout-json-path="' + sproutJsonPath + '">' + value + '</span>';
             });
         }
     }
@@ -905,6 +1006,20 @@
     </div>
     <div class="modal-footer">
         <a href="#" data-dismiss="modal"  class="btn btn-danger">Close</a>
+    </div>
+</div>
+
+<div class="modal modal-model hide fade in modal-200-600" id="modal-model-element" style="display: none;" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" options="modalSmallOpts" aria-hidden="true">
+    <div class="modal-header">
+        <h3>HandlebarJS Element Path</h3>
+    </div>
+    <div class="modal-body-short">
+        <p>
+        <h4 id="handlebarjs-element-path"></h4>
+        </p>
+    </div>
+    <div class="modal-footer">
+        <a href="#" data-dismiss="modal"  class="btn btn-primary">Close</a>
     </div>
 </div>
 
