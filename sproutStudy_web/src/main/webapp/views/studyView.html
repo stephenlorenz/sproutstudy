@@ -1,23 +1,21 @@
-<div id="studyControllerDiv" ng-controller="studyController" class="frontoffice-tab frontoffice-tab-patient">
+<div id="studyControllerDiv" class="frontoffice-tab frontoffice-tab-patient">
 
-<div ng-show="(cohort() == null || cohort().name.length == 0) && cohortLoaded == true">
-    <div>
-        <h3>Please pick a cohort</h3>
-        <table class="table">
-            <tr ng-repeat="cohort in cohorts | filter: { active: true }" style="background-color: #ffffff;">
-                <td>
-                    <h4>{{cohort.name}}</h4>
-                </td>
+    <div ng-show="(cohort() == null || cohort().name.length == 0) && cohortLoaded == true">
+        <div>
+            <h3>Please pick a cohort</h3>
+            <table class="table">
+                <tr ng-repeat="cohort in cohorts | filter: { active: true }" style="background-color: #ffffff;">
+                    <td>
+                        <h4>{{cohort.name}}</h4>
+                    </td>
 
-                <td>
-                    <button class="btn btn-primary" ng-click="chooseCohort(cohort)">Choose</button>
-                </td>
-            </tr>
-        </table>
+                    <td>
+                        <button class="btn btn-primary" ng-click="chooseCohort(cohort)">Choose</button>
+                    </td>
+                </tr>
+            </table>
+        </div>
     </div>
-</div>
-
-
 
     <div ng-show="subject.lastName != null && searchEnabled != true && cohort() != null && demographicFormContent == null" style="border-bottom: 1px #cacaca solid; margin: 5px 0 7px 0; padding-bottom: 7px;">
 
@@ -234,7 +232,7 @@
                                     <th style="text-align: center; width: 100px;">Open Form</th>
                                 </tr>
                                 </thead>
-                                <tr ng-repeat='form in allForms | filter: allFormsFilter ' ng-class="{'inbox-row': !form.locked && form.mutable, 'unknown': form.identityFullName == 'Unknown' || !form.mutable}"  >
+                                <tr ng-repeat="form in allForms | filter: allFormsFilter | orderBy: '-statusDate'" ng-class="{'inbox-row': !form.locked && form.mutable, 'unknown': form.identityFullName == 'Unknown', 'immutable': !form.mutable}"  >
                                     <td class="inbox-cell" ng-click="form.locked || !form.mutable || onOpenMutableForm(form)">{{form.identityFullName}} ({{form.identityPrimaryId}})</td>
                                     <td class="inbox-cell" ng-click="form.locked || !form.mutable || onOpenMutableForm(form)">{{form.title}}</a></td>
                                     <td ng-show="allFormsMetadata.hasInstanceKeys" class="inbox-cell form-instance-id-{{form.instanceId}}" ng-click="form.locked || !form.mutable || onOpenMutableForm(form)">{{form.instanceKey}}</a></td>

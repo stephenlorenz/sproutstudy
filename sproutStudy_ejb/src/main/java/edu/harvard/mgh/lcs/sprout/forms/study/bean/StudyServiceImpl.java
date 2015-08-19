@@ -4,12 +4,12 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.InboxTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.AuditService;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.SproutStudyConstantService;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.SproutTransformService;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.StudyService;
 import edu.harvard.mgh.lcs.sprout.forms.study.beanws.Result;
+import edu.harvard.mgh.lcs.sprout.forms.study.exception.DuplicateCohortListKeyException;
 import edu.harvard.mgh.lcs.sprout.forms.study.exception.DuplicateCohortNameException;
 import edu.harvard.mgh.lcs.sprout.forms.study.exception.UnauthorizedActionException;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.*;
@@ -30,10 +30,10 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.*;
-import java.util.Queue;
 import java.util.logging.Logger;
 
 @Stateless
@@ -99,6 +99,7 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
                 CohortListTO cohortListTO = new CohortListTO();
                 cohortListTO.setId(cohortListEntity.getId() + "");
                 cohortListTO.setName(cohortListEntity.getName());
+                cohortListTO.setCohortName(cohortEntity.getName());
                 cohortListTO.setDescription(cohortListEntity.getDescription());
                 cohortListTO.setNameColumnTitle(cohortListEntity.getNameColumnTitle());
                 cohortListTO.setValueColumnTitle(cohortListEntity.getValueColumnTitle());
@@ -361,10 +362,13 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
     }
 
     @Override
-    public BooleanTO saveFormPublicationKey(String id, String publicationKey) {
+    public CohortFormTO saveFormPublicationKey(String id, String publicationKey) {
         if (StringUtils.isFull(id, publicationKey) && StringUtils.isInteger(id) && publicationKeyIsUnique(publicationKey)) {
             FormEntity formEntity = entityManager.find(FormEntity.class, Integer.parseInt(id));
             if (formEntity != null) {
+
+                CohortFormTO cohortFormTO = null;
+
                 FormEntity formEntityNew = new FormEntity();
                 formEntityNew.setName(formEntity.getName());
                 formEntityNew.setPublicationKey(formEntity.getPublicationKey());
@@ -372,6 +376,7 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
                 formEntityNew.setDemographic(formEntity.getDemographic());
                 formEntityNew.setActivityDate(new Date());
                 formEntityNew.setActive(false);
+                formEntityNew.setArchive(false);
                 entityManager.persist(formEntityNew);
 
                 for (CohortFormEntity cohortFormEntityCurrent : formEntity.getCohortForms()) {
@@ -380,6 +385,7 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
                     cohortFormEntity.setForm(formEntityNew);
                     cohortFormEntity.setActivityDate(new Date());
                     entityManager.persist(cohortFormEntity);
+                    cohortFormTO = constructCohortFormTO(cohortFormEntity);
                 }
 
                 for (FormAttrEntity formAttrEntityCurrent : formEntity.getFormAttributes()) {
@@ -395,10 +401,10 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
                 formEntity.setActivityDate(new Date());
                 entityManager.merge(formEntity);
 
-                return new BooleanTO(true);
+                return cohortFormTO;
             }
         }
-        return new BooleanTO(false);
+        return null;
     }
 
     private boolean publicationKeyIsUnique(String publicationKey) {
@@ -428,6 +434,19 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
                 query.setParameter("publicationKey", publicationKey);
                 FormEntity formEntity = (FormEntity) query.getSingleResult();
                 if (formEntity != null) return formEntity.getName();
+            } catch (NoResultException e) {}
+        }
+        return null;
+    }
+
+    @Override
+    public FormEntity getFormFromFormAndPublicationKey(String formKey, String publicationKey) {
+        if (StringUtils.isFull(formKey, publicationKey)) {
+            try {
+                Query query = entityManager.createNamedQuery(FormEntity.FIND_BY_FORM_AND_PUBLICATION_KEY);
+                query.setParameter("formKey", formKey);
+                query.setParameter("publicationKey", publicationKey);
+                return (FormEntity) query.getSingleResult();
             } catch (NoResultException e) {}
         }
         return null;
@@ -719,7 +738,10 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
             int status = httpClient.executeMethod(getMethod);
 
             if (status == 200) {
-                String response = getMethod.getResponseBodyAsString();
+//                String response = getMethod.getResponseBodyAsString();
+                InputStream inputStream = getMethod.getResponseBodyAsStream();
+                String response = StringUtils.stringFromInputStream(inputStream);
+
                 if (StringUtils.isFull(response)) {
                     return new ObjectMapper().readValue(cleanJSON(response), new TypeReference<List<Result>>() {});
                 }
@@ -945,30 +967,36 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
         List<CohortFormTO> cohortFormTOList = new ArrayList<CohortFormTO>();
         if (cohortEntity != null && cohortEntity.getCohortForms() != null) {
             for (CohortFormEntity cohortFormEntity : cohortEntity.getCohortForms()) {
-                CohortFormTO cohortFormTO = new CohortFormTO();
-                cohortFormTO.setId(cohortFormEntity.getForm().getId() + "");
-                cohortFormTO.setName(cohortFormEntity.getForm().getName());
-                cohortFormTO.setPublicationKey(cohortFormEntity.getForm().getPublicationKey());
-                cohortFormTO.setFormKey(cohortFormEntity.getForm().getFormKey());
-                cohortFormTO.setDemographic(cohortFormEntity.getForm().getDemographic());
-                cohortFormTO.setNarrative(hasNarrativeTemplate(cohortFormEntity.getForm().getPublicationKey()));
-                cohortFormTO.setReturnToHome(isReturnToHome(cohortFormEntity.getForm()));
-                cohortFormTO.setActive(cohortFormEntity.getForm().getActive());
-                cohortFormTO.setActivityDate(cohortFormEntity.getForm().getActivityDate());
-
-                if (cohortFormEntity.getForm().getFormAttributes() != null) {
-                    for (FormAttrEntity formAttrEntity : cohortFormEntity.getForm().getFormAttributes()) {
-                        if (formAttrEntity.getFormAttr().getCode().equalsIgnoreCase(FormAttr.UNIQUE.toString())) {
-                            cohortFormTO.setUnique(true);
-                            break;
-                        }
-                    }
-                }
+                CohortFormTO cohortFormTO = constructCohortFormTO(cohortFormEntity);
                 cohortFormTOList.add(cohortFormTO);
             }
             Collections.sort(cohortFormTOList);
         }
         return cohortFormTOList;
+    }
+
+    private CohortFormTO constructCohortFormTO(CohortFormEntity cohortFormEntity) {
+        CohortFormTO cohortFormTO = new CohortFormTO();
+        cohortFormTO.setId(cohortFormEntity.getForm().getId() + "");
+        cohortFormTO.setName(cohortFormEntity.getForm().getName());
+        cohortFormTO.setPublicationKey(cohortFormEntity.getForm().getPublicationKey());
+        cohortFormTO.setFormKey(cohortFormEntity.getForm().getFormKey());
+        cohortFormTO.setDemographic(cohortFormEntity.getForm().getDemographic());
+        cohortFormTO.setNarrative(hasNarrativeTemplate(cohortFormEntity.getForm().getPublicationKey()));
+        cohortFormTO.setReturnToHome(isReturnToHome(cohortFormEntity.getForm()));
+        cohortFormTO.setActive(cohortFormEntity.getForm().getActive());
+        cohortFormTO.setArchive(cohortFormEntity.getForm().getArchive());
+        cohortFormTO.setActivityDate(cohortFormEntity.getForm().getActivityDate());
+
+        if (cohortFormEntity.getForm().getFormAttributes() != null) {
+            for (FormAttrEntity formAttrEntity : cohortFormEntity.getForm().getFormAttributes()) {
+                if (formAttrEntity.getFormAttr().getCode().equalsIgnoreCase(FormAttr.UNIQUE.toString())) {
+                    cohortFormTO.setUnique(true);
+                    break;
+                }
+            }
+        }
+        return cohortFormTO;
     }
 
     private boolean isReturnToHome(FormEntity formEntity) {
@@ -1079,6 +1107,7 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
     @Override
     public BooleanTO saveCohort(SessionTO sessionTO, String cohortKey, String name, String description, String restfulApiUrl, String restfulApiUsername, String restfulApiPassword, String identitySchemaPrimary) throws UnauthorizedActionException {
         if (sessionTO != null && StringUtils.isFull(name)) {
+            name = name.trim();
             if (StringUtils.isFull(cohortKey) && !cohortKey.equalsIgnoreCase("undefined")) {
                 CohortEntity cohortEntity = getAuthorizedCohortByKey(sessionTO, cohortKey);
                 if (cohortEntity != null) {
@@ -1258,8 +1287,8 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
     }
 
     @Override
-    public BooleanTO persistFormAttribute(SessionTO sessionTO, String cohortKey, String formKey, String attributeKey, String attributeValue) throws UnauthorizedActionException {
-        if (sessionTO != null && StringUtils.isFull(cohortKey, formKey)) {
+    public BooleanTO persistFormAttribute(SessionTO sessionTO, String cohortKey, String publicationKey, String formKey, String attributeKey, String attributeValue) throws UnauthorizedActionException {
+        if (sessionTO != null && StringUtils.isFull(cohortKey, publicationKey, formKey)) {
             if (StringUtils.isFull(cohortKey) && !cohortKey.equalsIgnoreCase("undefined")) {
                 CohortEntity cohortEntity = null;
                 if (isAdmin(sessionTO)) {
@@ -1269,38 +1298,64 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
                 }
                 if (cohortEntity != null) {
                     if (isAdmin(sessionTO) || isManager(sessionTO, cohortEntity)) {
-                        List<FormEntity> formEntities = getFormsByFormKey(formKey);
-                        if (formEntities != null) {
-                            for (FormEntity formEntity : formEntities) {
-                                if (formEntity.getFormAttributes() != null) {
-                                    boolean formAttrExists = false;
-                                    for (FormAttrEntity formAttrEntity : formEntity.getFormAttributes()) {
-                                        if (formAttrEntity.getFormAttr().getCode().equalsIgnoreCase(attributeKey)) {
-                                            formAttrExists = true;
-                                            if (edu.harvard.mgh.lcs.sprout.forms.utils.StringUtils.isFull(attributeValue)) {
-                                                formAttrEntity.setValue(attributeValue);
-                                                formAttrEntity.setActivityDate(new Date());
-                                                entityManager.merge(formAttrEntity);
-                                            } else {
-                                                entityManager.remove(formAttrEntity);
-                                            }
-                                        }
-                                    }
-                                    if (!formAttrExists && edu.harvard.mgh.lcs.sprout.forms.utils.StringUtils.isFull(attributeKey, attributeValue)) {
-                                        VFormAttrEntity vFormAttrEntity = getVFormAttrEntity(attributeKey);
-                                        if (vFormAttrEntity != null) {
-                                            FormAttrEntity formAttrEntity = new FormAttrEntity();
-                                            formAttrEntity.setForm(formEntity);
-                                            formAttrEntity.setFormAttr(vFormAttrEntity);
+                        FormEntity formEntity = getFormFromFormAndPublicationKey(formKey, publicationKey);
+                        if (formEntity != null) {
+                            if (formEntity.getFormAttributes() != null) {
+                                boolean formAttrExists = false;
+                                for (FormAttrEntity formAttrEntity : formEntity.getFormAttributes()) {
+                                    if (formAttrEntity.getFormAttr().getCode().equalsIgnoreCase(attributeKey)) {
+                                        formAttrExists = true;
+                                        if (edu.harvard.mgh.lcs.sprout.forms.utils.StringUtils.isFull(attributeValue)) {
                                             formAttrEntity.setValue(attributeValue);
                                             formAttrEntity.setActivityDate(new Date());
-                                            entityManager.persist(formAttrEntity);
+                                            entityManager.merge(formAttrEntity);
                                         } else {
-                                            return new BooleanTO(false, String.format("Invalid Form Attribute Key: %s", attributeKey));
+                                            entityManager.remove(formAttrEntity);
                                         }
                                     }
                                 }
+                                if (!formAttrExists && edu.harvard.mgh.lcs.sprout.forms.utils.StringUtils.isFull(attributeKey, attributeValue)) {
+                                    VFormAttrEntity vFormAttrEntity = getVFormAttrEntity(attributeKey);
+                                    if (vFormAttrEntity != null) {
+                                        FormAttrEntity formAttrEntity = new FormAttrEntity();
+                                        formAttrEntity.setForm(formEntity);
+                                        formAttrEntity.setFormAttr(vFormAttrEntity);
+                                        formAttrEntity.setValue(attributeValue);
+                                        formAttrEntity.setActivityDate(new Date());
+                                        entityManager.persist(formAttrEntity);
+                                    } else {
+                                        return new BooleanTO(false, String.format("Invalid Form Attribute Key: %s", attributeKey));
+                                    }
+                                }
                             }
+                            return new BooleanTO(true);
+                        }
+                    } else {
+                        throw new UnauthorizedActionException("You are not authorized to modify this form.");
+                    }
+                }
+            }
+        }
+        return new BooleanTO(false);
+    }
+
+    @Override
+    public BooleanTO toggleFormArchive(SessionTO sessionTO, String cohortKey, String formKey, String publicationKey, Boolean archiveInd) throws UnauthorizedActionException {
+        if (sessionTO != null && StringUtils.isFull(cohortKey, formKey, publicationKey)) {
+            if (StringUtils.isFull(cohortKey) && !cohortKey.equalsIgnoreCase("undefined")) {
+                CohortEntity cohortEntity = null;
+                if (isAdmin(sessionTO)) {
+                    cohortEntity = getAuthorizedCohortByKey(sessionTO, cohortKey);
+                } else {
+                    cohortEntity = getManagedCohortByKey(sessionTO, cohortKey);
+                }
+                if (cohortEntity != null) {
+                    if (isAdmin(sessionTO) || isManager(sessionTO, cohortEntity)) {
+                        FormEntity formEntity = getFormFromFormAndPublicationKey(formKey, publicationKey);
+                        if (formEntity != null) {
+                            formEntity.setArchive(archiveInd);
+                            formEntity.setActivityDate(new Date());
+                            entityManager.persist(formEntity);
                             return new BooleanTO(true);
                         }
                     } else {
@@ -1612,6 +1667,7 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
                             formEntity.setFormKey(formKey);
                             formEntity.setPublicationKey(publicationKey);
                             formEntity.setActive(true);
+                            formEntity.setArchive(false);
                             formEntity.setDemographic(demographicInd);
                             formEntity.setActivityDate(new Date());
                             entityManager.persist(formEntity);
@@ -1669,6 +1725,37 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
         }
         return new BooleanTO(false, "Failed to delete form.");
     }
+
+    @Override
+    public CohortEntity getCohortByName(String name) {
+        if (StringUtils.isFull(name)) {
+            try {
+                Query query = entityManager.createNamedQuery(CohortEntity.BY_COHORT_NAME);
+                query.setParameter("name", name);
+                return (CohortEntity) query.getSingleResult();
+            } catch (NoResultException e) {}
+        }
+        return null;
+    }
+
+    @Override
+    public List<String> getCohortFormPublicationKeys(String cohortKey) {
+        if (StringUtils.isFull(cohortKey)) {
+//            Query query = entityManager.createNativeQuery("SELECT f.* FROM cohort c, cohort_form cf, form f WHERE c.id = cf.cohort_id AND c.cohort_key = :key AND cf.form_id = f.id AND f.active_ind = 1", FormEntity.class);
+            Query query = entityManager.createNativeQuery("SELECT DISTINCT f.* FROM cohort c, cohort_form cf, form f WHERE c.id = cf.cohort_id AND c.cohort_key = :key AND cf.form_id = f.id AND f.archive_ind = 0", FormEntity.class);
+            query.setParameter("key", cohortKey);
+            List<FormEntity> formEntities = query.getResultList();
+            if (formEntities != null && formEntities.size() > 0) {
+                List<String> cohortFormTOList = new ArrayList<String>();
+                for (FormEntity formEntity : formEntities) {
+                    cohortFormTOList.add(formEntity.getPublicationKey());
+                }
+                return cohortFormTOList;
+            }
+        }
+        return null;
+    }
+
     @Override
     public BooleanTO deleteList(SessionTO sessionTO, String cohortKey, String listKey) throws UnauthorizedActionException {
         if (sessionTO != null && StringUtils.isFull(cohortKey, listKey)) {
@@ -1681,9 +1768,10 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
                 }
                 if (cohortEntity != null) {
                     if (isAdmin(sessionTO) || isManager(sessionTO, cohortEntity)) {
-                        CohortListEntity cohortListEntity = getListByListKey(listKey);
+                        CohortListEntity cohortListEntity = getListByListKey(cohortEntity, listKey);
                         if (cohortListEntity != null) {
                             cohortListEntity.setActive(false);
+                            cohortListEntity.setKey(String.format("%s_%s", cohortListEntity.getKey(), StringUtils.getGuid()));
                             cohortListEntity.setActivityDate(new Date());
                             entityManager.merge(cohortListEntity);
                             return new BooleanTO(true);
@@ -1698,7 +1786,28 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
     }
 
     @Override
-    public BooleanTO saveList(SessionTO sessionTO, String listKey, String listKeyFormer, String name, String description, String nameColumnTitle, String valueColumnTitle, String cohortKey, Boolean publicInd, Boolean active, String details) throws UnauthorizedActionException {
+    public List<CohortListDataTO> refreshList(SessionTO sessionTO, String cohortKey, String listKey) {
+        if (sessionTO != null) {
+            if (StringUtils.isFull(cohortKey, listKey) && !cohortKey.equalsIgnoreCase("undefined")) {
+                CohortEntity cohortEntity = null;
+                if (isAdmin(sessionTO)) {
+                    cohortEntity = getAuthorizedCohortByKey(sessionTO, cohortKey);
+                } else {
+                    cohortEntity = getManagedCohortByKey(sessionTO, cohortKey);
+                }
+                if (cohortEntity != null) {
+                    CohortListEntity cohortListEntity = getListByListKey(cohortEntity, listKey);
+                    if (cohortListEntity != null) {
+                        return getCohortListData(cohortListEntity);
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public BooleanTO saveList(SessionTO sessionTO, String listKey, String listKeyFormer, String name, String description, String nameColumnTitle, String valueColumnTitle, String cohortKey, Boolean publicInd, Boolean active, String details) throws UnauthorizedActionException, DuplicateCohortListKeyException {
         if (sessionTO != null && StringUtils.isFull(name, description, nameColumnTitle, valueColumnTitle, cohortKey)) {
             if (StringUtils.isFull(cohortKey) && !cohortKey.equalsIgnoreCase("undefined")) {
                 CohortEntity cohortEntity = null;
@@ -1712,7 +1821,7 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
                         CohortListEntity cohortListEntity = null;
                         boolean isNew = true;
                         if (StringUtils.isFull(listKeyFormer) && !listKeyFormer.equalsIgnoreCase("undefined")) {
-                            cohortListEntity = getListByListKey(listKeyFormer);
+                            cohortListEntity = getListByListKey(cohortEntity, listKeyFormer);
                             if (cohortListEntity != null) {
                                 cohortListEntity.setName(name);
                                 cohortListEntity.setDescription(description);
@@ -1738,17 +1847,22 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
                                 entityManager.persist(cohortListEntity);
                             }
                         } else {
-                            cohortListEntity = new CohortListEntity();
-                            cohortListEntity.setName(name);
-                            cohortListEntity.setDescription(description);
-                            cohortListEntity.setNameColumnTitle(nameColumnTitle);
-                            cohortListEntity.setValueColumnTitle(valueColumnTitle);
-                            cohortListEntity.setActive(active);
-                            cohortListEntity.setPublicInd(publicInd != null ? publicInd : false);
-                            cohortListEntity.setKey(StringUtils.isFull(listKey) ? listKey : StringUtils.getGuid());
-                            cohortListEntity.setCohort(cohortEntity);
-                            cohortListEntity.setActivityDate(new Date());
-                            entityManager.persist(cohortListEntity);
+                            cohortListEntity = getListByListKey(cohortEntity, listKey);
+                            if (cohortListEntity != null) {
+                                throw new DuplicateCohortListKeyException(listKey);
+                            } else {
+                                cohortListEntity = new CohortListEntity();
+                                cohortListEntity.setName(name);
+                                cohortListEntity.setDescription(description);
+                                cohortListEntity.setNameColumnTitle(nameColumnTitle);
+                                cohortListEntity.setValueColumnTitle(valueColumnTitle);
+                                cohortListEntity.setActive(active);
+                                cohortListEntity.setPublicInd(publicInd != null ? publicInd : false);
+                                cohortListEntity.setKey(StringUtils.isFull(listKey) && !listKey.equalsIgnoreCase("undefined") ? listKey : StringUtils.getGuid());
+                                cohortListEntity.setCohort(cohortEntity);
+                                cohortListEntity.setActivityDate(new Date());
+                                entityManager.persist(cohortListEntity);
+                            }
                         }
 
                         if (cohortListEntity != null  && StringUtils.isFull(details) && !details.equalsIgnoreCase("undefined")) {
@@ -1833,7 +1947,7 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
                     if (isAdmin(sessionTO) || isManager(sessionTO, cohortEntity)) {
                         CohortListEntity cohortListEntity = null;
                         if (StringUtils.isFull(listKey) && !listKey.equalsIgnoreCase("undefined")) {
-                            cohortListEntity = getListByListKey(listKey);
+                            cohortListEntity = getListByListKey(cohortEntity, listKey);
                             if (cohortListEntity != null) {
                                 try {
                                     ObjectMapper objectMapper = new ObjectMapper();
@@ -1990,10 +2104,11 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
     }
 
     @Override
-    public CohortListEntity getListByListKey(String listKey) {
-        if (StringUtils.isFull(listKey)) {
+    public CohortListEntity getListByListKey(CohortEntity cohortEntity, String listKey) {
+        if (StringUtils.isFull(listKey) && cohortEntity != null) {
             try {
                 Query query = entityManager.createNamedQuery(CohortListEntity.BY_LIST_KEY);
+                query.setParameter("cohort", cohortEntity);
                 query.setParameter("key", listKey);
                 return (CohortListEntity) query.getSingleResult();
             } catch (NoResultException e) {}

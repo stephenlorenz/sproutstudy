@@ -166,7 +166,8 @@ div.sprout-transform-narrative-content {
 }
 
 .form-active-icon {
-    color: rgb(43, 80, 226);
+    /*color: rgb(43, 80, 226);*/
+    color: #3B99FC;
 }
 
 .sprout-study-badge-close {

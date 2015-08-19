@@ -114,12 +114,13 @@ angular.module('sproutStudyApp')
 //        $scope.form = data;
 //    });
 
-    $scope.onSaveForm = function(form) {
+    $scope.onSaveForm = function(cohort, form) {
         formManagerService.saveFormPublicationKey({id: form.id, publicationKey: form.publicationKey}, function(data) {
-            if (data.value == 'true') {
+            if (data.id !== undefined && data.id.length > 0) {
 //                alert("Form Publication Key was successfully saved.");
                 form.activityDate = data.timestamp;
                 form.modified = false;
+                cohort.forms.push(data);
             } else {
                 alert("Failed to save Form Publication Key.  Perhaps you used a duplicate key?");
                 form.modified = false;
@@ -133,7 +134,7 @@ angular.module('sproutStudyApp')
 
         if (form.returnToHome) returnToHome = 'HOME';
 
-        formManagerService.persistFormAttribute({"formKey": form.formKey, "cohort": $scope.cohort.cohortKey, "attributeKey": 'DESTINATION', "attributeValue": returnToHome}, function(data) {
+        formManagerService.persistFormAttribute({"formKey": form.formKey, "publicationKey": form.publicationKey, "cohort": $scope.cohort.cohortKey, "attributeKey": 'DESTINATION', "attributeValue": returnToHome}, function(data) {
             if (data.value != 'true') {
                 $scope.saveFormMessage = data.message;
             } else {
@@ -145,6 +146,17 @@ angular.module('sproutStudyApp')
                     $location.path("/forms");
                 });
 
+            }
+        });
+
+    };
+
+    $scope.onArchiveUpdate = function (form) {
+        var archiveInd = form.archive;
+
+        formManagerService.toggleFormArchive({"formKey": form.formKey, "publicationKey": form.publicationKey, "cohortKey": $scope.cohort.cohortKey, "archiveInd": archiveInd}, function(data) {
+            if (data.value != 'true') {
+                $scope.saveFormMessage = data.message;
             }
         });
 

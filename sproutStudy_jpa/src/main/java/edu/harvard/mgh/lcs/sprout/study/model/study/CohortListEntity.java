@@ -7,7 +7,7 @@ import java.util.*;
 @Entity
 @Table(schema="dbo", name="cohort_list")
 @NamedQueries({
-        @NamedQuery(name = CohortListEntity.BY_LIST_KEY, query = "FROM CohortListEntity WHERE key = :key")
+        @NamedQuery(name = CohortListEntity.BY_LIST_KEY, query = "FROM CohortListEntity WHERE cohort = :cohort AND key = :key")
 })
 public class CohortListEntity implements Serializable {
 

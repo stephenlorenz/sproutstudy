@@ -179,12 +179,14 @@ angular.module('sproutStudyApp')
 
         $scope.list.data.push(row);
 
+        setTimeout(focusOnLastRow('table.sprout-list-data-table tr:last td:first input'), 500);
+
     }
 
     $scope.onLinkView = function(list) {
         //alert("URL: list://" + list.key);
         jQuerySprout("#modal-wait-title").html("SproutList Link");
-        jQuerySprout("#modal-wait-message").html("<span style='color: blue; font-family: Courier, monospace'>sproutlist://" + list.key + "</span>");
+        jQuerySprout("#modal-wait-message").html("<span style='color: blue; font-family: Courier, monospace'>" + list.url + "</span>");
         jQuerySprout('#modal-wait').modal({
             keyboard: false
         });
@@ -225,10 +227,13 @@ angular.module('sproutStudyApp')
 
     $scope.onDataView = function(list) {
         $scope.list = list;
-        listManagerService.setList(list);
-        $rootScope.list = list;
-        $window.sessionStorage.setItem("sproutStudyForm", undefined);
-        $location.path("/lists/data");
+        listManagerService.refreshList({"cohortKey": $scope.cohort.cohortKey, "listKey": $scope.list.key}, function(data) {
+            $scope.list.data = data;
+            listManagerService.setList(list);
+            $rootScope.list = list;
+            $window.sessionStorage.setItem("sproutStudyForm", undefined);
+            $location.path("/lists/data");
+        });
     };
 
     $scope.onSaveList = function() {

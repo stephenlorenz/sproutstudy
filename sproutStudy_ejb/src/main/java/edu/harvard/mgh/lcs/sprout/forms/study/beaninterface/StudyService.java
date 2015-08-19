@@ -1,11 +1,13 @@
 package edu.harvard.mgh.lcs.sprout.forms.study.beaninterface;
 
 import edu.harvard.mgh.lcs.sprout.forms.study.beanws.Result;
+import edu.harvard.mgh.lcs.sprout.forms.study.exception.DuplicateCohortListKeyException;
 import edu.harvard.mgh.lcs.sprout.forms.study.exception.UnauthorizedActionException;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.*;
 import edu.harvard.mgh.lcs.sprout.study.model.study.CohortEntity;
 import edu.harvard.mgh.lcs.sprout.study.model.study.CohortListEntity;
 import edu.harvard.mgh.lcs.sprout.study.model.study.FormAttrEntity;
+import edu.harvard.mgh.lcs.sprout.study.model.study.FormEntity;
 
 import javax.jms.Session;
 import java.util.List;
@@ -38,7 +40,7 @@ public interface StudyService {
     public BooleanTO markInboxMessageAsRead(String instanceId);
     public UserTO getUser(String username);
 
-    BooleanTO saveFormPublicationKey(String id, String publicationKey);
+    public CohortFormTO saveFormPublicationKey(String id, String publicationKey);
 
     String getFormFromPublicationKey(String publicationKey);
     String getFormKeyFromPublicationKey(String publicationKey);
@@ -60,11 +62,16 @@ public interface StudyService {
     public BooleanTO deleteForm(SessionTO sessionTO, String cohortKey, String formKey) throws UnauthorizedActionException;
     public List<NameValue> getUserPreferences(String username);
     public Set<FormAttrEntity> getFormAttributesFromPublicationKey(String publicationKey);
-    public BooleanTO persistFormAttribute(SessionTO sessionTO, String cohortKey, String formKey, String attributeKey, String attributeValue) throws UnauthorizedActionException;
+    public BooleanTO persistFormAttribute(SessionTO sessionTO, String cohortKey, String publicationKey, String formKey, String attributeKey, String attributeValue) throws UnauthorizedActionException;
     public Set<CohortTO> getCohortsFromPublicationKey(String publicationKey);
     public String getPublicationKeyFromFormKey(String formKey);
+    public FormEntity getFormFromFormAndPublicationKey(String formKey, String publicationKey);
     public BooleanTO deleteList(SessionTO sessionTO, String cohortKey, String listKey) throws UnauthorizedActionException;
-    public BooleanTO saveList(SessionTO sessionTO, String listKey, String listKeyFormer, String name, String description, String nameColumnTitle, String valueColumnTitle, String cohort, Boolean publicInd, Boolean active, String details) throws UnauthorizedActionException;
+    public BooleanTO saveList(SessionTO sessionTO, String listKey, String listKeyFormer, String name, String description, String nameColumnTitle, String valueColumnTitle, String cohort, Boolean publicInd, Boolean active, String details) throws UnauthorizedActionException, DuplicateCohortListKeyException;
     public BooleanTO saveListData(SessionTO sessionTO, String listKey, String cohortKey, String data) throws UnauthorizedActionException;
-    public CohortListEntity getListByListKey(String listKey);
+    public CohortListEntity getListByListKey(CohortEntity cohortEntity, String listKey);
+    public CohortEntity getCohortByName(String name);
+    public List<String> getCohortFormPublicationKeys(String cohortKey);
+    public List<CohortListDataTO> refreshList(SessionTO sessionTO, String cohortKey, String listKey);
+    public BooleanTO toggleFormArchive(SessionTO sessionTO, String cohortKey, String formKey, String publicationKey, Boolean archiveInd) throws UnauthorizedActionException;
 }

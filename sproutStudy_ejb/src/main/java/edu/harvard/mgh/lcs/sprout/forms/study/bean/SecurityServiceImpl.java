@@ -52,13 +52,7 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     public LdapUserTO getUser(String cn) {
-
-        System.out.println("SecurityServiceImpl.getUser");
-        System.out.println("cn = [" + cn + "]");
-
         DirContextAdapter dirContextAdapter = findPartnersUser(cn);
-
-        System.out.println("dirContextAdapter = " + dirContextAdapter);
 
         if (dirContextAdapter != null) {
             Attributes attributes = dirContextAdapter.getAttributes();

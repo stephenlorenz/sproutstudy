@@ -35,6 +35,11 @@ angular.module('sproutStudyApp')
                     callback(response.data);
                 });
             },
+            toggleFormArchive: function (params, callback) {
+                $http.get(networkService.generateUrl("toggleFormArchive", params)).then(function (response) {
+                    callback(response.data);
+                });
+            },
             saveForm: function (params, callback) {
                 $http.get(networkService.generateUrl("saveForm", params)).then(function (response) {
                     callback(response.data);

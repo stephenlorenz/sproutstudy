@@ -70,7 +70,7 @@ angular.module('sproutStudyApp')
                 });
             },
             getUser: function (params, callback) {
-                $http.get(networkService.generateUrl("getUser", params)).then(function (response) {
+                $http.get(networkService.generateUrl("getDomainUser", params)).then(function (response) {
                     callback(response.data);
                 });
             },

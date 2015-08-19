@@ -1,4 +1,4 @@
-<div ng-controller="listManagerController" class="sproutstudy-tab sproutstudy-tab-patient container">
+<div class="sproutstudy-tab sproutstudy-tab-patient container">
 
     <legend>Edit {{list.name}} List Data</legend>
 
@@ -8,7 +8,7 @@
             <h4>{{saveListMessage}}</h4>
         </div>
 
-        <table class="table table-striped" ng-show="list.data.length > 0">
+        <table class="table table-striped sprout-list-data-table" ng-show="list.data.length > 0">
             <thead>
             <tr>
                 <th>{{list.nameColumnTitle}}</th>
@@ -19,7 +19,7 @@
             </thead>
             <!--<tr ng-repeat="data in list.data | filter: { active: true } | orderBy:id" >-->
             <tr ng-repeat="data in list.data | filter: { active: true } | orderBy: 'id'" >
-                <td><input ng-model="data.name" class="field-label message-text" required type="text" /></td>
+                <td><input ng-model="data.name" class="field-label message-text" required type="text" focus-on-me="$last" /></td>
                 <td><input ng-model="data.value" class="field-label message-text" required type="text" /></td>
                 <td ng-repeat="detail in data.details | orderBy:detailOrderByDetailId">
                     <input ng-model="detail.value" class="field-label message-text" ng-required="detail.required" type="text" />

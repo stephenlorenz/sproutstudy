@@ -1,6 +1,8 @@
 package edu.harvard.mgh.lcs.sprout.forms.study.to;
 
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -9,6 +11,7 @@ public class CohortListTO implements Serializable, Comparable<CohortListTO> {
 
     private String id;
     private String name;
+    private String cohortName;
     private String description;
     private String nameColumnTitle;
     private String valueColumnTitle;
@@ -19,6 +22,18 @@ public class CohortListTO implements Serializable, Comparable<CohortListTO> {
     private List<CohortListDataTO> data;
     private List<CohortListDetailTO> detail;
     private Date activityDate;
+
+    public String getUrl() {
+        if (key != null && key.trim().length() > 0 && cohortName != null && cohortName.trim().length() > 0) {
+            try {
+                return String.format("sproutlist://%s?cohort=%s", URLEncoder.encode(key, "UTF-8"), URLEncoder.encode(cohortName, "UTF-8"));
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
 
     public String getId() {
         return id;
@@ -34,6 +49,14 @@ public class CohortListTO implements Serializable, Comparable<CohortListTO> {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getCohortName() {
+        return cohortName;
+    }
+
+    public void setCohortName(String cohortName) {
+        this.cohortName = cohortName;
     }
 
     public String getDescription() {

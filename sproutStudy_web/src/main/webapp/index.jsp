@@ -143,7 +143,7 @@
 <script src="assets/scripts/external/scrollTo/jquery.scrollTo.min.js"></script>
 <script src="assets/scripts/external/splitter/js/splitter.js"></script>
 <script src="assets/scripts/external/splitterJQuery/splitter.js"></script>
-<script src="assets/scripts/external/handlebars/handlebars-v3.0.1.js"></script>
+<script src="assets/scripts/external/handlebars/handlebars-v3.0.3.js"></script>
 
 <!-- build:js scripts/scripts.js -->
 <script src="scripts/app.js"></script>
@@ -164,6 +164,7 @@
 <script src="scripts/directives/preventDefault.js"></script>
 <script src="scripts/directives/patientViewDirective.js"></script>
 <script src="scripts/directives/sproutNarrativeDirective.js"></script>
+<script src="scripts/directives/focusOnMe.js"></script>
 <script src="scripts/models/localeModel.js"></script>
 <script src="scripts/services/appointmentsService.js"></script>
 <script src="scripts/services/cohortService.js"></script>
@@ -543,7 +544,7 @@
             var keyPathLong = "";
             for (var i=0;i<keyParts.length;i++) {
                 var keyPart = keyParts[i];
-                if (keyPart !== undefined && keyPart !== 'repeat') {
+                if (keyPart !== undefined && keyPart !== 'repeat' && keyPart !== 'composite') {
                     if (keyPathLong.length > 0) keyPathLong += "-";
                     keyPathLong += keyPart
                 }
@@ -622,6 +623,9 @@
         setTimeout(sizeTransformPane, 500);
     });
 
+    function focusOnLastRow(target) {
+        $(target).focus();
+    }
     function highlightRow(row) {
 //        console.log("row.class.3: " + row.attr("class"));
         if (row !== undefined) row.effect('pulsate');
@@ -674,13 +678,6 @@
             var verbose = true;
             var callbackItem = formCallbackCatalog[instanceId];
             var narrativeModel = callbackItem.getSerializedArray(verbose);
-//            var paths = callbackItem.paths();
-//
-//            if (angular.element(jQuerySprout("#transformControllerDiv")).scope() !== undefined && paths !== undefined) {
-//                angular.element(jQuerySprout("#transformControllerDiv")).scope().setPaths(paths);
-//                angular.element(jQuerySprout("#transformControllerDiv")).scope().applyIfPossible();
-//            }
-
             //console.log("model: " + JSON.stringify(narrativeModel, null, 4));
             return narrativeModel;
         }
@@ -695,6 +692,7 @@
         if (formCallbackCatalog[instanceId]) {
             var callbackItem = formCallbackCatalog[instanceId];
             var narrativeModel = callbackItem.getSerializedArray();
+//            console.log(JSON.stringify(narrativeModel));
             var paths = callbackItem.paths();
 
             if (angular.element(jQuerySprout("#transformControllerDiv")).scope() !== undefined && paths !== undefined) {
@@ -739,9 +737,9 @@
         jQuerySprout(".sprout-transform-key").on('dblclick', function() {
             var sproutJsonPath = jQuerySprout(this).attr("sprout-json-path");
 //            console.log("sproutJsonPath: " + sproutJsonPath);
-            jQuerySprout("#handlebarjs-element-path").html("{{" + sproutJsonPath + "}}");
+            jQuerySprout("#handlebarjs-element-path").val("{{" + sproutJsonPath + "}}");
             jQuerySprout('#modal-model-element').modal({
-                keyboard: false
+                keyboard: true
             });
         });
     }
@@ -964,6 +962,7 @@
 //            pollingInterval: 60,
             pollingInterval: 30,
             failedRequests: 6,
+            AJAXTimeout: 2000,
             keepAliveURL: '<%=request.getContextPath()%>/public/keepalive.jsp',
             serverResponseEquals: 'OK',
             onTimeout: function() {
@@ -1011,11 +1010,11 @@
 
 <div class="modal modal-model hide fade in modal-200-600" id="modal-model-element" style="display: none;" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" options="modalSmallOpts" aria-hidden="true">
     <div class="modal-header">
-        <h3>HandlebarJS Element Path</h3>
+        <h3>HandlebarJS Path</h3>
     </div>
     <div class="modal-body-short">
         <p>
-        <h4 id="handlebarjs-element-path"></h4>
+            <textarea id="handlebarjs-element-path" style="width: 750px; height: 50px; font-family: Courier, monospace; font-size: 1.3em; font-weight: bold; color: blue; background-color: #efefef;"></textarea>
         </p>
     </div>
     <div class="modal-footer">

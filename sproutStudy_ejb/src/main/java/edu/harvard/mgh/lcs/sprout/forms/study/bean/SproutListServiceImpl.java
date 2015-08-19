@@ -48,63 +48,20 @@ public class SproutListServiceImpl implements SproutListService, SproutStudyCons
     private StudyService studyService;
 
     @Override
-    public List<SproutListTO> getList(String listKey, String publicationKey) throws UnauthorizedActionException {
-        if (StringUtils.isFull(listKey)) {
-            CohortListEntity cohortListEntity = studyService.getListByListKey(listKey);
-            if (cohortListEntity != null && cohortListEntity.getCohortListData() != null && cohortListEntity.getCohortListData().size() > 0) {
-                if (!cohortListEntity.isPublicInd()) {
-                    boolean authorizedInd = false;
-                    if (StringUtils.isFull(publicationKey)) {
-                        if (publicationKey.equals("-1")) {
-                            authorizedInd = true;
-                        } else {
-                            if (cohortListEntity.getCohort() != null && cohortListEntity.getCohort().getCohortForms() != null && cohortListEntity.getCohort().getCohortForms().size() > 0) {
-                                for (CohortFormEntity cohortFormEntity : cohortListEntity.getCohort().getCohortForms()) {
-                                    if (cohortFormEntity.getForm() != null && cohortFormEntity.getForm().getPublicationKey() != null && cohortFormEntity.getForm().getPublicationKey().equalsIgnoreCase(publicationKey)) {
-                                        authorizedInd = true;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        throw new UnauthorizedActionException("This SproutList is not public; you must provide a valid publication key.");
-                    }
-                    if (!authorizedInd) {
-                        throw new UnauthorizedActionException("You are not authorized to access this SproutList.  Please provided a valid publication key.");
-                    }
-                }
-
-                List<SproutListTO> sproutListTOList = new ArrayList<SproutListTO>();
-                for (CohortListDataEntity cohortListDataEntity : cohortListEntity.getCohortListData()) {
-                    SproutListTO sproutListTO = new SproutListTO();
-                    sproutListTO.setName(cohortListDataEntity.getName());
-                    sproutListTO.setValue(cohortListDataEntity.getValue());
-                    sproutListTO.setDetails(generateSproutListDetails(cohortListDataEntity));
-                    sproutListTOList.add(sproutListTO);
-                }
-                if (sproutListTOList != null) Collections.sort(sproutListTOList);
-                return sproutListTOList;
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public SproutListTO getListTO(String listKey, String publicationKey, String value) throws UnauthorizedActionException {
-        if (StringUtils.isFull(listKey, value)) {
-            CohortListEntity cohortListEntity = studyService.getListByListKey(listKey);
-            if (cohortListEntity != null && cohortListEntity.getCohortListData() != null && cohortListEntity.getCohortListData().size() > 0) {
-                if (!cohortListEntity.isPublicInd()) {
-                    boolean authorizedInd = false;
-                    if (StringUtils.isFull(publicationKey)) {
-                        if (publicationKey.equals("-1")) {
-                            authorizedInd = true;
-                        } else {
-                            if (cohortListEntity.getCohort() != null) {
-                                CohortEntity cohortEntity = entityManager.find(CohortEntity.class, cohortListEntity.getCohort().getId());
-                                if (cohortEntity.getCohortForms() != null && cohortEntity.getCohortForms().size() > 0) {
-                                    for (CohortFormEntity cohortFormEntity : cohortEntity.getCohortForms()) {
+    public List<SproutListTO> getList(String cohortName, String listKey, String publicationKey) throws UnauthorizedActionException {
+        if (StringUtils.isFull(cohortName, listKey)) {
+            CohortEntity cohortEntity = studyService.getCohortByName(cohortName);
+            if (cohortEntity != null) {
+                CohortListEntity cohortListEntity = studyService.getListByListKey(cohortEntity, listKey);
+                if (cohortListEntity != null && cohortListEntity.getCohortListData() != null && cohortListEntity.getCohortListData().size() > 0) {
+                    if (!cohortListEntity.isPublicInd()) {
+                        boolean authorizedInd = false;
+                        if (StringUtils.isFull(publicationKey)) {
+                            if (publicationKey.equals("-1")) {
+                                authorizedInd = true;
+                            } else {
+                                if (cohortListEntity.getCohort() != null && cohortListEntity.getCohort().getCohortForms() != null && cohortListEntity.getCohort().getCohortForms().size() > 0) {
+                                    for (CohortFormEntity cohortFormEntity : cohortListEntity.getCohort().getCohortForms()) {
                                         if (cohortFormEntity.getForm() != null && cohortFormEntity.getForm().getPublicationKey() != null && cohortFormEntity.getForm().getPublicationKey().equalsIgnoreCase(publicationKey)) {
                                             authorizedInd = true;
                                             break;
@@ -112,31 +69,84 @@ public class SproutListServiceImpl implements SproutListService, SproutStudyCons
                                     }
                                 }
                             }
+                        } else {
+                            throw new UnauthorizedActionException("This SproutList is not public; you must provide a valid publication key.");
                         }
-                    } else {
-                        throw new UnauthorizedActionException("This SproutList is not public; you must provide a valid publication key.");
+                        if (!authorizedInd) {
+                            throw new UnauthorizedActionException("You are not authorized to access this SproutList.  Please provided a valid publication key.");
+                        }
                     }
-                    if (!authorizedInd) {
-                        throw new UnauthorizedActionException("You are not authorized to access this SproutList.  Please provided a valid publication key.");
+
+                    List<SproutListTO> sproutListTOList = new ArrayList<SproutListTO>();
+                    for (CohortListDataEntity cohortListDataEntity : cohortListEntity.getCohortListData()) {
+                        SproutListTO sproutListTO = new SproutListTO();
+                        sproutListTO.setName(cohortListDataEntity.getName());
+                        sproutListTO.setValue(cohortListDataEntity.getValue());
+                        sproutListTO.setDetails(generateSproutListDetails(cohortListDataEntity));
+                        sproutListTOList.add(sproutListTO);
+                    }
+                    if (sproutListTOList != null) Collections.sort(sproutListTOList);
+                    return sproutListTOList;
+                }
+            }
+
+        }
+        return null;
+    }
+
+    @Override
+    public SproutListTO getListTO(String cohortName, String listKey, String publicationKey, String value) throws UnauthorizedActionException {
+        if (StringUtils.isFull(cohortName, listKey, value)) {
+            CohortEntity cohortEntityTmp = studyService.getCohortByName(cohortName);
+
+            CohortEntity cohortEntity = entityManager.find(CohortEntity.class, cohortEntityTmp.getId());
+
+            if (cohortEntity != null) {
+                CohortListEntity cohortListEntity = studyService.getListByListKey(cohortEntity, listKey);
+                if (cohortListEntity != null && cohortListEntity.getCohortListData() != null && cohortListEntity.getCohortListData().size() > 0) {
+                    if (!cohortListEntity.isPublicInd()) {
+                        boolean authorizedInd = false;
+                        if (StringUtils.isFull(publicationKey)) {
+                            if (publicationKey.equals("-1")) {
+                                authorizedInd = true;
+                            } else {
+                                if (cohortListEntity.getCohort() != null) {
+                                    if (cohortEntity.getCohortForms() != null && cohortEntity.getCohortForms().size() > 0) {
+                                        for (CohortFormEntity cohortFormEntity : cohortEntity.getCohortForms()) {
+                                            if (cohortFormEntity.getForm() != null && cohortFormEntity.getForm().getPublicationKey() != null && cohortFormEntity.getForm().getPublicationKey().equalsIgnoreCase(publicationKey)) {
+                                                authorizedInd = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            throw new UnauthorizedActionException("This SproutList is not public; you must provide a valid publication key.");
+                        }
+                        if (!authorizedInd) {
+                            throw new UnauthorizedActionException("You are not authorized to access this SproutList.  Please provided a valid publication key.");
+                        }
+                    }
+
+                    try {
+                        Query query = entityManager.createNamedQuery(CohortListDataEntity.BY_VALUE);
+                        query.setParameter("value", value);
+                        query.setParameter("cohortList", cohortListEntity);
+                        List<CohortListDataEntity> cohortListDataEntities = query.getResultList();
+                        if (cohortListDataEntities != null && cohortListDataEntities.size() > 0) {
+                            for (CohortListDataEntity cohortListDataEntity : cohortListDataEntities) {
+                                SproutListTO sproutListTO = new SproutListTO();
+                                sproutListTO.setName(cohortListDataEntity.getName());
+                                sproutListTO.setValue(cohortListDataEntity.getValue());
+                                sproutListTO.setDetails(generateSproutListDetails(cohortListDataEntity));
+                                return sproutListTO;
+                            }
+                        }
+
+                    } catch (NoResultException e) {
                     }
                 }
-
-                try {
-                    Query query = entityManager.createNamedQuery(CohortListDataEntity.BY_VALUE);
-                    query.setParameter("value", value);
-                    query.setParameter("cohortList", cohortListEntity);
-                    List<CohortListDataEntity> cohortListDataEntities = query.getResultList();
-                    if (cohortListDataEntities != null && cohortListDataEntities.size() > 0) {
-                        for (CohortListDataEntity cohortListDataEntity : cohortListDataEntities) {
-                            SproutListTO sproutListTO = new SproutListTO();
-                            sproutListTO.setName(cohortListDataEntity.getName());
-                            sproutListTO.setValue(cohortListDataEntity.getValue());
-                            sproutListTO.setDetails(generateSproutListDetails(cohortListDataEntity));
-                            return sproutListTO;
-                        }
-                    }
-
-                } catch (NoResultException e) {}
             }
         }
         return null;

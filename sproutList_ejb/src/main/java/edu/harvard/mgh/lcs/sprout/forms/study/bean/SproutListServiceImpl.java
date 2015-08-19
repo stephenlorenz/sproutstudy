@@ -33,55 +33,58 @@ public class SproutListServiceImpl implements SproutListService {
 
 
     @Override
-    public List<SproutListTO> getList(String listKey, String publicationKey) {
-        if (StringUtils.isFull(listKey)) {
-            CohortListEntity cohortListEntity = studyService.getListByListKey(listKey);
-            if (cohortListEntity != null && cohortListEntity.getCohortListData() != null && cohortListEntity.getCohortListData().size() > 0) {
-                if (!cohortListEntity.isPublicInd()) {
-                    boolean authorizedInd = false;
-                    if (StringUtils.isFull(publicationKey)) {
-                        if (publicationKey.equals("-1")) {
-                            authorizedInd = true;
-                        } else {
-                            if (cohortListEntity.getCohort() != null && cohortListEntity.getCohort().getCohortForms() != null && cohortListEntity.getCohort().getCohortForms().size() > 0) {
-                                for (CohortFormEntity cohortFormEntity : cohortListEntity.getCohort().getCohortForms()) {
-                                    if (cohortFormEntity.getForm() != null && cohortFormEntity.getForm().getPublicationKey() != null && cohortFormEntity.getForm().getPublicationKey().equalsIgnoreCase(publicationKey)) {
-                                        authorizedInd = true;
-                                        break;
+    public List<SproutListTO> getList(String cohortName, String listKey, String publicationKey) {
+        if (StringUtils.isFull(cohortName, listKey)) {
+            CohortEntity cohortEntity = studyService.getCohortByName(cohortName);
+            if (cohortEntity != null) {
+                CohortListEntity cohortListEntity = studyService.getListByListKey(cohortEntity, listKey);
+                if (cohortListEntity != null && cohortListEntity.getCohortListData() != null && cohortListEntity.getCohortListData().size() > 0) {
+                    if (!cohortListEntity.isPublicInd()) {
+                        boolean authorizedInd = false;
+                        if (StringUtils.isFull(publicationKey)) {
+                            if (publicationKey.equals("-1")) {
+                                authorizedInd = true;
+                            } else {
+                                if (cohortListEntity.getCohort() != null && cohortListEntity.getCohort().getCohortForms() != null && cohortListEntity.getCohort().getCohortForms().size() > 0) {
+                                    for (CohortFormEntity cohortFormEntity : cohortListEntity.getCohort().getCohortForms()) {
+                                        if (cohortFormEntity.getForm() != null && cohortFormEntity.getForm().getPublicationKey() != null && cohortFormEntity.getForm().getPublicationKey().equalsIgnoreCase(publicationKey)) {
+                                            authorizedInd = true;
+                                            break;
+                                        }
                                     }
                                 }
                             }
+                        } else {
+                            try {
+                                throw new UnauthorizedListAccessException("This SproutList is not public; you must provide a valid publication key.");
+                            } catch (UnauthorizedListAccessException e) {
+                                e.printStackTrace();
+                                return null;
+                            }
                         }
-                    } else {
-                        try {
-                            throw new UnauthorizedListAccessException("This SproutList is not public; you must provide a valid publication key.");
-                        } catch (UnauthorizedListAccessException e) {
-                            e.printStackTrace();
-                            return null;
+                        if (!authorizedInd) {
+                            try {
+                                throw new UnauthorizedListAccessException("You are not authorized to access this SproutList.  Please provided a valid publication key.");
+                            } catch (UnauthorizedListAccessException e) {
+                                e.printStackTrace();
+                                return null;
+                            }
                         }
                     }
-                    if (!authorizedInd) {
-                        try {
-                            throw new UnauthorizedListAccessException("You are not authorized to access this SproutList.  Please provided a valid publication key.");
-                        } catch (UnauthorizedListAccessException e) {
-                            e.printStackTrace();
-                            return null;
-                        }
+
+                    List<SproutListTO> sproutListTOList = new ArrayList<SproutListTO>();
+                    for (CohortListDataEntity cohortListDataEntity : cohortListEntity.getCohortListData()) {
+                        SproutListTO sproutListTO = new SproutListTO();
+                        sproutListTO.setName(cohortListDataEntity.getName());
+                        sproutListTO.setValue(cohortListDataEntity.getValue());
+                        sproutListTO.setDetails(generateSproutListDetails(cohortListDataEntity));
+                        sproutListTOList.add(sproutListTO);
                     }
+
+                    if (sproutListTOList != null) Collections.sort(sproutListTOList);
+
+                    return sproutListTOList;
                 }
-
-                List<SproutListTO> sproutListTOList = new ArrayList<SproutListTO>();
-                for (CohortListDataEntity cohortListDataEntity : cohortListEntity.getCohortListData()) {
-                    SproutListTO sproutListTO = new SproutListTO();
-                    sproutListTO.setName(cohortListDataEntity.getName());
-                    sproutListTO.setValue(cohortListDataEntity.getValue());
-                    sproutListTO.setDetails(generateSproutListDetails(cohortListDataEntity));
-                    sproutListTOList.add(sproutListTO);
-                }
-
-                if (sproutListTOList != null) Collections.sort(sproutListTOList);
-
-                return sproutListTOList;
             }
         }
         return null;

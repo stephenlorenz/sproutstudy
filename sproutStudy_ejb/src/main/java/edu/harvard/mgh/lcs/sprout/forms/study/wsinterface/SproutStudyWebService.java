@@ -18,6 +18,6 @@ public interface SproutStudyWebService {
     public String getNarrative(@WebParam(name = "publicationKey") String publicationKey, @WebParam(name = "instanceId") String instanceId, @WebParam(name = "jsonData") String jsonData, @WebParam(name = "format") String format);
     public String getNarrativeByInstanceId(@WebParam(name = "instanceId") String instanceId);
     public String getNarrativeByInstanceIdWithFormat(@WebParam(name = "instanceId") String instanceId, @WebParam(name = "format") String format);
-    public List<SproutListTO> getSproutList(String listKey, String publicationKey);
-    public SproutListTO getSproutListTO(String listKey, String publicationKey, String value);
+    public List<SproutListTO> getSproutList(String cohortName, String listKey, String publicationKey);
+    public SproutListTO getSproutListTO(String cohortName, String listKey, String publicationKey, String value);
 }

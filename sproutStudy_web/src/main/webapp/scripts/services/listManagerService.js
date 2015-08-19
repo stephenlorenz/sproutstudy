@@ -40,6 +40,11 @@ angular.module('sproutStudyApp')
                     callback(response.data);
                 });
             },
+            refreshList: function (params, callback) {
+                $http.get(networkService.generateUrl("refreshList", params)).then(function (response) {
+                    callback(response.data);
+                });
+            },
             deleteList: function (params, callback) {
                 $http.get(networkService.generateUrl("deleteList", params)).then(function (response) {
                     callback(response.data);

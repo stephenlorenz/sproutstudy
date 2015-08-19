@@ -44,9 +44,9 @@ public class SproutStudyWebServiceImpl implements SproutStudyWebService {
     }
 
     @Override
-    public List<SproutListTO> getSproutList(String listKey, String publicationKey) {
+    public List<SproutListTO> getSproutList(String cohortName, String listKey, String publicationKey) {
         try {
-            return sproutListService.getList(listKey, publicationKey);
+            return sproutListService.getList(cohortName, listKey, publicationKey);
         } catch (UnauthorizedActionException e) {
             e.printStackTrace();
         }
@@ -54,9 +54,9 @@ public class SproutStudyWebServiceImpl implements SproutStudyWebService {
     }
 
     @Override
-    public SproutListTO getSproutListTO(String listKey, String publicationKey, String value) {
+    public SproutListTO getSproutListTO(String cohortName, String listKey, String publicationKey, String value) {
         try {
-            return sproutListService.getListTO(listKey, publicationKey, value);
+            return sproutListService.getListTO(cohortName, listKey, publicationKey, value);
         } catch (UnauthorizedActionException e) {
             e.printStackTrace();
         }

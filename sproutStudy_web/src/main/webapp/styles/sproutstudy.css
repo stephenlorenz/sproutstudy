@@ -138,6 +138,11 @@ tr.unknown {
     /*background-color: palevioletred;*/
 }
 
+tr.immutable {
+    color: #737373;
+    /*background-color: palevioletred;*/
+}
+
 .sortable:hover {
     cursor: pointer;
     /*color: blue;*/
