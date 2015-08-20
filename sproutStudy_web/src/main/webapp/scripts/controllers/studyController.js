@@ -408,6 +408,18 @@ angular.module('sproutStudyApp')
                 try {
                     var tmpDate = new Date(item.targetDate);
 
+                    var compDate = $scope.allFormsFilterTargetDate;
+
+                    if (compDate == 'today') {
+                        var compDateDate = new Date();
+                        var year = compDateDate.getFullYear();
+                        var month = (1 + compDateDate.getMonth()).toString();
+                        month = month.length > 1 ? month : '0' + month;
+                        var day = compDateDate.getDate().toString();
+                        day = day.length > 1 ? day : '0' + day;
+                        compDate = month + '/' + day + '/' + year;
+                    }
+
                     var year = tmpDate.getFullYear();
                     var month = (1 + tmpDate.getMonth()).toString();
                     month = month.length > 1 ? month : '0' + month;
@@ -415,8 +427,9 @@ angular.module('sproutStudyApp')
                     day = day.length > 1 ? day : '0' + day;
 
                     var targetDateTmp = month + '/' + day + '/' + year;
+                    //console.log("targetDateTmp: " + targetDateTmp + " vs. " + compDate);
 
-                    if ($scope.allFormsFilterTargetDate != targetDateTmp) return false;
+                    if (compDate != targetDateTmp) return false;
                 } catch (e) {
                     return false;
                 }
@@ -550,11 +563,13 @@ angular.module('sproutStudyApp')
 
         $scope.findCohortMember = function() {
             $scope.patientMatches = undefined;
-            $scope.searchReturned = true;
             $scope.searchInprogress = true;
+            //$scope.searchReturned = true;
             studyService.findCohortMember({cohortQueryURL: cohortService.getCohort().cohortQueryURL ,query: $scope.query}, function(data) {
                 $scope.searchInprogress = false;
+                $scope.searchReturned = true;
                 $scope.patientMatches = data;
+                jQuerySprout(".sproutstudy-content-home").show();
             });
         }
 
@@ -1160,6 +1175,7 @@ angular.module('sproutStudyApp')
             $scope.subject = subject;
             $scope.patientMatches = undefined;
             $scope.searchEnabled = false;
+            $scope.searchReturned = false;
             $scope.getSubjectInbox();
         }
 
