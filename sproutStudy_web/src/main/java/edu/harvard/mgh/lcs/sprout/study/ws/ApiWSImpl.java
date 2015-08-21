@@ -174,7 +174,7 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
             Set<String> publicationKeys = new HashSet<String>();
             if (cohortFormTOList != null && cohortFormTOList.size() > 0) {
                 for (CohortFormTO cohortFormTO : cohortFormTOList) {
-                    publicationKeys.add(cohortFormTO.getPublicationKey());
+                    if (!cohortFormTO.isArchive()) publicationKeys.add(cohortFormTO.getPublicationKey());
                 }
                 return sproutFormsService.getSproutInbox(sessionTO.getUser(), sessionTO.getCohortTO(), identities, publicationKeys);
             }

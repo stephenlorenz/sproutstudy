@@ -573,6 +573,11 @@ angular.module('sproutStudyApp')
             });
         }
 
+        $scope.onOpenSubject = function(subjectId) {
+            $scope.query = subjectId;
+            $scope.findCohortMember();
+        }
+
         $scope.getRecentCohortMembers = function() {
             $scope.recentCohortMembers = undefined;
             studyService.getRecentCohortMembers({}, function(data) {
