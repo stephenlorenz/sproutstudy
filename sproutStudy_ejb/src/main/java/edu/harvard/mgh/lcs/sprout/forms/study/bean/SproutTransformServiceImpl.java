@@ -101,7 +101,7 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 
 	@Override
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public BooleanTO saveNarrative(String instanceId, String narrative, String format) {
+	public BooleanTO saveNarrative(String instanceId, String format, String narrative) {
 		if (StringUtils.isFull(instanceId, narrative, format)) {
 			VNarrativeFormatEntity vNarrativeFormatEntity = getVNarrativeFormatEntity(format);
 			if (vNarrativeFormatEntity != null) {

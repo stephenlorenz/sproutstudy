@@ -503,7 +503,10 @@
         scratch.find('[contenteditable]').contents().unwrap();
         scratch.find('handlebar').contents().unwrap();
 
-        return scratch.html();
+        var scratchText = scratch.html();
+        scratchText = scratchText.replace(/<!--<handlebar>/g, "").replace(/<\/handlebar>-->/g, "");
+
+        return scratchText;
     }
 
 
@@ -700,7 +703,7 @@
                 angular.element(jQuerySprout("#transformControllerDiv")).scope().applyIfPossible();
             }
 
-            //console.log("model: " + JSON.stringify(narrativeModel, null, 4));
+//            console.log("getNarrativeModel.model: " + JSON.stringify(narrativeModel, null, 4));
             return narrativeModel;
         }
     }
@@ -709,13 +712,14 @@
         var source = angular.element(jQuerySprout("#transformControllerDiv")).scope().getTemplateFromEditor();
         var model = angular.element(jQuerySprout("#transformControllerDiv")).scope().getModel();
 
-//        if (typeof model != 'string') {
-//            json = JSON.stringify(model, undefined, 2);
-//            console.log("compileTemplate.model: " + json);
-//        } else {
-//            console.log("compileTemplate.model: " + model);
-//        }
+        if (typeof model != 'string') {
+            json = JSON.stringify(model, undefined, 2);
+            console.log("compileTemplate.model: " + json);
+        } else {
+            console.log("compileTemplate.model: " + model);
+        }
 
+        console.log("compileTemplate.template: " + source);
 
         var template = Handlebars.compile(source);
         try {
@@ -809,47 +813,66 @@
     }
 
     function makeTextEditable(element) {
-        element.find('*').each(function() {
-            $('*', element)
-                    .andSelf()
-                    .contents()
-                    .filter(function(){
-                        return this.nodeType === 3;
-                    })
-                    .filter(function(){
-                        return !this.nodeValue.match( /\{\{(.*?)\}\}/g );
-                    })
-                    .filter(function(){
-                        return $(this).parent().attr("contenteditable") === undefined;
-                    })
-                    .each(function(){
-                        $(this).wrap('<span contenteditable="true" sproutNarrativeEditable="true" />');
-                    });
+        $('*', element)
+                .andSelf()
+                .contents()
+                .filter(function(){
+                    return this.nodeType === 3;
+                })
+                .filter(function(){
+                    return !this.nodeValue.match( /\{\{(.*?)\}\}/g );
+                })
+                .filter(function(){
+                    return $(this).parent().attr("contenteditable") === undefined;
+                })
+                .each(function(){
+                    if ($.trim($(this).text()).length > 0) {
+//						   console.log("text: " + $(this).text());
+                        var guid = generateUUID();
+                        $(this).wrap('<span class="' + guid + '" syncKey="' + guid + '" contenteditable="true" sproutNarrativeEditable="true" />');
+                    }
+                });
 
-            var tagName = jQuerySprout(this).prop("tagName");
+        var tagName = $(this).prop("tagName");
 
-            if ((tagName === undefined || tagName !== 'HANDLEBAR') && jQuerySprout(this).find("handlebar").length > 0) {
-                makeTextEditable(jQuerySprout(this));
-            }
-        });
+        if ((tagName === undefined || tagName !== 'HANDLEBAR') && $(this).find("handlebar").length > 0) {
+            setTimeout(makeTextEditable($(this)), 5);
+        }
     }
 
     function setSproutTransformTemplate(source, instanceId) {
 
+//        console.log("setSproutTransformTemplate978.newSource: " + source);
+
         if (source === undefined || source === null) {
             source = $(".sprout-study-template-content-" + instanceId).html();
         } else {
-            source = source.replace( /\{\{(.*?)\}\}/g, "<handlebar>{{$1}}</handlebar>");
+//            source = source.replace( /\{\{(.*?)\}\}/g, "<!--<handlebar>{{$1}}</handlebar>-->");
+            source = source.replace( /\{\{(\#.*?)\}\}/g, "<!--<handlebar>{{$1}}</handlebar>-->");
+            source = source.replace( /\{\{(\/.*?)\}\}/g, "<!--<handlebar>{{$1}}</handlebar>-->");
+            source = source.replace( /\{\{(?!else)([a-z].*?)\}\}/g, "<handlebar>{{$1}}</handlebar>");
+            source = source.replace( /\{\{else\}\}/g, "<!--<handlebar>{{else}}</handlebar>-->");
 
-            $(".sprout-study-template-content-" + instanceId).html(source);
+            jQuerySprout(".sprout-study-template-content-" + instanceId).html(source);
+//            console.log("setSproutTransformTemplate978.new template1: " + jQuerySprout(".sprout-study-template-content-" + instanceId).html());
             makeNarrativeTextEditable(instanceId);
-            //console.log("new template: " + jQuerySprout(".sprout-study-template-content-" + instanceId).html());
+//            console.log("setSproutTransformTemplate978.new template2: " + jQuerySprout(".sprout-study-template-content-" + instanceId).html());
         }
 
         var model = getNarrativeModel(instanceId)
+
+//        console.log("setSproutTransformTemplate978.3: " + $(".sprout-study-template-content-" + instanceId).html());
+
         var template = Handlebars.compile($(".sprout-study-template-content-" + instanceId).html());
+
+
+//        console.log("setSproutTransformTemplate978.template: " + $(".sprout-study-template-content-" + instanceId).html());
+
         try {
             var narrative = template(model);
+
+//            console.log("setSproutTransformTemplate.narrative: " + narrative);
+
             jQuerySprout("#sproutTransformNarrativeContent").html(narrative);
             jQuerySprout(".sprout-study-narrative-content-" + instanceId).html(narrative);
 
@@ -905,20 +928,31 @@
     }
 
     function syncNarrativeTemplate(instanceId) {
-        var narrativeParts = getNarrativeParts(instanceId);
-        if (narrativeParts.length > 0) {
-            $(".sprout-study-template-content-" + instanceId).find("[contenteditable]").each(function(index, element) {
-                if (jQuerySprout(this).find("[sproutnarrativeeditable='true']").length == 0) {
-                    $(this).html(narrativeParts[index]);
-                }
-            });
-        }
+
+//        console.log("syncNarrativeTemplate.before: " + $(".sprout-study-template-content-" + instanceId).html());
+
+//        var narrativeParts = getNarrativeParts(instanceId);
+//        if (narrativeParts.length > 0) {
+//            $(".sprout-study-template-content-" + instanceId).find("[contenteditable]").each(function(index, element) {
+//                if (jQuerySprout(this).find("[sproutnarrativeeditable='true']").length == 0) {
+//                    $(this).html(narrativeParts[index]);
+//                }
+//            });
+//        }
+
+        $(".sprout-study-narrative-content-" + instanceId).find("[contenteditable]").each(function() {
+            $(".sprout-study-template-content-" + instanceId).find("." + $(this).attr("syncKey")).html($(this).html());
+        });
+
+//        console.log("syncNarrativeTemplate.after: " + $(".sprout-study-template-content-" + instanceId).html());
+
         return $(".sprout-study-template-content-" + instanceId).html();
     }
 
     function getNarrativeParts(instanceId) {
         var narrativeParts = [];
-        $(".sprout-study-narrative-content-" + instanceId).find("[sproutnarrativeeditable='true']").each(function(index, element) {
+//        $(".sprout-study-narrative-content-" + instanceId).find("[sproutnarrativeeditable='true']").each(function(index, element) {
+        $(".sprout-study-narrative-content-" + instanceId).find("[contenteditable]").each(function(index, element) {
             var part = $(this).html();
             narrativeParts.push(part);
         });

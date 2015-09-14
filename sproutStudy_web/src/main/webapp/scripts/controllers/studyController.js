@@ -796,9 +796,11 @@ angular.module('sproutStudyApp')
 
                         var publicationKey = data[i].publicationKey;
 
-                        $.each(cohortService.getCohort().forms, function(index, tmpForm) {
-                            if (tmpForm.publicationKey == publicationKey) data[i].title = tmpForm.name;
-                        });
+                        if (cohortService.getCohort() !== undefined && cohortService.getCohort() !== null) {
+                            $.each(cohortService.getCohort().forms, function(index, tmpForm) {
+                                if (tmpForm.publicationKey == publicationKey) data[i].title = tmpForm.name;
+                            });
+                        }
 
                         if ($scope.allFormsFilterForm !== undefined && $scope.allFormsFilterForm.length > 0) {
                             for (var i2=0;i2<$scope.allFormsFilterForm.length;i2++) {
@@ -1442,11 +1444,12 @@ angular.module('sproutStudyApp')
                 var template = stripNarrativeTextEditable(instanceId);
 
                 if (narrative !== undefined) {
-                    transformService.saveTemplate({publicationKey: publicationKey, instanceId: instanceId, templateKey: null, masterInd: false}, syncNarrativeTemplate(instanceId), function(data) {
+                    //transformService.saveTemplate({publicationKey: publicationKey, instanceId: instanceId, templateKey: null, masterInd: false}, syncNarrativeTemplate(instanceId), function(data) {
+                    transformService.saveTemplate({publicationKey: publicationKey, instanceId: instanceId, templateKey: null, masterInd: false}, template, function(data) {
                         if (data.value == 'false') {
                             callback(false, "Failed to save narrative template.");
                         } else {
-                            transformService.saveNarrative({instanceId: instanceId, narrative: narrative, format: "HTML"}, function(data) {
+                            transformService.saveNarrative({instanceId: instanceId, format: "HTML"}, narrative, function(data) {
                                 if (data.value == 'false') {
                                     callback(false, "Failed to save narrative.");
                                 } else {

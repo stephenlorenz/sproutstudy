@@ -24,7 +24,7 @@ public class VNarrativeFormatEntity implements Serializable {
     private int id;
 
     @Basic
-    @Column(nullable=false, length=25)
+    @Column(nullable=false, length=20)
     private String code;
 
     @Basic

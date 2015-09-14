@@ -274,10 +274,10 @@ public interface ApiWS {
     public BooleanTO saveTemplate(@Context HttpServletRequest request, @QueryParam("publicationKey") String publicationKey, @QueryParam("instanceId") String instanceId, @QueryParam("templateKey") String templateKey, @QueryParam("masterInd") boolean masterInd, String template) throws InvalidSessionRESTful;
 //    public BooleanTO saveTemplate(@Context HttpServletRequest request, @QueryParam("publicationKey") String publicationKey, @QueryParam("instanceId") String instanceId, @QueryParam("template") String template, @QueryParam("templateKey") String templateKey, @QueryParam("masterInd") boolean masterInd) throws InvalidSessionRESTful;
 
-    @GET
+    @POST
     @Path("/secure/saveNarrative")
     @Produces(MediaType.APPLICATION_JSON)
-    public BooleanTO saveNarrative(@Context HttpServletRequest request, @QueryParam("instanceId") String instanceId, @QueryParam("narrative") String narrative, @QueryParam("format") String format) throws InvalidSessionRESTful;
+    public BooleanTO saveNarrative(@Context HttpServletRequest request, @QueryParam("instanceId") String instanceId, @QueryParam("format") String format, String narrative) throws InvalidSessionRESTful;
 
     @GET
     @Path("/secure/getAssignments")

@@ -233,7 +233,7 @@
                                 </tr>
                                 </thead>
                                 <tr ng-repeat="form in allForms | filter: allFormsFilter | orderBy: '-statusDate'" ng-class="{'inbox-row': !form.locked && form.mutable, 'unknown': form.identityFullName == 'Unknown', 'immutable': !form.mutable}"  >
-                                    <td class="inbox-cell"><span ng-click="form.locked || !form.mutable || onOpenMutableForm(form)">{{form.identityFullName}} ({{form.identityPrimaryId}})</span> <i class="fa fa-user sprout-study-badge-close" ng-click="onOpenSubject(form.identityPrimaryId)"></i></td>
+                                    <td class="inbox-cell"><i class="fa fa-user sprout-study-badge-close" ng-click="onOpenSubject(form.identityPrimaryId)"></i> <span ng-click="form.locked || !form.mutable || onOpenMutableForm(form)">{{form.identityFullName}} ({{form.identityPrimaryId}})</span></td>
                                     <td class="inbox-cell" ng-click="form.locked || !form.mutable || onOpenMutableForm(form)">{{form.title}}</a></td>
                                     <td ng-show="allFormsMetadata.hasInstanceKeys" class="inbox-cell form-instance-id-{{form.instanceId}}" ng-click="form.locked || !form.mutable || onOpenMutableForm(form)">{{form.instanceKey}}</a></td>
                                     <td class="inbox-cell" ng-click="form.locked || !form.mutable || onOpenMutableForm(form)">{{form.deliveryDate | date:'medium' }}</td>

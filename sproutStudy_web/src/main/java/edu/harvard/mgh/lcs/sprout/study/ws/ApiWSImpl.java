@@ -568,8 +568,8 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
     }
 
     @Override
-    public BooleanTO saveNarrative(HttpServletRequest request, String instanceId, String narrative, String format) throws InvalidSessionRESTful {
-        return transformService.saveNarrative(instanceId, narrative, format);
+    public BooleanTO saveNarrative(HttpServletRequest request, String instanceId, String format, String narrative) throws InvalidSessionRESTful {
+        return transformService.saveNarrative(instanceId, format, narrative);
     }
 
     private void updateSessionTO(HttpServletRequest request, SessionTO sessionTO) {
