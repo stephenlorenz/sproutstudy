@@ -300,6 +300,11 @@ public interface ApiWS {
     public List<CohortListDataTO> refreshList(@Context HttpServletRequest request, @QueryParam("cohortKey") String cohortKey, @QueryParam("listKey") String listKey) throws InvalidSessionRESTful;
 
     @GET
+    @Path("/secure/getPollEvents")
+    @Produces(MediaType.APPLICATION_JSON)
+    public PollEventTO getPollEvents(@Context HttpServletRequest request, @QueryParam("cohortKey") String cohortKey, @QueryParam("pollKey") Integer pollKey) throws InvalidSessionRESTful;
+
+    @GET
     @Path("/secure/setDefaultTab")
     @Produces(MediaType.APPLICATION_JSON)
     public BooleanTO setDefaultTab(@Context HttpServletRequest request, @QueryParam("defaultTab") String defaultTab) throws InvalidSessionRESTful;

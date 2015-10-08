@@ -73,34 +73,34 @@
 		<param-value>/WEB-INF/spring/config/applicationContext*.xml</param-value>
 	</context-param>
 
-	<servlet>
-		<description>SproutStudyFormStateAtmosphereServlet</description>
-		<servlet-name>SproutStudyFormStateAtmosphereServlet</servlet-name>
-		<servlet-class>org.atmosphere.cpr.AtmosphereServlet</servlet-class>
-		<!-- limit classpath scanning to speed up starting, not mandatory -->
-		<init-param>
-			<param-name>org.atmosphere.cpr.packages</param-name>
-			<param-value>edu.harvard.mgh.lcs.sprout.study.websockets</param-value>
-		</init-param>
-		<init-param>
-			<param-name>org.atmosphere.useNative</param-name>
-			<!-- false is default. In 2.2.x this property is ignored. The native mode requires some
-			   additional libs (atmosphere-runtime-native.jar, atmosphere-compat-xxx.jar) and settings
-			   for JBoss (Tomcat) container. See:
-			   https://github.com/Atmosphere/atmosphere/wiki/Installing-AtmosphereServlet-with-or-without-native-support -->
-			<param-value>true</param-value>
-		</init-param>
-		<init-param>
-			<param-name>org.atmosphere.interceptor.HeartbeatInterceptor.clientHeartbeatFrequencyInSeconds</param-name>
-			<param-value>10</param-value>
-		</init-param>
-		<load-on-startup>0</load-on-startup>
-		<async-supported>true</async-supported>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>SproutStudyFormStateAtmosphereServlet</servlet-name>
-		<url-pattern>/sproutStudyFormState/*</url-pattern>
-	</servlet-mapping>
+	<!--<servlet>-->
+		<!--<description>SproutStudyFormStateAtmosphereServlet</description>-->
+		<!--<servlet-name>SproutStudyFormStateAtmosphereServlet</servlet-name>-->
+		<!--<servlet-class>org.atmosphere.cpr.AtmosphereServlet</servlet-class>-->
+		<!--&lt;!&ndash; limit classpath scanning to speed up starting, not mandatory &ndash;&gt;-->
+		<!--<init-param>-->
+			<!--<param-name>org.atmosphere.cpr.packages</param-name>-->
+			<!--<param-value>edu.harvard.mgh.lcs.sprout.study.websockets</param-value>-->
+		<!--</init-param>-->
+		<!--<init-param>-->
+			<!--<param-name>org.atmosphere.useNative</param-name>-->
+			<!--&lt;!&ndash; false is default. In 2.2.x this property is ignored. The native mode requires some-->
+			   <!--additional libs (atmosphere-runtime-native.jar, atmosphere-compat-xxx.jar) and settings-->
+			   <!--for JBoss (Tomcat) container. See:-->
+			   <!--https://github.com/Atmosphere/atmosphere/wiki/Installing-AtmosphereServlet-with-or-without-native-support &ndash;&gt;-->
+			<!--<param-value>true</param-value>-->
+		<!--</init-param>-->
+		<!--<init-param>-->
+			<!--<param-name>org.atmosphere.interceptor.HeartbeatInterceptor.clientHeartbeatFrequencyInSeconds</param-name>-->
+			<!--<param-value>10</param-value>-->
+		<!--</init-param>-->
+		<!--<load-on-startup>0</load-on-startup>-->
+		<!--<async-supported>true</async-supported>-->
+	<!--</servlet>-->
+	<!--<servlet-mapping>-->
+		<!--<servlet-name>SproutStudyFormStateAtmosphereServlet</servlet-name>-->
+		<!--<url-pattern>/sproutStudyFormState/*</url-pattern>-->
+	<!--</servlet-mapping>-->
 
 <!-- Welcome page -->
     <welcome-file-list>

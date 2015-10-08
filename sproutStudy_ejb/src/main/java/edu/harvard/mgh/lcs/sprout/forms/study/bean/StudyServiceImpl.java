@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.FormInstanceTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.AuditService;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.SproutStudyConstantService;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.SproutTransformService;
@@ -1096,6 +1097,25 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
             e.printStackTrace();
         }
         return null;
+    }
+
+    @Override
+    public PollEventTO getPollEvents(String cohortKey, Integer pollKey) {
+        PollEventTO pollEventTO = new PollEventTO();
+        if (StringUtils.isFull(cohortKey)) {
+            Query query = entityManager.createNamedQuery(PollEventEntity.BY_ID_AND_COHORT);
+            query.setParameter("id", pollKey);
+            query.setParameter("cohortKey", cohortKey);
+            List<PollEventEntity> pollEventEntities = query.getResultList();
+            if (pollEventEntities != null && pollEventEntities.size() > 0) {
+                for (PollEventEntity pollEventEntity : pollEventEntities) {
+                    if (pollKey < pollEventEntity.getId()) pollKey = pollEventEntity.getId();
+                    pollEventTO.addData(pollEventEntity.getData());
+                }
+            }
+        }
+        pollEventTO.setPollKey(pollKey);
+        return pollEventTO;
     }
 
     private String constructWebSocketURL(String cohortKey) {

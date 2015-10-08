@@ -163,6 +163,11 @@ angular.module('sproutStudyApp')
                     callback(response.data);
                 });
             },
+            getPollEvents: function (params, callback) {
+                $http.get(networkService.generateUrl("getPollEvents", params)).then(function (response) {
+                    callback(response.data);
+                });
+            },
             getSession: function (params, callback) {
                 $http.get(networkService.generateUrl("getSession", params)).then(function (response) {
                     callback(response.data);

@@ -82,6 +82,9 @@ angular.module('sproutStudyApp')
         $scope.messageText = null;
         $scope.messageTo = null;
 
+        $scope.pollKey = 0;
+        $scope.pollFrequency = 2000; // every 2 seconds
+
         $scope.session = null;
 
         $scope.isAdmin = function() {
@@ -552,7 +555,8 @@ angular.module('sproutStudyApp')
         studyService.getLastSelectedCohort({}, function(data) {
             cohortService.setCohort(data);
             $scope.getCohortAuthorizations();
-            $scope.bootWebsockets(data);
+            //$scope.bootWebsockets(data);
+            $scope.pollEvents(data);
             $scope.cohortLoaded = true;
         });
 
@@ -1549,140 +1553,276 @@ angular.module('sproutStudyApp')
             }
         };
 
-        $scope.bootWebsockets = function (cohort) {
-            if (cohort !== undefined && cohort.websocketURL !== undefined && cohort.websocketURL !== null && cohort.websocketURL.length > 0) {
 
-                //console.log("$scope.bootWebsockets.cohort.cohortKey: " + cohort.cohortKey);
+        $scope.pollEvents = function(cohort) {
 
-                //var ws = $websocket.$new('wss://scl30.partners.org:8443/sproutstudy/sproutStudyFormState/' + cohort.cohortKey); // instance of ngWebsocket, handled by $websocket service
-                //var ws = $websocket.$new(cohort.websocketURL); // instance of ngWebsocket, handled by $websocket service
-                var ws = $websocket.$new({
-                    url: cohort.websocketURL,
-                    reconnect: true,
-                    reconnectInterval: 500 // it will reconnect after 0.5 seconds
-                });
+            if (cohort !== undefined && cohort.cohortKey !== undefined) {
 
-                ws.$on('$open', function () {
-                    //console.log("websocket connection was opened.");
-                }).$on('$close', function () {
-                    //console.log("websocket connection was closed!!!");
-                    ws = $websocket.$new(cohort.websocketURL); // instance of ngWebsocket, handled by $websocket service
-                }).$on('$message', function(data) {
-                    //console.log("ws.on.message: dataRaw: " + data);
+                var poller = function() {
+                    //console.log("polling...");
+                    studyService.getPollEvents({"cohortKey": cohort.cohortKey, "pollKey": $scope.pollKey}, function(pollData) {
+                        if (pollData !== undefined) {
+                            $scope.pollKey = pollData.pollKey;
 
-                    if (data !== undefined && data !== null && data.indexOf("|") > 0) {
-                        try {
-                            var dataJSON = data.substring(data.indexOf("|") + 1);
+                            var eventData = pollData.data;
 
-                            var message = JSON.parse(dataJSON);
+                            if (eventData !== undefined && eventData !== null && eventData.length > 0) {
+                                $.each(eventData, function (index, formInstanceTO) {
+                                    try {
+                                        var message = JSON.parse(formInstanceTO);
 
-                            //console.log("dataJSON: " + dataJSON);
+                                        var instanceId = message.instanceId;
+                                        var publicationKey = message.publicationKey;
+                                        var lockInd = message.locked;
+                                        //console.log("instanceId: " + instanceId);
+                                        //console.log("publicationKey: " + publicationKey);
 
-                            var instanceId = message.instanceId;
-                            var publicationKey = message.publicationKey;
-                            var lockInd = message.locked;
-                            //console.log("instanceId: " + instanceId);
-                            //console.log("publicationKey: " + publicationKey);
+                                        if (instanceId !== undefined && publicationKey !== undefined && instanceId !== null && publicationKey !== null) {
+                                            //console.log("Considering message....");
 
-                            if (instanceId !== undefined && publicationKey !== undefined && instanceId !== null && publicationKey !== null) {
-                                //console.log("Considering message....");
+                                            var inboxRecordIndex = undefined;
+                                            var allFormsRecordIndex = undefined;
+                                            var allFormsRecordAction = 'ADD';
 
-                                var inboxRecordIndex = undefined;
-                                var allFormsRecordIndex = undefined;
-                                var allFormsRecordAction = 'ADD';
-
-                                if ($scope.inbox !== undefined) {
-                                    $.each($scope.inbox, function (index, data) {
-                                        //console.log("inbox.instanceId: " + data.instanceId);
-                                        if (instanceId == data.instanceId) inboxRecordIndex = index;
-                                    });
-                                }
-                                if ($scope.allForms !== undefined) {
-                                    $.each($scope.allForms, function (index, data) {
-                                        //console.log("allForms.instanceId: " + data.instanceId);
-                                        if (instanceId == data.instanceId) {
-                                            allFormsRecordIndex = index;
-
-                                            //console.log("data.inboxStatus: " + message.inboxStatus + " vs " + data.inboxStatus);
-
-                                            if (message.inboxStatus == 'REVOKED' || message.inboxStatus == 'EXPIRED') {
-                                                allFormsRecordAction = 'DELETE';
-                                            } else {
-                                                allFormsRecordAction = 'UPDATE';
+                                            if ($scope.inbox !== undefined) {
+                                                $.each($scope.inbox, function (index, data) {
+                                                    //console.log("inbox.instanceId: " + data.instanceId);
+                                                    if (instanceId == data.instanceId) inboxRecordIndex = index;
+                                                });
                                             }
+                                            if ($scope.allForms !== undefined) {
+                                                $.each($scope.allForms, function (index, data) {
+                                                    //console.log("allForms.instanceId: " + data.instanceId);
+                                                    if (instanceId == data.instanceId) {
+                                                        allFormsRecordIndex = index;
+
+                                                        //console.log("data.inboxStatus: " + message.inboxStatus + " vs " + data.inboxStatus);
+
+                                                        if (message.inboxStatus == 'REVOKED' || message.inboxStatus == 'EXPIRED') {
+                                                            allFormsRecordAction = 'DELETE';
+                                                        } else {
+                                                            allFormsRecordAction = 'UPDATE';
+                                                        }
+                                                    }
+                                                });
+                                            }
+
+                                            var formIncludeInd = true;
+
+                                            $.each(cohortService.getCohort().forms, function(index, tmpForm) {
+                                                if (tmpForm.publicationKey == publicationKey) message.title = tmpForm.name;
+                                            });
+
+                                            if ($scope.allFormsFilterForm !== undefined && $scope.allFormsFilterForm.length > 0) {
+                                                for (var i2=0;i2<$scope.allFormsFilterForm.length;i2++) {
+                                                    if ($scope.allFormsFilterForm[i2] == message.title) {
+                                                        formIncludeInd = false;
+                                                    }
+                                                }
+                                            }
+
+                                            if (formIncludeInd) $scope.allFormsFilterForm.push(data[i].title);
+
+                                            $scope.allFormsFilterForm.sort();
+
+                                            //console.log("inboxRecordIndex: " + inboxRecordIndex);
+                                            //console.log("allFormsRecordIndex: " + allFormsRecordIndex);
+                                            //console.log("allFormsRecordAction: " + allFormsRecordAction);
+
+                                            var applyInd = false;
+
+                                            if (inboxRecordIndex !== undefined) {
+                                                if (lockInd) {
+                                                    $scope.inbox[inboxRecordIndex].locked = true;
+                                                } else {
+                                                    $scope.inbox[inboxRecordIndex].locked = false;
+                                                }
+                                                applyInd = true;
+                                            }
+                                            if (allFormsRecordAction == 'ADD') {
+                                                //$scope.allForms.push(message);
+                                                $scope.allForms.unshift(message);
+                                            } else if (allFormsRecordAction == 'UPDATE') {
+                                                $scope.allForms[allFormsRecordIndex] = message;
+                                            } else if (allFormsRecordAction == 'DELETE') {
+                                                $scope.allForms.splice(allFormsRecordIndex, 1);
+                                            }
+
+
+                                            //$.each($scope.allForms, function (index, data) {
+                                            //    //console.log("after.allForms.instanceId: " + data.instanceId);
+                                            //    if (instanceId == data.instanceId) {
+                                            //        console.log("INSTANCE STILL EXISTS...");
+                                            //    }
+                                            //});
+
+                                            //console.log("applying changes...");
+                                            $scope.applyIfPossible();
+                                            $scope.getAssignments();
+
+                                            var row = $(".form-instance-id-" + instanceId).closest("tr");
+
+                                            setTimeout(function() {
+                                                highlightRow(row);
+                                            }, 500);
+                                            //$(".form-instance-id-" + instanceId).closest("tr").effect('pulsate');
+
                                         }
-                                    });
-                                }
 
-                                var formIncludeInd = true;
+                                    } catch (e) {
+                                        //console.log("e: " + e);
+                                    }
 
-                                $.each(cohortService.getCohort().forms, function(index, tmpForm) {
-                                    if (tmpForm.publicationKey == publicationKey) message.title = tmpForm.name;
                                 });
 
-                                if ($scope.allFormsFilterForm !== undefined && $scope.allFormsFilterForm.length > 0) {
-                                    for (var i2=0;i2<$scope.allFormsFilterForm.length;i2++) {
-                                        if ($scope.allFormsFilterForm[i2] == message.title) {
-                                            formIncludeInd = false;
-                                        }
-                                    }
-                                }
-
-                                if (formIncludeInd) $scope.allFormsFilterForm.push(data[i].title);
-
-                                $scope.allFormsFilterForm.sort();
-
-                                //console.log("inboxRecordIndex: " + inboxRecordIndex);
-                                //console.log("allFormsRecordIndex: " + allFormsRecordIndex);
-                                //console.log("allFormsRecordAction: " + allFormsRecordAction);
-
-                                var applyInd = false;
-
-                                if (inboxRecordIndex !== undefined) {
-                                    if (lockInd) {
-                                        $scope.inbox[inboxRecordIndex].locked = true;
-                                    } else {
-                                        $scope.inbox[inboxRecordIndex].locked = false;
-                                    }
-                                    applyInd = true;
-                                }
-                                if (allFormsRecordAction == 'ADD') {
-                                    //$scope.allForms.push(message);
-                                    $scope.allForms.unshift(message);
-                                } else if (allFormsRecordAction == 'UPDATE') {
-                                    $scope.allForms[allFormsRecordIndex] = message;
-                                } else if (allFormsRecordAction == 'DELETE') {
-                                    $scope.allForms.splice(allFormsRecordIndex, 1);
-                                }
-
-
-                                //$.each($scope.allForms, function (index, data) {
-                                //    //console.log("after.allForms.instanceId: " + data.instanceId);
-                                //    if (instanceId == data.instanceId) {
-                                //        console.log("INSTANCE STILL EXISTS...");
-                                //    }
-                                //});
-
-                                //console.log("applying changes...");
-                                $scope.applyIfPossible();
-                                $scope.getAssignments();
-
-                                var row = $(".form-instance-id-" + instanceId).closest("tr");
-
-                                setTimeout(function() {
-                                    highlightRow(row);
-                                }, 500);
-                                //$(".form-instance-id-" + instanceId).closest("tr").effect('pulsate');
 
                             }
-
-                        } catch (e) {
-                            //console.log("e: " + e);
                         }
-                    }
-                });
+                        $timeout(poller, $scope.pollFrequency);
+                    });
+                };
 
+                $timeout(poller, $scope.pollFrequency);
             }
+        };
 
-        }
+
+
+
+        //$scope.bootWebsockets = function (cohort) {
+        //    if (cohort !== undefined && cohort.websocketURL !== undefined && cohort.websocketURL !== null && cohort.websocketURL.length > 0) {
+        //
+        //        //console.log("$scope.bootWebsockets.cohort.cohortKey: " + cohort.cohortKey);
+        //
+        //        //var ws = $websocket.$new('wss://scl30.partners.org:8443/sproutstudy/sproutStudyFormState/' + cohort.cohortKey); // instance of ngWebsocket, handled by $websocket service
+        //        //var ws = $websocket.$new(cohort.websocketURL); // instance of ngWebsocket, handled by $websocket service
+        //        var ws = $websocket.$new({
+        //            url: cohort.websocketURL,
+        //            reconnect: true,
+        //            reconnectInterval: 500 // it will reconnect after 0.5 seconds
+        //        });
+        //
+        //        ws.$on('$open', function () {
+        //            //console.log("websocket connection was opened.");
+        //        }).$on('$close', function () {
+        //            //console.log("websocket connection was closed!!!");
+        //            ws = $websocket.$new(cohort.websocketURL); // instance of ngWebsocket, handled by $websocket service
+        //        }).$on('$message', function(data) {
+        //            //console.log("ws.on.message: dataRaw: " + data);
+        //
+        //            if (data !== undefined && data !== null && data.indexOf("|") > 0) {
+        //                try {
+        //                    var dataJSON = data.substring(data.indexOf("|") + 1);
+        //
+        //                    var message = JSON.parse(dataJSON);
+        //
+        //                    //console.log("dataJSON: " + dataJSON);
+        //
+        //                    var instanceId = message.instanceId;
+        //                    var publicationKey = message.publicationKey;
+        //                    var lockInd = message.locked;
+        //                    //console.log("instanceId: " + instanceId);
+        //                    //console.log("publicationKey: " + publicationKey);
+        //
+        //                    if (instanceId !== undefined && publicationKey !== undefined && instanceId !== null && publicationKey !== null) {
+        //                        //console.log("Considering message....");
+        //
+        //                        var inboxRecordIndex = undefined;
+        //                        var allFormsRecordIndex = undefined;
+        //                        var allFormsRecordAction = 'ADD';
+        //
+        //                        if ($scope.inbox !== undefined) {
+        //                            $.each($scope.inbox, function (index, data) {
+        //                                //console.log("inbox.instanceId: " + data.instanceId);
+        //                                if (instanceId == data.instanceId) inboxRecordIndex = index;
+        //                            });
+        //                        }
+        //                        if ($scope.allForms !== undefined) {
+        //                            $.each($scope.allForms, function (index, data) {
+        //                                //console.log("allForms.instanceId: " + data.instanceId);
+        //                                if (instanceId == data.instanceId) {
+        //                                    allFormsRecordIndex = index;
+        //
+        //                                    //console.log("data.inboxStatus: " + message.inboxStatus + " vs " + data.inboxStatus);
+        //
+        //                                    if (message.inboxStatus == 'REVOKED' || message.inboxStatus == 'EXPIRED') {
+        //                                        allFormsRecordAction = 'DELETE';
+        //                                    } else {
+        //                                        allFormsRecordAction = 'UPDATE';
+        //                                    }
+        //                                }
+        //                            });
+        //                        }
+        //
+        //                        var formIncludeInd = true;
+        //
+        //                        $.each(cohortService.getCohort().forms, function(index, tmpForm) {
+        //                            if (tmpForm.publicationKey == publicationKey) message.title = tmpForm.name;
+        //                        });
+        //
+        //                        if ($scope.allFormsFilterForm !== undefined && $scope.allFormsFilterForm.length > 0) {
+        //                            for (var i2=0;i2<$scope.allFormsFilterForm.length;i2++) {
+        //                                if ($scope.allFormsFilterForm[i2] == message.title) {
+        //                                    formIncludeInd = false;
+        //                                }
+        //                            }
+        //                        }
+        //
+        //                        if (formIncludeInd) $scope.allFormsFilterForm.push(data[i].title);
+        //
+        //                        $scope.allFormsFilterForm.sort();
+        //
+        //                        //console.log("inboxRecordIndex: " + inboxRecordIndex);
+        //                        //console.log("allFormsRecordIndex: " + allFormsRecordIndex);
+        //                        //console.log("allFormsRecordAction: " + allFormsRecordAction);
+        //
+        //                        var applyInd = false;
+        //
+        //                        if (inboxRecordIndex !== undefined) {
+        //                            if (lockInd) {
+        //                                $scope.inbox[inboxRecordIndex].locked = true;
+        //                            } else {
+        //                                $scope.inbox[inboxRecordIndex].locked = false;
+        //                            }
+        //                            applyInd = true;
+        //                        }
+        //                        if (allFormsRecordAction == 'ADD') {
+        //                            //$scope.allForms.push(message);
+        //                            $scope.allForms.unshift(message);
+        //                        } else if (allFormsRecordAction == 'UPDATE') {
+        //                            $scope.allForms[allFormsRecordIndex] = message;
+        //                        } else if (allFormsRecordAction == 'DELETE') {
+        //                            $scope.allForms.splice(allFormsRecordIndex, 1);
+        //                        }
+        //
+        //
+        //                        //$.each($scope.allForms, function (index, data) {
+        //                        //    //console.log("after.allForms.instanceId: " + data.instanceId);
+        //                        //    if (instanceId == data.instanceId) {
+        //                        //        console.log("INSTANCE STILL EXISTS...");
+        //                        //    }
+        //                        //});
+        //
+        //                        //console.log("applying changes...");
+        //                        $scope.applyIfPossible();
+        //                        $scope.getAssignments();
+        //
+        //                        var row = $(".form-instance-id-" + instanceId).closest("tr");
+        //
+        //                        setTimeout(function() {
+        //                            highlightRow(row);
+        //                        }, 500);
+        //                        //$(".form-instance-id-" + instanceId).closest("tr").effect('pulsate');
+        //
+        //                    }
+        //
+        //                } catch (e) {
+        //                    //console.log("e: " + e);
+        //                }
+        //            }
+        //        });
+        //
+        //    }
+        //
+        //}
     });
