@@ -14,6 +14,11 @@ angular.module('sproutStudyApp')
                     callback(response.data);
                 });
              },
+            getNarrativeText: function (params, data, callback) {
+                $http.post(networkService.generateUrl("getNarrativeText", params), data).then(function (response) {
+                    callback(response.data);
+                });
+             },
             saveNarrative: function (params, narrative, callback) {
                 $http.post(networkService.generateUrl("saveNarrative", params), narrative).then(function (response) {
                     callback(response.data);

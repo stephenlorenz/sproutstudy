@@ -862,6 +862,11 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
     }
 
     @Override
+    public String getNarrativeText(HttpServletRequest request, String narrative) throws InvalidSessionRESTful {
+        return transformService.transformHtml2Markdown(narrative, "\n");
+    }
+
+    @Override
     public BooleanTO saveListData(@Context HttpServletRequest request, String cohortKey, String listKey, String data) throws InvalidSessionRESTful {
         SessionTO sessionTO = getSessionTO(request);
         if (sessionTO != null && StringUtils.isFull(cohortKey, listKey, data)) {

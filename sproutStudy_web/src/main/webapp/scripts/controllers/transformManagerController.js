@@ -31,7 +31,15 @@ angular.module('sproutStudyApp')
     $scope.model = "";
     $scope.template = "";
 
-    cohortService.setMember({fullName: "Transform Manager", id: 0, url: "forms", click: "closeForm"});
+
+        $scope.modalSmallOpts = {
+//            backdropFade: true, // These two settings
+//            dialogFade: true,
+            dialogClass: 'modal modal-200-600'
+        };
+
+
+        cohortService.setMember({fullName: "Transform Manager", id: 0, url: "forms", click: "closeForm"});
 
     $scope.form = formManagerService.getForm();
     $scope.subject = {"id": 1, "schema": "sprouttransform", "firstName": "User", "lastName": "SproutTransform", "fullName": "SproutTransform User"};
@@ -103,6 +111,20 @@ angular.module('sproutStudyApp')
             $scope.onReloadModel();
             if ($scope.syncNarrative) $scope.onReloadNarrative();
         }
+    }
+
+    $scope.onViewAsText = function() {
+        compileTemplate();
+        $scope.narrativeText = "";
+        transformService.getNarrativeText({}, $scope.narrative, function(narrativeText) {
+            console.log("narrativeText: " + narrativeText);
+            $scope.narrativeText = narrativeText;
+            $scope.textViewModal = true;
+        });
+    };
+
+    $scope.onCloseTextViewModal = function() {
+        $scope.textViewModal = false;
     }
 
     $scope.setNarrative = function(narrative) {

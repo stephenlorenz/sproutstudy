@@ -272,11 +272,15 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 		return transform(narrative, "html", "rtf");
 	}
 
-	private String transformHtml2Markdown(String narrative) {
+	public String transformHtml2Markdown(String narrative) {
+        return transformHtml2Markdown(narrative, "\\.br\\");
+    }
+
+	public String transformHtml2Markdown(String narrative, String lineSeparator) {
         if (StringUtils.isFull(narrative)) {
             narrative = narrative.replaceAll("<span[^>]*>", "").replaceAll("</span[^>]*>", "");
         }
-        return transform(narrative, "html", "markdown_github", "\\.br\\");
+        return transform(narrative, "html", "markdown_github", lineSeparator);
     }
 
 	private String transform(String narrative, String from, String to) {

@@ -17,4 +17,6 @@ public interface SproutTransformService {
 	public String getNarrative(String publicationKey, String instanceId, String jsonData);
 	public String getNarrative(String publicationKey, String instanceId, String jsonData, String format);
 	public void saveNarrativeModel(String instanceId, String model);
+	public String transformHtml2Markdown(String narrative, String lineSeparator);
+	public String transformHtml2Markdown(String narrative);
 }

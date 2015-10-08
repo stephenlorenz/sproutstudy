@@ -708,6 +708,8 @@
         }
     }
 
+
+
     function compileTemplate() {
         var source = angular.element(jQuerySprout("#transformControllerDiv")).scope().getTemplateFromEditor();
         var model = angular.element(jQuerySprout("#transformControllerDiv")).scope().getModel();
@@ -719,7 +721,7 @@
             console.log("compileTemplate.model: " + model);
         }
 
-        console.log("compileTemplate.template: " + source);
+//        console.log("compileTemplate.template: " + source);
 
         var template = Handlebars.compile(source);
         try {

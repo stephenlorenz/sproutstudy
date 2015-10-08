@@ -57,6 +57,7 @@
                         <div class="sprout-transform-template-toolbar">
                             <div class="btn-group">
                                 <button class="btn" title="Save" ng-click="onSaveTemplate()" ng-dblclick="toggleAutoSave()" ng-class="{'btn-primary': templateHasChanges && autosave == false, 'btn-success': autosave}"><i class="fa fa-save"></i></button>
+                                <button class="btn" title="View as Text" ng-click="onViewAsText()"><i class="fa fa-file-text"></i></button>
                                 <button class="btn" title="Reload Narrative" ng-click="onReloadNarrative()"><i class="fa fa-refresh"></i></button>
                                 <button class="btn" title="Live Sync" ng-click="onToggleSyncNarrative()" ng-class="{'btn-success': syncNarrative}"><i class="fa fa-arrows-v"></i></button>
                             </div>
@@ -74,6 +75,23 @@
         </bg-pane>
     </bg-splitter>
 
+
+
+
+
+    <div modal="textViewModal" close="onCloseTextViewModal()" options="modalSmallOpts">
+        <div class="modal-header">
+            <h4>Text View</h4>
+        </div>
+        <div class="modal-body modal-body-short">
+
+            <pre style="min-width: 550px; min-height: 300px" >{{narrativeText}}</pre>
+
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary cancel" ng-click="onCloseTextViewModal()">Close</button>
+        </div>
+    </div>
 
 
 </div>
