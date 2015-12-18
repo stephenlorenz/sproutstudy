@@ -23,6 +23,7 @@
             <span style="text-align: left; font-size: 17px; font-weight: bold; float: left">{{subject.prettyName}} ({{subject.id}})</span>
             <button ng-click="enableSearch()" class="btn btn-primary btn-mini" title="New Patient Search" ng-mouseover="expandSearchButton()" ng-mouseleave="collapseSearchButton()"><i class="icon-search icon-white" style="margin-right: 0px;"></i>{{searchButton}}</button>
             <button ng-show="hasNarrative && formLoaded" ng-click="onViewNarrative()" class="btn btn-warning btn-mini" title="View Narrative"><i class="fa fa-circle-o-notch"></i>{{narrativeButton}}</button>
+            <button ng-show="hasNarrativeChanges && formLoaded" ng-click="onSaveNarrativeChanges()" class="btn btn-danger btn-mini" title="Save Narrative"><i class="fa fa-save"></i>{{saveNarrativeButton}}</button>
 
             <span class="dropdown" >
                 <button ng-click="openDeliverFormModal()" class="dropdown-toggle btn btn-success btn-mini" title="Deliver Form" ng-mouseover="expandNewFormButton()" ng-mouseleave="collapseNewFormButton()"><i class="icon-plus icon-white" style="margin-right: 0px;"></i>{{newFormButton}}</button>

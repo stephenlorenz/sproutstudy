@@ -904,7 +904,12 @@
                 }
                 return $this;
             }).on('change', '[contenteditable]', function() {
-                jQuerySprout(".sprout-study-narrative-content-save-button-" + instanceId).show();
+//                jQuerySprout(".sprout-study-narrative-content-save-button-" + instanceId).show();
+                console.log("978: enable save narrative button...");
+
+                if (angular.element(jQuerySprout("#studyControllerDiv")).scope() !== undefined) {
+                    angular.element(jQuerySprout("#studyControllerDiv")).scope().onHasNarrativeChanges(instanceId);
+                }
             });
 
             jQuerySprout(".sproutstudy-split-frame-content-narrative-" + instanceId).off('click', '.sprout-study-narrative-content-save-button').on('click', '.sprout-study-narrative-content-save-button', function(event) {

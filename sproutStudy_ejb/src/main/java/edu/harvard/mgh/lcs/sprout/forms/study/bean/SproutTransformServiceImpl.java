@@ -7,6 +7,8 @@ import com.github.jknack.handlebars.context.FieldValueResolver;
 import com.github.jknack.handlebars.context.JavaBeanValueResolver;
 import com.github.jknack.handlebars.context.MapValueResolver;
 import com.github.jknack.handlebars.context.MethodValueResolver;
+import edu.harvard.mgh.lcs.sprout.forms.core.to.PublicationInfoTO;
+import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.SproutFormsService;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.SproutTransformService;
 import edu.harvard.mgh.lcs.sprout.forms.transform.handlebars.Helpers;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.BooleanTO;
@@ -37,6 +39,9 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 
 	@EJB
 	private SproutTransformService sproutTransformService;
+
+	@EJB
+	private SproutFormsService sproutFormsService;
 
     private static final Logger LOGGER = Logger.getLogger(SproutTransformServiceImpl.class.getName());
 
@@ -101,7 +106,7 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 
 	@Override
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public BooleanTO saveNarrative(String instanceId, String format, String narrative) {
+	public BooleanTO saveNarrative(String instanceId, String narrative, String format) {
 		if (StringUtils.isFull(instanceId, narrative, format)) {
 			VNarrativeFormatEntity vNarrativeFormatEntity = getVNarrativeFormatEntity(format);
 			if (vNarrativeFormatEntity != null) {
@@ -160,6 +165,20 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 				for (NarrativeFormatEntity narrativeFormatEntity : narrativeFormatEntitySet) {
 					if (narrativeFormatEntity.getFormat().getCode().equalsIgnoreCase(format)) {
 						return narrativeFormatEntity.getData();
+					}
+				}
+			} else {
+				if (narrativeEntity.getModel() != null && narrativeEntity.getModel().size() > 0) {
+					NarrativeModelEntity narrativeModelEntity = narrativeEntity.getModel().get(0);
+					if (narrativeModelEntity != null) {
+						String publicationKey = sproutFormsService.getPublicationKeyFromInstanceId(instanceId);
+						if (StringUtils.isFull(publicationKey)) {
+							String narrative = getNarrative(publicationKey, instanceId, narrativeModelEntity.getModel());
+							if (StringUtils.isFull(narrative)) {
+								saveNarrative(instanceId, narrative, "HTML");
+								return narrative;
+							}
+						}
 					}
 				}
 			}
@@ -278,9 +297,10 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 
 	public String transformHtml2Markdown(String narrative, String lineSeparator) {
         if (StringUtils.isFull(narrative)) {
-            narrative = narrative.replaceAll("<span[^>]*>", "").replaceAll("</span[^>]*>", "");
+			narrative = narrative.replaceAll("<span[^>]*>", "").replaceAll("</span[^>]*>", "").replaceAll("&nbsp;", " ");
         }
-        return transform(narrative, "html", "markdown_github", lineSeparator);
+//        return transform(narrative, "html", "markdown_github", lineSeparator);
+        return transform(narrative, "html", "plain", lineSeparator);
     }
 
 	private String transform(String narrative, String from, String to) {
@@ -344,10 +364,24 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 	private VNarrativeFormatEntity getVNarrativeFormatEntity(String format) {
 		if (StringUtils.isFull(format)) {
 			try {
+				System.out.println("SproutTransformServiceImpl.getVNarrativeFormatEntity");
+				System.out.println("format = [" + format + "]");
+
+
 				Query query = entityManager.createNamedQuery(VNarrativeFormatEntity.FIND_BY_CODE);
 				query.setParameter("code", format);
-				return (VNarrativeFormatEntity) query.getSingleResult();
-			} catch (NoResultException e) {}
+				VNarrativeFormatEntity vNarrativeFormatEntity = (VNarrativeFormatEntity) query.getSingleResult();
+
+				System.out.println("vNarrativeFormatEntity.getDescription() = " + vNarrativeFormatEntity.getDescription());
+
+				return vNarrativeFormatEntity;
+
+			} catch (NoResultException e) {
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
 		}
 		return null;
 	}

@@ -85,6 +85,8 @@ angular.module('sproutStudyApp')
         $scope.pollKey = 0;
         $scope.pollFrequency = 2000; // every 2 seconds
 
+        $scope.hasNarrativeChanges = false;
+
         $scope.session = null;
 
         $scope.isAdmin = function() {
@@ -1375,6 +1377,7 @@ angular.module('sproutStudyApp')
 
         $scope.searchButton = "  Search";
         $scope.narrativeButton = "  Narrative";
+        $scope.saveNarrativeButton = "  Save Narrative";
         $scope.expandSearchButton =  function() {
 //            $scope.searchButton = "  Search";
         }
@@ -1438,6 +1441,7 @@ angular.module('sproutStudyApp')
         }
 
         $scope.onSyncNarrative = function(callback) {
+            console.log("onSyncNarrative");
             var form = getActiveForm();
             if (form !== undefined) {
                 var publicationKey = form.publicationKey;
@@ -1459,7 +1463,6 @@ angular.module('sproutStudyApp')
                                 } else {
                                     setActiveTemplate(template);
                                     callback(true);
-
                                 }
                             });
                         }
@@ -1559,14 +1562,15 @@ angular.module('sproutStudyApp')
             if (cohort !== undefined && cohort.cohortKey !== undefined) {
 
                 var poller = function() {
-                    //console.log("polling...");
                     studyService.getPollEvents({"cohortKey": cohort.cohortKey, "pollKey": $scope.pollKey}, function(pollData) {
+
                         if (pollData !== undefined) {
                             $scope.pollKey = pollData.pollKey;
 
                             var eventData = pollData.data;
 
                             if (eventData !== undefined && eventData !== null && eventData.length > 0) {
+
                                 $.each(eventData, function (index, formInstanceTO) {
                                     try {
                                         var message = JSON.parse(formInstanceTO);
@@ -1574,11 +1578,26 @@ angular.module('sproutStudyApp')
                                         var instanceId = message.instanceId;
                                         var publicationKey = message.publicationKey;
                                         var lockInd = message.locked;
+
+                                        var identities = message.identities;
+
+                                        var sproutTransformInd = false;
+
+                                        if (identities && identities.constructor == Array) {
+                                            $.each(identities, function(index, identity) {
+                                                if (identity && identity.schema && identity.scheme == 'sprouttransform') {
+                                                    //console.log("............identity.scheme: " + identity.scheme);
+                                                    sproutTransformInd = true;
+                                                }
+                                            });
+                                        }
+
                                         //console.log("instanceId: " + instanceId);
+                                        //console.log("sproutTransformIndId: " + sproutTransformInd);
                                         //console.log("publicationKey: " + publicationKey);
 
-                                        if (instanceId !== undefined && publicationKey !== undefined && instanceId !== null && publicationKey !== null) {
-                                            //console.log("Considering message....");
+                                        if (instanceId !== undefined && publicationKey !== undefined && instanceId !== null && publicationKey !== null && !sproutTransformInd) {
+                                            console.log("Considering message....");
 
                                             var inboxRecordIndex = undefined;
                                             var allFormsRecordIndex = undefined;
@@ -1596,7 +1615,7 @@ angular.module('sproutStudyApp')
                                                     if (instanceId == data.instanceId) {
                                                         allFormsRecordIndex = index;
 
-                                                        //console.log("data.inboxStatus: " + message.inboxStatus + " vs " + data.inboxStatus);
+                                                        console.log("data.inboxStatus: " + message.inboxStatus + " vs " + data.inboxStatus);
 
                                                         if (message.inboxStatus == 'REVOKED' || message.inboxStatus == 'EXPIRED') {
                                                             allFormsRecordAction = 'DELETE';
@@ -1625,9 +1644,9 @@ angular.module('sproutStudyApp')
 
                                             $scope.allFormsFilterForm.sort();
 
-                                            //console.log("inboxRecordIndex: " + inboxRecordIndex);
-                                            //console.log("allFormsRecordIndex: " + allFormsRecordIndex);
-                                            //console.log("allFormsRecordAction: " + allFormsRecordAction);
+                                            console.log("inboxRecordIndex: " + inboxRecordIndex);
+                                            console.log("allFormsRecordIndex: " + allFormsRecordIndex);
+                                            console.log("allFormsRecordAction: " + allFormsRecordAction);
 
                                             var applyInd = false;
 
@@ -1686,8 +1705,32 @@ angular.module('sproutStudyApp')
             }
         };
 
+        $scope.onHasNarrativeChanges = function(instanceId) {
+            console.log("onHasNarrativeChanges");
+            $scope.hasNarrativeChanges = true;
+        };
 
+        $scope.onSaveNarrativeChanges = function() {
+            console.log("onSaveNarrativeChanges");
 
+            var form = getActiveForm();
+            if (form !== undefined) {
+                var instanceId = form.instanceId;
+                if (instanceId) {
+                    $scope.onSyncNarrative(function(result, message) {
+                        if (result) {
+                            if (formCallbackCatalog[instanceId]) {
+                                var callbackItem = formCallbackCatalog[instanceId];
+                                callbackItem.resetSignatures();
+                            }
+                            $scope.hasNarrativeChanges = false;
+                        } else {
+                            console.log(message);
+                        }
+                    });
+                }
+            }
+        }
 
         //$scope.bootWebsockets = function (cohort) {
         //    if (cohort !== undefined && cohort.websocketURL !== undefined && cohort.websocketURL !== null && cohort.websocketURL.length > 0) {

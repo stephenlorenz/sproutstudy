@@ -44,11 +44,12 @@ public class PollEventGarbageCollectorImpl {
 
     private static final Logger LOGGER = Logger.getLogger(PollEventGarbageCollectorImpl.class.getName());
 
-    @Schedule(second="*/30", minute="*",hour="*", persistent=false)
+//    @Schedule(second="*/5", minute="*",hour="*", persistent=true)
+    @Schedule(minute="*",hour="*", persistent=true)
     public void collectGarbage() {
-        Query query = entityManager.createNativeQuery(String.format("DELETE FROM dbo.poll_event WHERE activity_date < DATEADD(MINUTE,-%s,getdate())", EVENT_TTL_MINUTES));
+        String queryText = String.format("DELETE FROM dbo.poll_event WHERE activity_date < DATEADD(MINUTE,-%s,getdate())", EVENT_TTL_MINUTES);
+        Query query = entityManager.createNativeQuery(queryText);
         int recordsDeleted = query.executeUpdate();
-
         LOGGER.fine(String.format("PollEventGarbageCollectorImpl.collectGarbage cleared %s stale events.", recordsDeleted));
     }
 

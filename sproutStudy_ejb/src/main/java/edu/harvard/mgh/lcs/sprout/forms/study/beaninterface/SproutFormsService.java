@@ -31,4 +31,5 @@ public interface SproutFormsService {
     public FormListMetadataTO getAllFormsMetadata(String username, CohortTO cohortTO, Set<String> publicationKeys, int rows, String status, String targetDate, String assignment);
     public FormInstanceTO getFormInstance(String instanceId);
     public BooleanTO unlock(String instanceId);
+    public String getPublicationKeyFromInstanceId(String instanceId);
 }
