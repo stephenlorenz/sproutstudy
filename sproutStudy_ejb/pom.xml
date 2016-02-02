@@ -74,6 +74,7 @@
                     <clientIncludes>
                         <clientInclude>**/exception/*.class</clientInclude>
                         <clientInclude>**/beaninterface/*.class</clientInclude>
+                        <clientInclude>**/websocketsinterface/*.class</clientInclude>
                         <clientInclude>**/beanws/*.class</clientInclude>
                         <clientInclude>**/to/*.class</clientInclude>
                         <clientInclude>**/util/*.class</clientInclude>
@@ -87,6 +88,43 @@
 
     </build>
     <dependencies>
+        <dependency>
+            <groupId>org.atmosphere</groupId>
+            <artifactId>atmosphere-runtime-native</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.atmosphere.jboss.as</groupId>
+            <artifactId>jboss-as-websockets</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.java-websocket</groupId>
+            <artifactId>Java-WebSocket</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.jknack</groupId>
+            <artifactId>handlebars</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.jknack</groupId>
+            <artifactId>handlebars-jackson2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>bsf</groupId>
+            <artifactId>bsf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mozilla</groupId>
+            <artifactId>rhino</artifactId>
+        </dependency>
+
+
+        <!--<dependency>-->
+            <!--<groupId>edu.harvard.mgh.lcs.sprout</groupId>-->
+            <!--<artifactId>sproutStudy_web</artifactId>-->
+            <!--<type>war</type>-->
+        <!--</dependency>-->
+
         <dependency>
             <groupId>edu.harvard.mgh.lcs.sprout</groupId>
             <artifactId>sproutStudy_sprout_ws</artifactId>
@@ -381,7 +419,29 @@
             <artifactId>freemarker</artifactId>
             <version>2.3.16</version>
         </dependency>
-
+        <dependency>
+            <groupId>edu.harvard.mgh.lcs.sprout</groupId>
+            <artifactId>sprout_ejb</artifactId>
+            <version>0.0.3-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>edu.harvard.mgh.lcs.sprout</groupId>
+            <artifactId>sprout_ejb</artifactId>
+            <version>0.0.3-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>edu.harvard.mgh.lcs.sprout</groupId>
+            <artifactId>sprout_ejb</artifactId>
+            <version>0.0.3-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ca.uhn.hapi</groupId>
+            <artifactId>hapi-base</artifactId>
+        </dependency>
 
     </dependencies>
 </project>

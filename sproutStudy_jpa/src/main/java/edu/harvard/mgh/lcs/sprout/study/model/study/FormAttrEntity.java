@@ -16,7 +16,7 @@ public class FormAttrEntity implements Serializable {
     @JoinColumn(name="form_id")
     private FormEntity form;
 
-    @ManyToOne(fetch=FetchType.LAZY, cascade=CascadeType.MERGE)
+    @ManyToOne(fetch=FetchType.EAGER, cascade=CascadeType.MERGE)
     @JoinColumn(name="attr_id")
     private VFormAttrEntity formAttr;
 

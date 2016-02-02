@@ -12,7 +12,7 @@
             <label class="control-label" for="name">Cohort Name</label>
             <div class="controls">
                 <input ng-model="cohort.name" id="name" required  autocomplete="false"
-                       class="field-label message-text" ng-change="getUser()" type="text" style="width: 20em;" />
+                       class="field-label message-text" type="text" style="width: 20em;" />
             </div>
         </div>
         <div class="control-group">
@@ -22,6 +22,39 @@
                        class="field-label message-text" style="width: 20em;" />
             </div>
         </div>
+
+        <div class="control-group">
+            <label class="control-label" for="restfulApiUrl">RESTful API URL</label>
+            <div class="controls">
+                <input ng-model="cohort.attr.restfulApiUrl" id="restfulApiUrl" required url autocomplete="false"
+                       class="field-label message-text" type="text" style="width: 20em;" />
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label" for="restfulApiUsername">RESTful API Username (optional)</label>
+            <div class="controls">
+                <input ng-model="cohort.attr.restfulApiUsername" id="restfulApiUsername" required autocomplete="false"
+                       class="field-label message-text" type="text" style="width: 20em;" />
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label" for="restfulApiPassword">RESTful API Password (optional)</label>
+            <div class="controls">
+                <input ng-model="cohort.attr.restfulApiPassword" id="restfulApiPassword" required autocomplete="false"
+                       class="field-label message-text" type="password" style="width: 20em;" />
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label" for="identitySchemaPrimary">Domain Identity Schema</label>
+            <div class="controls">
+                <input ng-model="cohort.attr.identitySchemaPrimary" id="identitySchemaPrimary" required autocomplete="false"
+                       class="field-label message-text" type="password" style="width: 20em;" />
+            </div>
+        </div>
+
 
         <div class="form-actions">
             <button class="btn btn-primary" ng-click="onSaveCohort()" ng-disabled="cohort == undefined || cohort.name == undefined || cohort.name == ''">Submit</button>

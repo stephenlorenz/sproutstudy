@@ -5,6 +5,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.harvard.mgh.lcs.sprout.forms.core.ejb.bean.FormsWebServiceImplService;
 import edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.*;
+import edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.NameValue;
+import edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.FormListMetadataTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.*;
 import edu.harvard.mgh.lcs.sprout.forms.study.beanws.Result;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.BooleanTO;
@@ -12,11 +14,13 @@ import edu.harvard.mgh.lcs.sprout.forms.study.to.CohortTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.SproutStudyPayloadTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.util.DateUtils;
 import edu.harvard.mgh.lcs.sprout.forms.study.util.StringUtils;
+import edu.harvard.mgh.lcs.sprout.forms.utils.*;
 import edu.harvard.mgh.lcs.sprout.study.model.formSubmission.AssertionEntity;
 import edu.harvard.mgh.lcs.sprout.study.model.formSubmission.SubmissionEntity;
 import edu.harvard.mgh.lcs.sprout.study.model.study.CohortAttrEntity;
 import edu.harvard.mgh.lcs.sprout.study.model.study.CohortEntity;
 import edu.harvard.mgh.lcs.sprout.study.model.study.CohortFormEntity;
+import edu.harvard.mgh.lcs.sprout.study.model.study.FormAttrEntity;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
@@ -62,6 +66,26 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
         if (formsWebServiceImplService == null) formsWebServiceImplService = new FormsWebServiceImplService();
 
         formsWebService = formsWebServiceImplService.getFormsAPIWSPort();
+    }
+
+    @Override
+    public String getPublicationKeyFromInstanceId(String instanceId) {
+        if (formsWebService == null) init();
+
+        if (StringUtils.isFull(instanceId) && formsWebService != null) {
+            String orgAuthKey = System.getProperty("edu.harvard.mgh.lcs.ihealthspace.module.forms.sprout.authToken");
+
+            if (!StringUtils.isEmpty(orgAuthKey)) {
+                PublicationInfoTO publicationInfoTO = null;
+                try {
+                    publicationInfoTO = formsWebService.getPublicationKeyByInstanceId(orgAuthKey, instanceId);
+                    if (publicationInfoTO != null) return publicationInfoTO.getPublicationKey();
+                } catch (AuthorizationException_Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return null;
     }
 
     @Override
@@ -219,7 +243,35 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
 
                             List<FormInstanceTO> formInstanceTOList = formDeliveryTO.getFormInstances();
                             if (formInstanceTOList != null && formInstanceTOList.size() > 0) {
+
+                                Map<String, String> formDestinationMap = new HashMap<String, String>();
+
                                 for (FormInstanceTO formInstanceTO : formInstanceTOList) {
+                                    String publicationKey = formInstanceTO.getPublicationKey();
+
+                                    String destination = null;
+                                    if (edu.harvard.mgh.lcs.sprout.forms.utils.StringUtils.isFull(publicationKey)) {
+                                        if (formDestinationMap.containsKey(publicationKey)) {
+                                            destination = formDestinationMap.get(publicationKey);
+                                            formInstanceTO.setDestination(destination);
+                                        } else {
+                                            Set<FormAttrEntity> formAttrEntities = studyService.getFormAttributesFromPublicationKey(publicationKey);
+                                            if (formAttrEntities != null && formAttrEntities.size() > 0) {
+                                                for (FormAttrEntity formAttrEntity : formAttrEntities) {
+                                                    if (formAttrEntity.getFormAttr().getCode().equalsIgnoreCase("DESTINATION")) {
+                                                        destination = formAttrEntity.getValue();
+                                                        formDestinationMap.put(publicationKey, destination);
+                                                        formInstanceTO.setDestination(destination);
+                                                    } else if (formAttrEntity.getFormAttr().getCode().equalsIgnoreCase("UNEDITABLE")) {
+                                                        formInstanceTO.setUneditable(formAttrEntity.getValue() != null && formAttrEntity.getValue().equalsIgnoreCase("true"));
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    formInstanceTO.setDestination(destination);
+
 //                                    if (!StringUtils.isEmpty(formInstanceTO.getDeliveryKey())) {
 //                                        SproutStudyConstantService.SubmissionStatus submissionStatus = formSubmissionService.getSubmissionStatus(formInstanceTO.getPublicationKey(), formInstanceTO.getInstanceId(), formInstanceTO.getDeliveryKey());
 //                                        if (submissionStatus != null) {
@@ -260,6 +312,38 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
     }
 
     @Override
+    public FormInstanceTO getFormInstance(String instanceId) {
+
+        if (formsWebService == null) init();
+
+        if (formsWebService != null) {
+
+            String orgAuthKey = System.getProperty("edu.harvard.mgh.lcs.ihealthspace.module.forms.sprout.authToken");
+
+            if (!StringUtils.isEmpty(orgAuthKey)) {
+                return formsWebService.getFormInstance(orgAuthKey, instanceId);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public BooleanTO unlock(String instanceId) {
+
+        if (formsWebService == null) init();
+
+        if (formsWebService != null) {
+
+            String orgAuthKey = System.getProperty("edu.harvard.mgh.lcs.ihealthspace.module.forms.sprout.authToken");
+
+            if (!StringUtils.isEmpty(orgAuthKey)) {
+                return new BooleanTO(formsWebService.unlock(orgAuthKey, instanceId).getValue().equalsIgnoreCase("true"));
+            }
+        }
+        return null;
+    }
+
+    @Override
     public List<FormInstanceTO> getMutableForms(String username, CohortTO cohortTO, Set<String> publicationKeys) {
 
         if (publicationKeys != null && publicationKeys.size() > 0 && cohortTO != null) {
@@ -284,6 +368,7 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
 
                         List<FormInstanceTO> formInstanceTOList = formDeliveryTO.getFormInstances();
                         if (formInstanceTOList != null && formInstanceTOList.size() > 0) {
+                            Map<String, String> formDestinationMap = new HashMap<String, String>();
                             for (FormInstanceTO formInstanceTO : formInstanceTOList) {
 //                                if (!StringUtils.isEmpty(formInstanceTO.getDeliveryKey())) {
 //                                    SproutStudyConstantService.SubmissionStatus submissionStatus = formSubmissionService.getSubmissionStatus(formInstanceTO.getPublicationKey(), formInstanceTO.getInstanceId(), formInstanceTO.getDeliveryKey());
@@ -291,6 +376,30 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
 //                                        formInstanceTO.setAdminStatus(submissionStatus.toString());
 //                                    }
 //                                }
+                                String publicationKey = formInstanceTO.getPublicationKey();
+
+                                String destination = null;
+                                if (edu.harvard.mgh.lcs.sprout.forms.utils.StringUtils.isFull(publicationKey)) {
+                                    if (formDestinationMap.containsKey(publicationKey)) {
+                                        destination = formDestinationMap.get(publicationKey);
+                                        formInstanceTO.setDestination(destination);
+                                    } else {
+                                        Set<FormAttrEntity> formAttrEntities = studyService.getFormAttributesFromPublicationKey(publicationKey);
+                                        if (formAttrEntities != null && formAttrEntities.size() > 0) {
+                                            for (FormAttrEntity formAttrEntity : formAttrEntities) {
+                                                if (formAttrEntity.getFormAttr().getCode().equalsIgnoreCase("DESTINATION")) {
+                                                    destination = formAttrEntity.getValue();
+                                                    formDestinationMap.put(publicationKey, destination);
+                                                    formInstanceTO.setDestination(destination);
+                                                } else if (formAttrEntity.getFormAttr().getCode().equalsIgnoreCase("UNEDITABLE")) {
+                                                    formInstanceTO.setUneditable(formAttrEntity.getValue() != null && formAttrEntity.getValue().equalsIgnoreCase("true"));
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                formInstanceTO.setDestination(destination);
 
                                 if (formInstanceTO.getIdentities() != null && formInstanceTO.getIdentities().size() > 0) {
                                     StringBuilder subjectIds = new StringBuilder();
@@ -338,7 +447,34 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
     }
 
     @Override
-    public int getAllFormsPageCount(String username, CohortTO cohortTO, Set<String> publicationKeys, int rows, String status) {
+    public String getMostRecentInstanceId(String schema, String id, String publicationKey) {
+        try {
+            if (formsWebService == null) init();
+
+            if (formsWebService != null) {
+                String orgAuthKey = System.getProperty("edu.harvard.mgh.lcs.ihealthspace.module.forms.sprout.authToken");
+
+                if (!StringUtils.isEmpty(orgAuthKey)) {
+                    List<IdentityTO> identityTOList = new ArrayList<IdentityTO>();
+                    IdentityTO identityTO = new IdentityTO();
+                    identityTO.setScheme(schema);
+                    identityTO.setId(id);
+                    identityTOList.add(identityTO);
+
+                    FormDeliveryStatus formDeliveryStatus = formsWebService.getMostRecentInstanceId(orgAuthKey, identityTOList, publicationKey);
+                    if (formDeliveryStatus != null && StringUtils.isFull(formDeliveryStatus.getInstanceId())) {
+                        return formDeliveryStatus.getInstanceId();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public int getAllFormsPageCount(String username, CohortTO cohortTO, Set<String> publicationKeys, int rows, String status, String targetDate, String assignment) {
         if (publicationKeys != null && publicationKeys.size() > 0 && cohortTO != null) {
 
             List<String> publicationKeysList = new ArrayList<String>();
@@ -352,9 +488,21 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
 
                 if (!StringUtils.isEmpty(orgAuthKey)) {
 
+                    String schema = getCohortPrimaryIdentitySchema(cohortTO);
+
 //                    auditService.log(username, AuditType.GET_INBOX, SproutStudyConstantService.AuditVerbosity.INFO, "Retrieving subject inbox", cohortTO, cohortPrimaryIdentitySchema, cohortPrimaryIdentityId, String.format("Retrieving subject, %s, inbox.", getIdentityArrayAsString(identityArray)));
 
-                    return formsWebService.getPageCountByPublications(orgAuthKey, publicationKeysList, rows, status);
+                    List<IdentityTO> identities= null;
+
+                    if (StringUtils.isFull(assignment) && !assignment.equalsIgnoreCase("null")) {
+                        identities = new ArrayList<IdentityTO>();
+                        IdentityTO identityMrn = new IdentityTO();
+                        identityMrn.setScheme("partnerscn");
+                        identityMrn.setId(assignment);
+                        identities.add(identityMrn);
+                    }
+
+                    return formsWebService.getPageCountByPublications(orgAuthKey, publicationKeysList, rows, status, schema, targetDate, identities);
                 }
             }
         }
@@ -362,7 +510,59 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
     }
 
     @Override
-    public List<FormInstanceTO> getAllForms(String username, CohortTO cohortTO, Set<String> publicationKeys, int page, int rows, String orderBy, String orderDirection, String status) {
+    public FormListMetadataTO getAllFormsMetadata(String username, CohortTO cohortTO, Set<String> publicationKeys, int rows, String status, String targetDate, String assignment) {
+        if (publicationKeys != null && publicationKeys.size() > 0 && cohortTO != null) {
+
+            List<String> publicationKeysList = new ArrayList<String>();
+            for (String publicationKey : publicationKeys) publicationKeysList.add(publicationKey);
+
+            if (formsWebService == null) init();
+
+            if (formsWebService != null) {
+
+                String orgAuthKey = System.getProperty("edu.harvard.mgh.lcs.ihealthspace.module.forms.sprout.authToken");
+
+                if (!StringUtils.isEmpty(orgAuthKey)) {
+
+                    String schema = getCohortPrimaryIdentitySchema(cohortTO);
+
+//                    auditService.log(username, AuditType.GET_INBOX, SproutStudyConstantService.AuditVerbosity.INFO, "Retrieving subject inbox", cohortTO, cohortPrimaryIdentitySchema, cohortPrimaryIdentityId, String.format("Retrieving subject, %s, inbox.", getIdentityArrayAsString(identityArray)));
+
+                    List<IdentityTO> identities= null;
+
+                    if (StringUtils.isFull(assignment) && !assignment.equalsIgnoreCase("null")) {
+                        identities = new ArrayList<IdentityTO>();
+                        IdentityTO identityMrn = new IdentityTO();
+                        identityMrn.setScheme("partnerscn");
+                        identityMrn.setId(assignment);
+                        identities.add(identityMrn);
+                    }
+
+                    return formsWebService.getFormMetadataByPublications(orgAuthKey, publicationKeysList, rows, status, schema, targetDate, identities);
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public List<NameValue> getAssignments(Set<String> publicationKeys, String status, String targetDate) {
+        if (publicationKeys != null && publicationKeys.size() > 0) {
+
+            List<String> publicationKeysList = new ArrayList<String>();
+            for (String publicationKey : publicationKeys) publicationKeysList.add(publicationKey);
+
+            if (formsWebService == null) init();
+
+            if (formsWebService != null) {
+                return formsWebService.getAssignments(publicationKeysList, status, targetDate);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public List<FormInstanceTO> getAllForms(String username, CohortTO cohortTO, Set<String> publicationKeys, int page, int rows, String orderBy, String orderDirection, String status, String targetDate, String assignment) {
 
         if (publicationKeys != null && publicationKeys.size() > 0 && cohortTO != null) {
 
@@ -379,8 +579,19 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
 
 //                    auditService.log(username, AuditType.GET_INBOX, SproutStudyConstantService.AuditVerbosity.INFO, "Retrieving subject inbox", cohortTO, cohortPrimaryIdentitySchema, cohortPrimaryIdentityId, String.format("Retrieving subject, %s, inbox.", getIdentityArrayAsString(identityArray)));
 
-                    FormDeliveryTO formDeliveryTO = formsWebService.getFormsByPublications(orgAuthKey, publicationKeysList, page, rows, orderBy, orderDirection, status);
-//                    FormDeliveryTO formDeliveryTO = formsWebService.getFormsByPublications(orgAuthKey, publicationKeysList, page, rows);
+                    String schema = getCohortPrimaryIdentitySchema(cohortTO);
+
+                    List<IdentityTO> identities= null;
+
+                    if (StringUtils.isFull(assignment) && !assignment.equalsIgnoreCase("null")) {
+                        identities = new ArrayList<IdentityTO>();
+                        IdentityTO identityMrn = new IdentityTO();
+                        identityMrn.setScheme("partnerscn");
+                        identityMrn.setId(assignment);
+                        identities.add(identityMrn);
+                    }
+
+                    FormDeliveryTO formDeliveryTO = formsWebService.getFormsByPublications(orgAuthKey, publicationKeysList, page, rows, orderBy, orderDirection, status, schema, targetDate, identities);
 
                     int hasSubjectIds = 0;
 
@@ -389,49 +600,121 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
 
                         List<FormInstanceTO> formInstanceTOList = formDeliveryTO.getFormInstances();
                         if (formInstanceTOList != null && formInstanceTOList.size() > 0) {
+                            Map<String, String> formDestinationMap = new HashMap<String, String>();
+                            Map<String, Result> formListIdentities = new HashMap<String, Result>();
+
+
+
+                            StringBuilder subjectIds = new StringBuilder();
+
                             for (FormInstanceTO formInstanceTO : formInstanceTOList) {
-//                                if (!StringUtils.isEmpty(formInstanceTO.getDeliveryKey())) {
-//                                    SproutStudyConstantService.SubmissionStatus submissionStatus = formSubmissionService.getSubmissionStatus(formInstanceTO.getPublicationKey(), formInstanceTO.getInstanceId(), formInstanceTO.getDeliveryKey());
-//                                    if (submissionStatus != null) {
-//                                        formInstanceTO.setAdminStatus(submissionStatus.toString());
-//                                    }
-//                                }
+                                for (IdentityTO identityTO : formInstanceTO.getIdentities()) {
+                                    if (identityTO.getScheme() != null && identityTO.getScheme().equalsIgnoreCase(cohortTO.getCohortSubjectSchema())) {
+                                        if (subjectIds.length() > 0) subjectIds.append("|");
+                                        subjectIds.append(identityTO.getId());
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (subjectIds.length() > 0) {
+                                List<Result> results = studyService.getRemoteCohortSubjectsByList(cohortTO, subjectIds.toString());
+                                if (results != null && results.size() > 0) {
+                                    hasSubjectIds++;
+                                    for (Result result : results) {
+                                        if (result != null && !StringUtils.isEmpty(result.getId())) {
+                                            formListIdentities.put(result.getId(), result);
+//
+//                                            formInstanceTO.setIdentityFirstName(result.getFirstName());
+//                                            formInstanceTO.setIdentityLastName(result.getLastName());
+//                                            formInstanceTO.setIdentityFullName(result.getFullName());
+//                                            formInstanceTO.setIdentityGender(result.getGender());
+//                                            formInstanceTO.setIdentityDob(DateUtils.getXMLGregorianCalendarFromDate(result.getBirthDate()));
+//                                            formInstanceTO.setIdentityPrimarySchema(cohortTO.getCohortSubjectSchema());
+//                                            formInstanceTO.setIdentityPrimaryId(result.getId());
+                                        }
+
+                                    }
+                                }
+                            }
+
+
+
+                            for (FormInstanceTO formInstanceTO : formInstanceTOList) {
+                                String publicationKey = formInstanceTO.getPublicationKey();
+
+                                String destination = null;
+                                if (edu.harvard.mgh.lcs.sprout.forms.utils.StringUtils.isFull(publicationKey)) {
+                                    if (formDestinationMap.containsKey(publicationKey)) {
+                                        destination = formDestinationMap.get(publicationKey);
+                                        formInstanceTO.setDestination(destination);
+                                    } else {
+                                        Set<FormAttrEntity> formAttrEntities = studyService.getFormAttributesFromPublicationKey(publicationKey);
+                                        if (formAttrEntities != null && formAttrEntities.size() > 0) {
+                                            for (FormAttrEntity formAttrEntity : formAttrEntities) {
+                                                if (formAttrEntity.getFormAttr().getCode().equalsIgnoreCase("DESTINATION")) {
+                                                    destination = formAttrEntity.getValue();
+                                                    formDestinationMap.put(publicationKey, destination);
+                                                    formInstanceTO.setDestination(destination);
+                                                } else if (formAttrEntity.getFormAttr().getCode().equalsIgnoreCase("UNEDITABLE")) {
+                                                    formInstanceTO.setUneditable(formAttrEntity.getValue() != null && formAttrEntity.getValue().equalsIgnoreCase("true"));
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
 
                                 if (formInstanceTO.getIdentities() != null && formInstanceTO.getIdentities().size() > 0) {
-                                    StringBuilder subjectIds = new StringBuilder();
+//                                    StringBuilder subjectIds = new StringBuilder();
 
                                     for (IdentityTO identityTO : formInstanceTO.getIdentities()) {
                                         if (identityTO.getScheme() != null && identityTO.getScheme().equalsIgnoreCase(cohortTO.getCohortSubjectSchema())) {
-                                            if (subjectIds.length() > 0) subjectIds.append("|");
-                                            subjectIds.append(identityTO.getId());
-                                            break;
-                                        }
-                                    }
-                                    if (subjectIds.length() > 0) {
-                                        List<Result> results = studyService.getRemoteCohortSubjectsByList(cohortTO, subjectIds.toString());
-                                        if (results != null && results.size() > 0) {
-                                            hasSubjectIds++;
-                                            for (Result result : results) {
-                                                if (result != null && !StringUtils.isEmpty(result.getId())) {
-                                                    formInstanceTO.setIdentityFirstName(result.getFirstName());
-                                                    formInstanceTO.setIdentityLastName(result.getLastName());
-                                                    formInstanceTO.setIdentityFullName(result.getFullName());
-                                                    formInstanceTO.setIdentityGender(result.getGender());
-                                                    formInstanceTO.setIdentityDob(DateUtils.getXMLGregorianCalendarFromDate(result.getBirthDate()));
-                                                    formInstanceTO.setIdentityPrimarySchema(cohortTO.getCohortSubjectSchema());
-                                                    formInstanceTO.setIdentityPrimaryId(result.getId());
-                                                    break;
-                                                }
-
+                                            Result result = formListIdentities.get((identityTO.getId()));
+                                            if (result != null) {
+                                                formInstanceTO.setIdentityFirstName(result.getFirstName());
+                                                formInstanceTO.setIdentityLastName(result.getLastName());
+                                                formInstanceTO.setIdentityFullName(result.getFullName());
+                                                formInstanceTO.setIdentityGender(result.getGender());
+                                                formInstanceTO.setIdentityDob(DateUtils.getXMLGregorianCalendarFromDate(result.getBirthDate()));
+                                                formInstanceTO.setIdentityPrimarySchema(cohortTO.getCohortSubjectSchema());
+                                                formInstanceTO.setIdentityPrimaryId(result.getId());
+                                            } else {
+                                                formInstanceTO.setIdentityFirstName("Unknown");
+                                                formInstanceTO.setIdentityLastName("Unknown");
+                                                formInstanceTO.setIdentityFullName("Unknown");
+                                                formInstanceTO.setIdentityPrimarySchema(cohortTO.getCohortSubjectSchema());
+                                                formInstanceTO.setIdentityPrimaryId(subjectIds.toString());
                                             }
-//                                            forms.add(formInstanceTO);
-                                        } else {
-                                            formInstanceTO.setIdentityFirstName("Unknown");
-                                            formInstanceTO.setIdentityLastName("Unknown");
-                                            formInstanceTO.setIdentityFullName("Unknown");
-                                            formInstanceTO.setIdentityPrimarySchema(cohortTO.getCohortSubjectSchema());
-                                            formInstanceTO.setIdentityPrimaryId(subjectIds.toString());
+//                                            if (subjectIds.length() > 0) subjectIds.append("|");
+//                                            subjectIds.append(identityTO.getId());
+//                                            break;
                                         }
+//                                    }
+//                                    if (subjectIds.length() > 0) {
+//                                        List<Result> results = studyService.getRemoteCohortSubjectsByList(cohortTO, subjectIds.toString());
+//                                        if (results != null && results.size() > 0) {
+//                                            hasSubjectIds++;
+//                                            for (Result result : results) {
+//                                                if (result != null && !StringUtils.isEmpty(result.getId())) {
+//                                                    formInstanceTO.setIdentityFirstName(result.getFirstName());
+//                                                    formInstanceTO.setIdentityLastName(result.getLastName());
+//                                                    formInstanceTO.setIdentityFullName(result.getFullName());
+//                                                    formInstanceTO.setIdentityGender(result.getGender());
+//                                                    formInstanceTO.setIdentityDob(DateUtils.getXMLGregorianCalendarFromDate(result.getBirthDate()));
+//                                                    formInstanceTO.setIdentityPrimarySchema(cohortTO.getCohortSubjectSchema());
+//                                                    formInstanceTO.setIdentityPrimaryId(result.getId());
+//                                                    break;
+//                                                }
+//
+//                                            }
+//                                        } else {
+//                                            formInstanceTO.setIdentityFirstName("Unknown");
+//                                            formInstanceTO.setIdentityLastName("Unknown");
+//                                            formInstanceTO.setIdentityFullName("Unknown");
+//                                            formInstanceTO.setIdentityPrimarySchema(cohortTO.getCohortSubjectSchema());
+//                                            formInstanceTO.setIdentityPrimaryId(subjectIds.toString());
+//                                        }
                                         forms.add(formInstanceTO);
                                     }
                                 }

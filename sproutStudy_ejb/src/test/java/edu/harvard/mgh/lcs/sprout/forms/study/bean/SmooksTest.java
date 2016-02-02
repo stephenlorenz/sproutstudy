@@ -17,7 +17,6 @@ import org.xml.sax.SAXException;
 
 import edu.harvard.mgh.lcs.sprout.forms.study.to.AssertionTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.IdentityTO;
-import edu.harvard.mgh.lcs.sprout.forms.study.to.ModelTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.ParameterTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.SubmissionTO;
 
@@ -29,7 +28,6 @@ public class SmooksTest {
 	private List<AssertionTO> assertions;
 	private List<ParameterTO> parameters;
 	private SubmissionTO submission;
-	private ModelTO model;
 
 	@Test
 	public void test() throws SmooksException, IOException, SAXException {
@@ -89,8 +87,7 @@ public class SmooksTest {
 			assertions = (List<AssertionTO>) result.getBean("assertions");
 			parameters = (List<ParameterTO>) result.getBean("parameters");
 			submission = (SubmissionTO) result.getBean("submission");
-			model = (ModelTO) result.getBean("model");
-			
+
 			
 			
 		} finally {

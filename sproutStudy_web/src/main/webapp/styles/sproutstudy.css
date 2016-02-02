@@ -126,8 +126,20 @@ tr.inbox-row:hover {
 }
 td.inbox-cell:hover {
 }
+td.list-cell:hover {
+    cursor: pointer;
+    color: blue;
+}
+td.list-cell:hover {
+    text-decoration: underline;
+}
 tr.unknown {
     color: #cdcdcd;
+    /*background-color: palevioletred;*/
+}
+
+tr.immutable {
+    color: #737373;
     /*background-color: palevioletred;*/
 }
 

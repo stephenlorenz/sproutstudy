@@ -73,6 +73,11 @@ angular.module('sproutStudyApp')
                     callback(response.data);
                 });
             },
+            getAssignments: function (params, callback) {
+                $http.get(networkService.generateUrl("getAssignments", params)).then(function (response) {
+                    callback(response.data);
+                });
+            },
             getAllForms: function (params, callback) {
                 $http.get(networkService.generateUrl("getAllForms", params)).then(function (response) {
                     callback(response.data);
@@ -83,6 +88,11 @@ angular.module('sproutStudyApp')
                     callback(response.data);
                 });
             },
+            getAllFormsMetadata: function (params, callback) {
+                $http.get(networkService.generateUrl("getAllFormsMetadata", params)).then(function (response) {
+                    callback(response.data);
+                });
+            },
             getCohortAuthorizations: function (params, callback) {
                 $http.get(networkService.generateUrl("getCohortAuthorizations", params)).then(function (response) {
                     callback(response.data);
@@ -90,6 +100,11 @@ angular.module('sproutStudyApp')
             },
             getStudyInbox: function (params, callback) {
                 $http.get(networkService.generateUrl("getStudyInbox", params)).then(function (response) {
+                    callback(response.data);
+                });
+            },
+            unlock: function (params, callback) {
+                $http.get(networkService.generateUrl("unlock", params)).then(function (response) {
                     callback(response.data);
                 });
             },
@@ -128,8 +143,28 @@ angular.module('sproutStudyApp')
                     callback(response.data);
                 });
             },
+            setSessionFormFilter: function (params, callback) {
+                $http.get(networkService.generateUrl("setSessionFormFilter", params)).then(function (response) {
+                    callback(response.data);
+                });
+            },
+            getUserPreferences: function (params, callback) {
+                $http.get(networkService.generateUrl("getUserPreferences", params)).then(function (response) {
+                    callback(response.data);
+                });
+            },
+            setDefaultTab: function (params, callback) {
+                $http.get(networkService.generateUrl("setDefaultTab", params)).then(function (response) {
+                    callback(response.data);
+                });
+            },
             getPatientInbox: function (params, callback) {
                 $http.get(networkService.generateUrl("getPatientInbox", params)).then(function (response) {
+                    callback(response.data);
+                });
+            },
+            getPollEvents: function (params, callback) {
+                $http.get(networkService.generateUrl("getPollEvents", params)).then(function (response) {
                     callback(response.data);
                 });
             },

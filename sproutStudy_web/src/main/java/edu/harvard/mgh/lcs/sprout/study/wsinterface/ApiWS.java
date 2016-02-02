@@ -1,16 +1,16 @@
 package edu.harvard.mgh.lcs.sprout.study.wsinterface;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.FormDeliveryStatus;
 import edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.FormInstanceTO;
+import edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.FormListMetadataTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.beanws.Result;
 import edu.harvard.mgh.lcs.sprout.forms.study.exception.InvalidSessionRESTful;
+import edu.harvard.mgh.lcs.sprout.forms.study.exception.UnauthorizedActionException;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
@@ -64,6 +64,31 @@ public interface ApiWS {
     public BooleanTO deleteForm(@Context HttpServletRequest request, @QueryParam("cohort") String cohortKey, @QueryParam("formKey") String formKey) throws InvalidSessionRESTful;
 
     @GET
+    @Path("/secure/persistFormAttribute")
+    @Produces(MediaType.APPLICATION_JSON)
+    public BooleanTO persistFormAttribute(@Context HttpServletRequest request, @QueryParam("cohort") String cohortKey, @QueryParam("publicationKey") String publicationKey, @QueryParam("formKey") String formKey, @QueryParam("attributeKey") String attributeKey, @QueryParam("attributeValue") String attributeValue) throws InvalidSessionRESTful, UnauthorizedActionException;
+
+    @GET
+    @Path("/secure/saveList")
+    @Produces(MediaType.APPLICATION_JSON)
+    public BooleanTO saveList(@Context HttpServletRequest request, @QueryParam("cohortKey") String cohortKey, @QueryParam("name") String name, @QueryParam("description") String description, @QueryParam("nameColumnTitle") String nameColumnTitle, @QueryParam("valueColumnTitle") String valueColumnTitle, @QueryParam("publicInd") Boolean publicInd, @QueryParam("active") Boolean active, @QueryParam("listKey") String listKey, @QueryParam("listKeyFormer") String listKeyFormer, @QueryParam("details") String details) throws InvalidSessionRESTful;
+
+    @POST
+    @Path("/secure/saveListData")
+    @Produces(MediaType.APPLICATION_JSON)
+    public BooleanTO saveListData(@Context HttpServletRequest request, @QueryParam("cohortKey") String cohortKey, @QueryParam("listKey") String listKey, String data) throws InvalidSessionRESTful;
+
+    @GET
+    @Path("/secure/deleteList")
+    @Produces(MediaType.APPLICATION_JSON)
+    public BooleanTO deleteList(@Context HttpServletRequest request, @QueryParam("cohort") String cohortKey, @QueryParam("listKey") String listKey) throws InvalidSessionRESTful, UnauthorizedActionException;
+
+    @GET
+    @Path("/secure/persistListAttribute")
+    @Produces(MediaType.APPLICATION_JSON)
+    public BooleanTO persistListAttribute(@Context HttpServletRequest request, @QueryParam("cohort") String cohortKey, @QueryParam("listKey") String listKey, @QueryParam("attributeKey") String attributeKey, @QueryParam("attributeValue") String attributeValue) throws InvalidSessionRESTful, UnauthorizedActionException;
+
+    @GET
     @Path("/secure/applyForNonce")
     @Produces(MediaType.APPLICATION_JSON)
     public NonceTO applyForNonce(@Context HttpServletRequest request, @QueryParam("instanceId") String instanceId, @QueryParam("subjectName") String subjectName, @QueryParam("subjectId") String subjectId) throws InvalidSessionRESTful;
@@ -99,6 +124,11 @@ public interface ApiWS {
     public FormDeliveryStatus deliverForm(@Context HttpServletRequest request, @QueryParam("schema") String schema, @QueryParam("id") String id, @QueryParam("publicationKey") String publicationKey, @QueryParam("provider") String provider, @QueryParam("expirationDate") String expirationDateString) throws InvalidSessionRESTful;
 
     @GET
+    @Path("/secure/deliverOrOpenForm")
+    @Produces(MediaType.APPLICATION_JSON)
+    public FormDeliveryStatus deliverOrOpenForm(@Context HttpServletRequest request, @QueryParam("schema") String schema, @QueryParam("id") String id, @QueryParam("publicationKey") String publicationKey, @QueryParam("provider") String provider, @QueryParam("expirationDate") String expirationDateString) throws InvalidSessionRESTful;
+
+    @GET
     @Path("/secure/getSproutInbox")
     @Produces(MediaType.APPLICATION_JSON)
     public List<FormInstanceTO> getSproutInbox(@Context HttpServletRequest request, @QueryParam("identity") String[] identities) throws InvalidSessionRESTful;
@@ -111,12 +141,17 @@ public interface ApiWS {
     @GET
     @Path("/secure/getAllForms")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<FormInstanceTO> getAllForms(@Context HttpServletRequest request, @QueryParam("page") int page, @QueryParam("rows") int rows, @QueryParam("orderBy") String orderBy, @QueryParam("orderDirection") String orderDirection, @QueryParam("form") String publicationKey, @QueryParam("status") String status) throws InvalidSessionRESTful;
+    public List<FormInstanceTO> getAllForms(@Context HttpServletRequest request, @QueryParam("page") int page, @QueryParam("rows") int rows, @QueryParam("orderBy") String orderBy, @QueryParam("orderDirection") String orderDirection, @QueryParam("form") String publicationKey, @QueryParam("status") String status, @QueryParam("targetDate") String targetDate, @QueryParam("assignment") String assignment) throws InvalidSessionRESTful;
 
     @GET
     @Path("/secure/getAllFormsPageCount")
     @Produces(MediaType.APPLICATION_JSON)
-    public int getAllFormsPageCount(@Context HttpServletRequest request, @QueryParam("rows") int rows, @QueryParam("form") String publicationKey, @QueryParam("status") String status) throws InvalidSessionRESTful;
+    public int getAllFormsPageCount(@Context HttpServletRequest request, @QueryParam("rows") int rows, @QueryParam("form") String publicationKey, @QueryParam("status") String status, @QueryParam("targetDate") String targetDate, @QueryParam("assignment") String assignment) throws InvalidSessionRESTful;
+
+    @GET
+    @Path("/secure/getAllFormsMetadata")
+    @Produces(MediaType.APPLICATION_JSON)
+    public FormListMetadataTO getAllFormsMetadata(@Context HttpServletRequest request, @QueryParam("rows") int rows, @QueryParam("form") String publicationKey, @QueryParam("status") String status, @QueryParam("targetDate") String targetDate, @QueryParam("assignment") String assignment) throws InvalidSessionRESTful;
 
     @GET
     @Path("/secure/getRecentCohortMembers")
@@ -171,7 +206,7 @@ public interface ApiWS {
     @GET
     @Path("/secure/saveFormPublicationKey")
     @Produces(MediaType.APPLICATION_JSON)
-    public BooleanTO saveFormPublicationKey(@Context HttpServletRequest request, @QueryParam("id") String id, @QueryParam("publicationKey") String publicationKey) throws InvalidSessionRESTful;
+    public CohortFormTO saveFormPublicationKey(@Context HttpServletRequest request, @QueryParam("id") String id, @QueryParam("publicationKey") String publicationKey) throws InvalidSessionRESTful;
 
     @GET
     @Path("/secure/getActiveSproutInboxStatuses")
@@ -181,7 +216,7 @@ public interface ApiWS {
     @GET
     @Path("/secure/saveCohort")
     @Produces(MediaType.APPLICATION_JSON)
-    public BooleanTO saveCohort(@Context HttpServletRequest request, @QueryParam("cohortKey") String cohortKey, @QueryParam("name") String name, @QueryParam("description") String description, @QueryParam("group") String group) throws InvalidSessionRESTful;
+    public BooleanTO saveCohort(@Context HttpServletRequest request, @QueryParam("cohortKey") String cohortKey, @QueryParam("name") String name, @QueryParam("description") String description, @QueryParam("restfulApiUrl") String restfulApiUrl, @QueryParam("restfulApiUsername") String restfulApiUsername, @QueryParam("restfulApiPassword") String restfulApiPassword, @QueryParam("identitySchemaPrimary") String identitySchemaPrimary) throws InvalidSessionRESTful;
 
     @GET
     @Path("/secure/revokeCohortAuthorization")
@@ -204,7 +239,7 @@ public interface ApiWS {
     public BooleanTO deleteCohort(@Context HttpServletRequest request, @QueryParam("cohortKey") String cohortKey) throws InvalidSessionRESTful;
 
     @GET
-    @Path("/secure/getUser")
+    @Path("/secure/getDomainUser")
     @Produces(MediaType.APPLICATION_JSON)
     public LdapUserTO getUser(@Context HttpServletRequest request, @QueryParam("cn") String cn) throws InvalidSessionRESTful;
 
@@ -227,5 +262,66 @@ public interface ApiWS {
     @Path("/secure/getCohortByKey")
     @Produces(MediaType.APPLICATION_JSON)
     public CohortTO getCohortTO(@Context HttpServletRequest request, @QueryParam("cohortKey") String cohortKey) throws InvalidSessionRESTful;
+
+    @GET
+    @Path("/secure/getTemplate")
+    @Produces(MediaType.APPLICATION_JSON)
+    public TemplateTO getTemplate(@Context HttpServletRequest request, @QueryParam("publicationKey") String publicationKey, @QueryParam("instanceId") String instanceId) throws InvalidSessionRESTful;
+
+    @POST
+    @Path("/secure/getNarrativeText")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String getNarrativeText(@Context HttpServletRequest request, String narrative) throws InvalidSessionRESTful;
+
+    @POST
+    @Path("/secure/saveTemplate")
+    @Produces(MediaType.APPLICATION_JSON)
+    public BooleanTO saveTemplate(@Context HttpServletRequest request, @QueryParam("publicationKey") String publicationKey, @QueryParam("instanceId") String instanceId, @QueryParam("templateKey") String templateKey, @QueryParam("masterInd") boolean masterInd, String template) throws InvalidSessionRESTful;
+//    public BooleanTO saveTemplate(@Context HttpServletRequest request, @QueryParam("publicationKey") String publicationKey, @QueryParam("instanceId") String instanceId, @QueryParam("template") String template, @QueryParam("templateKey") String templateKey, @QueryParam("masterInd") boolean masterInd) throws InvalidSessionRESTful;
+
+    @POST
+    @Path("/secure/saveNarrative")
+    @Produces(MediaType.APPLICATION_JSON)
+    public BooleanTO saveNarrative(@Context HttpServletRequest request, @QueryParam("instanceId") String instanceId, @QueryParam("format") String format, String narrative) throws InvalidSessionRESTful;
+
+    @GET
+    @Path("/secure/getAssignments")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.NameValue> getAssignments(@Context HttpServletRequest request, @QueryParam("status") String status, @QueryParam("targetDate") String targetDate) throws InvalidSessionRESTful;
+
+    @GET
+    @Path("/secure/setSessionFormFilter")
+    @Produces(MediaType.APPLICATION_JSON)
+    public BooleanTO setSessionFormFilter(@Context HttpServletRequest request, @QueryParam("formFilter") String formFilter, @QueryParam("assignmentFilter") String assignmentFilter, @QueryParam("statusFilter") String statusFilter, @QueryParam("targetDateFilter") String targetDateFilter) throws InvalidSessionRESTful;
+
+    @GET
+    @Path("/secure/getUserPreferences")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<NameValue> getUserPreferences(@Context HttpServletRequest request) throws InvalidSessionRESTful;
+
+    @GET
+    @Path("/secure/refreshList")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<CohortListDataTO> refreshList(@Context HttpServletRequest request, @QueryParam("cohortKey") String cohortKey, @QueryParam("listKey") String listKey) throws InvalidSessionRESTful;
+
+    @GET
+    @Path("/secure/getPollEvents")
+    @Produces(MediaType.APPLICATION_JSON)
+    public PollEventTO getPollEvents(@Context HttpServletRequest request, @QueryParam("cohortKey") String cohortKey, @QueryParam("pollKey") Integer pollKey) throws InvalidSessionRESTful;
+
+    @GET
+    @Path("/secure/setDefaultTab")
+    @Produces(MediaType.APPLICATION_JSON)
+    public BooleanTO setDefaultTab(@Context HttpServletRequest request, @QueryParam("defaultTab") String defaultTab) throws InvalidSessionRESTful;
+
+    @GET
+    @Path("/secure/toggleFormArchive")
+    @Produces(MediaType.APPLICATION_JSON)
+    public BooleanTO toggleFormArchive(@Context HttpServletRequest request, @QueryParam("cohortKey") String cohortKey, @QueryParam("formKey") String formKey, @QueryParam("publicationKey") String publicationKey, @QueryParam("archiveInd") Boolean archiveInd) throws InvalidSessionRESTful, UnauthorizedActionException;
+
+    @GET
+    @Path("/secure/unlock")
+    @Produces(MediaType.APPLICATION_JSON)
+    public BooleanTO unlock(@Context HttpServletRequest request, @QueryParam("instanceId") String instanceId) throws InvalidSessionRESTful, UnauthorizedActionException;
 
 }

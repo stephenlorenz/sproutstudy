@@ -84,6 +84,7 @@
 		<jboss.bom.version>1.0.0.M11</jboss.bom.version>
 		<forms.version>0.0.3-SNAPSHOT</forms.version>
 		<aspectj.version>1.6.12.M2</aspectj.version>
+		<atmosphere-version>[2, )</atmosphere-version>
 		<java.version>5</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<slf4j.version>1.6.2</slf4j.version>
@@ -136,6 +137,7 @@
 		<module>sproutStudy_ear</module>
 		<module>sproutStudy_jpa</module>
 		<module>sproutStudy_ejb</module>
+		<module>sproutList_ejb</module>
 		<module>sproutStudy_web</module>
 		<module>sproutStudy_sprout_ws</module>
     </modules>
@@ -148,6 +150,61 @@
                 <version>1.0.0-SNAPSHOT</version>
 	            <type>ejb-client</type>
             </dependency>
+			<dependency>
+				<groupId>org.atmosphere</groupId>
+				<artifactId>atmosphere-runtime-native</artifactId>
+				<version>${atmosphere-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.atmosphere.jboss.as</groupId>
+				<artifactId>jboss-as-websockets</artifactId>
+				<version>0.5</version>
+			</dependency>
+			<dependency>
+				<groupId>org.atmosphere.client</groupId>
+				<artifactId>javascript</artifactId>
+				<version>${client-version}</version>
+				<type>war</type>
+			</dependency>
+
+            <dependency>
+                <groupId>org.java-websocket</groupId>
+                <artifactId>Java-WebSocket</artifactId>
+                <version>1.3.0</version>
+            </dependency>
+
+			<dependency>
+				<groupId>com.github.jknack</groupId>
+				<artifactId>handlebars</artifactId>
+				<version>2.1.0</version>
+			</dependency>
+			<dependency>
+				<groupId>com.github.jknack</groupId>
+				<artifactId>handlebars-jackson2</artifactId>
+				<version>2.1.0</version>
+			</dependency>
+			<dependency>
+				<groupId>bsf</groupId>
+				<artifactId>bsf</artifactId>
+				<version>2.4.0</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mozilla</groupId>
+				<artifactId>rhino</artifactId>
+				<version>1.7.6</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jsoup</groupId>
+				<artifactId>jsoup</artifactId>
+				<version>1.8.2</version>
+			</dependency>
+			<dependency>
+				<groupId>ca.uhn.hapi</groupId>
+				<artifactId>hapi-base</artifactId>
+				<version>2.2</version>
+			</dependency>
+
+
 			<dependency>
 				<groupId>org.springframework.security</groupId>
 				<artifactId>spring-security-ldap</artifactId>
@@ -542,6 +599,12 @@
 			<dependency>
 				<groupId>edu.harvard.mgh.lcs.sprout</groupId>
 				<artifactId>sproutStudy_ejb</artifactId>
+				<version>0.0.1-SNAPSHOT</version>
+				<type>ejb</type>
+			</dependency>
+			<dependency>
+				<groupId>edu.harvard.mgh.lcs.sprout</groupId>
+				<artifactId>sproutList_ejb</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 				<type>ejb</type>
 			</dependency>

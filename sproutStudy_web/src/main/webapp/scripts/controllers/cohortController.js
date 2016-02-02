@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('sproutStudyApp')
-    .controller('cohortController', function ($log, $scope, $location, cohortService, cohortManagerService, studyService, sessionService) {
+    .controller('cohortController', function ($log, $scope, $location, cohortService, studyService, sessionService, cohortManagerService) {
 
         $scope.managedCohorts = undefined;
 
@@ -37,6 +37,11 @@ angular.module('sproutStudyApp')
             return cohortService.getMember();
         }
 
+        $scope.onClearForms = function (destination) {
+            clearAllFormTabs();
+            cohortService.clearMember();
+        }
+
         $scope.isManagerOfCohort = function() {
             var manager = false;
             var cohortCurrent = cohortService.getCohort();
@@ -44,7 +49,9 @@ angular.module('sproutStudyApp')
             if (cohortCurrent !== undefined && cohortCurrent !== null) {
                 if ($scope.managedCohorts !== undefined) {
                     $.each($scope.managedCohorts, function(index, tmpCohort) {
-                        if (tmpCohort.name == cohortCurrent.name) manager = true;
+                        if (tmpCohort.name == cohortCurrent.name) {
+                            manager = true;
+                        }
                     });
                 }
             }

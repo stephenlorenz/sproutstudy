@@ -1,6 +1,6 @@
 'use strict';
 
-var sproutStudyApp = angular.module('sproutStudyApp', ['ui', 'ngResource', 'ui.bootstrap', '$strap.directives'])
+var sproutStudyApp = angular.module('sproutStudyApp', ['ui', 'ngResource', 'ui.bootstrap', 'bgDirectives', 'ui.ace', 'ui.bootstrap.contextMenu', 'ngWebsocket', '$strap.directives'])
     .value("sproutStudyProperties", {
 //    serverUrl: 'http://localhost:8080/study/api/command/secure'
     serverUrl: '/sproutstudy/api/command/secure'
@@ -29,6 +29,26 @@ var sproutStudyApp = angular.module('sproutStudyApp', ['ui', 'ngResource', 'ui.b
             .when('/forms/add', {
                 templateUrl: 'views/formAddView.html',
                 controller: 'formManagerController'
+            })
+            .when('/lists', {
+                templateUrl: 'views/lists/listManagerView.html',
+                controller: 'listManagerController'
+            })
+            .when('/lists/add', {
+                templateUrl: 'views/lists/listAddView.html',
+                controller: 'listManagerController'
+            })
+            .when('/lists/data', {
+                templateUrl: 'views/lists/listDataView.html',
+                controller: 'listManagerController'
+            })
+            .when('/lists/edit', {
+                templateUrl: 'views/lists/listEditView.html',
+                controller: 'listManagerController'
+            })
+            .when('/transform', {
+                templateUrl: 'views/transformDesignerView.html',
+                controller: 'transformManagerController'
             })
             .when('/cohorts', {
                 templateUrl: 'views/cohortManagerView.html',

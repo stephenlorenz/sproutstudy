@@ -10,12 +10,12 @@ import java.util.Set;
 @Table(schema="dbo", name="v_users_role")
 @NamedQueries({
     @NamedQuery(name= VUserRoleEntity.ALL, query="FROM VUserRoleEntity"),
-    @NamedQuery(name= VUserRoleEntity.FIND_BY_CODE, query="FROM VUserRoleEntity WHERE code = :code")
+    @NamedQuery(name= VUserRoleEntity.FIND_BY_NAME, query="FROM VUserRoleEntity WHERE name = :name")
 })
 public class VUserRoleEntity implements Serializable {
 
     public static final String ALL = "VUserRoleEntity.all";
-    public static final String FIND_BY_CODE = "VUserRoleEntity.findByCode";
+    public static final String FIND_BY_NAME = "VUserRoleEntity.findByName";
 
     @Id
     @GeneratedValue (strategy = GenerationType.IDENTITY)

@@ -13,10 +13,13 @@ public class CohortTO implements Serializable {
     private Date activityDate;
     private List<CohortAttrTO> attributes;
     private List<CohortFormTO> forms;
+    private List<CohortListTO> lists;
     private String cohortQueryURL;
     private String cohortSubjectSchema;
     private boolean active;
     private String cohortKey;
+    private String websocketURL;
+    private boolean transformEnabled;
 
     public int getId() {
         return id;
@@ -86,8 +89,28 @@ public class CohortTO implements Serializable {
         return cohortKey;
     }
 
+    public List<CohortListTO> getLists() {
+        return lists;
+    }
+
+    public void setLists(List<CohortListTO> lists) {
+        this.lists = lists;
+    }
+
+    public void setTransformEnabled(boolean transformEnabled) {
+        this.transformEnabled = transformEnabled;
+    }
+
     public void setCohortKey(String cohortKey) {
         this.cohortKey = cohortKey;
+    }
+
+    public String getWebsocketURL() {
+        return websocketURL;
+    }
+
+    public void setWebsocketURL(String websocketURL) {
+        this.websocketURL = websocketURL;
     }
 
     public boolean isActive() {
@@ -97,4 +120,16 @@ public class CohortTO implements Serializable {
     public void setActive(boolean active) {
         this.active = active;
     }
+
+    public boolean isTransformEnabled() {
+        if (attributes != null && attributes.size() > 0) {
+            for (CohortAttrTO attribute : attributes) {
+                if (attribute.getName() != null && attribute.getValue() != null && attribute.getName().equalsIgnoreCase("SPROUT_TRANSFORM_IND") && attribute.getValue().equalsIgnoreCase("true")) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
 }

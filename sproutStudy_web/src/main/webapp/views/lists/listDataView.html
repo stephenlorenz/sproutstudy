@@ -1,0 +1,54 @@
+<div class="sproutstudy-tab sproutstudy-tab-patient container">
+
+    <legend>Edit {{list.name}} List Data</legend>
+
+    <form method="post" id="user" name="editListData" autocomplete="false" novalidate>
+
+        <div class="alert alert-error" ng-show="saveListMessage != undefined">
+            <h4>{{saveListMessage}}</h4>
+        </div>
+
+        <table class="table table-striped sprout-list-data-table" ng-show="list.data.length > 0">
+            <thead>
+            <tr>
+                <th>{{list.nameColumnTitle}}</th>
+                <th>{{list.valueColumnTitle}}</th>
+                <th ng-repeat="detail in list.detail | filter: { active: true } | orderBy:detailOrderById">{{detail.name}}</th>
+                <th style="text-align: center; width: 60px;">Remove?</th>
+            </tr>
+            </thead>
+            <!--<tr ng-repeat="data in list.data | filter: { active: true } | orderBy:id" >-->
+            <tr ng-repeat="data in list.data | filter: { active: true } | orderBy: 'id'" >
+                <td><input ng-model="data.name" class="field-label message-text" required type="text" focus-on-me="$last" /></td>
+                <td><input ng-model="data.value" class="field-label message-text" required type="text" /></td>
+                <td ng-repeat="detail in data.details | orderBy:detailOrderByDetailId">
+                    <input ng-model="detail.value" class="field-label message-text" ng-required="detail.required" type="text" />
+                </td>
+                <td style="text-align: center; width: 120px;" ng-show="listListFilter.active == true && isManager() == 'true'">
+                    <button class="btn btn-mini btn-warning" style="text-align: center; width: 55px;" ng-click="onOpenDeleteListDataModal(data)"><i class="icon-trash icon-white" style="margin-right: 0px;"></i></button>
+                </td>
+            </tr>
+        </table>
+        <button class="btn btn-primary btn-mini" ng-click="onAddDataRow(list, data)">Add Row</button>
+
+        <div class="form-actions">
+            <button class="btn btn-primary" ng-click="onSaveListData(list)" ng-disabled="editListData.$invalid || saving">{{saveButtonText}}</button>
+            <a ng-href="#/lists" class="btn">Cancel</a>
+        </div>
+
+    </form>
+
+    <div modal="deleteListDataModal" close="onCloseDeleteListDataModal()" options="modalSmallOpts">
+        <div class="modal-header">
+            <h4>Delete Row?</h4>
+        </div>
+        <div class="modal-body modal-body-short">
+            <h4>{{deleteMessageText}}</h4>
+        </div>
+        <div class="modal-footer">
+            <button class="btn cancel" ng-click="onCloseDeleteListDataModal()">Cancel</button>
+            <button class="btn btn-primary" ng-disabled="deletingForm" ng-click="onDeleteListData()">{{deleteListDataButtonText}}</button>
+        </div>
+    </div>
+
+</div>

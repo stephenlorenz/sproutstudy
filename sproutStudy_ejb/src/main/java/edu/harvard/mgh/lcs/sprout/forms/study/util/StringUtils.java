@@ -1,8 +1,6 @@
 package edu.harvard.mgh.lcs.sprout.forms.study.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.URLEncoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -64,6 +62,14 @@ public class StringUtils {
 		return null;
 	}
 
+	public static Float getFloat(String input) {
+		try {
+			return Float.parseFloat(input);
+		} catch (Exception e) {}
+
+		return null;
+	}
+
 	public static String encode(String input) {
 		try {
 			return URLEncoder.encode(input != null ? input : "", "UTF-8").replaceAll("\\+", "%20");
@@ -120,6 +126,36 @@ public class StringUtils {
 		}
 		return null;
 	}
+
+	public static String stringFromInputStream(InputStream inputStream) {
+
+		BufferedReader bufferedReader = null;
+		StringBuilder stringBuilder = new StringBuilder();
+
+		String line;
+		try {
+
+			bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+			while ((line = bufferedReader.readLine()) != null) {
+				stringBuilder.append(line);
+			}
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (bufferedReader != null) {
+				try {
+					bufferedReader.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		return stringBuilder.toString();
+
+	}
+
 
 	public static String decodifyString(String string) {
 		if (!StringUtils.isEmpty(string)) {
