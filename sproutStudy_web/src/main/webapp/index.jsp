@@ -313,21 +313,25 @@
     });
 
     function setActiveTabData(key, value) {
+        console.log("setActiveTabData");
         var activeTab = jQuerySprout(".sproutstudy-tab-li.active");
         if (activeTab !== undefined) activeTab.data(key, value);
     }
 
     function getActiveTabData(key) {
+        console.log("getActiveTabData");
         var activeTab = jQuerySprout(".sproutstudy-tab-li.active");
         if (activeTab !== undefined) return activeTab.data(key);
     }
 
     function removeActiveTabData(key) {
+        console.log("removeActiveTabData");
         var activeTab = jQuerySprout(".sproutstudy-tab-li.active");
         if (activeTab !== undefined) activeTab.removeData(key);
     }
 
     function addPaneContentForm(form, nonce) {
+        console.log("addPaneContentForm");
         var title = form.title;
         var instanceId = form.instanceId;
 
@@ -367,12 +371,14 @@
     }
 
     function enableNarrative() {
+        console.log("enableNarrative");
         if (angular.element(jQuerySprout("#studyControllerDiv")).scope() !== undefined) {
             angular.element(jQuerySprout("#studyControllerDiv")).scope().onViewNarrative();
         }
     }
 
     function enableSplitNarrativeFrame(instanceId) {
+        console.log("enableSplitNarrativeFrame");
         var splitter = jQuerySprout(".sprout-study-form-narrative-split-frame-" + instanceId).splitter({
             "type": "v",
             "outline": false,
@@ -387,6 +393,7 @@
     }
 
     function addTransformAdminContentForm(form, nonce) {
+        console.log("addTransformAdminContentForm");
         var title = form.title;
         var instanceId = form.instanceId;
 
@@ -398,10 +405,12 @@
     }
 
     function sproutFormsDoneCallback() {
+        console.log("sproutFormsDoneCallback");
         sproutFormsDoneInd = true;
     }
 
     function deleteTab(instanceId) {
+        console.log("deleteTab");
         if (instanceId != null && instanceId != 'home') {
 
             var mutableInd = jQuerySprout("#iframe-" + instanceId).contents().find(".sprout-form-mutable-ind").val();
@@ -459,21 +468,55 @@
     function sproutEnableReviewByInstanceId(instanceId) {
         console.log("sproutEnableReviewByInstanceId.instanceId: " + instanceId);
     }
-    function deletePaneContent(id) {
+
+    function deletePaneContentNew(id) {
+        console.log("deletePaneContent")
+
         var instanceId = jQuerySprout(".sproutstudy-tab-li.active").attr("instance");
         var form = jQuerySprout(".sproutstudy-tab-li.active").data("form");
 
         var destination = form.destination;
 
+        if (!sproutFormsDoneInd) angular.element(jQuerySprout("#studyControllerDiv")).scope().onComposeMessage(form);
+        angular.element(jQuerySprout("#studyControllerDiv")).scope().enableSearch();
+
+        angular.element(jQuerySprout("#studyControllerDiv")).scope().getAllForms();
+
+        console.log("before apply");
+
+        angular.element(jQuerySprout("#studyControllerDiv")).scope().$apply();
+
+        console.log("after apply");
+
+        sproutFormsDoneInd = false;
+
+    }
+
+    function deletePaneContent(id) {
+//        console.log("deletePaneContent");
+
+        var instanceId = jQuerySprout(".sproutstudy-tab-li.active").attr("instance");
+        var form = jQuerySprout(".sproutstudy-tab-li.active").data("form");
+
+        var destination = form.destination;
+
+//        console.log("deletePaneContent 1");
+
         if (destination !== undefined && destination == 'HOME') {
+//            console.log("deletePaneContent 2");
             if (!sproutFormsDoneInd) angular.element(jQuerySprout("#studyControllerDiv")).scope().onComposeMessage(form);
             angular.element(jQuerySprout("#studyControllerDiv")).scope().enableSearch();
         } else {
+//            console.log("deletePaneContent 3");
+
             if (instanceId != null && instanceId != 'home') {
+//                console.log("deletePaneContent 3.1");
+
                 var sourceTab = jQuerySprout(".sproutstudy-tab-" + instanceId);
                 var targetTab = jQuerySprout(".sproutstudy-tab-" + instanceId).prev();
 
-                jQuerySprout(".sprout-study-form-narrative-split-frame-" + instanceId).remove();
+//                jQuerySprout(".sprout-study-form-narrative-split-frame-" + instanceId).remove();
+//                removeByClass("sprout-study-form-narrative-split-frame-" + instanceId);
 
                 sourceTab.remove();
                 targetTab.addClass("active");
@@ -490,7 +533,6 @@
                 instanceId = jQuerySprout(".iframe-demographic-form-content").attr("instanceId");
                 angular.element(jQuerySprout("#studyControllerDiv")).scope().setNewSubject(id, instanceId);
             }
-
             unlockForm(instanceId);
         }
 
@@ -498,6 +540,7 @@
         angular.element(jQuerySprout("#studyControllerDiv")).scope().$apply();
 
         sproutFormsDoneInd = false;
+
     }
 
     function unlockForm(instanceId) {
@@ -525,7 +568,7 @@
         var template = targetTab.data("template");
 
         if (angular.element(jQuerySprout("#studyControllerDiv")).scope() !== undefined) {
-            angular.element(jQuerySprout("#studyControllerDiv")).scope().showNarrativeButton(template !== undefined && template.key !== undefined, instanceId);
+            angular.element(jQuerySprout("#studyControllerDiv")).scope().showNarrativeButton(template !== undefined && template.key !== undefined && template !== null && template.key !== null, instanceId);
             if (apply) angular.element(jQuerySprout("#studyControllerDiv")).scope().$apply();
         }
     }
@@ -614,8 +657,23 @@
         var homeTab = jQuerySprout(".sproutstudy-tab-home");
         homeTab.addClass("active");
         updateTransformButton(homeTab);
-        jQuerySprout(".sprout-study-form-narrative-split-frame").remove();
-        jQuerySprout(".sproutstudy-tab-form").remove();
+//            jQuerySprout(".sprout-study-form-narrative-split-frame").remove();
+//        removeByClass("sprout-study-form-narrative-split-frame");
+        removeByClass("sproutstudy-tab-form");
+    }
+
+    function removeByClass(className) {
+        var x = document.getElementsByClassName(className);
+
+        if (x && x.length > 0) {
+            console.log(className + ".length: " + x.length);
+
+            var i;
+            for (i = 0; i < x.length; i++) {
+                var div = x[i];
+                div.parentNode.removeChild(div);
+            }
+        }
     }
 
     function generateUUID(){
@@ -668,7 +726,7 @@
     var formCallbackCatalog = {};
 
     function registerSproutFormsCallbackMethods(getSerializedArray, resetSignatures, paths, narrativeUpdate, hideSproutControlButtons, instanceId) {
-        //console.log("sproutStudy.registerSproutFormsCallbackMethods.instanceId: " + instanceId);
+        console.log("sproutStudy.registerSproutFormsCallbackMethods.instanceId: " + instanceId);
         var callbackItem = {};
         if (formCallbackCatalog[instanceId]) {
             callbackItem = formCallbackCatalog[instanceId];
@@ -682,6 +740,7 @@
     }
 
     function getNarrativeModelVerbose(instanceId) {
+        console.log("getNarrativeModelVerbose");
         if (instanceId == undefined || instanceId == null) {
             var activeTab = jQuerySprout(".sproutstudy-tab-li.active");
             instanceId = activeTab.attr("instance");
@@ -697,6 +756,7 @@
     }
 
     function getNarrativeModel(instanceId) {
+        console.log("getNarrativeModel");
         if (instanceId == undefined || instanceId == null) {
             var activeTab = jQuerySprout(".sproutstudy-tab-li.active");
             instanceId = activeTab.attr("instance");
@@ -721,6 +781,7 @@
 
 
     function compileTemplate() {
+        console.log("compileTemplate");
         var source = angular.element(jQuerySprout("#transformControllerDiv")).scope().getTemplateFromEditor();
         var model = angular.element(jQuerySprout("#transformControllerDiv")).scope().getModel();
 
@@ -748,6 +809,7 @@
     }
 
     function updateSproutTransformModelView(model) {
+        console.log("updateSproutTransformModelView");
         jQuerySprout("#sproutTransformModelContent").html(syntaxHighlight(model));
         jQuerySprout(".sprout-transform-key").off('dblclick');
         jQuerySprout(".sprout-transform-key").on('dblclick', function() {

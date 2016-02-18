@@ -95,19 +95,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.atmosphere</groupId>
-            <artifactId>atmosphere-runtime-native</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.atmosphere.jboss.as</groupId>
-            <artifactId>jboss-as-websockets</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.java-websocket</groupId>
-            <artifactId>Java-WebSocket</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>com.github.jknack</groupId>
             <artifactId>handlebars</artifactId>
         </dependency>

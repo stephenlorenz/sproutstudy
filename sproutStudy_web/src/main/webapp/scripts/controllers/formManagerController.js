@@ -38,6 +38,23 @@ angular.module('sproutStudyApp')
         }
     }
 
+
+        $scope.onFocusForm = function (form) {
+            $scope.formListFilter = { formKey: form.formKey };
+            $scope.focusedForm = form;
+        }
+
+        $scope.onUnFocusForm = function () {
+            $scope.formListFilter = { active: true };
+            $scope.focusedForm = undefined;
+        }
+
+        $scope.onTransformAdmin = function(form) {
+            $window.sessionStorage.setItem("sproutStudyForm", JSON.stringify(form));
+            formManagerService.setForm(form);
+            $location.path("/transform");
+        }
+
     $scope.session = function() {
         return sessionService.getSession();
     }

@@ -157,14 +157,20 @@ angular.module('sproutStudyApp')
         if (list !== undefined && list.detail !== undefined && list.detail !== null) {
             $.each(list.detail, function(index, tmpDetail) {
                 if (tmpDetail.active == true) {
+
+                    console.log("onAddDataRow.detail.name: " + tmpDetail.name);
+
                     var detail = {};
                     detail[tmpDetail.name] = "";
                     detail["required"] = tmpDetail.required;
                     detail["detailKey"] = tmpDetail.key;
+                    detail["detailId"] = tmpDetail.id;
                     detailsStub.push(detail);
                 }
             });
         }
+
+        detailsStub.reverse();
 
         var row = {"id": "-1", "discriminators": [], "name": "", "value": "", "activityDate": "", "active": true, "key": generateUUID(), "details": detailsStub};
 
@@ -176,6 +182,8 @@ angular.module('sproutStudyApp')
         if ($scope.list.data === undefined || $scope.list.data === null) {
             $scope.list.data = [];
         }
+
+        console.log("row: " + JSON.stringify(row));
 
         $scope.list.data.push(row);
 
@@ -350,6 +358,9 @@ angular.module('sproutStudyApp')
             return parseInt(data.id);
         };
         $scope.detailOrderByDetailId = function(data){
+            //
+            //console.log("detailOrderByDetailId.data: " + parseInt(data.detailId) + " <== " + JSON.stringify(data));
+            //
             return parseInt(data.detailId);
         };
 });

@@ -6,7 +6,6 @@ import edu.harvard.mgh.lcs.sprout.forms.core.to.LockTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.StudyService;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.CohortTO;
 import edu.harvard.mgh.lcs.sprout.forms.utils.StringUtils;
-import edu.harvard.mgh.lcs.sprout.study.websocketsinterface.SproutStudyFormStateInterface;
 
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.EJB;
@@ -22,10 +21,6 @@ import java.util.Set;
                 @ActivationConfigProperty(propertyName="clientID", propertyValue = "SproutStudyFormsLockMDB")
         })
 public class SproutFormsLockMDB implements MessageListener {
-
-    @SuppressWarnings("EjbEnvironmentInspection")
-    @EJB
-    private SproutStudyFormStateInterface sproutStudyFormState;
 
     @EJB
     private StudyService studyService;

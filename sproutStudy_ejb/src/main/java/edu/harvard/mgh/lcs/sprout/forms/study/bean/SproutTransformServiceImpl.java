@@ -109,6 +109,9 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 	public BooleanTO saveNarrative(String instanceId, String narrative, String format) {
 		if (StringUtils.isFull(instanceId, narrative, format)) {
 			VNarrativeFormatEntity vNarrativeFormatEntity = getVNarrativeFormatEntity(format);
+
+
+
 			if (vNarrativeFormatEntity != null) {
 				NarrativeEntity narrativeEntity = getNarrative(instanceId);
 				if (narrativeEntity == null) {
@@ -196,9 +199,9 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public String getNarrative(String publicationKey, String instanceId, String jsonData, String format) {
 
-		LOGGER.fine("***************************************");
-		LOGGER.fine("SproutTransformServiceImpl.getNarrative");
-        LOGGER.fine("publicationKey = [" + publicationKey + "], instanceId = [" + instanceId + "], format = [" + format + "]");
+		System.out.println("***************************************");
+		System.out.println("SproutTransformServiceImpl.getNarrative");
+		System.out.println("publicationKey = [" + publicationKey + "], instanceId = [" + instanceId + "], format = [" + format + "]");
 
 		if (StringUtils.isFull(publicationKey, instanceId, jsonData)) {
 			NarrativeEntity narrativeEntity = getNarrative(instanceId);
@@ -206,14 +209,14 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 				for (NarrativeFormatEntity narrativeFormatEntity : narrativeEntity.getFormats()) {
 					if (narrativeFormatEntity.getFormat().getCode().equalsIgnoreCase(format)) {
 
-                        LOGGER.fine("SproutTransformServiceImpl.getNarrative.1");
+						System.out.println("SproutTransformServiceImpl.getNarrative.1");
 
 						return narrativeFormatEntity.getData();
 					}
 				}
 			}
 
-            LOGGER.fine("SproutTransformServiceImpl.getNarrative.2");
+			System.out.println("SproutTransformServiceImpl.getNarrative.2");
 
             String templateText = null;
 
@@ -225,11 +228,11 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 				if (templateMasterEntity != null) templateText = templateMasterEntity.getTemplate();
 			}
 
-            LOGGER.fine("SproutTransformServiceImpl.getNarrative.3");
+			System.out.println("SproutTransformServiceImpl.getNarrative.3");
 
             if (StringUtils.isFull(templateText)) {
 
-                LOGGER.fine("SproutTransformServiceImpl.getNarrative.4");
+				System.out.println("SproutTransformServiceImpl.getNarrative.4");
 
 //					LOGGER.fine("templateText = " + templateText);
 
@@ -254,24 +257,24 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 							.build();
 					String narrative = template.apply(context);
 
-//					LOGGER.fine("narrative = " + narrative);
-                    LOGGER.fine("SproutTransformServiceImpl.getNarrative.5: " + format);
+					System.out.println("SproutTransformServiceImpl.getNarrative.5.narrative = " + narrative);
+					System.out.println("SproutTransformServiceImpl.getNarrative.5: " + format);
 
                     sproutTransformService.saveNarrative(instanceId, narrative, "html");
 
 					saveNarrativeModel(instanceId, jsonData);
 
 					if (StringUtils.isEmpty(format) || format.equalsIgnoreCase("html")) {
-                        LOGGER.fine("SproutTransformServiceImpl.getNarrative.6");
+						System.out.println("SproutTransformServiceImpl.getNarrative.6");
                         return narrative;
 					} else {
 						if (format.equalsIgnoreCase("rtf")) {
-                            LOGGER.fine("SproutTransformServiceImpl.getNarrative.7");
+							System.out.println("SproutTransformServiceImpl.getNarrative.7");
                             String narrativeRtf = transformHtml2RTF(narrative);
 							sproutTransformService.saveNarrative(instanceId, narrativeRtf, "rtf");
 							return narrativeRtf;
 						} else if (format.equalsIgnoreCase("md")) {
-                            LOGGER.fine("SproutTransformServiceImpl.getNarrative.8");
+							System.out.println("SproutTransformServiceImpl.getNarrative.8");
                             String narrativeMarkdown = transformHtml2Markdown(narrative);
 							sproutTransformService.saveNarrative(instanceId, narrativeMarkdown, "md");
                             LOGGER.fine("==> narrativeMarkdown = " + narrativeMarkdown);
@@ -308,12 +311,12 @@ public class SproutTransformServiceImpl implements SproutTransformService {
     }
 
 	private String transform(String narrative, String from, String to, String lineSeparator) {
-        LOGGER.fine("SproutTransformServiceImpl.transform");
-        LOGGER.fine("transform: " + "narrative = [" + narrative + "], from = [" + from + "], to = [" + to + "], lineSeparator = [" + lineSeparator + "]");
+        System.out.println("SproutTransformServiceImpl.transform");
+		System.out.println("transform: " + "narrative = [" + narrative + "], from = [" + from + "], to = [" + to + "], lineSeparator = [" + lineSeparator + "]");
 
 		if (StringUtils.isFull(narrative)) {
 			try {
-                LOGGER.fine("Pandoc command: pandoc -s " + String.format("--from=%s", StringUtils.isFull(from) ? from : "html") + " " + String.format("--to=%s", StringUtils.isFull(to) ? to : "plain"));
+				System.out.println("Pandoc command: pandoc -s " + String.format("--from=%s", StringUtils.isFull(from) ? from : "html") + " " + String.format("--to=%s", StringUtils.isFull(to) ? to : "plain"));
 
 				ProcessBuilder processBuilder = new ProcessBuilder("pandoc", "-s", String.format("--from=%s", StringUtils.isFull(from) ? from : "html"), String.format("--to=%s", StringUtils.isFull(to) ? to : "plain"));
 //				ProcessBuilder processBuilder = new ProcessBuilder("pandoc", "-s", "--from=html", "--to=markdown_github");
@@ -339,10 +342,11 @@ public class SproutTransformServiceImpl implements SproutTransformService {
                         builder.append(System.getProperty("line.separator"));
                     }
 				}
+				System.out.println("new narrative: " + builder.toString());
 				return builder.toString();
 			} catch (IOException e) {
 				if (e.getMessage().startsWith("Cannot run program")) {
-					LOGGER.fine("\n\n################# Pandoc (http://pandoc.org) does not appear to be installed on this server. Pandoc is required to convert output between formats. #################\n(Source: edu.harvard.mgh.lcs.sprout.forms.study.bean.SproutTransformServiceImpl.transformHtml2RTF)");
+					System.out.println("\n\n################# Pandoc (http://pandoc.org) does not appear to be installed on this server. Pandoc is required to convert output between formats. #################\n(Source: edu.harvard.mgh.lcs.sprout.forms.study.bean.SproutTransformServiceImpl.transformHtml2RTF)");
 				} else {
 					e.printStackTrace();
 				}

@@ -254,7 +254,7 @@
                                     <td class="inbox-cell" ng-click="form.locked || !form.mutable || onOpenMutableForm(form)" ng-show="allFormsMetadata.hasStudyDates">{{form.targetDate | date:'medium' }}</td>
                                     <!--<td class="inbox-cell" ng-click="onOpenMutableForm(form)">{{form.statusDate | date:'medium' }}</td>-->
                                     <td style="text-align: center; width: 80px;">
-                                        <button class="btn btn-info btn-mini" ng-click="form.locked || !form.mutable || onOpenMutableForm(form)" ng-show="!form.locked && form.mutable"><i class="icon-play icon-white" style="margin-right: 0px;"></i></button>
+                                        <button class="btn btn-info btn-mini" ng-click="onOpenMutableForm(form)" ng-show="!form.locked && form.mutable"><i class="icon-play icon-white" style="margin-right: 0px;"></i></button>
                                         <span ng-show="form.locked"><i class="fa fa-lock"></i></span>
                                     </td>
                                 </tr>
@@ -419,6 +419,7 @@
                     <!--</td>-->
                     <td style="text-align: center; width: 80px;">
                         <button class="btn btn-info btn-mini" ng-click="form.locked || !form.mutable  || onOpenForm(form)" ng-show="!form.locked && form.mutable "><i class="icon-play icon-white" style="margin-right: 0px;"></i></button>
+                        <!--<button class="btn btn-info btn-mini" ng-click="onOpenForm(form)" ><i class="icon-play icon-white" style="margin-right: 0px;"></i></button>-->
                         <span ng-show="form.locked"><i class="fa fa-lock"></i></span>
                     </td>
                 </tr>

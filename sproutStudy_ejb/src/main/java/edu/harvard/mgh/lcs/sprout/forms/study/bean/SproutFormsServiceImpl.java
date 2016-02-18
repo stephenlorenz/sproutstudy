@@ -414,8 +414,18 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
                                     if (subjectIds.length() > 0) {
                                         List<Result> results = studyService.getRemoteCohortSubjectsByList(cohortTO, subjectIds.toString());
                                         if (results != null && results.size() > 0) {
+                                            boolean unknown = false;
                                             for (Result result : results) {
-                                                if (result != null && !StringUtils.isEmpty(result.getId())) {
+                                                if (result != null && StringUtils.isFull(result.getId())) {
+                                                    if (StringUtils.isFull(result.getFirstName())) {
+                                                        if (result.getFirstName().equalsIgnoreCase("Unknown")) {
+                                                            unknown = true;
+                                                        }
+                                                    } else {
+                                                        unknown = true;
+                                                    }
+
+
                                                     formInstanceTO.setIdentityFirstName(result.getFirstName());
                                                     formInstanceTO.setIdentityLastName(result.getLastName());
                                                     formInstanceTO.setIdentityFullName(result.getFullName());
@@ -427,7 +437,7 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
                                                 }
 
                                             }
-                                            forms.add(formInstanceTO);
+                                            if (!unknown) forms.add(formInstanceTO);
                                         }
                                     }
                                 }
@@ -668,6 +678,8 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
                                 if (formInstanceTO.getIdentities() != null && formInstanceTO.getIdentities().size() > 0) {
 //                                    StringBuilder subjectIds = new StringBuilder();
 
+                                    boolean unknown = false;
+
                                     for (IdentityTO identityTO : formInstanceTO.getIdentities()) {
                                         if (identityTO.getScheme() != null && identityTO.getScheme().equalsIgnoreCase(cohortTO.getCohortSubjectSchema())) {
                                             Result result = formListIdentities.get((identityTO.getId()));
@@ -680,11 +692,13 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
                                                 formInstanceTO.setIdentityPrimarySchema(cohortTO.getCohortSubjectSchema());
                                                 formInstanceTO.setIdentityPrimaryId(result.getId());
                                             } else {
+                                                unknown = false;
                                                 formInstanceTO.setIdentityFirstName("Unknown");
                                                 formInstanceTO.setIdentityLastName("Unknown");
                                                 formInstanceTO.setIdentityFullName("Unknown");
                                                 formInstanceTO.setIdentityPrimarySchema(cohortTO.getCohortSubjectSchema());
-                                                formInstanceTO.setIdentityPrimaryId(subjectIds.toString());
+//                                                formInstanceTO.setIdentityPrimaryId(subjectIds.toString());
+                                                formInstanceTO.setIdentityPrimaryId("---");
                                             }
 //                                            if (subjectIds.length() > 0) subjectIds.append("|");
 //                                            subjectIds.append(identityTO.getId());
@@ -715,8 +729,8 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
 //                                            formInstanceTO.setIdentityPrimarySchema(cohortTO.getCohortSubjectSchema());
 //                                            formInstanceTO.setIdentityPrimaryId(subjectIds.toString());
 //                                        }
-                                        forms.add(formInstanceTO);
                                     }
+                                    forms.add(formInstanceTO);
                                 }
                             }
                         }

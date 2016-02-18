@@ -51,6 +51,7 @@ public class PollEventGarbageCollectorImpl {
         Query query = entityManager.createNativeQuery(queryText);
         int recordsDeleted = query.executeUpdate();
         LOGGER.fine(String.format("PollEventGarbageCollectorImpl.collectGarbage cleared %s stale events.", recordsDeleted));
+//        System.out.println(String.format("PollEventGarbageCollectorImpl.collectGarbage cleared %s stale events.", recordsDeleted));
     }
 
 }
