@@ -14,8 +14,8 @@ public class Helpers {
 
     public CharSequence compare(String lvalue, String operator, String rvalue, Options options) throws IOException {
 
-        System.out.println("Helpers.compare");
-        System.out.println("lvalue = [" + lvalue + "], operator = [" + operator + "], rvalue = [" + rvalue + "], options = [" + options + "]");
+//        System.out.println("Helpers.compare");
+//        System.out.println("lvalue = [" + lvalue + "], operator = [" + operator + "], rvalue = [" + rvalue + "], options = [" + options + "]");
 
         boolean result = false;
 
@@ -42,10 +42,11 @@ public class Helpers {
         }
 
 
-        System.out.println("result = " + result);
+//        result = true;
 
+//        System.out.println("result = " + result);
 
-        return result ? options.fn(true) : null;
+        return result ? options.fn(true) : options.fn(false);
     }
 
     public CharSequence getNode(Object context, String queryKey, Options options) throws IOException {

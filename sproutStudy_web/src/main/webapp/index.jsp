@@ -410,21 +410,46 @@
     }
 
     function deleteTab(instanceId) {
-        console.log("deleteTab");
-        if (instanceId != null && instanceId != 'home') {
+        var instanceId = jQuerySprout(".sproutstudy-tab-li.active").attr("instance");
+        var form = jQuerySprout(".sproutstudy-tab-li.active").data("form");
 
-            var mutableInd = jQuerySprout("#iframe-" + instanceId).contents().find(".sprout-form-mutable-ind").val();
+        var destination = form.destination;
 
-            if (mutableInd == 'true') {
-                jQuerySprout("#modal-wait-title").html("Saving and Closing form");
-                jQuerySprout("#modal-wait-message").html("Saving and closing form....please wait...");
-                jQuerySprout('#modal-wait').modal({
-                    keyboard: false
-                });
+        if (destination !== undefined && destination == 'HOME') {
+//            console.log("deletePaneContent 2");
+//            if (!sproutFormsDoneInd) angular.element(jQuerySprout("#studyControllerDiv")).scope().onComposeMessage(form);
+            angular.element(jQuerySprout("#studyControllerDiv")).scope().enableSearch();
+        } else {
+            if (instanceId != null && instanceId != 'home') {
 
-                jQuerySprout("#iframe-" + instanceId)[0].contentWindow.remoteSave(function(data) {
+                var mutableInd = jQuerySprout("#iframe-" + instanceId).contents().find(".sprout-form-mutable-ind").val();
+
+                if (mutableInd == 'true') {
+                    jQuerySprout("#modal-wait-title").html("Saving and Closing form");
+                    jQuerySprout("#modal-wait-message").html("Saving and closing form....please wait...");
+                    jQuerySprout('#modal-wait').modal({
+                        keyboard: false
+                    });
+
+                    jQuerySprout("#iframe-" + instanceId)[0].contentWindow.remoteSave(function(data) {
+                        jQuerySprout(".sproutstudy-tab-li.active").removeClass("active");
+                        jQuerySprout(".sprout-study-form-narrative-split-frame").hide();
+
+                        var sourceTab = jQuerySprout(".sproutstudy-tab-" + instanceId);
+                        var targetTab = jQuerySprout(".sproutstudy-tab-home");
+
+                        jQuerySprout(".sprout-study-form-narrative-split-frame-" + instanceId).remove();
+
+                        sourceTab.remove();
+                        targetTab.addClass("active");
+                        updateTransformButton(targetTab, true);
+
+                        jQuerySprout(".sproutstudy-content-home").show();
+                        jQuerySprout('#modal-wait').modal('hide');
+                    });
+                } else {
                     jQuerySprout(".sproutstudy-tab-li.active").removeClass("active");
-                    jQuerySprout(".sprout-study-form-narrative-split-frame").hide();
+                    jQuerySprout("sprout-study-form-narrative-split-frame").hide();
 
                     var sourceTab = jQuerySprout(".sproutstudy-tab-" + instanceId);
                     var targetTab = jQuerySprout(".sproutstudy-tab-home");
@@ -437,28 +462,14 @@
 
                     jQuerySprout(".sproutstudy-content-home").show();
                     jQuerySprout('#modal-wait').modal('hide');
-                });
-            } else {
-                jQuerySprout(".sproutstudy-tab-li.active").removeClass("active");
-                jQuerySprout("sprout-study-form-narrative-split-frame").hide();
+                }
 
-                var sourceTab = jQuerySprout(".sproutstudy-tab-" + instanceId);
-                var targetTab = jQuerySprout(".sproutstudy-tab-home");
 
-                jQuerySprout(".sprout-study-form-narrative-split-frame-" + instanceId).remove();
 
-                sourceTab.remove();
-                targetTab.addClass("active");
-                updateTransformButton(targetTab, true);
-
-                jQuerySprout(".sproutstudy-content-home").show();
-                jQuerySprout('#modal-wait').modal('hide');
             }
-
-
-            unlockForm(instanceId);
-
         }
+
+        unlockForm(instanceId);
 
         angular.element(jQuerySprout("#studyControllerDiv")).scope().getAllForms();
         angular.element(jQuerySprout("#studyControllerDiv")).scope().$apply();
@@ -657,8 +668,11 @@
         var homeTab = jQuerySprout(".sproutstudy-tab-home");
         homeTab.addClass("active");
         updateTransformButton(homeTab);
+            jQuerySprout(".sprout-study-form-narrative-split-frame").hide();
 //            jQuerySprout(".sprout-study-form-narrative-split-frame").remove();
 //        removeByClass("sprout-study-form-narrative-split-frame");
+//        hideByClass("sprout-study-form-narrative-split-frame");
+
         removeByClass("sproutstudy-tab-form");
     }
 
@@ -666,7 +680,7 @@
         var x = document.getElementsByClassName(className);
 
         if (x && x.length > 0) {
-            console.log(className + ".length: " + x.length);
+//            console.log(className + ".length: " + x.length);
 
             var i;
             for (i = 0; i < x.length; i++) {

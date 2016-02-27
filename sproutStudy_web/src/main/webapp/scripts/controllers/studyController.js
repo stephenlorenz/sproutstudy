@@ -101,6 +101,7 @@ angular.module('sproutStudyApp')
         $scope.modalSmallOpts = {
 //            backdropFade: true, // These two settings
 //            dialogFade: true,
+            keyboard: true,
             dialogClass: 'modal modal-200-600'
         };
 
@@ -346,17 +347,14 @@ angular.module('sproutStudyApp')
         };
 
         $scope.formFilter = function (item){
-
-
             if ($scope.status !== undefined) {
-                if (item.inboxProxies !== undefined && item.inboxProxies.length > 0) {
-                    var hasMatch = false;
-                    $.each(item.inboxProxies, function (index, proxy) {
-                       if (proxy.status == $scope.status.value) hasMatch = true;
-                    });
-                    if (!hasMatch) return false;
-                } else {
-                    if (item.inboxStatus != $scope.status.value) return false;
+                if (item.inboxStatus != $scope.status.value) {
+                    if (item.inboxProxies !== undefined && item.inboxProxies.length > 0) {
+                        $.each(item.inboxProxies, function (index, proxy) {
+                            if (proxy.status == $scope.status.value) hasMatch = true;
+                        });
+                        if (!hasMatch) return false;
+                    }
                 }
             }
             if ($scope.targetDate !== undefined) {
@@ -732,6 +730,8 @@ angular.module('sproutStudyApp')
                 tmpOrderByColumn = "date_of_status";
             } else if (column == 'instance_key') {
                 tmpOrderByColumn = "instance_key";
+            } else if (column == 'date_of_target') {
+                tmpOrderByColumn = "date_of_target";
             }
 
             if (tmpOrderByColumn != null) {
@@ -1605,7 +1605,6 @@ angular.module('sproutStudyApp')
             }
         };
 
-
         $scope.pollEvents = function(cohort) {
 
             if (cohort !== undefined && cohort.cohortKey !== undefined) {
@@ -1740,8 +1739,6 @@ angular.module('sproutStudyApp')
                                     }
 
                                 });
-
-
                             }
                         }
                         $timeout(poller, $scope.pollFrequency);

@@ -1,5 +1,8 @@
 Handlebars.registerHelper('compare', function (lvalue, operator, rvalue, options) {
 
+    console.log("================================== 978 compare ================================");
+
+
     var operators, result;
 
     if (arguments.length < 3) {

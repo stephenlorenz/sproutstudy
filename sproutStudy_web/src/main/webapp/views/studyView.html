@@ -222,9 +222,9 @@
                                             </ul>
                                         </span>
                                     </th>
-                                    <th ng-show="allFormsMetadata.hasStudyDates">
+                                    <th ng-show="allFormsMetadata.hasStudyDates || allFormsFilterTargetDate != null">
                                         <span class="dropdown sprout-dropdown-header">
-                                            <span class="">Study Date<span ng-show="allFormsFilterTargetDate != null">:<br/><span class="badge badge-info">{{allFormsFilterTargetDate}}<span ng-click="clearFilterTargetDate()" style="margin-left: 5px;" class="sprout-study-badge-close"><i class="fa fa-times-circle"></i></span></span></span></span>
+                                            <span class=""><span class="sortable" ng-click="allFormsChangeSort('date_of_target')">Study Date<i ng-class="allFormsSortClass('date_of_target')" ng-style="{'margin-left': mutableFormsSortStyle('date_of_target')}" ></i></span><span ng-show="allFormsFilterTargetDate != null">:<br/><span class="badge badge-info">{{allFormsFilterTargetDate}}<span ng-click="clearFilterTargetDate()" style="margin-left: 5px;" class="sprout-study-badge-close"><i class="fa fa-times-circle"></i></span></span></span></span>
                                             <input type="text" class="input-small date datepicker" ng-model="allFormsFilterTargetDateProxy" data-model-date-format="mm/dd/yyyy" data-date-format="mm/dd/yyyy" autoclose="true" style="margin-bottom: 0px; display: none;" bs-datepicker />
                                             <button  type="button" class="btn btn-mini" data-toggle="datepicker" style="margin-left: 8px;"><i class="icon-calendar"></i></button>
                                         </span>
@@ -233,7 +233,12 @@
                                     <th style="text-align: center; width: 100px;">Open Form</th>
                                 </tr>
                                 </thead>
-                                <tr ng-repeat="form in allForms | filter: allFormsFilter | orderBy: '-statusDate'" ng-class="{'inbox-row': !form.locked && form.mutable, 'unknown': form.identityFullName == 'Unknown', 'immutable': !form.mutable}"  >
+
+
+                                <!--<li ng-repeat='item in filtered = (items | filter:filterExpr)'>{{item}}</li>-->
+
+                                <!--<tr ng-repeat="form in allForms | filter: allFormsFilter | orderBy: '-statusDate'" ng-class="{'inbox-row': !form.locked && form.mutable, 'unknown': form.identityFullName == 'Unknown', 'immutable': !form.mutable}"  >-->
+                                <tr ng-repeat="form in allFormsFiltered = (allForms | filter: allFormsFilter)" ng-class="{'inbox-row': !form.locked && form.mutable, 'unknown': form.identityFullName == 'Unknown', 'immutable': !form.mutable}"  >
                                     <td class="inbox-cell"><i class="fa fa-user sprout-study-badge-close" ng-click="onOpenSubject(form.identityPrimaryId)"></i> <span ng-click="form.locked || !form.mutable || onOpenMutableForm(form)">{{form.identityFullName}} ({{form.identityPrimaryId}})</span></td>
                                     <td class="inbox-cell" ng-click="form.locked || !form.mutable || onOpenMutableForm(form)">{{form.title}}</a></td>
                                     <td ng-show="allFormsMetadata.hasInstanceKeys" class="inbox-cell form-instance-id-{{form.instanceId}}" ng-click="form.locked || !form.mutable || onOpenMutableForm(form)">{{form.instanceKey}}</a></td>
@@ -259,6 +264,11 @@
                                     </td>
                                 </tr>
                             </table>
+
+                            <div class="alert alert-warning" ng-show="allFormsFiltered.length == 0">
+                                No forms meet your filter criteria.
+                            </div>
+
                             <div style="text-align: center;" ng-show="allForms.length > 0 && allFormsPageCount > 1">
                                 <button class="btn btn-mini" ng-disabled="allFormsCurrentPage == 1" ng-class="{'btn-primary': allFormsCurrentPage > 1}" ng-click="allFormsFirstPage()"><i class="icon-fast-backward icon-white" style="margin-left: 0px;"></i></button>
                                 <button class="btn btn-mini" ng-disabled="allFormsCurrentPage == 1" ng-class="{'btn-primary': allFormsCurrentPage > 1}" ng-click="allFormsPreviousPage()"><i class="icon-backward icon-white" style="margin-left: 0px;"></i></button>

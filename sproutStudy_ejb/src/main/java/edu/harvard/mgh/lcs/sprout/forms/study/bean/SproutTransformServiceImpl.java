@@ -204,17 +204,17 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 		System.out.println("publicationKey = [" + publicationKey + "], instanceId = [" + instanceId + "], format = [" + format + "]");
 
 		if (StringUtils.isFull(publicationKey, instanceId, jsonData)) {
-			NarrativeEntity narrativeEntity = getNarrative(instanceId);
-			if (narrativeEntity != null && narrativeEntity.getFormats() != null) {
-				for (NarrativeFormatEntity narrativeFormatEntity : narrativeEntity.getFormats()) {
-					if (narrativeFormatEntity.getFormat().getCode().equalsIgnoreCase(format)) {
-
-						System.out.println("SproutTransformServiceImpl.getNarrative.1");
-
-						return narrativeFormatEntity.getData();
-					}
-				}
-			}
+//			NarrativeEntity narrativeEntity = getNarrative(instanceId);
+//			if (narrativeEntity != null && narrativeEntity.getFormats() != null) {
+//				for (NarrativeFormatEntity narrativeFormatEntity : narrativeEntity.getFormats()) {
+//					if (narrativeFormatEntity.getFormat().getCode().equalsIgnoreCase(format)) {
+//
+//						System.out.println("SproutTransformServiceImpl.getNarrative.1");
+//
+//						return narrativeFormatEntity.getData();
+//					}
+//				}
+//			}
 
 			System.out.println("SproutTransformServiceImpl.getNarrative.2");
 
@@ -234,7 +234,8 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 
 				System.out.println("SproutTransformServiceImpl.getNarrative.4");
 
-//					LOGGER.fine("templateText = " + templateText);
+				System.out.println("templateText = " + templateText);
+				System.out.println("jsonData = " + jsonData);
 
 				try {
 					Handlebars handlebars = new Handlebars();
