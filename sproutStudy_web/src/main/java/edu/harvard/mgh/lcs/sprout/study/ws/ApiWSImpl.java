@@ -936,5 +936,17 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
         return null;
     }
 
+    @Override
+    public BooleanTO sendFeedback(HttpServletRequest request, String cohortKey, String feedback) throws InvalidSessionRESTful {
+        if (StringUtils.isFull(feedback)) {
+            SessionTO sessionTO = getSessionTO(request);
+            if (sessionTO != null) {
+                return studyService.sendFeedback(sessionTO, cohortKey, feedback);
+            }
+        }
+        return new BooleanTO(false, "Missing feedback");
+    }
+
+
 
 }

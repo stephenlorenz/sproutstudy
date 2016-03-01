@@ -324,4 +324,9 @@ public interface ApiWS {
     @Produces(MediaType.APPLICATION_JSON)
     public BooleanTO unlock(@Context HttpServletRequest request, @QueryParam("instanceId") String instanceId) throws InvalidSessionRESTful, UnauthorizedActionException;
 
+    @POST
+    @Path("/secure/sendFeedback")
+    @Produces(MediaType.APPLICATION_JSON)
+    public BooleanTO sendFeedback(@Context HttpServletRequest request, @QueryParam("cohortKey") String cohortKey, String feedback) throws InvalidSessionRESTful;
+
 }

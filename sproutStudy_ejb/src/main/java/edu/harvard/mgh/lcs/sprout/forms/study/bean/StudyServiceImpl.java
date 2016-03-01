@@ -26,6 +26,11 @@ import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.jms.*;
+import javax.jms.Message;
+import javax.jms.Session;
+import javax.mail.*;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.persistence.EntityManager;
@@ -1633,6 +1638,82 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
         }
         return null;
     }
+
+    @Override
+    public BooleanTO sendFeedback(SessionTO sessionTO, String cohortKey, String feedback) {
+        System.out.println("StudyServiceImpl.sendFeedback");
+        System.out.println("sessionTO = [" + sessionTO + "], cohortKey = [" + cohortKey + "], feedback = [" + feedback + "]");
+        if (sessionTO != null && StringUtils.isFull(cohortKey)) {
+            if (StringUtils.isFull(cohortKey) && !cohortKey.equalsIgnoreCase("undefined")) {
+                CohortEntity cohortEntity = null;
+                if (isAdmin(sessionTO)) {
+                    cohortEntity = getAuthorizedCohortByKey(sessionTO, cohortKey);
+                } else {
+                    cohortEntity = getManagedCohortByKey(sessionTO, cohortKey);
+                }
+                if (cohortEntity != null) {
+                    System.out.println("StudyServiceImpl.sendFeedback.cohortEntity.getName(): " + cohortEntity.getName());
+                    System.out.println("StudyServiceImpl.sendFeedback.sessionTO.getUser(): " + sessionTO.getUser());
+                    return sendFeedbackEmail(sessionTO, cohortEntity.getName(), feedback);
+                }
+            }
+        }
+        return new BooleanTO(false, "Missing cohort.");
+    }
+
+    private BooleanTO sendFeedbackEmail(SessionTO sessionTO, String cohortName, String feedback) {
+        if (StringUtils.isFull(cohortName, feedback)) {
+
+            try {
+                boolean debug = false;
+
+                Properties props = new Properties();
+                props.put("mail.smtp.host", "smtp.partners.org");
+
+                javax.mail.Session session = javax.mail.Session.getDefaultInstance(props, null);
+                session.setDebug(debug);
+
+                javax.mail.Message message = new MimeMessage(session);
+
+                message.setFrom(new InternetAddress(sessionTO.getEmail()));
+
+                InternetAddress[] addressTo = new InternetAddress[2];
+                addressTo[0] = new InternetAddress("lcsjira@oncall.partners.org");
+                addressTo[1] = new InternetAddress("slorenz@partners.org");
+
+                message.setRecipients(javax.mail.Message.RecipientType.TO, addressTo);
+
+                message.setSubject("#PROJECT=SPROUTNU | SproutStudy Feedback");
+
+                String body = "";
+
+                body += "---- Basic Info ---------------------------------------------------------------------\n\n";
+
+                body += "Name:     " + sessionTO.getFirstName() + " " + sessionTO.getLastName() + "\n\n";
+
+                body += "Email:    " + sessionTO.getEmail() + "\n\n";
+
+                body += "Cohort:   " + cohortName + "\n\n";
+
+                body += "Username: " + sessionTO.getUser() + "\n\n";
+
+                body += "---- Feedback ----------------------------------------------------------------------\n\n";
+
+                body += feedback;
+
+                message.setContent(body, "text/plain");
+
+                Transport.send(message);
+
+                return new BooleanTO(true);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return new BooleanTO(false, "Failed to send feedback message.");
+    }
+
 
     @Override
     public BooleanTO revokeCohortAuthorization(SessionTO sessionTO, String cohortKey, String username) throws UnauthorizedActionException {

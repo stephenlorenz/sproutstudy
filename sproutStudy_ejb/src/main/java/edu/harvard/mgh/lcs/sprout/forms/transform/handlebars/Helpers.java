@@ -14,7 +14,7 @@ public class Helpers {
 
     public CharSequence compare(String lvalue, String operator, String rvalue, Options options) throws IOException {
 
-//        System.out.println("Helpers.compare");
+//        System.out.println("\nHelpers.compare");
 //        System.out.println("lvalue = [" + lvalue + "], operator = [" + operator + "], rvalue = [" + rvalue + "], options = [" + options + "]");
 
         boolean result = false;
@@ -40,14 +40,10 @@ public class Helpers {
                 result = StringUtils.getFloat(lvalue).floatValue() <= StringUtils.getFloat(rvalue).floatValue();
             }
         }
-
-
-//        result = true;
-
-//        System.out.println("result = " + result);
-
-        return result ? options.fn(true) : options.fn(false);
+        return options.isFalsy(result) ? options.inverse() : options.fn();
     }
+
+
 
     public CharSequence getNode(Object context, String queryKey, Options options) throws IOException {
 

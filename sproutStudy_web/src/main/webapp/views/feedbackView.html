@@ -1,0 +1,31 @@
+<div>
+    <legend>Feedback</legend>
+
+    <form method="post" id="user" name="addFeedback" autocomplete="false" ng-show="feedbackSent == false">
+
+        <div class="alert alert-error" ng-show="sendFeedbackMessage != undefined">
+            <h4>{{sendFeedbackMessage}}</h4>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">Comment</label>
+            <div class="controls">
+                <textarea ng-model="feedback" required  autocomplete="false"
+                        style="width: 550px; height: 100px;" />
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button class="btn btn-primary" ng-click="onSendFeedbackMessage()" ng-disabled="addFeedback.$invalid">Submit</button>
+            <a ng-href="#/" class="btn">Cancel</a>
+
+        </div>
+
+    </form>
+
+    <div ng-show="feedbackSent" class="alert alert-info">
+        <h4>Thank you for your feedback</h4>
+        <p style="margin-top: 10px;">Your feedback has been submitted to the Helpdesk. Click <a ng-href="#/">here</a> to return to the dashboard.</p>
+    </p>
+
+</div>

@@ -75,4 +75,6 @@ public interface StudyService {
     public List<CohortListDataTO> refreshList(SessionTO sessionTO, String cohortKey, String listKey);
     public BooleanTO toggleFormArchive(SessionTO sessionTO, String cohortKey, String formKey, String publicationKey, Boolean archiveInd) throws UnauthorizedActionException;
     public PollEventTO getPollEvents(String cohortKey, Integer pollKey);
+
+    BooleanTO sendFeedback(SessionTO sessionTO, String cohortKey, String feedback);
 }

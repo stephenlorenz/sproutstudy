@@ -22,6 +22,10 @@ var sproutStudyApp = angular.module('sproutStudyApp', ['ui', 'ngResource', 'ui.b
                 templateUrl: 'views/settingsView.html',
                 controller: 'settingsController'
             })
+            .when('/feedback', {
+                templateUrl: 'views/feedbackView.html',
+                controller: 'feedbackController'
+            })
             .when('/forms', {
                 templateUrl: 'views/formManagerView.html',
                 controller: 'formManagerController'

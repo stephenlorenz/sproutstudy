@@ -72,6 +72,7 @@
 
 <script type="text/javascript">
     var sproutStudyResourceBase = "";
+    var sproutStudyCohortGlobal = undefined;
 </script>
 
 <div class="container container-sproutstudy" ng-controller="cohortController">
@@ -98,6 +99,7 @@
                         <li><a ng-href="#/cohorts" ng-click="onClearForms()" class="sproutstudy-tab-button" ng-show="isCohortManager()">Cohort Admin</a></li>
                         <li><a ng-href="#/forms" ng-click="onClearForms()" class="sproutstudy-tab-button" ng-show="isManagerOfCohort() || isAdmin()  ">Form Admin</a></li>
                         <li><a ng-href="#/lists" class="sproutstudy-tab-button" ng-show="isManagerOfCohort() || isAdmin()  ">List Admin</a></li>
+                        <li><a ng-href="#/feedback" class="sproutstudy-tab-button">Feedback</a></li>
                         <li><a id="btn_logout" href="logout">Logout</a></li>
                     <%--<li><a href="#/settings">Account Settings</a></li>--%>
                     </ul>
@@ -165,6 +167,7 @@
 <script src="scripts/controllers/globalController.js"></script>
 <script src="scripts/controllers/cohortController.js"></script>
 <script src="scripts/controllers/settingsController.js"></script>
+<script src="scripts/controllers/feedbackController.js"></script>
 <script src="scripts/controllers/formManagerController.js"></script>
 <script src="scripts/controllers/listManagerController.js"></script>
 <script src="scripts/controllers/transformManagerController.js"></script>
@@ -183,6 +186,7 @@
 <script src="scripts/services/providerService.js"></script>
 <script src="scripts/services/patientService.js"></script>
 <script src="scripts/services/settingsService.js"></script>
+<script src="scripts/services/feedbackService.js"></script>
 <script src="scripts/services/formManagerService.js"></script>
 <script src="scripts/services/listManagerService.js"></script>
 <script src="scripts/services/cohortManagerService.js"></script>
