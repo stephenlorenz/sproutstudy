@@ -417,7 +417,8 @@
         var instanceId = jQuerySprout(".sproutstudy-tab-li.active").attr("instance");
         var form = jQuerySprout(".sproutstudy-tab-li.active").data("form");
 
-        var destination = form.destination;
+        var destination = undefined;
+        if (form) destination = form.destination;
 
         if (destination !== undefined && destination == 'HOME') {
 //            console.log("deletePaneContent 2");
@@ -490,7 +491,8 @@
         var instanceId = jQuerySprout(".sproutstudy-tab-li.active").attr("instance");
         var form = jQuerySprout(".sproutstudy-tab-li.active").data("form");
 
-        var destination = form.destination;
+        var destination = undefined;
+        if (form) destination = form.destination;
 
         if (!sproutFormsDoneInd) angular.element(jQuerySprout("#studyControllerDiv")).scope().onComposeMessage(form);
         angular.element(jQuerySprout("#studyControllerDiv")).scope().enableSearch();
@@ -508,12 +510,13 @@
     }
 
     function deletePaneContent(id) {
-//        console.log("deletePaneContent");
+        console.log("deletePaneContent: " + id);
 
         var instanceId = jQuerySprout(".sproutstudy-tab-li.active").attr("instance");
         var form = jQuerySprout(".sproutstudy-tab-li.active").data("form");
 
-        var destination = form.destination;
+        var destination = undefined;
+        if (form) destination = form.destination;
 
 //        console.log("deletePaneContent 1");
 
@@ -1070,7 +1073,7 @@
             keyboard: false
         });
         sproutFormsDoneInd = true;
-        deletePaneContent();
+        deletePaneContent(1);
         if (callback !== undefined && typeof callback == 'function') callback();
 
     }

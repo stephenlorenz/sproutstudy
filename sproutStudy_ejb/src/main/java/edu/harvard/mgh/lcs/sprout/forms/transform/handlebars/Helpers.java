@@ -26,6 +26,12 @@ public class Helpers {
                 } else {
                     result = lvalue.equals(rvalue);
                 }
+            } else if (operator.equals("!==") || operator.equals("!=") || operator.equals("<>")) {
+                if (StringUtils.isInteger(lvalue) && StringUtils.isInteger(rvalue)) {
+                    result = StringUtils.getFloat(lvalue).floatValue() != StringUtils.getFloat(rvalue).floatValue();
+                } else {
+                    result = !lvalue.equals(rvalue);
+                }
             } else if (operator.equals(">")) {
                 if (StringUtils.isInteger(lvalue) && StringUtils.isInteger(rvalue))
                 result = StringUtils.getFloat(lvalue).floatValue() > StringUtils.getFloat(rvalue).floatValue();
@@ -40,6 +46,9 @@ public class Helpers {
                 result = StringUtils.getFloat(lvalue).floatValue() <= StringUtils.getFloat(rvalue).floatValue();
             }
         }
+
+//        System.out.println("Helpers.compare.result: " + result);
+
         return options.isFalsy(result) ? options.inverse() : options.fn();
     }
 
