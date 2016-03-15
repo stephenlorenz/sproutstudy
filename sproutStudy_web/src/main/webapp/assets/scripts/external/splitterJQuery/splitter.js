@@ -67,6 +67,8 @@ var splitterCounter = 0;
 			setBarState(opts.barNormalClass);
 		}
 		function windowResized() {
+			console.log("windowResized");
+
 			var top = splitter.offset().top;
 			var wHeight = $(window).height();
 			var tNavBarHeight = $(".navbar-fixed-top").height();
@@ -77,6 +79,10 @@ var splitterCounter = 0;
 			$(".sproutstudy-split-frame-content").height(otherHeight + 5);
 			$(".sproutstudy-split-frame-content-narrative").height(otherHeight + 5);
 			$(".splitter-bar-vertical").height(otherHeight + 5);
+
+
+
+
 		}
 
 		function startSplitMouse(evt) {

@@ -73,6 +73,11 @@ angular.module('sproutStudyApp')
                     callback(response.data);
                 });
             },
+            getActiveSproutInboxLocations: function (params, callback) {
+                $http.get(networkService.generateUrl("getActiveSproutInboxLocations", params)).then(function (response) {
+                    callback(response.data);
+                });
+            },
             getAssignments: function (params, callback) {
                 $http.get(networkService.generateUrl("getAssignments", params)).then(function (response) {
                     callback(response.data);

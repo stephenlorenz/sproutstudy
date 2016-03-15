@@ -19,6 +19,16 @@ import java.util.List;
 public interface ApiWS {
 
     @GET
+    @Path("/secure/auth")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Boolean auth(@QueryParam("username") String username);
+
+    @GET
+    @Path("/secure/nucardauth")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Boolean authNucard(@QueryParam("username") String username);
+
+    @GET
     @Path("/secure/getAuthorizedCohorts")
     @Produces(MediaType.APPLICATION_JSON)
     public List<CohortTO> getAuthorizedCohorts(@Context HttpServletRequest request) throws InvalidSessionRESTful;
@@ -141,17 +151,17 @@ public interface ApiWS {
     @GET
     @Path("/secure/getAllForms")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<FormInstanceTO> getAllForms(@Context HttpServletRequest request, @QueryParam("page") int page, @QueryParam("rows") int rows, @QueryParam("orderBy") String orderBy, @QueryParam("orderDirection") String orderDirection, @QueryParam("form") String publicationKey, @QueryParam("status") String status, @QueryParam("targetDate") String targetDate, @QueryParam("assignment") String assignment) throws InvalidSessionRESTful;
+    public List<FormInstanceTO> getAllForms(@Context HttpServletRequest request, @QueryParam("page") int page, @QueryParam("rows") int rows, @QueryParam("orderBy") String orderBy, @QueryParam("orderDirection") String orderDirection, @QueryParam("form") String publicationKey, @QueryParam("status") String status, @QueryParam("location") String location, @QueryParam("targetDate") String targetDate, @QueryParam("assignment") String assignment) throws InvalidSessionRESTful;
 
     @GET
     @Path("/secure/getAllFormsPageCount")
     @Produces(MediaType.APPLICATION_JSON)
-    public int getAllFormsPageCount(@Context HttpServletRequest request, @QueryParam("rows") int rows, @QueryParam("form") String publicationKey, @QueryParam("status") String status, @QueryParam("targetDate") String targetDate, @QueryParam("assignment") String assignment) throws InvalidSessionRESTful;
+    public int getAllFormsPageCount(@Context HttpServletRequest request, @QueryParam("rows") int rows, @QueryParam("form") String publicationKey, @QueryParam("status") String status, @QueryParam("location") String location, @QueryParam("targetDate") String targetDate, @QueryParam("assignment") String assignment) throws InvalidSessionRESTful;
 
     @GET
     @Path("/secure/getAllFormsMetadata")
     @Produces(MediaType.APPLICATION_JSON)
-    public FormListMetadataTO getAllFormsMetadata(@Context HttpServletRequest request, @QueryParam("rows") int rows, @QueryParam("form") String publicationKey, @QueryParam("status") String status, @QueryParam("targetDate") String targetDate, @QueryParam("assignment") String assignment) throws InvalidSessionRESTful;
+    public FormListMetadataTO getAllFormsMetadata(@Context HttpServletRequest request, @QueryParam("rows") int rows, @QueryParam("form") String publicationKey, @QueryParam("status") String status, @QueryParam("location") String location, @QueryParam("targetDate") String targetDate, @QueryParam("assignment") String assignment) throws InvalidSessionRESTful;
 
     @GET
     @Path("/secure/getRecentCohortMembers")
@@ -212,6 +222,11 @@ public interface ApiWS {
     @Path("/secure/getActiveSproutInboxStatuses")
     @Produces(MediaType.APPLICATION_JSON)
     public List<edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.NameValue> getActiveSproutInboxStatuses(@Context HttpServletRequest request) throws InvalidSessionRESTful;
+
+    @GET
+    @Path("/secure/getActiveSproutInboxLocations")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.NameValue> getActiveSproutInboxLocations(@Context HttpServletRequest request) throws InvalidSessionRESTful;
 
     @GET
     @Path("/secure/saveCohort")
@@ -292,7 +307,7 @@ public interface ApiWS {
     @GET
     @Path("/secure/setSessionFormFilter")
     @Produces(MediaType.APPLICATION_JSON)
-    public BooleanTO setSessionFormFilter(@Context HttpServletRequest request, @QueryParam("formFilter") String formFilter, @QueryParam("assignmentFilter") String assignmentFilter, @QueryParam("statusFilter") String statusFilter, @QueryParam("targetDateFilter") String targetDateFilter) throws InvalidSessionRESTful;
+    public BooleanTO setSessionFormFilter(@Context HttpServletRequest request, @QueryParam("formFilter") String formFilter, @QueryParam("assignmentFilter") String assignmentFilter, @QueryParam("statusFilter") String statusFilter, @QueryParam("locationFilter") String locationFilter, @QueryParam("targetDateFilter") String targetDateFilter) throws InvalidSessionRESTful;
 
     @GET
     @Path("/secure/getUserPreferences")

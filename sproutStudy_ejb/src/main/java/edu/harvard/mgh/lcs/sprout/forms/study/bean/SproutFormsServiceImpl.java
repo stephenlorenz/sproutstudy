@@ -457,6 +457,11 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
     }
 
     @Override
+    public List<NameValue> getActiveSproutInboxLocations(List<String> publicationKeys) {
+        return formsWebService.getActiveInboxLocations(publicationKeys);
+    }
+
+    @Override
     public String getMostRecentInstanceId(String schema, String id, String publicationKey) {
         try {
             if (formsWebService == null) init();
@@ -484,7 +489,7 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
     }
 
     @Override
-    public int getAllFormsPageCount(String username, CohortTO cohortTO, Set<String> publicationKeys, int rows, String status, String targetDate, String assignment) {
+    public int getAllFormsPageCount(String username, CohortTO cohortTO, Set<String> publicationKeys, int rows, String status, String location, String targetDate, String assignment) {
         if (publicationKeys != null && publicationKeys.size() > 0 && cohortTO != null) {
 
             List<String> publicationKeysList = new ArrayList<String>();
@@ -512,7 +517,7 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
                         identities.add(identityMrn);
                     }
 
-                    return formsWebService.getPageCountByPublications(orgAuthKey, publicationKeysList, rows, status, schema, targetDate, identities);
+                    return formsWebService.getPageCountByPublications(orgAuthKey, publicationKeysList, rows, status, location, schema, targetDate, identities);
                 }
             }
         }
@@ -520,7 +525,7 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
     }
 
     @Override
-    public FormListMetadataTO getAllFormsMetadata(String username, CohortTO cohortTO, Set<String> publicationKeys, int rows, String status, String targetDate, String assignment) {
+    public FormListMetadataTO getAllFormsMetadata(String username, CohortTO cohortTO, Set<String> publicationKeys, int rows, String status, String location, String targetDate, String assignment) {
         if (publicationKeys != null && publicationKeys.size() > 0 && cohortTO != null) {
 
             List<String> publicationKeysList = new ArrayList<String>();
@@ -548,7 +553,7 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
                         identities.add(identityMrn);
                     }
 
-                    return formsWebService.getFormMetadataByPublications(orgAuthKey, publicationKeysList, rows, status, schema, targetDate, identities);
+                    return formsWebService.getFormMetadataByPublications(orgAuthKey, publicationKeysList, rows, status, location, schema, targetDate, identities);
                 }
             }
         }
@@ -572,7 +577,7 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
     }
 
     @Override
-    public List<FormInstanceTO> getAllForms(String username, CohortTO cohortTO, Set<String> publicationKeys, int page, int rows, String orderBy, String orderDirection, String status, String targetDate, String assignment) {
+    public List<FormInstanceTO> getAllForms(String username, CohortTO cohortTO, Set<String> publicationKeys, int page, int rows, String orderBy, String orderDirection, String status, String location, String targetDate, String assignment) {
 
         if (publicationKeys != null && publicationKeys.size() > 0 && cohortTO != null) {
 
@@ -601,7 +606,7 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
                         identities.add(identityMrn);
                     }
 
-                    FormDeliveryTO formDeliveryTO = formsWebService.getFormsByPublications(orgAuthKey, publicationKeysList, page, rows, orderBy, orderDirection, status, schema, targetDate, identities);
+                    FormDeliveryTO formDeliveryTO = formsWebService.getFormsByPublications(orgAuthKey, publicationKeysList, page, rows, orderBy, orderDirection, status, location, schema, targetDate, identities);
 
                     int hasSubjectIds = 0;
 

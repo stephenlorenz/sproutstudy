@@ -18,6 +18,7 @@ public interface StudyService {
     public static final String USER_PREFERENCE_FORM_FILTER_FORM = "FORM_FILTER_FORM";
     public static final String USER_PREFERENCE_FORM_FILTER_ASSIGNED_TO = "FORM_FILTER_ASSIGNED_TO";
     public static final String USER_PREFERENCE_FORM_FILTER_STATUS = "FORM_FILTER_STATUS";
+    public static final String USER_PREFERENCE_FORM_FILTER_LOCATION = "FORM_FILTER_LOCATION";
     public static final String USER_PREFERENCE_FORM_FILTER_STUDY_DATE = "FORM_FILTER_STUDY_DATE";
     public static final String USER_PREFERENCE_DEFAULT_TAB = "USER_PREFERENCE_DEFAULT_TAB";
 

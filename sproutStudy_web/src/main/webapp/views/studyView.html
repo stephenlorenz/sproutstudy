@@ -197,6 +197,18 @@
                                         </span>
                                     </th>
                                     <th ng-show="allFormsMetadata.hasInstanceKeys"><span class="sortable" ng-click="allFormsChangeSort('instance_key')">Form Identifier<i ng-class="allFormsSortClass('instance_key')" ng-style="{'margin-left': mutableFormsSortStyle('instance_key')}" ></i></span></th>
+                                    <th ng-show="allFormsMetadata.hasLocations">
+                                        <span class="dropdown sprout-dropdown-header">
+                                            <span class="" ng-click="mutableFormsChangeSort('inboxLocation')">Location<span ng-show="allFormsFilterLocation != null">:<br/><span class="badge badge-info">{{allFormsFilterLocation}}<span ng-click="clearFilterLocation()" style="margin-left: 5px;" class="sprout-study-badge-close"><i class="fa fa-times-circle"></i></span></span></span><i ng-class="allFormsSortClass('inboxLocation')" ng-style="{'margin-left': mutableFormsSortStyle('inboxLocation')}" ></i></span>
+                                            <a class="dropdown-toggle btn btn-mini" style="margin-left: 8px;"><b class="caret"></b></a>
+                                            <ul class="dropdown-menu">
+                                                <li><a ng-click="onFilterByLocationAll()" ng-show="activeSproutInboxLocations.length > 0" prevent-default>ALL LOCATIONS</a></li>
+                                                <li ng-repeat="location in activeSproutInboxLocations">
+                                                    <a ng-click="onFilterByLocationAll(location)" prevent-default>{{location.name}}</a>
+                                                </li>
+                                            </ul>
+                                        </span>
+                                    </th>
                                     <th><span class="sortable" ng-click="allFormsChangeSort('date_of_entry')">Delivery Date<i ng-class="allFormsSortClass('date_of_entry')" ng-style="{'margin-left': mutableFormsSortStyle('date_of_entry')}" ></i></span></th>
                                     <th ng-show="assignments.length > 1">
                                         <span class="dropdown sprout-dropdown-header">
@@ -229,7 +241,7 @@
                                             <button  type="button" class="btn btn-mini" data-toggle="datepicker" style="margin-left: 8px;"><i class="icon-calendar"></i></button>
                                         </span>
                                     </th>
-                                    <!--<th><span class="sortable" ng-click="allFormsChangeSort('date_of_status')">Status Date<i ng-class="allFormsSortClass('date_of_status')" ng-style="{'margin-left': mutableFormsSortStyle('date_of_status')}" ></i></span></th>-->
+                                    <th ng-show="!allFormsMetadata.hasStudyDates"><span class="sortable" ng-click="allFormsChangeSort('date_of_status')">Status Date<i ng-class="allFormsSortClass('date_of_status')" ng-style="{'margin-left': mutableFormsSortStyle('date_of_status')}" ></i></span></th>
                                     <th style="text-align: center; width: 100px;">Open Form</th>
                                 </tr>
                                 </thead>
@@ -242,6 +254,7 @@
                                     <td class="inbox-cell"><i class="fa fa-user sprout-study-badge-close" ng-click="onOpenSubject(form.identityPrimaryId)"></i> <span ng-click="form.locked || !form.mutable || onOpenMutableForm(form)">{{form.identityFullName}} ({{form.identityPrimaryId}})</span></td>
                                     <td class="inbox-cell" ng-click="form.locked || !form.mutable || onOpenMutableForm(form)">{{form.title}}</a></td>
                                     <td ng-show="allFormsMetadata.hasInstanceKeys" class="inbox-cell form-instance-id-{{form.instanceId}}" ng-click="form.locked || !form.mutable || onOpenMutableForm(form)">{{form.instanceKey}}</a></td>
+                                    <td ng-show="allFormsMetadata.hasLocations" class="inbox-cell form-instance-id-{{form.instanceId}}" ng-click="form.locked || !form.mutable || onOpenMutableForm(form)">{{form.location}}</a></td>
                                     <td class="inbox-cell" ng-click="form.locked || !form.mutable || onOpenMutableForm(form)">{{form.deliveryDate | date:'medium' }}</td>
 
                                     <td class="inbox-cell" ng-click="form.locked || !form.mutable || onOpenMutableForm(form)" ng-show="assignments.length > 1">
@@ -257,7 +270,7 @@
                                         </ul>
                                     </td>
                                     <td class="inbox-cell" ng-click="form.locked || !form.mutable || onOpenMutableForm(form)" ng-show="allFormsMetadata.hasStudyDates">{{form.targetDate | date:'medium' }}</td>
-                                    <!--<td class="inbox-cell" ng-click="onOpenMutableForm(form)">{{form.statusDate | date:'medium' }}</td>-->
+                                    <td class="inbox-cell" ng-click="onOpenMutableForm(form)" ng-show="!allFormsMetadata.hasStudyDates">{{form.statusDate | date:'medium' }}</td>
                                     <td style="text-align: center; width: 80px;">
                                         <button class="btn btn-info btn-mini" ng-click="onOpenMutableForm(form)" ng-show="!form.locked && form.mutable"><i class="icon-play icon-white" style="margin-right: 0px;"></i></button>
                                         <span ng-show="form.locked"><i class="fa fa-lock"></i></span>
@@ -401,8 +414,8 @@
                             <button  type="button" class="btn btn-mini" data-toggle="datepicker" style="margin-left: 8px;"><i class="icon-calendar"></i></button>
                         </span>
                     </th>
-                    <!--<th class="sortable" ng-click="formsChangeSort('statusDate')">Status Date<i ng-class="formsSortClass('statusDate')" ng-style="{'margin-left': formsSortStyle('statusDate')}" ></i></th>-->
-                    <!--<th style="text-align: center; width: 60px;">Delete</th>-->
+                    <th class="sortable" ng-click="formsChangeSort('statusDate')" ng-show="!allFormsMetadata.hasStudyDates">Status Date<i ng-class="formsSortClass('statusDate')" ng-style="{'margin-left': formsSortStyle('statusDate')}" ></i></th>
+                    <th style="text-align: center; width: 60px;" ng-show="!allFormsMetadata.hasStudyDates">Delete</th>
                     <th style="text-align: center; width: 60px;">Open</th>
                 </tr>
                 </thead>
@@ -423,10 +436,10 @@
                         </ul>
                     </td>
                     <td class="inbox-cell" ng-click="form.locked || !form.mutable  || onOpenForm(form)" ng-show="allFormsMetadata.hasStudyDates">{{form.targetDate | date:'medium' }}</td>
-                    <!--<td class="inbox-cell" ng-click="onOpenForm(form)">{{form.statusDate | date:'medium' }}</td>-->
-                    <!--<td style="text-align: center; width: 80px;">-->
-                        <!--<button class="btn btn-warning btn-mini" ng-click="onDeleteSubmission(form.instanceId)"><i class="icon-trash icon-white" style="margin-right: 0px;"></i></button>-->
-                    <!--</td>-->
+                    <td class="inbox-cell" ng-click="onOpenForm(form)" ng-show="!allFormsMetadata.hasStudyDates">{{form.statusDate | date:'medium' }}</td>
+                    <td style="text-align: center; width: 80px;" ng-show="!allFormsMetadata.hasStudyDates">
+                        <button class="btn btn-warning btn-mini" ng-click="onDeleteSubmission(form.instanceId)"><i class="icon-trash icon-white" style="margin-right: 0px;"></i></button>
+                    </td>
                     <td style="text-align: center; width: 80px;">
                         <button class="btn btn-info btn-mini" ng-click="form.locked || !form.mutable  || onOpenForm(form)" ng-show="!form.locked && form.mutable "><i class="icon-play icon-white" style="margin-right: 0px;"></i></button>
                         <!--<button class="btn btn-info btn-mini" ng-click="onOpenForm(form)" ><i class="icon-play icon-white" style="margin-right: 0px;"></i></button>-->

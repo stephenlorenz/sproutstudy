@@ -36,12 +36,14 @@ angular.module('sproutStudyApp')
         $scope.allFormsOrderDirection = "DESC"
         $scope.allFormsFilterFormPublicationKey = null;
         $scope.allFormsFilterFormTitle = null;
+        $scope.allFormsFilterLocation = null;
 
         $scope.filterChanged = false;
 
         $scope.template = undefined;
 
         $scope.activeSproutInboxStatuses = null;
+        $scope.activeSproutInboxLocations = null;
         $scope.assignments = null;
 
         $scope.targetDateProxy = undefined;
@@ -183,7 +185,7 @@ angular.module('sproutStudyApp')
                     }
                     $scope.allFormsFilterTargetDate = undefined;
                 }
-                $scope.getAllForms();
+                $scope.getAllForms(9783);
             }
         }
 
@@ -196,7 +198,7 @@ angular.module('sproutStudyApp')
         $scope.clearFilterAssignment = function() {
             $scope.allFormsFilterAssignment = undefined;
             $scope.filterChanged = true;
-            $scope.getAllForms();
+            $scope.getAllForms(9784);
         };
 
         $scope.onResetFilters = function () {
@@ -207,7 +209,7 @@ angular.module('sproutStudyApp')
             $scope.allFormsFilterForm = null;
             $scope.allFormsFilterFormTitle = null;
             $scope.filterChanged = false;
-            $scope.getAllForms();
+            $scope.getAllForms(9785);
         };
 
         $scope.onSaveDefaultFilter = function () {
@@ -217,12 +219,20 @@ angular.module('sproutStudyApp')
         $scope.clearFilterForm = function() {
             $scope.allFormsFilterForm = null;
             $scope.allFormsFilterFormTitle = null;
-            $scope.getAllForms();
+            $scope.filterChanged = true;
+            $scope.getAllForms(9786);
         }
 
         $scope.clearFilterStatus = function() {
             $scope.allFormsFilterStatus = null;
-            $scope.getAllForms();
+            $scope.filterChanged = true;
+            $scope.getAllForms(9787);
+        }
+
+        $scope.clearFilterLocation = function() {
+            $scope.allFormsFilterLocation = null;
+            $scope.filterChanged = true;
+            $scope.getAllForms(9788);
         }
 
         $scope.applyIfPossible = function() {
@@ -232,28 +242,28 @@ angular.module('sproutStudyApp')
         $scope.allFormsFirstPage = function() {
             if ($scope.allFormsCurrentPage > 1) {
                 $scope.allFormsCurrentPage = 1;
-                $scope.getAllForms();
+                $scope.getAllForms(9789);
             }
         }
 
         $scope.allFormsNextPage = function() {
             if ($scope.allFormsCurrentPage < $scope.allFormsPageCount) {
                 $scope.allFormsCurrentPage++;
-                $scope.getAllForms();
+                $scope.getAllForms(97810);
             }
         }
 
         $scope.allFormsLastPage = function() {
             if ($scope.allFormsCurrentPage < $scope.allFormsPageCount) {
                 $scope.allFormsCurrentPage = $scope.allFormsPageCount;
-                $scope.getAllForms();
+                $scope.getAllForms(97811);
             }
         }
 
         $scope.allFormsPreviousPage = function() {
             if ($scope.allFormsCurrentPage > 1) {
                 $scope.allFormsCurrentPage--;
-                $scope.getAllForms();
+                $scope.getAllForms(97812);
             }
         };
 
@@ -278,6 +288,11 @@ angular.module('sproutStudyApp')
                             $scope.allFormsFilterStatus = preference.value;
                             updatedFilter = true;
                         }
+                    } else if (preference.name == 'FORM_FILTER_LOCATION') {
+                        if (preference.value !== undefined && preference.value !== null && preference.value != 'null' && preference.value != 'undefined' && preference.value != '') {
+                            $scope.allFormsFilterLocation = preference.value;
+                            updatedFilter = true;
+                        }
                     } else if (preference.name == 'FORM_FILTER_ASSIGNED_TO') {
                         if (preference.value !== undefined && preference.value !== null && preference.value != 'null' && preference.value != 'undefined' && preference.value != '') {
                             $scope.allFormsFilterAssignment = preference.value;
@@ -296,7 +311,7 @@ angular.module('sproutStudyApp')
                                     $.each(assignments, function(index, assignment) {
                                         if (assignment.value == preference.value) {
                                             $scope.allFormsFilterAssignment = assignment;
-                                            $scope.getAllForms();
+                                            $scope.getAllForms(97813);
                                         }
                                     });
                                 });
@@ -314,9 +329,9 @@ angular.module('sproutStudyApp')
                         }
                     }
                 });
-                if (updatedFilter) {
-                    $scope.getAllForms();
-                }
+                //if (updatedFilter) {
+                    $scope.getAllForms(97814);
+                //}
             });
         };
 
@@ -328,7 +343,7 @@ angular.module('sproutStudyApp')
         $scope.getUserPreferences();
 
         $scope.setSessionFormFilter = function () {
-            studyService.setSessionFormFilter({"formFilter": ($scope.allFormsFilterFormPublicationKey !== null && $scope.allFormsFilterForm !== undefined && $scope.allFormsFilterForm.length > 0) ? $scope.allFormsFilterFormPublicationKey + ":" + $scope.allFormsFilterForm : null, "assignmentFilter": $scope.allFormsFilterAssignment !== undefined ? $scope.allFormsFilterAssignment.value : $scope.allFormsFilterAssignment, "statusFilter": $scope.allFormsFilterStatus, "targetDateFilter": $scope.allFormsFilterTargetDate}, function(data) {
+            studyService.setSessionFormFilter({"formFilter": ($scope.allFormsFilterFormPublicationKey !== null && $scope.allFormsFilterForm !== undefined && $scope.allFormsFilterForm.length > 0) ? $scope.allFormsFilterFormPublicationKey + ":" + $scope.allFormsFilterForm : null, "assignmentFilter": $scope.allFormsFilterAssignment !== undefined ? $scope.allFormsFilterAssignment.value : $scope.allFormsFilterAssignment, "statusFilter": $scope.allFormsFilterStatus, "locationFilter": $scope.allFormsFilterLocation, "targetDateFilter": $scope.allFormsFilterTargetDate}, function(data) {
                 if (data.value == false) {
                     $scope.errorMessageText = "Failed to save filter.";
                     $scope.errorFormModal = true;
@@ -746,7 +761,7 @@ angular.module('sproutStudyApp')
                 } else {
                     $scope.allFormsOrderDirection = 'DESC';
                 }
-                $scope.getAllForms();
+                $scope.getAllForms(97815);
             }
 
         };
@@ -761,7 +776,7 @@ angular.module('sproutStudyApp')
                 $scope.allFormsFilterFormTitle = null;
             }
             $scope.filterChanged = true;
-            $scope.getAllForms();
+            $scope.getAllForms(97816);
         };
 
         $scope.onFilterByStatusAll = function(status) {
@@ -772,7 +787,18 @@ angular.module('sproutStudyApp')
                 $scope.allFormsFilterStatus = null;
             }
             $scope.filterChanged = true;
-            $scope.getAllForms();
+            $scope.getAllForms(97817);
+        };
+
+        $scope.onFilterByLocationAll = function(location) {
+            $scope.allFormsCurrentPage = 1;
+            if (location !== undefined) {
+                $scope.allFormsFilterLocation = location.name;
+            } else {
+                $scope.allFormsFilterLocation = null;
+            }
+            $scope.filterChanged = true;
+            $scope.getAllForms(97818);
         };
 
         $scope.onFilterByAssignmentAll = function(assignment) {
@@ -783,11 +809,15 @@ angular.module('sproutStudyApp')
                 $scope.allFormsFilterAssignment = undefined;
             }
             $scope.filterChanged = true;
-            $scope.getAllForms();
+            $scope.getAllForms(97819);
         };
 
         studyService.getActiveSproutInboxStatuses({}, function(data) {
             $scope.activeSproutInboxStatuses = data;
+        });
+
+        studyService.getActiveSproutInboxLocations({}, function(data) {
+            $scope.activeSproutInboxLocations = data;
         });
 
         $scope.getAssignments = function() {
@@ -798,7 +828,9 @@ angular.module('sproutStudyApp')
 
         $scope.getAssignments();
 
-        $scope.getAllForms = function() {
+        $scope.getAllForms = function(key) {
+
+            console.log("getAllForms: " + key);
 
             $scope.gettingAllForms = true;
 
@@ -808,11 +840,11 @@ angular.module('sproutStudyApp')
             //    $scope.allFormsPageCount = data;
             //});
 
-            studyService.getAllFormsMetadata({rows: $scope.allFormsRowsPerPage, form: $scope.allFormsFilterFormPublicationKey, status: $scope.allFormsFilterStatus, targetDate: $scope.allFormsFilterTargetDate !== undefined && $scope.allFormsFilterTargetDate == 'today' ? $scope.getTodayAsDateString() : $scope.allFormsFilterTargetDate, assignment: $scope.allFormsFilterAssignment !== undefined && $scope.allFormsFilterAssignment.value !== undefined ? $scope.allFormsFilterAssignment.value : null}, function(data) {
+            studyService.getAllFormsMetadata({rows: $scope.allFormsRowsPerPage, form: $scope.allFormsFilterFormPublicationKey, status: $scope.allFormsFilterStatus, location: $scope.allFormsFilterLocation, targetDate: $scope.allFormsFilterTargetDate !== undefined && $scope.allFormsFilterTargetDate == 'today' ? $scope.getTodayAsDateString() : $scope.allFormsFilterTargetDate, assignment: $scope.allFormsFilterAssignment !== undefined && $scope.allFormsFilterAssignment.value !== undefined ? $scope.allFormsFilterAssignment.value : null}, function(data) {
                 $scope.allFormsMetadata = data;
                 $scope.allFormsPageCount = data.count;
 
-                studyService.getAllForms({page: $scope.allFormsCurrentPage, rows: $scope.allFormsRowsPerPage, orderBy: $scope.allFormsOrderBy, orderDirection: $scope.allFormsOrderDirection, form: $scope.allFormsFilterFormPublicationKey, status: $scope.allFormsFilterStatus, targetDate: $scope.allFormsMetadata.hasStudyDates ? $scope.allFormsFilterTargetDate !== undefined && $scope.allFormsFilterTargetDate == 'today' ? $scope.getTodayAsDateString() : $scope.allFormsFilterTargetDate : null, assignment: $scope.allFormsFilterAssignment !== undefined && $scope.allFormsFilterAssignment.value !== undefined ? $scope.allFormsFilterAssignment.value : null}, function(data) {
+                studyService.getAllForms({page: $scope.allFormsCurrentPage, rows: $scope.allFormsRowsPerPage, orderBy: $scope.allFormsOrderBy, orderDirection: $scope.allFormsOrderDirection, form: $scope.allFormsFilterFormPublicationKey, status: $scope.allFormsFilterStatus, location: $scope.allFormsFilterLocation, targetDate: $scope.allFormsMetadata.hasStudyDates ? $scope.allFormsFilterTargetDate !== undefined && $scope.allFormsFilterTargetDate == 'today' ? $scope.getTodayAsDateString() : $scope.allFormsFilterTargetDate : null, assignment: $scope.allFormsFilterAssignment !== undefined && $scope.allFormsFilterAssignment.value !== undefined ? $scope.allFormsFilterAssignment.value : null}, function(data) {
 //                $scope.allFormsFilterFormPublicationKey = null;
 
                     $scope.allForms = data;
@@ -869,9 +901,9 @@ angular.module('sproutStudyApp')
         $scope.getRecentCohortMembers();
 //        $scope.getMutableForms();
 
-        if (!$scope.gettingAllForms) {
-            $scope.getAllForms();
-        }
+        //if (!$scope.gettingAllForms) {
+        //    $scope.getAllForms(9781);
+        //}
 
         $scope.setNewSubject = function(id, instanceId) {
             studyService.findCohortMember({cohortQueryURL: cohortService.getCohort().cohortQueryURL, query: id}, function(data) {
@@ -1207,7 +1239,7 @@ angular.module('sproutStudyApp')
                 $scope.getCohortAuthorizations();
                 $scope.getStudyInbox();
                 $scope.getRecentCohortMembers();
-                $scope.getAllForms();
+                $scope.getAllForms(9782);
             })
         }
 
@@ -1605,6 +1637,8 @@ angular.module('sproutStudyApp')
             }
         };
 
+        $scope.pollCounter = 0;
+
         $scope.pollEvents = function(cohort) {
 
             if (cohort !== undefined && cohort.cohortKey !== undefined) {
@@ -1612,134 +1646,139 @@ angular.module('sproutStudyApp')
                 var poller = function() {
                     studyService.getPollEvents({"cohortKey": cohort.cohortKey, "pollKey": $scope.pollKey}, function(pollData) {
 
+                        $scope.pollCounter++;
 
                         if (pollData !== undefined) {
 
                             $scope.pollKey = pollData.pollKey;
 
-                            var eventData = pollData.data;
+                            if ($scope.pollCounter > 1) {
+                                var eventData = pollData.data;
 
-                            if (eventData !== undefined && eventData !== null && eventData.length > 0) {
+                                if (eventData !== undefined && eventData !== null && eventData.length > 0) {
 
-                                $.each(eventData, function (index, formInstanceTO) {
-                                    try {
-                                        var message = JSON.parse(formInstanceTO);
+                                    $.each(eventData, function (index, formInstanceTO) {
+                                        try {
+                                            var message = JSON.parse(formInstanceTO);
 
-                                        var instanceId = message.instanceId;
-                                        var publicationKey = message.publicationKey;
-                                        var lockInd = message.locked;
+                                            var instanceId = message.instanceId;
+                                            var publicationKey = message.publicationKey;
+                                            var lockInd = message.locked;
 
-                                        var identities = message.identities;
+                                            var identities = message.identities;
 
-                                        var sproutTransformInd = false;
+                                            var sproutTransformInd = false;
 
-                                        if (identities && identities.constructor == Array) {
-                                            $.each(identities, function(index, identity) {
-                                                if (identity && identity.scheme && identity.scheme == 'sprouttransform') {
-                                                    //console.log("............identity.scheme: " + identity.scheme);
-                                                    sproutTransformInd = true;
-                                                }
-                                            });
-                                        }
-
-                                        if (instanceId !== undefined && publicationKey !== undefined && instanceId !== null && publicationKey !== null && !sproutTransformInd) {
-                                            //console.log("Considering message....");
-
-                                            var inboxRecordIndex = undefined;
-                                            var allFormsRecordIndex = undefined;
-                                            var allFormsRecordAction = 'ADD';
-
-                                            if ($scope.inbox !== undefined) {
-                                                $.each($scope.inbox, function (index, data) {
-                                                    //console.log("inbox.instanceId: " + data.instanceId);
-                                                    if (instanceId == data.instanceId) inboxRecordIndex = index;
+                                            if (identities && identities.constructor == Array) {
+                                                $.each(identities, function(index, identity) {
+                                                    if (identity && identity.scheme && identity.scheme == 'sprouttransform') {
+                                                        //console.log("............identity.scheme: " + identity.scheme);
+                                                        sproutTransformInd = true;
+                                                    }
                                                 });
                                             }
-                                            if ($scope.allForms !== undefined) {
-                                                $.each($scope.allForms, function (index, data) {
-                                                    //console.log("allForms.instanceId: " + data.instanceId);
-                                                    if (instanceId == data.instanceId) {
-                                                        allFormsRecordIndex = index;
 
-                                                        //console.log("data.inboxStatus: " + message.inboxStatus + " vs " + data.inboxStatus);
+                                            if (instanceId !== undefined && publicationKey !== undefined && instanceId !== null && publicationKey !== null && !sproutTransformInd) {
+                                                //console.log("Considering message....");
 
-                                                        if (message.inboxStatus == 'REVOKED' || message.inboxStatus == 'EXPIRED') {
-                                                            allFormsRecordAction = 'DELETE';
-                                                        } else {
-                                                            allFormsRecordAction = 'UPDATE';
+                                                var inboxRecordIndex = undefined;
+                                                var allFormsRecordIndex = undefined;
+                                                var allFormsRecordAction = 'ADD';
+
+                                                if ($scope.inbox !== undefined) {
+                                                    $.each($scope.inbox, function (index, data) {
+                                                        //console.log("inbox.instanceId: " + data.instanceId);
+                                                        if (instanceId == data.instanceId) inboxRecordIndex = index;
+                                                    });
+                                                }
+                                                if ($scope.allForms !== undefined) {
+                                                    $.each($scope.allForms, function (index, data) {
+                                                        //console.log("allForms.instanceId: " + data.instanceId);
+                                                        if (instanceId == data.instanceId) {
+                                                            allFormsRecordIndex = index;
+
+                                                            //console.log("data.inboxStatus: " + message.inboxStatus + " vs " + data.inboxStatus);
+
+                                                            if (message.inboxStatus == 'REVOKED' || message.inboxStatus == 'EXPIRED') {
+                                                                allFormsRecordAction = 'DELETE';
+                                                            } else {
+                                                                allFormsRecordAction = 'UPDATE';
+                                                            }
+                                                        }
+                                                    });
+                                                }
+
+                                                var formIncludeInd = true;
+
+                                                $.each(cohortService.getCohort().forms, function(index, tmpForm) {
+                                                    if (tmpForm.publicationKey == publicationKey) message.title = tmpForm.name;
+                                                });
+
+                                                if ($scope.allFormsFilterForm !== undefined && $scope.allFormsFilterForm.length > 0) {
+                                                    for (var i2=0;i2<$scope.allFormsFilterForm.length;i2++) {
+                                                        if ($scope.allFormsFilterForm[i2] == message.title) {
+                                                            formIncludeInd = false;
                                                         }
                                                     }
-                                                });
-                                            }
+                                                }
 
-                                            var formIncludeInd = true;
+                                                if (formIncludeInd) $scope.allFormsFilterForm.push(data[i].title);
 
-                                            $.each(cohortService.getCohort().forms, function(index, tmpForm) {
-                                                if (tmpForm.publicationKey == publicationKey) message.title = tmpForm.name;
-                                            });
+                                                $scope.allFormsFilterForm.sort();
 
-                                            if ($scope.allFormsFilterForm !== undefined && $scope.allFormsFilterForm.length > 0) {
-                                                for (var i2=0;i2<$scope.allFormsFilterForm.length;i2++) {
-                                                    if ($scope.allFormsFilterForm[i2] == message.title) {
-                                                        formIncludeInd = false;
+                                                //console.log("inboxRecordIndex: " + inboxRecordIndex);
+                                                //console.log("allFormsRecordIndex: " + allFormsRecordIndex);
+                                                //console.log("allFormsRecordAction: " + allFormsRecordAction);
+
+                                                var applyInd = false;
+
+                                                if (inboxRecordIndex !== undefined) {
+                                                    if (lockInd) {
+                                                        $scope.inbox[inboxRecordIndex].locked = true;
+                                                    } else {
+                                                        $scope.inbox[inboxRecordIndex].locked = false;
                                                     }
+                                                    applyInd = true;
                                                 }
-                                            }
-
-                                            if (formIncludeInd) $scope.allFormsFilterForm.push(data[i].title);
-
-                                            $scope.allFormsFilterForm.sort();
-
-                                            //console.log("inboxRecordIndex: " + inboxRecordIndex);
-                                            //console.log("allFormsRecordIndex: " + allFormsRecordIndex);
-                                            //console.log("allFormsRecordAction: " + allFormsRecordAction);
-
-                                            var applyInd = false;
-
-                                            if (inboxRecordIndex !== undefined) {
-                                                if (lockInd) {
-                                                    $scope.inbox[inboxRecordIndex].locked = true;
-                                                } else {
-                                                    $scope.inbox[inboxRecordIndex].locked = false;
+                                                if (allFormsRecordAction == 'ADD') {
+                                                    //$scope.allForms.push(message);
+                                                    $scope.allForms.unshift(message);
+                                                } else if (allFormsRecordAction == 'UPDATE') {
+                                                    $scope.allForms[allFormsRecordIndex] = message;
+                                                } else if (allFormsRecordAction == 'DELETE') {
+                                                    $scope.allForms.splice(allFormsRecordIndex, 1);
                                                 }
-                                                applyInd = true;
+
+
+                                                //$.each($scope.allForms, function (index, data) {
+                                                //    //console.log("after.allForms.instanceId: " + data.instanceId);
+                                                //    if (instanceId == data.instanceId) {
+                                                //        console.log("INSTANCE STILL EXISTS...");
+                                                //    }
+                                                //});
+
+                                                //console.log("applying changes...");
+                                                $scope.applyIfPossible();
+                                                $scope.getAssignments();
+
+                                                var row = $(".form-instance-id-" + instanceId).closest("tr");
+
+                                                setTimeout(function() {
+                                                    highlightRow(row);
+                                                }, 500);
+                                                //$(".form-instance-id-" + instanceId).closest("tr").effect('pulsate');
+
                                             }
-                                            if (allFormsRecordAction == 'ADD') {
-                                                //$scope.allForms.push(message);
-                                                $scope.allForms.unshift(message);
-                                            } else if (allFormsRecordAction == 'UPDATE') {
-                                                $scope.allForms[allFormsRecordIndex] = message;
-                                            } else if (allFormsRecordAction == 'DELETE') {
-                                                $scope.allForms.splice(allFormsRecordIndex, 1);
-                                            }
 
-
-                                            //$.each($scope.allForms, function (index, data) {
-                                            //    //console.log("after.allForms.instanceId: " + data.instanceId);
-                                            //    if (instanceId == data.instanceId) {
-                                            //        console.log("INSTANCE STILL EXISTS...");
-                                            //    }
-                                            //});
-
-                                            //console.log("applying changes...");
-                                            $scope.applyIfPossible();
-                                            $scope.getAssignments();
-
-                                            var row = $(".form-instance-id-" + instanceId).closest("tr");
-
-                                            setTimeout(function() {
-                                                highlightRow(row);
-                                            }, 500);
-                                            //$(".form-instance-id-" + instanceId).closest("tr").effect('pulsate');
-
+                                        } catch (e) {
+                                            //console.log("e: " + e);
                                         }
 
-                                    } catch (e) {
-                                        //console.log("e: " + e);
-                                    }
+                                    });
+                                }
 
-                                });
                             }
+
                         }
                         $timeout(poller, $scope.pollFrequency);
                     });

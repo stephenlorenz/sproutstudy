@@ -57,7 +57,19 @@
 	<!--[if IE]><link rel="stylesheet" type="text/css" href="/sproutassets/stylesheets/ie/ie.css"></link><![endif]-->
    	<!--[if lt IE 9]><link rel="stylesheet" type="text/css" href="/sproutassets/stylesheets/ie/ie8.css"></link><![endif]-->
    	<!--[if lt IE 7]><link rel="stylesheet" type="text/css" href="/sproutassets/stylesheets/ie/ie6.css"></link><![endif]-->
-    
+
+    <script type="application/javascript">
+
+        var sproutAdminInd = function() {
+            return (typeof parent.insideSproutAdmin === "function");
+        }
+//        if (typeof parent.insideSproutAdmin === "function") {
+//            console.log("insideSproutAdmin: TRUE");
+//        } else {
+//            console.log("insideSproutAdmin: FALSE");
+//        }
+
+    </script>
     
 </head>
 <body xmlns:ng="http://angularjs.org" id="ng-app" class="ng-app:sproutStudyApp" xmlns:forms="http://angularjs.org" ng-app="sproutStudyApp" >
@@ -88,8 +100,8 @@
 		    </ul>
 
             <ul class="nav pull-right">
-                <li><a>{{session().firstName}}</a></li>
-                <li ng-show="cohort() != null && cohort().name.length > 0"><a>{{cohort().name}} Cohort</a></li>
+                <li class="sprout-study-subapp-option" style="display: none;"><a>{{session().firstName}}</a></li>
+                <li ng-show="cohort() != null && cohort().name.length > 0"><a><span id="sprout-study-iframe-cohort">{{cohort().name}}</span> Cohort</a></li>
                 <li class="dropdown sproutstudy-tab-cohort">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                         <i class="fa fa-bars"></i>
@@ -99,7 +111,7 @@
                         <li><a ng-href="#/cohorts" ng-click="onClearForms()" class="sproutstudy-tab-button" ng-show="isCohortManager()">Cohort Admin</a></li>
                         <li><a ng-href="#/forms" ng-click="onClearForms()" class="sproutstudy-tab-button" ng-show="isManagerOfCohort() || isAdmin()  ">Form Admin</a></li>
                         <li><a ng-href="#/lists" class="sproutstudy-tab-button" ng-show="isManagerOfCohort() || isAdmin()  ">List Admin</a></li>
-                        <li><a ng-href="#/feedback" class="sproutstudy-tab-button">Feedback</a></li>
+                        <li class="sprout-study-subapp-option"><a ng-href="#/feedback" class="sproutstudy-tab-button">Feedback</a></li>
                         <li><a id="btn_logout" href="logout">Logout</a></li>
                     <%--<li><a href="#/settings">Account Settings</a></li>--%>
                     </ul>
@@ -211,6 +223,12 @@
 
     jQuerySprout(document).ready(function() {
 //        jQuerySprout(".study-tab:not('.study-tab-default')").hide();
+
+        if (sproutAdminInd()) {
+            jQuerySprout(".sprout-study-subapp-option").hide();
+        } else {
+            jQuerySprout(".sprout-study-subapp-option").show();
+        }
 
         sizeTransformPane();
         sizeAppFrame();
@@ -382,7 +400,7 @@
     }
 
     function enableSplitNarrativeFrame(instanceId) {
-        console.log("enableSplitNarrativeFrame");
+//        console.log("enableSplitNarrativeFrame");
         var splitter = jQuerySprout(".sprout-study-form-narrative-split-frame-" + instanceId).splitter({
             "type": "v",
             "outline": false,
@@ -735,6 +753,22 @@
     }
 
     function sizeTransformPane() {
+//        console.log("sizeTransformPane");
+
+        var instanceId = jQuerySprout(".sproutstudy-tab-li.active").attr("instance");
+
+//        console.log("sizeTransformPane.instanceId: " + instanceId);
+
+        var parentPaneWidth = jQuerySprout(".sprout-study-form-narrative-split-frame-" + instanceId).width();
+        var formPaneWidth = jQuerySprout(".sproutstudy-content-" + instanceId).width();
+        var narrativePaneWidth = jQuerySprout(".sproutstudy-split-frame-content-narrative-" + instanceId).width();
+
+        var narrativePaneWidthNew = parentPaneWidth - formPaneWidth;
+
+        if (narrativePaneWidthNew != narrativePaneWidth) {
+            jQuerySprout(".sproutstudy-split-frame-content-narrative-" + instanceId).width(narrativePaneWidthNew);
+        }
+
         var modelToolbarHeight = $(".sprout-transform-model-toolbar").height();
         var narrativeToolbarHeight = $(".sprout-transform-narrative-toolbar").height();
 
@@ -747,7 +781,7 @@
     var formCallbackCatalog = {};
 
     function registerSproutFormsCallbackMethods(getSerializedArray, resetSignatures, paths, narrativeUpdate, hideSproutControlButtons, instanceId) {
-        console.log("sproutStudy.registerSproutFormsCallbackMethods.instanceId: " + instanceId);
+//        console.log("sproutStudy.registerSproutFormsCallbackMethods.instanceId: " + instanceId);
         var callbackItem = {};
         if (formCallbackCatalog[instanceId]) {
             callbackItem = formCallbackCatalog[instanceId];
@@ -761,7 +795,7 @@
     }
 
     function getNarrativeModelVerbose(instanceId) {
-        console.log("getNarrativeModelVerbose");
+//        console.log("getNarrativeModelVerbose");
         if (instanceId == undefined || instanceId == null) {
             var activeTab = jQuerySprout(".sproutstudy-tab-li.active");
             instanceId = activeTab.attr("instance");
@@ -1091,38 +1125,41 @@
     }
 
     $(document).ready(function() {
-        $.idleTimeout('#modal-timeout', '#idletimeout-resume', {
-            idleAfter: timeoutSeconds,
+
+        if (!sproutAdminInd()) {
+            $.idleTimeout('#modal-timeout', '#idletimeout-resume', {
+                idleAfter: timeoutSeconds,
 //            pollingInterval: 60,
-            pollingInterval: 30,
-            failedRequests: 6,
-            AJAXTimeout: 2000,
-            keepAliveURL: '<%=request.getContextPath()%>/public/keepalive.jsp',
-            serverResponseEquals: 'OK',
-            onTimeout: function() {
-                $('#modal-timeout').modal('hide');
-                window.location = "<%=request.getContextPath()%>/logout";
-            },
-            onExpiration: function() {
-                alert("Your session has expired.  You will now be logged out.");
-                window.location = "<%=request.getContextPath()%>/logout";
-            },
-            onError: function() {
-                alert("SproutStudy has experienced an error and is no logger available.  You will now be logged out.");
-                window.location = "<%=request.getContextPath()%>/logout";
-            },
-            onIdle: function () {
-                $('#modal-timeout').modal({
-                    keyboard: true
-                });
-            },
-            onCountdown: function (counter) {
-                $(".timeoutCountdown").html(counter); // update the counter
-            },
-            onResume: function () {
-                $('#modal-timeout').modal('hide');
-            }
-        });
+                pollingInterval: 30,
+                failedRequests: 6,
+                AJAXTimeout: 2000,
+                keepAliveURL: '<%=request.getContextPath()%>/public/keepalive.jsp',
+                serverResponseEquals: 'OK',
+                onTimeout: function() {
+                    $('#modal-timeout').modal('hide');
+                    window.location = "<%=request.getContextPath()%>/logout";
+                },
+                onExpiration: function() {
+                    alert("Your session has expired.  You will now be logged out.");
+                    window.location = "<%=request.getContextPath()%>/logout";
+                },
+                onError: function() {
+                    alert("SproutStudy has experienced an error and is no logger available.  You will now be logged out.");
+                    window.location = "<%=request.getContextPath()%>/logout";
+                },
+                onIdle: function () {
+                    $('#modal-timeout').modal({
+                        keyboard: true
+                    });
+                },
+                onCountdown: function (counter) {
+                    $(".timeoutCountdown").html(counter); // update the counter
+                },
+                onResume: function () {
+                    $('#modal-timeout').modal('hide');
+                }
+            });
+        }
 
     });
 

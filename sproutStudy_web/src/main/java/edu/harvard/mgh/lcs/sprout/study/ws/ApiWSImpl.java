@@ -51,6 +51,31 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
 
     private static final Logger LOGGER = Logger.getLogger(ApiWSImpl.class.getName());
 
+
+    @Override
+    public Boolean auth(@QueryParam("username") String username) {
+        if (StringUtils.isFull(username)) {
+            List<CohortTO> cohortTOList = studyService.getAuthorizedCohorts(username);
+            return cohortTOList != null && cohortTOList.size() > 0;
+        }
+        return false;
+    }
+
+    @Override
+    public Boolean authNucard(@QueryParam("username") String username) {
+        if (StringUtils.isFull(username)) {
+            List<CohortTO> cohortTOList = studyService.getAuthorizedCohorts(username);
+            if (cohortTOList != null && cohortTOList.size() > 0) {
+                for (CohortTO cohortTO : cohortTOList) {
+                    if (cohortTO.getName().equalsIgnoreCase("Nuclear-Cardiology")) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     @Override
     @WebMethod(operationName = "getAuthorizedCohorts")
     public List<CohortTO> getAuthorizedCohorts(@Context HttpServletRequest request) throws InvalidSessionRESTful {
@@ -248,7 +273,7 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
     }
     @Override
     @WebMethod(operationName="getAllForms")
-    public List<FormInstanceTO> getAllForms(@Context HttpServletRequest request, @QueryParam("page") int page, @QueryParam("rows") int rows, @QueryParam("orderBy") String orderBy, @QueryParam("orderDirection") String orderDirection, @QueryParam("form") String publicationKey, @QueryParam("status") String status, @QueryParam("targetDate") String targetDate, @QueryParam("assignment") String assignment) throws InvalidSessionRESTful {
+    public List<FormInstanceTO> getAllForms(@Context HttpServletRequest request, @QueryParam("page") int page, @QueryParam("rows") int rows, @QueryParam("orderBy") String orderBy, @QueryParam("orderDirection") String orderDirection, @QueryParam("form") String publicationKey, @QueryParam("status") String status, @QueryParam("location") String location, @QueryParam("targetDate") String targetDate, @QueryParam("assignment") String assignment) throws InvalidSessionRESTful {
 
         SessionTO sessionTO = getSessionTO(request);
         if (sessionTO != null) {
@@ -273,13 +298,13 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
                         for (String cohortFormPublicationKey : cohortFormPublicationKeys) {
                             if (publicationKeySet.contains(cohortFormPublicationKey)) publicationKeys.add(cohortFormPublicationKey);
                         }
-                        return sproutFormsService.getAllForms(sessionTO.getUser(), sessionTO.getCohortTO(), publicationKeys, page, rows, orderBy, orderDirection, status, targetDate, assignment);
+                        return sproutFormsService.getAllForms(sessionTO.getUser(), sessionTO.getCohortTO(), publicationKeys, page, rows, orderBy, orderDirection, status, location, targetDate, assignment);
                     }
                 } else {
                     for (String cohortFormPublicationKey : cohortFormPublicationKeys) {
                         publicationKeys.add(cohortFormPublicationKey);
                     }
-                    return sproutFormsService.getAllForms(sessionTO.getUser(), sessionTO.getCohortTO(), publicationKeys, page, rows, orderBy, orderDirection, status, targetDate, assignment);
+                    return sproutFormsService.getAllForms(sessionTO.getUser(), sessionTO.getCohortTO(), publicationKeys, page, rows, orderBy, orderDirection, status, location, targetDate, assignment);
                 }
             }
         }
@@ -293,6 +318,28 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
     @WebMethod(operationName="getActiveSproutInboxStatuses")
     public List<edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.NameValue> getActiveSproutInboxStatuses(@Context HttpServletRequest request) throws InvalidSessionRESTful {
         return sproutFormsService.getActiveSproutInboxStatuses();
+    }
+
+    @Override
+    @WebMethod(operationName="getActiveSproutInboxLocations")
+    public List<edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.NameValue> getActiveSproutInboxLocations(@Context HttpServletRequest request) throws InvalidSessionRESTful {
+        SessionTO sessionTO = getSessionTO(request);
+        if (sessionTO != null) {
+            CohortTO cohortTO = sessionTO.getCohortTO();
+            if (cohortTO == null) cohortTO = getLastSelectedCohort(request);
+
+            List<String> cohortFormPublicationKeys = studyService.getCohortFormPublicationKeys(cohortTO.getCohortKey());
+
+            if (cohortFormPublicationKeys != null && cohortFormPublicationKeys.size() > 0) {
+                List<String> publicationKeys = new ArrayList<String>();
+
+                for (String cohortFormPublicationKey : cohortFormPublicationKeys) {
+                    publicationKeys.add(cohortFormPublicationKey);
+                }
+                return sproutFormsService.getActiveSproutInboxLocations(publicationKeys);
+            }
+        }
+        return null;
     }
 
     @Override
@@ -331,7 +378,7 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
 
     @Override
     @WebMethod(operationName="getAllFormsPageCount")
-    public int getAllFormsPageCount(@Context HttpServletRequest request, @QueryParam("rows") int rows, @QueryParam("form") String publicationKey, @QueryParam("status") String status, @QueryParam("targetDate") String targetDate, @QueryParam("assignment") String assignment) throws InvalidSessionRESTful {
+    public int getAllFormsPageCount(@Context HttpServletRequest request, @QueryParam("rows") int rows, @QueryParam("form") String publicationKey, @QueryParam("status") String status, @QueryParam("location") String location, @QueryParam("targetDate") String targetDate, @QueryParam("assignment") String assignment) throws InvalidSessionRESTful {
         SessionTO sessionTO = getSessionTO(request);
         if (sessionTO != null) {
             CohortTO cohortTO = sessionTO.getCohortTO();
@@ -355,13 +402,13 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
                         for (String cohortFormPublicationKey : cohortFormPublicationKeys) {
                             if (publicationKeySet.contains(cohortFormPublicationKey)) publicationKeys.add(cohortFormPublicationKey);
                         }
-                        return sproutFormsService.getAllFormsPageCount(sessionTO.getUser(), sessionTO.getCohortTO(), publicationKeys, rows, status, targetDate, assignment);
+                        return sproutFormsService.getAllFormsPageCount(sessionTO.getUser(), sessionTO.getCohortTO(), publicationKeys, rows, status, location, targetDate, assignment);
                     }
                 } else {
                     for (String cohortFormPublicationKey : cohortFormPublicationKeys) {
                         publicationKeys.add(cohortFormPublicationKey);
                     }
-                    return sproutFormsService.getAllFormsPageCount(sessionTO.getUser(), sessionTO.getCohortTO(), publicationKeys, rows, status, targetDate, assignment);
+                    return sproutFormsService.getAllFormsPageCount(sessionTO.getUser(), sessionTO.getCohortTO(), publicationKeys, rows, status, location, targetDate, assignment);
                 }
             }
         }
@@ -370,7 +417,7 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
 
     @Override
     @WebMethod(operationName="getAllFormsMetadata")
-    public FormListMetadataTO getAllFormsMetadata(@Context HttpServletRequest request, @QueryParam("rows") int rows, @QueryParam("form") String publicationKey, @QueryParam("status") String status, @QueryParam("targetDate") String targetDate, @QueryParam("assignment") String assignment) throws InvalidSessionRESTful {
+    public FormListMetadataTO getAllFormsMetadata(@Context HttpServletRequest request, @QueryParam("rows") int rows, @QueryParam("form") String publicationKey, @QueryParam("status") String status, @QueryParam("location") String location, @QueryParam("targetDate") String targetDate, @QueryParam("assignment") String assignment) throws InvalidSessionRESTful {
         SessionTO sessionTO = getSessionTO(request);
         if (sessionTO != null) {
             CohortTO cohortTO = sessionTO.getCohortTO();
@@ -393,13 +440,13 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
                         for (String cohortFormPublicationKey : cohortFormPublicationKeys) {
                             if (publicationKeySet.contains(cohortFormPublicationKey)) publicationKeys.add(cohortFormPublicationKey);
                         }
-                        return sproutFormsService.getAllFormsMetadata(sessionTO.getUser(), sessionTO.getCohortTO(), publicationKeys, rows, status, targetDate, assignment);
+                        return sproutFormsService.getAllFormsMetadata(sessionTO.getUser(), sessionTO.getCohortTO(), publicationKeys, rows, status, location, targetDate, assignment);
                     }
                 } else {
                     for (String cohortFormPublicationKey : cohortFormPublicationKeys) {
                         publicationKeys.add(cohortFormPublicationKey);
                     }
-                    return sproutFormsService.getAllFormsMetadata(sessionTO.getUser(), sessionTO.getCohortTO(), publicationKeys, rows, status, targetDate, assignment);
+                    return sproutFormsService.getAllFormsMetadata(sessionTO.getUser(), sessionTO.getCohortTO(), publicationKeys, rows, status, location, targetDate, assignment);
                 }
             }
         }
@@ -509,12 +556,13 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
 
 	@Override
 	@WebMethod(operationName="setSessionFormFilter")
-    public BooleanTO setSessionFormFilter(@Context HttpServletRequest request, @QueryParam("formFilter") String formFilter, @QueryParam("assignmentFilter") String assignmentFilter, @QueryParam("statusFilter") String statusFilter, @QueryParam("targetDateFilter") String targetDateFilter) throws InvalidSessionRESTful {
+    public BooleanTO setSessionFormFilter(@Context HttpServletRequest request, @QueryParam("formFilter") String formFilter, @QueryParam("assignmentFilter") String assignmentFilter, @QueryParam("statusFilter") String statusFilter, @QueryParam("locationFilter") String locationFilter, @QueryParam("targetDateFilter") String targetDateFilter) throws InvalidSessionRESTful {
 		SessionTO sessionTO = getSessionTO(request);
 		if (sessionTO != null) {
             studyService.persistUserPreference(sessionTO.getUser(), StudyService.USER_PREFERENCE_FORM_FILTER_FORM, formFilter);
             studyService.persistUserPreference(sessionTO.getUser(), StudyService.USER_PREFERENCE_FORM_FILTER_ASSIGNED_TO, assignmentFilter);
             studyService.persistUserPreference(sessionTO.getUser(), StudyService.USER_PREFERENCE_FORM_FILTER_STATUS, statusFilter);
+            studyService.persistUserPreference(sessionTO.getUser(), StudyService.USER_PREFERENCE_FORM_FILTER_LOCATION, locationFilter);
             studyService.persistUserPreference(sessionTO.getUser(), StudyService.USER_PREFERENCE_FORM_FILTER_STUDY_DATE, targetDateFilter);
             return new BooleanTO(true);
 		}

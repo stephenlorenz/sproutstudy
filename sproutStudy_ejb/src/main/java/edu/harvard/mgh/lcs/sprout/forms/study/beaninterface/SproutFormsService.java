@@ -22,14 +22,16 @@ public interface SproutFormsService {
     public abstract List<FormInstanceTO> getSproutInbox(String username, CohortTO cohortTO, String[] identityArray, Set<String> publicationKeys);
     public abstract String applyForNonce(String user, String instanceId, String subjectName, String subjectId);
     public abstract List<FormInstanceTO> getMutableForms(String username, CohortTO cohortTO, Set<String> publicationKeys);
-    public List<FormInstanceTO> getAllForms(String username, CohortTO cohortTO, Set<String> publicationKeys, int page, int rows, String orderBy, String orderDirection, String status, String targetDate, String assignment);
+    public List<FormInstanceTO> getAllForms(String username, CohortTO cohortTO, Set<String> publicationKeys, int page, int rows, String orderBy, String orderDirection, String status, String location, String targetDate, String assignment);
     public BooleanTO deleteForm(String instanceId);
-    public int getAllFormsPageCount(String username, CohortTO cohortTO, Set<String> publicationKeys, int rows, String status, String targetDate, String assignment);
+    public int getAllFormsPageCount(String username, CohortTO cohortTO, Set<String> publicationKeys, int rows, String status, String location, String targetDate, String assignment);
     public List<NameValue> getActiveSproutInboxStatuses();
     public String getMostRecentInstanceId(String schema, String id, String publicationKey);
     public List<NameValue> getAssignments(Set<String> publicationKeys, String status, String expirationDate);
-    public FormListMetadataTO getAllFormsMetadata(String username, CohortTO cohortTO, Set<String> publicationKeys, int rows, String status, String targetDate, String assignment);
+    public FormListMetadataTO getAllFormsMetadata(String username, CohortTO cohortTO, Set<String> publicationKeys, int rows, String status, String location, String targetDate, String assignment);
     public FormInstanceTO getFormInstance(String instanceId);
     public BooleanTO unlock(String instanceId);
     public String getPublicationKeyFromInstanceId(String instanceId);
+
+    List<NameValue> getActiveSproutInboxLocations(List<String> publicationKeys);
 }

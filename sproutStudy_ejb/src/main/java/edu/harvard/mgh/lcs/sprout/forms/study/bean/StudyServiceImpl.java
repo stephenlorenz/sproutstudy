@@ -1683,7 +1683,7 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
 
                 message.setRecipients(javax.mail.Message.RecipientType.TO, addressTo);
 
-                message.setSubject("#PROJECT=SPROUTNU | SproutStudy Feedback");
+                message.setSubject("#PROJECT=SPTSUP SproutForms Support Feedback | SproutStudy Feedback");
 
                 String body = "";
 
