@@ -400,7 +400,7 @@
     }
 
     function enableSplitNarrativeFrame(instanceId) {
-//        console.log("enableSplitNarrativeFrame");
+        console.log("enableSplitNarrativeFrame");
         var splitter = jQuerySprout(".sprout-study-form-narrative-split-frame-" + instanceId).splitter({
             "type": "v",
             "outline": false,
@@ -432,6 +432,7 @@
     }
 
     function deleteTab(instanceId) {
+        console.log("deleteTab");
         var instanceId = jQuerySprout(".sproutstudy-tab-li.active").attr("instance");
         var form = jQuerySprout(".sproutstudy-tab-li.active").data("form");
 
@@ -503,6 +504,23 @@
         console.log("sproutEnableReviewByInstanceId.instanceId: " + instanceId);
     }
 
+    function submittingCallback(action) {
+        if (action === undefined) action = "Submitting";
+        console.log("submittingCallback....");
+        jQuerySprout("#modal-wait-title").html(action + " Form");
+        jQuerySprout("#modal-wait-message").html(action + " form....please wait...");
+        jQuerySprout('#modal-wait').modal({
+            keyboard: false,
+            backdrop: 'static'
+        });
+    }
+
+    function submittedCallback(location) {
+        console.log("submittedCallback.location: " + location);
+//        jQuerySprout('#modal-wait').hide();
+        jQuerySprout('#modal-wait').modal('hide');
+    }
+
     function deletePaneContentNew(id) {
         console.log("deletePaneContent")
 
@@ -528,7 +546,7 @@
     }
 
     function deletePaneContent(id) {
-        console.log("deletePaneContent: " + id);
+//        console.log("deletePaneContent: " + id);
 
         var instanceId = jQuerySprout(".sproutstudy-tab-li.active").attr("instance");
         var form = jQuerySprout(".sproutstudy-tab-li.active").data("form");
@@ -537,6 +555,8 @@
         if (form) destination = form.destination;
 
 //        console.log("deletePaneContent 1");
+//        console.log("deletePaneContent.instanceId: " + instanceId);
+//        console.log("deletePaneContent.destination: " + destination);
 
         if (destination !== undefined && destination == 'HOME') {
 //            console.log("deletePaneContent 2");
@@ -551,31 +571,84 @@
                 var sourceTab = jQuerySprout(".sproutstudy-tab-" + instanceId);
                 var targetTab = jQuerySprout(".sproutstudy-tab-" + instanceId).prev();
 
-//                jQuerySprout(".sprout-study-form-narrative-split-frame-" + instanceId).remove();
-//                removeByClass("sprout-study-form-narrative-split-frame-" + instanceId);
+//                console.log("deletePaneContent 3.2");
+
+                var isIE = !!navigator.userAgent.match(/Trident./);
+//                console.log("deletePaneContent.isIE: " + isIE);
+                try {
+//                    console.log("deletePaneContent 3.2.1");
+                    if (isIE) {
+                        jQuerySprout(".sprout-study-form-narrative-split-frame-" + instanceId).hide();
+                        setTimeout(function () {
+                            jQuerySprout(".sprout-study-form-narrative-split-frame-" + instanceId).remove();
+                        }, 2000);
+                    } else {
+                        jQuerySprout(".sprout-study-form-narrative-split-frame-" + instanceId).remove();
+                    }
+//                    removeByClass("sprout-study-form-narrative-split-frame-" + instanceId);
+//                    console.log("deletePaneContent 3.2.2");
+                } catch (e) {
+//                    console.log("deletePaneContent 3.2.3");
+
+                    jQuerySprout(".sprout-study-form-narrative-split-frame-" + instanceId).hide();
+//                    removeByClass("sprout-study-form-narrative-split-frame-" + instanceId);
+//                    console.log("deletePaneContent 3.2.4");
+                }
+
+//                console.log("deletePaneContent 3.3");
 
                 sourceTab.remove();
+
+//                console.log("deletePaneContent 3.4");
+
                 targetTab.addClass("active");
+
+//                console.log("deletePaneContent 3.5");
+
                 updateTransformButton(targetTab, true);
 
+//                console.log("deletePaneContent 3.6");
+
                 var targetInstanceId = targetTab.attr("instance");
+
+//                console.log("deletePaneContent 3.7");
+
                 jQuerySprout(".sprout-study-form-narrative-split-frame-" + targetInstanceId).show();
+
+//                console.log("deletePaneContent 3.8");
+
                 if (targetInstanceId == 'home') jQuerySprout(".sproutstudy-content-" + targetInstanceId).show();
+
+//                console.log("deletePaneContent 3.9");
+
                 angular.element(jQuerySprout("#studyControllerDiv")).scope().getSubjectInbox();
 
+//                console.log("deletePaneContent 3.10");
+
                 if (!sproutFormsDoneInd) angular.element(jQuerySprout("#studyControllerDiv")).scope().onComposeMessage(form);
+
+//                console.log("deletePaneContent 3.11");
+
             } else {
                 // demographic form was just submitted
                 instanceId = jQuerySprout(".iframe-demographic-form-content").attr("instanceId");
                 angular.element(jQuerySprout("#studyControllerDiv")).scope().setNewSubject(id, instanceId);
             }
+//            console.log("deletePaneContent 3.12");
+
             unlockForm(instanceId);
+
+//            console.log("deletePaneContent 3.13");
+
         }
 
         angular.element(jQuerySprout("#studyControllerDiv")).scope().getAllForms();
         angular.element(jQuerySprout("#studyControllerDiv")).scope().$apply();
 
         sproutFormsDoneInd = false;
+
+//        console.log("deletePaneContent 3.14");
+
 
     }
 
@@ -689,6 +762,7 @@
     }
 
     function clearAllFormTabs() {
+        console.log("clearAllFormTabs");
         jQuerySprout(".sproutstudy-tab-li.active").removeClass("active");
         var homeTab = jQuerySprout(".sproutstudy-tab-home");
         homeTab.addClass("active");
@@ -742,6 +816,7 @@
     }
 
     function sizeAppFrame() {
+        console.log("sizeAppFrame");
         var tNavBarHeight = $(".navbar-fixed-top").height();
         var footerHeight = $(".footer").height();
         var wHeight = $(window).height();
@@ -753,7 +828,7 @@
     }
 
     function sizeTransformPane() {
-//        console.log("sizeTransformPane");
+        console.log("sizeTransformPane");
 
         var instanceId = jQuerySprout(".sproutstudy-tab-li.active").attr("instance");
 

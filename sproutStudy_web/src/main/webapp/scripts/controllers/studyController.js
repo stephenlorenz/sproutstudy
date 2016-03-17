@@ -1009,8 +1009,6 @@ angular.module('sproutStudyApp')
 //                console.log("data.instanceId: " + data.instanceId);
 //                console.log("data.status: " + data.status);
                 if (data.instanceId != null) {
-                    $scope.getSubjectInbox();
-
                     var instanceId = data.instanceId;
                     var formObject = $scope.newFormConstructor(instanceId, form.publicationKey, form.name, subject.fullName, subject.firstName, subject.lastName, subject.id);
 
@@ -1020,6 +1018,9 @@ angular.module('sproutStudyApp')
 
                         $scope.addPaneForm(formObject, nonce);
                         setTimeout(sizeAppFrame, 1000);
+                        $timeout(function () {
+                            $scope.getSubjectInbox()
+                        }, 500);
                     });
 
 
@@ -1036,6 +1037,10 @@ angular.module('sproutStudyApp')
         }
 
         $scope.onSendForm = function(subject, form) {
+            console.log("onSendForm");
+
+            submittedCallback(1);
+
             $scope.deliveringInd = true;
             $scope.deliveryError = null;
 
@@ -1107,14 +1112,18 @@ angular.module('sproutStudyApp')
         }
 
         $scope.onComposeMessage = function(form) {
+            submittedCallback(2);
+
 //            $log.log("onComposeMessage.instanceId: " + form.instanceId)
 //            $log.log("onComposeMessage.formTitle: " + form.title)
-            $scope.messageText = "Please review this form.";
-            $scope.sendMessageButtonText = "Send";
-            $scope.sendingMessage = false;
-            $scope.messageTo = null;
-            $scope.sendMessageForm = form;
-            $scope.sendMessageModal = true;
+
+            //$scope.messageText = "Please review this form.";
+            //$scope.sendMessageButtonText = "Send";
+            //$scope.sendingMessage = false;
+            //$scope.messageTo = null;
+            //$scope.sendMessageForm = form;
+            //$scope.sendMessageModal = true;
+
 //            $scope.$apply();
         }
         $scope.onTest = function(instanceId) {
@@ -1136,8 +1145,6 @@ angular.module('sproutStudyApp')
             $scope.deletingForm = true;
             $scope.deleteMessageText = "Deleting form...please wait...";
             $scope.deleteMessageTitle = "Deleting...";
-
-
 
             studyService.deleteSubmission({instanceId: $scope.deleteFormInstance, demographicInd: $scope.deleteFormDemographicInd, identity: $scope.subject.id + "@mgh"}, function(data) {
                 if (data.value == 'false') {
