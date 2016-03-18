@@ -322,7 +322,7 @@ public interface ApiWS {
     @GET
     @Path("/secure/getPollEvents")
     @Produces(MediaType.APPLICATION_JSON)
-    public PollEventTO getPollEvents(@Context HttpServletRequest request, @QueryParam("cohortKey") String cohortKey, @QueryParam("pollKey") Integer pollKey) throws InvalidSessionRESTful;
+    public PollEventTO getPollEvents(@Context HttpServletRequest request, @QueryParam("pollKey") Integer pollKey) throws InvalidSessionRESTful;
 
     @GET
     @Path("/secure/setDefaultTab")

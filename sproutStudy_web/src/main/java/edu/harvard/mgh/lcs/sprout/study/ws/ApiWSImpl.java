@@ -904,9 +904,10 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
     }
 
     @Override
-    public PollEventTO getPollEvents(HttpServletRequest request, String cohortKey, Integer pollKey) throws InvalidSessionRESTful {
-        if (StringUtils.isFull(cohortKey)) {
-            return studyService.getPollEvents(cohortKey, pollKey);
+    public PollEventTO getPollEvents(HttpServletRequest request, Integer pollKey) throws InvalidSessionRESTful {
+        CohortTO cohortTO = getLastSelectedCohort(request);
+        if (cohortTO != null) {
+            return studyService.getPollEvents(cohortTO.getCohortKey(), pollKey);
         }
         return null;
     }

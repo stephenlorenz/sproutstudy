@@ -264,10 +264,11 @@
                                     </td>
 
                                     <td class="inbox-cell" ng-click="form.locked || !form.mutable || onOpenMutableForm(form)">
-                                        <span ng-show="form.inboxProxies.length == 0 || form.inboxStatus == 'COMPLETED'" style="white-space: nowrap;">{{form.displayStatus}}</span>
-                                        <ul style="list-style-type: none;" ng-show="form.inboxProxies.length > 0 && form.inboxStatus != 'COMPLETED'">
-                                            <li ng-repeat="proxy in form.inboxProxies">{{proxy.status}}</li>
-                                        </ul>
+                                        <span style="white-space: nowrap;">{{form.displayStatus}}</span>
+                                        <!--<span ng-show="form.inboxProxies.length == 0 || form.inboxStatus == 'COMPLETED' || form.inboxStatus == 'EXAM_STARTED' || form.inboxStatus == 'EXAM_BEGUN'" style="white-space: nowrap;">{{form.displayStatus}}</span>-->
+                                        <!--<ul style="list-style-type: none;" ng-show="form.inboxProxies.length > 0 && form.inboxStatus != 'COMPLETED' && form.inboxStatus != 'EXAM_STARTED' && form.inboxStatus != 'EXAM_BEGUN'">-->
+                                            <!--<li ng-repeat="proxy in form.inboxProxies">{{proxy.status}}</li>-->
+                                        <!--</ul>-->
                                     </td>
                                     <td class="inbox-cell" ng-click="form.locked || !form.mutable || onOpenMutableForm(form)" ng-show="allFormsMetadata.hasStudyDates">{{form.targetDate | date:'medium' }}</td>
                                     <td class="inbox-cell" ng-click="onOpenMutableForm(form)" ng-show="!allFormsMetadata.hasStudyDates">{{form.statusDate | date:'medium' }}</td>
@@ -430,10 +431,11 @@
                     </td>
 
                     <td class="inbox-cell" ng-click="form.locked || !form.mutable  || onOpenForm(form)">
-                        <span ng-show="form.inboxProxies.length == 0 || form.inboxStatus == 'COMPLETED'" style="white-space: nowrap;">{{form.displayStatus}}</span>
-                        <ul style="list-style-type: none;" ng-show="form.inboxProxies.length > 0 && form.inboxStatus != 'COMPLETED'">
-                            <li ng-repeat="proxy in form.inboxProxies">{{proxy.status}}</li>
-                        </ul>
+                        <span style="white-space: nowrap;">{{form.displayStatus}}</span>
+                        <!--<span ng-show="form.inboxProxies.length == 0 || form.inboxStatus == 'COMPLETED'" style="white-space: nowrap;">{{form.displayStatus}}</span>-->
+                        <!--<ul style="list-style-type: none;" ng-show="form.inboxProxies.length > 0 && form.inboxStatus != 'COMPLETED'">-->
+                            <!--<li ng-repeat="proxy in form.inboxProxies">{{proxy.status}}</li>-->
+                        <!--</ul>-->
                     </td>
                     <td class="inbox-cell" ng-click="form.locked || !form.mutable  || onOpenForm(form)" ng-show="allFormsMetadata.hasStudyDates">{{form.targetDate | date:'medium' }}</td>
                     <td class="inbox-cell" ng-click="onOpenForm(form)" ng-show="!allFormsMetadata.hasStudyDates">{{form.statusDate | date:'medium' }}</td>

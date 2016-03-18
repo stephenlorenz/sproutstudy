@@ -1646,153 +1646,152 @@ angular.module('sproutStudyApp')
 
         $scope.pollCounter = 0;
 
-        $scope.pollEvents = function(cohort) {
+        $scope.pollEvents = function() {
 
-            if (cohort !== undefined && cohort.cohortKey !== undefined) {
+            var poller = function() {
 
-                var poller = function() {
-                    studyService.getPollEvents({"cohortKey": cohort.cohortKey, "pollKey": $scope.pollKey}, function(pollData) {
+                studyService.getPollEvents({"pollKey": $scope.pollKey}, function (pollData) {
 
-                        $scope.pollCounter++;
+                    $scope.pollCounter++;
 
-                        if (pollData !== undefined) {
+                    if (pollData !== undefined) {
 
-                            $scope.pollKey = pollData.pollKey;
+                        $scope.pollKey = pollData.pollKey;
 
-                            if ($scope.pollCounter > 1) {
-                                var eventData = pollData.data;
+                        if ($scope.pollCounter > 1) {
+                            var eventData = pollData.data;
 
-                                if (eventData !== undefined && eventData !== null && eventData.length > 0) {
+                            if (eventData !== undefined && eventData !== null && eventData.length > 0) {
 
-                                    $.each(eventData, function (index, formInstanceTO) {
-                                        try {
-                                            var message = JSON.parse(formInstanceTO);
+                                $.each(eventData, function (index, formInstanceTO) {
+                                    try {
+                                        var message = JSON.parse(formInstanceTO);
 
-                                            var instanceId = message.instanceId;
-                                            var publicationKey = message.publicationKey;
-                                            var lockInd = message.locked;
+                                        var instanceId = message.instanceId;
+                                        var publicationKey = message.publicationKey;
+                                        var lockInd = message.locked;
 
-                                            var identities = message.identities;
+                                        var identities = message.identities;
 
-                                            var sproutTransformInd = false;
+                                        var sproutTransformInd = false;
 
-                                            if (identities && identities.constructor == Array) {
-                                                $.each(identities, function(index, identity) {
-                                                    if (identity && identity.scheme && identity.scheme == 'sprouttransform') {
-                                                        //console.log("............identity.scheme: " + identity.scheme);
-                                                        sproutTransformInd = true;
-                                                    }
-                                                });
-                                            }
-
-                                            if (instanceId !== undefined && publicationKey !== undefined && instanceId !== null && publicationKey !== null && !sproutTransformInd) {
-                                                //console.log("Considering message....");
-
-                                                var inboxRecordIndex = undefined;
-                                                var allFormsRecordIndex = undefined;
-                                                var allFormsRecordAction = 'ADD';
-
-                                                if ($scope.inbox !== undefined) {
-                                                    $.each($scope.inbox, function (index, data) {
-                                                        //console.log("inbox.instanceId: " + data.instanceId);
-                                                        if (instanceId == data.instanceId) inboxRecordIndex = index;
-                                                    });
+                                        if (identities && identities.constructor == Array) {
+                                            $.each(identities, function (index, identity) {
+                                                if (identity && identity.scheme && identity.scheme == 'sprouttransform') {
+                                                    //console.log("............identity.scheme: " + identity.scheme);
+                                                    sproutTransformInd = true;
                                                 }
-                                                if ($scope.allForms !== undefined) {
-                                                    $.each($scope.allForms, function (index, data) {
-                                                        //console.log("allForms.instanceId: " + data.instanceId);
-                                                        if (instanceId == data.instanceId) {
-                                                            allFormsRecordIndex = index;
-
-                                                            //console.log("data.inboxStatus: " + message.inboxStatus + " vs " + data.inboxStatus);
-
-                                                            if (message.inboxStatus == 'REVOKED' || message.inboxStatus == 'EXPIRED') {
-                                                                allFormsRecordAction = 'DELETE';
-                                                            } else {
-                                                                allFormsRecordAction = 'UPDATE';
-                                                            }
-                                                        }
-                                                    });
-                                                }
-
-                                                var formIncludeInd = true;
-
-                                                $.each(cohortService.getCohort().forms, function(index, tmpForm) {
-                                                    if (tmpForm.publicationKey == publicationKey) message.title = tmpForm.name;
-                                                });
-
-                                                if ($scope.allFormsFilterForm !== undefined && $scope.allFormsFilterForm.length > 0) {
-                                                    for (var i2=0;i2<$scope.allFormsFilterForm.length;i2++) {
-                                                        if ($scope.allFormsFilterForm[i2] == message.title) {
-                                                            formIncludeInd = false;
-                                                        }
-                                                    }
-                                                }
-
-                                                if (formIncludeInd) $scope.allFormsFilterForm.push(data[i].title);
-
-                                                $scope.allFormsFilterForm.sort();
-
-                                                //console.log("inboxRecordIndex: " + inboxRecordIndex);
-                                                //console.log("allFormsRecordIndex: " + allFormsRecordIndex);
-                                                //console.log("allFormsRecordAction: " + allFormsRecordAction);
-
-                                                var applyInd = false;
-
-                                                if (inboxRecordIndex !== undefined) {
-                                                    if (lockInd) {
-                                                        $scope.inbox[inboxRecordIndex].locked = true;
-                                                    } else {
-                                                        $scope.inbox[inboxRecordIndex].locked = false;
-                                                    }
-                                                    applyInd = true;
-                                                }
-                                                if (allFormsRecordAction == 'ADD') {
-                                                    //$scope.allForms.push(message);
-                                                    $scope.allForms.unshift(message);
-                                                } else if (allFormsRecordAction == 'UPDATE') {
-                                                    $scope.allForms[allFormsRecordIndex] = message;
-                                                } else if (allFormsRecordAction == 'DELETE') {
-                                                    $scope.allForms.splice(allFormsRecordIndex, 1);
-                                                }
-
-
-                                                //$.each($scope.allForms, function (index, data) {
-                                                //    //console.log("after.allForms.instanceId: " + data.instanceId);
-                                                //    if (instanceId == data.instanceId) {
-                                                //        console.log("INSTANCE STILL EXISTS...");
-                                                //    }
-                                                //});
-
-                                                //console.log("applying changes...");
-                                                $scope.applyIfPossible();
-                                                $scope.getAssignments();
-
-                                                var row = $(".form-instance-id-" + instanceId).closest("tr");
-
-                                                setTimeout(function() {
-                                                    highlightRow(row);
-                                                }, 500);
-                                                //$(".form-instance-id-" + instanceId).closest("tr").effect('pulsate');
-
-                                            }
-
-                                        } catch (e) {
-                                            //console.log("e: " + e);
+                                            });
                                         }
 
-                                    });
-                                }
+                                        if (instanceId !== undefined && publicationKey !== undefined && instanceId !== null && publicationKey !== null && !sproutTransformInd) {
+                                            //console.log("Considering message....");
 
+                                            var inboxRecordIndex = undefined;
+                                            var allFormsRecordIndex = undefined;
+                                            var allFormsRecordAction = 'ADD';
+
+                                            if ($scope.inbox !== undefined) {
+                                                $.each($scope.inbox, function (index, data) {
+                                                    //console.log("inbox.instanceId: " + data.instanceId);
+                                                    if (instanceId == data.instanceId) inboxRecordIndex = index;
+                                                });
+                                            }
+                                            if ($scope.allForms !== undefined) {
+                                                $.each($scope.allForms, function (index, data) {
+                                                    //console.log("allForms.instanceId: " + data.instanceId);
+                                                    if (instanceId == data.instanceId) {
+                                                        allFormsRecordIndex = index;
+
+                                                        //console.log("data.inboxStatus: " + message.inboxStatus + " vs " + data.inboxStatus);
+
+                                                        if (message.inboxStatus == 'REVOKED' || message.inboxStatus == 'EXPIRED') {
+                                                            allFormsRecordAction = 'DELETE';
+                                                        } else {
+                                                            allFormsRecordAction = 'UPDATE';
+                                                        }
+                                                    }
+                                                });
+                                            }
+
+                                            var formIncludeInd = true;
+
+                                            $.each(cohortService.getCohort().forms, function (index, tmpForm) {
+                                                if (tmpForm.publicationKey == publicationKey) message.title = tmpForm.name;
+                                            });
+
+                                            if ($scope.allFormsFilterForm !== undefined && $scope.allFormsFilterForm.length > 0) {
+                                                for (var i2 = 0; i2 < $scope.allFormsFilterForm.length; i2++) {
+                                                    if ($scope.allFormsFilterForm[i2] == message.title) {
+                                                        formIncludeInd = false;
+                                                    }
+                                                }
+                                            }
+
+                                            if (formIncludeInd) $scope.allFormsFilterForm.push(data[i].title);
+
+                                            $scope.allFormsFilterForm.sort();
+
+                                            //console.log("inboxRecordIndex: " + inboxRecordIndex);
+                                            //console.log("allFormsRecordIndex: " + allFormsRecordIndex);
+                                            //console.log("allFormsRecordAction: " + allFormsRecordAction);
+
+                                            var applyInd = false;
+
+                                            if (inboxRecordIndex !== undefined) {
+                                                if (lockInd) {
+                                                    $scope.inbox[inboxRecordIndex].locked = true;
+                                                } else {
+                                                    $scope.inbox[inboxRecordIndex].locked = false;
+                                                }
+                                                applyInd = true;
+                                            }
+                                            if (allFormsRecordAction == 'ADD') {
+                                                //$scope.allForms.push(message);
+                                                $scope.allForms.unshift(message);
+                                            } else if (allFormsRecordAction == 'UPDATE') {
+                                                $scope.allForms[allFormsRecordIndex] = message;
+                                            } else if (allFormsRecordAction == 'DELETE') {
+                                                $scope.allForms.splice(allFormsRecordIndex, 1);
+                                            }
+
+
+                                            //$.each($scope.allForms, function (index, data) {
+                                            //    //console.log("after.allForms.instanceId: " + data.instanceId);
+                                            //    if (instanceId == data.instanceId) {
+                                            //        console.log("INSTANCE STILL EXISTS...");
+                                            //    }
+                                            //});
+
+                                            //console.log("applying changes...");
+                                            $scope.applyIfPossible();
+                                            $scope.getAssignments();
+
+                                            var row = $(".form-instance-id-" + instanceId).closest("tr");
+
+                                            setTimeout(function () {
+                                                highlightRow(row);
+                                            }, 500);
+                                            //$(".form-instance-id-" + instanceId).closest("tr").effect('pulsate');
+
+                                        }
+
+                                    } catch (e) {
+                                        //console.log("e: " + e);
+                                    }
+
+                                });
                             }
 
                         }
-                        $timeout(poller, $scope.pollFrequency);
-                    });
-                };
 
-                $timeout(poller, $scope.pollFrequency);
+                    }
+                    $timeout(poller, $scope.pollFrequency);
+                });
             }
+
+            $timeout(poller, $scope.pollFrequency);
+
         };
 
         $scope.onHasNarrativeChanges = function(instanceId) {
