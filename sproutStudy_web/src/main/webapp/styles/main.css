@@ -194,4 +194,19 @@ div.sprout-transform-narrative-content {
     /*-webkit-text-decoration-style: dashed;*/
 }
 
+.sprout-forms-saving-alert {
+    font-size: 16px;
+    line-height: 20px;
+    width: 200px;
+    height: 20px;
+    text-align: right;
+    position: fixed;
+    left: 50%;
+    /*margin-left: -100px;*/
+    margin-left: -100px;
+    top: 45px;
+    padding: 2px 10px 2px 10px;
+}
+
+
 .table-striped tbody tr.highlight td { background-color: #f8ff00; }

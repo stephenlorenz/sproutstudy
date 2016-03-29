@@ -86,7 +86,8 @@ angular.module('sproutStudyApp')
         $scope.messageTo = null;
 
         $scope.pollKey = 0;
-        $scope.pollFrequency = 2000; // every 2 seconds
+        $scope.pollFrequency = 5000; // every 5 seconds
+        $scope.pollingInd = false;
 
         $scope.hasNarrativeChanges = false;
 
@@ -572,7 +573,6 @@ angular.module('sproutStudyApp')
             cohortService.setCohort(data);
             $scope.getCohortAuthorizations();
             //$scope.bootWebsockets(data);
-            $scope.pollEvents(data);
             $scope.cohortLoaded = true;
         });
 
@@ -881,8 +881,9 @@ angular.module('sproutStudyApp')
 
                     $scope.gettingAllForms = false;
 
-                });
+                    if (!$scope.pollingInd) $scope.pollEvents();
 
+                });
 
             });
 
@@ -1648,6 +1649,8 @@ angular.module('sproutStudyApp')
 
         $scope.pollEvents = function() {
 
+            $scope.pollingInd = true;
+
             var poller = function() {
 
                 studyService.getPollEvents({"pollKey": $scope.pollKey}, function (pollData) {
@@ -1783,6 +1786,8 @@ angular.module('sproutStudyApp')
                                 });
                             }
 
+                        } else {
+                            console.log("pollingEvents: throwing out first poll to establish reference point.");
                         }
 
                     }
@@ -1799,6 +1804,16 @@ angular.module('sproutStudyApp')
             $scope.hasNarrativeChanges = true;
         };
 
+        var autoSaveNarrative = function() {
+            if ($scope.hasNarrativeChanges) {
+                $scope.hasNarrativeChanges = false;
+                $scope.onSaveNarrativeChanges();
+            }
+            $timeout(autoSaveNarrative, 1000);
+        }
+
+        $timeout(autoSaveNarrative, 1000);
+
         $scope.onSaveNarrativeChanges = function() {
             console.log("onSaveNarrativeChanges");
 
@@ -1807,12 +1822,18 @@ angular.module('sproutStudyApp')
                 var instanceId = form.instanceId;
                 if (instanceId) {
                     $scope.onSyncNarrative(function(result, message) {
+                        //$(".sprout-narrative-save-success").show();
+                        //$timeout(function() {$(".sprout-narrative-save-success").fadeOut("slow");}, 1000);
+
+                        $(".alert-narrative-saved").show();
+                        $(".alert-narrative-saved").delay(2000).fadeOut("slow");
+
                         if (result) {
                             if (formCallbackCatalog[instanceId]) {
                                 var callbackItem = formCallbackCatalog[instanceId];
                                 callbackItem.resetSignatures();
                             }
-                            $scope.hasNarrativeChanges = false;
+                            //$scope.hasNarrativeChanges = false;
                         } else {
                             console.log(message);
                         }

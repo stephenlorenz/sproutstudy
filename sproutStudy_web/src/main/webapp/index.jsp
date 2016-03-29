@@ -270,6 +270,11 @@
             deleteTab(instanceId);
             return false;
         });
+        jQuerySprout("#sproutStudyFormContent").on('click', '.sprout-study-narrative-content-print-button', function(event) {
+            var instanceId = jQuerySprout(this).attr("instanceid");
+            printNarrative(instanceId);
+            return false;
+        });
 
         Handlebars.registerHelper('getNode', function (sourceNode, queryKey, options) {
 
@@ -368,7 +373,7 @@
 
             var uneditable = form.uneditable;
 
-            var content = '<div class="sprout-study-form-narrative-split-frame sprout-study-form-narrative-split-frame-' + instanceId + '"><div class="sproutstudy-content sproutstudy-split-frame-content sprout-study-drag-dimme sproutstudy-content-form sproutstudy-content-' + instanceId + '" id="' + instanceId + '"><iframe id="iframe-' + instanceId + '" name="iframe-' + instanceId + '" src="/prompt/?instanceId=' + instanceId + '&nonce=' + nonce + '&debug=true&showThanks=false&uneditable=' + uneditable + '" class="appFrame sproutStudyFrame" /></div><div class="sproutstudy-split-frame-content sproutstudy-split-frame-content-narrative sproutstudy-split-frame-content-narrative-' + instanceId + '"><legend>Narrative <button class="btn btn-danger sprout-study-narrative-content-save-button sprout-study-narrative-content-save-button-' + instanceId + '" style="display: none;" instanceId="' + instanceId + '"><i class="fa fa-save"></i> Save Narrative Changes</button></legend><div class="sprout-study-narrative-content sprout-study-narrative-content-' + instanceId + '"></div><div class="sprout-study-template-content sprout-study-template-content-' + instanceId + '" style="display: none;" /><div class="sprout-study-template-scratch sprout-study-template-scratch-' + instanceId + '" style="display: none;"/></div></div>';
+            var content = '<div class="sprout-study-form-narrative-split-frame sprout-study-form-narrative-split-frame-' + instanceId + '"><div class="sproutstudy-content sproutstudy-split-frame-content sprout-study-drag-dimme sproutstudy-content-form sproutstudy-content-' + instanceId + '" id="' + instanceId + '"><iframe id="iframe-' + instanceId + '" name="iframe-' + instanceId + '" src="/prompt/?instanceId=' + instanceId + '&nonce=' + nonce + '&debug=true&showThanks=false&uneditable=' + uneditable + '" class="appFrame sproutStudyFrame" /></div><div class="sproutstudy-split-frame-content sproutstudy-split-frame-content-narrative sproutstudy-split-frame-content-narrative-' + instanceId + '"><legend>Narrative <span id="sprout-alert-div" class="alert alert-info alert-narrative-saved sprout-forms-saving-alert sprout-forms-saving-alert-portal hide" data-alert="alert" style="display: none;"><strong><i class="fa fa-save"></i> Narrative Auto-saved</strong></span><span class="label label-info sprout-narrative-save-success" style="margin-left: 5px; margin-top: -5px; display: none;"><i class="fa fa-save"></i> Narrative auto-saved.</span><button class="btn btn-danger sprout-study-narrative-content-save-button sprout-study-narrative-content-save-button-' + instanceId + '" style="display: none;" instanceId="' + instanceId + '"><i class="fa fa-save"></i> Save Narrative Changes</button><button class="btn btn-info btn-mini sprout-study-narrative-content-print-button sprout-study-narrative-content-print-button-' + instanceId + '" style="float: right; margin-right: 20px;" instanceId="' + instanceId + '"><i class="fa fa-print"></i> Print Narrative</button></legend><div class="sprout-study-narrative-content sprout-study-narrative-content-' + instanceId + '"></div><div class="sprout-study-template-content sprout-study-template-content-' + instanceId + '" style="display: none;" /><div class="sprout-study-template-scratch sprout-study-template-scratch-' + instanceId + '" style="display: none;"/></div></div>';
             var tab = '<li class="sproutstudy-tab-li sproutstudy-tab-form sproutstudy-tab-' + instanceId + '" title="' + title + '" instance="' + instanceId + '"><a href="#/" class="sproutstudy-tab-button"  title="' + title + '" instance="' + instanceId + '">' + title + '<span class="sproutstudy-close-tab" instance="' + instanceId + '"><i class="icon-remove-sign"></i></span></a></li>';
             jQuerySprout("#sproutstudy-tab-container").append(tab);
             jQuerySprout("#sproutStudyFormContent").append(content);
@@ -431,6 +436,101 @@
         sproutFormsDoneInd = true;
     }
 
+    function deleteTabNew(instanceId) {
+        console.log("deleteTab");
+        var instanceId = jQuerySprout(".sproutstudy-tab-li.active").attr("instance");
+        var form = jQuerySprout(".sproutstudy-tab-li.active").data("form");
+
+        var destination = undefined;
+        if (form) destination = form.destination;
+
+
+
+
+
+        if (destination !== undefined && destination == 'HOME') {
+//            console.log("deleteTab -- 1");
+//            console.log("deletePaneContent 2");
+//            if (!sproutFormsDoneInd) angular.element(jQuerySprout("#studyControllerDiv")).scope().onComposeMessage(form);
+            var mutableInd = jQuerySprout("#iframe-" + instanceId).contents().find(".sprout-form-mutable-ind").val();
+
+            if (mutableInd == 'true') {
+
+//                console.log("deleteTab -- 4");
+
+                jQuerySprout("#modal-wait-title").html("Saving and Closing form");
+                jQuerySprout("#modal-wait-message").html("Saving and closing form....please wait...");
+                jQuerySprout('#modal-wait').modal({
+                    keyboard: false
+                });
+
+                jQuerySprout("#iframe-" + instanceId)[0].contentWindow.remoteSave(function (data) {
+                    angular.element(jQuerySprout("#studyControllerDiv")).scope().enableSearch();
+                });
+            }
+
+        } else {
+//            console.log("deleteTab -- 2");
+            if (instanceId != null && instanceId != 'home') {
+
+//                console.log("deleteTab -- 3");
+
+                var mutableInd = jQuerySprout("#iframe-" + instanceId).contents().find(".sprout-form-mutable-ind").val();
+
+                if (mutableInd == 'true') {
+
+//                    console.log("deleteTab -- 4");
+
+                    jQuerySprout("#modal-wait-title").html("Saving and Closing form");
+                    jQuerySprout("#modal-wait-message").html("Saving and closing form....please wait...");
+                    jQuerySprout('#modal-wait').modal({
+                        keyboard: false
+                    });
+
+                    jQuerySprout("#iframe-" + instanceId)[0].contentWindow.remoteSave(function(data) {
+//                        jQuerySprout(".sproutstudy-tab-li.active").removeClass("active");
+//                        jQuerySprout(".sprout-study-form-narrative-split-frame").hide();
+//
+//                        var sourceTab = jQuerySprout(".sproutstudy-tab-" + instanceId);
+//                        var targetTab = jQuerySprout(".sproutstudy-tab-home");
+//
+//                        jQuerySprout(".sprout-study-form-narrative-split-frame-" + instanceId).remove();
+//
+//                        sourceTab.remove();
+//                        targetTab.addClass("active");
+//                        updateTransformButton(targetTab, true);
+//
+//                        jQuerySprout(".sproutstudy-content-home").show();
+//                        jQuerySprout('#modal-wait').modal('hide');
+                    });
+                } else {
+//                    console.log("deleteTab -- 5");
+                    jQuerySprout(".sproutstudy-tab-li.active").removeClass("active");
+                    jQuerySprout("sprout-study-form-narrative-split-frame").hide();
+
+                    var sourceTab = jQuerySprout(".sproutstudy-tab-" + instanceId);
+                    var targetTab = jQuerySprout(".sproutstudy-tab-home");
+
+                    jQuerySprout(".sprout-study-form-narrative-split-frame-" + instanceId).remove();
+
+                    sourceTab.remove();
+                    targetTab.addClass("active");
+                    updateTransformButton(targetTab, true);
+
+                    jQuerySprout(".sproutstudy-content-home").show();
+                    jQuerySprout('#modal-wait').modal('hide');
+                }
+            }
+        }
+
+        unlockForm(instanceId);
+
+        angular.element(jQuerySprout("#studyControllerDiv")).scope().getAllForms();
+        angular.element(jQuerySprout("#studyControllerDiv")).scope().$apply();
+
+        sproutFormsDoneInd = false;
+    }
+
     function deleteTab(instanceId) {
         console.log("deleteTab");
         var instanceId = jQuerySprout(".sproutstudy-tab-li.active").attr("instance");
@@ -442,15 +542,65 @@
         if (destination !== undefined && destination == 'HOME') {
 //            console.log("deletePaneContent 2");
 //            if (!sproutFormsDoneInd) angular.element(jQuerySprout("#studyControllerDiv")).scope().onComposeMessage(form);
-            angular.element(jQuerySprout("#studyControllerDiv")).scope().enableSearch();
+
+
+
+            var mutableInd = jQuerySprout("#iframe-" + instanceId).contents().find(".sprout-form-mutable-ind").val();
+
+            if (mutableInd == 'true') {
+                jQuerySprout("#modal-wait-title").html("Closing form");
+                jQuerySprout("#modal-wait-message").html("Closing form....please wait...");
+                jQuerySprout('#modal-wait').modal({
+                    keyboard: false
+                });
+
+                jQuerySprout("#iframe-" + instanceId)[0].contentWindow.remoteSave(function(data) {
+                    jQuerySprout(".sproutstudy-tab-li.active").removeClass("active");
+                    jQuerySprout(".sprout-study-form-narrative-split-frame").hide();
+
+                    var sourceTab = jQuerySprout(".sproutstudy-tab-" + instanceId);
+                    var targetTab = jQuerySprout(".sproutstudy-tab-home");
+
+                    jQuerySprout(".sprout-study-form-narrative-split-frame-" + instanceId).remove();
+
+                    sourceTab.remove();
+                    targetTab.addClass("active");
+                    updateTransformButton(targetTab, true);
+
+                    jQuerySprout(".sproutstudy-content-home").show();
+                    jQuerySprout('#modal-wait').modal('hide');
+                    angular.element(jQuerySprout("#studyControllerDiv")).scope().enableSearch();
+                });
+            } else {
+                jQuerySprout(".sproutstudy-tab-li.active").removeClass("active");
+                jQuerySprout("sprout-study-form-narrative-split-frame").hide();
+
+                var sourceTab = jQuerySprout(".sproutstudy-tab-" + instanceId);
+                var targetTab = jQuerySprout(".sproutstudy-tab-home");
+
+                jQuerySprout(".sprout-study-form-narrative-split-frame-" + instanceId).remove();
+
+                sourceTab.remove();
+                targetTab.addClass("active");
+                updateTransformButton(targetTab, true);
+
+                jQuerySprout(".sproutstudy-content-home").show();
+                jQuerySprout('#modal-wait').modal('hide');
+
+                angular.element(jQuerySprout("#studyControllerDiv")).scope().enableSearch();
+            }
+
+
+
+
         } else {
             if (instanceId != null && instanceId != 'home') {
 
                 var mutableInd = jQuerySprout("#iframe-" + instanceId).contents().find(".sprout-form-mutable-ind").val();
 
                 if (mutableInd == 'true') {
-                    jQuerySprout("#modal-wait-title").html("Saving and Closing form");
-                    jQuerySprout("#modal-wait-message").html("Saving and closing form....please wait...");
+                    jQuerySprout("#modal-wait-title").html("Closing form");
+                    jQuerySprout("#modal-wait-message").html("Closing form....please wait...");
                     jQuerySprout('#modal-wait').modal({
                         keyboard: false
                     });
@@ -500,6 +650,13 @@
 
         sproutFormsDoneInd = false;
     }
+
+    function printNarrative(instanceId) {
+        console.log("printNarrative.instanceId: " + instanceId);
+        $('#printFrame').contents().find('html').html($('.sprout-study-narrative-content-' + instanceId).html());
+        $('#printFrame').get(0).contentWindow.print();
+    }
+
     function sproutEnableReviewByInstanceId(instanceId) {
         console.log("sproutEnableReviewByInstanceId.instanceId: " + instanceId);
     }
@@ -1059,7 +1216,20 @@
 
             jQuerySprout(".sprout-study-template-content-" + instanceId).html(source);
 //            console.log("setSproutTransformTemplate978.new template1: " + jQuerySprout(".sprout-study-template-content-" + instanceId).html());
-            makeNarrativeTextEditable(instanceId);
+
+//            console.log("978: setSproutTransformTemplate.1");
+            if (typeof getActiveTabData !== 'undefined') {
+                var activeForm = getActiveTabData().form;
+//                console.log("978: setSproutTransformTemplate.activeForm: " + JSON.stringify(activeForm));
+                if (activeForm && !activeForm.complete) {
+//                    console.log("978: setSproutTransformTemplate.activeForm: making narrative text editable...");
+                    makeNarrativeTextEditable(instanceId);
+                }
+            }
+//            getActiveTabData().form.complete
+//            if (editMode)
+
+
 //            console.log("setSproutTransformTemplate978.new template2: " + jQuerySprout(".sprout-study-template-content-" + instanceId).html());
         }
 
@@ -1296,6 +1466,9 @@
 <div id="sproutStudyFormContent" />
 
 <div id="sproutTransformTemplate" style="display: none;" />
+
+<iframe id="printFrame" src="about:blank" height="0" width="0" style="border: 0px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;" >
+</iframe>
 
 </body>
 </html>
