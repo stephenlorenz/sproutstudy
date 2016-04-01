@@ -379,25 +379,33 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
                                 String publicationKey = formInstanceTO.getPublicationKey();
 
                                 String destination = null;
+                                Set<FormAttrEntity> formAttrEntities = studyService.getFormAttributesFromPublicationKey(publicationKey);
+
                                 if (edu.harvard.mgh.lcs.sprout.forms.utils.StringUtils.isFull(publicationKey)) {
                                     if (formDestinationMap.containsKey(publicationKey)) {
                                         destination = formDestinationMap.get(publicationKey);
                                         formInstanceTO.setDestination(destination);
                                     } else {
-                                        Set<FormAttrEntity> formAttrEntities = studyService.getFormAttributesFromPublicationKey(publicationKey);
                                         if (formAttrEntities != null && formAttrEntities.size() > 0) {
                                             for (FormAttrEntity formAttrEntity : formAttrEntities) {
                                                 if (formAttrEntity.getFormAttr().getCode().equalsIgnoreCase("DESTINATION")) {
                                                     destination = formAttrEntity.getValue();
                                                     formDestinationMap.put(publicationKey, destination);
                                                     formInstanceTO.setDestination(destination);
-                                                } else if (formAttrEntity.getFormAttr().getCode().equalsIgnoreCase("UNEDITABLE")) {
-                                                    formInstanceTO.setUneditable(formAttrEntity.getValue() != null && formAttrEntity.getValue().equalsIgnoreCase("true"));
                                                 }
                                             }
                                         }
                                     }
                                 }
+
+                                if (formAttrEntities != null && formAttrEntities.size() > 0) {
+                                    for (FormAttrEntity formAttrEntity : formAttrEntities) {
+                                        if (formAttrEntity.getFormAttr().getCode().equalsIgnoreCase("UNEDITABLE")) {
+                                            formInstanceTO.setUneditable(formAttrEntity.getValue() != null && formAttrEntity.getValue().equalsIgnoreCase("true"));
+                                        }
+                                    }
+                                }
+
 
                                 formInstanceTO.setDestination(destination);
 
@@ -658,23 +666,29 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
                             for (FormInstanceTO formInstanceTO : formInstanceTOList) {
                                 String publicationKey = formInstanceTO.getPublicationKey();
 
+                                Set<FormAttrEntity> formAttrEntities = studyService.getFormAttributesFromPublicationKey(publicationKey);
                                 String destination = null;
                                 if (edu.harvard.mgh.lcs.sprout.forms.utils.StringUtils.isFull(publicationKey)) {
                                     if (formDestinationMap.containsKey(publicationKey)) {
                                         destination = formDestinationMap.get(publicationKey);
                                         formInstanceTO.setDestination(destination);
                                     } else {
-                                        Set<FormAttrEntity> formAttrEntities = studyService.getFormAttributesFromPublicationKey(publicationKey);
                                         if (formAttrEntities != null && formAttrEntities.size() > 0) {
                                             for (FormAttrEntity formAttrEntity : formAttrEntities) {
                                                 if (formAttrEntity.getFormAttr().getCode().equalsIgnoreCase("DESTINATION")) {
                                                     destination = formAttrEntity.getValue();
                                                     formDestinationMap.put(publicationKey, destination);
                                                     formInstanceTO.setDestination(destination);
-                                                } else if (formAttrEntity.getFormAttr().getCode().equalsIgnoreCase("UNEDITABLE")) {
-                                                    formInstanceTO.setUneditable(formAttrEntity.getValue() != null && formAttrEntity.getValue().equalsIgnoreCase("true"));
                                                 }
                                             }
+                                        }
+                                    }
+                                }
+
+                                if (formAttrEntities != null && formAttrEntities.size() > 0) {
+                                    for (FormAttrEntity formAttrEntity : formAttrEntities) {
+                                        if (formAttrEntity.getFormAttr().getCode().equalsIgnoreCase("UNEDITABLE")) {
+                                            formInstanceTO.setUneditable(formAttrEntity.getValue() != null && formAttrEntity.getValue().equalsIgnoreCase("true"));
                                         }
                                     }
                                 }

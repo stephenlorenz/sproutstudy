@@ -59,16 +59,9 @@
    	<!--[if lt IE 7]><link rel="stylesheet" type="text/css" href="/sproutassets/stylesheets/ie/ie6.css"></link><![endif]-->
 
     <script type="application/javascript">
-
         var sproutAdminInd = function() {
             return (typeof parent.insideSproutAdmin === "function");
         }
-//        if (typeof parent.insideSproutAdmin === "function") {
-//            console.log("insideSproutAdmin: TRUE");
-//        } else {
-//            console.log("insideSproutAdmin: FALSE");
-//        }
-
     </script>
     
 </head>
@@ -373,7 +366,7 @@
 
             var uneditable = form.uneditable;
 
-            var content = '<div class="sprout-study-form-narrative-split-frame sprout-study-form-narrative-split-frame-' + instanceId + '"><div class="sproutstudy-content sproutstudy-split-frame-content sprout-study-drag-dimme sproutstudy-content-form sproutstudy-content-' + instanceId + '" id="' + instanceId + '"><iframe id="iframe-' + instanceId + '" name="iframe-' + instanceId + '" src="/prompt/?instanceId=' + instanceId + '&nonce=' + nonce + '&debug=true&showThanks=false&uneditable=' + uneditable + '" class="appFrame sproutStudyFrame" /></div><div class="sproutstudy-split-frame-content sproutstudy-split-frame-content-narrative sproutstudy-split-frame-content-narrative-' + instanceId + '"><legend>Narrative <span id="sprout-alert-div" class="alert alert-info alert-narrative-saved sprout-forms-saving-alert sprout-forms-saving-alert-portal hide" data-alert="alert" style="display: none;"><strong><i class="fa fa-save"></i> Narrative Auto-saved</strong></span><span class="label label-info sprout-narrative-save-success" style="margin-left: 5px; margin-top: -5px; display: none;"><i class="fa fa-save"></i> Narrative auto-saved.</span><button class="btn btn-danger sprout-study-narrative-content-save-button sprout-study-narrative-content-save-button-' + instanceId + '" style="display: none;" instanceId="' + instanceId + '"><i class="fa fa-save"></i> Save Narrative Changes</button><button class="btn btn-info btn-mini sprout-study-narrative-content-print-button sprout-study-narrative-content-print-button-' + instanceId + '" style="float: right; margin-right: 20px;" instanceId="' + instanceId + '"><i class="fa fa-print"></i> Print Narrative</button></legend><div class="sprout-study-narrative-content sprout-study-narrative-content-' + instanceId + '"></div><div class="sprout-study-template-content sprout-study-template-content-' + instanceId + '" style="display: none;" /><div class="sprout-study-template-scratch sprout-study-template-scratch-' + instanceId + '" style="display: none;"/></div></div>';
+            var content = '<div class="sprout-study-form-narrative-split-frame sprout-study-form-narrative-split-frame-' + instanceId + '"><div class="sproutstudy-content sproutstudy-split-frame-content sprout-study-drag-dimme sproutstudy-content-form sproutstudy-content-' + instanceId + '" id="' + instanceId + '"><iframe id="iframe-' + instanceId + '" name="iframe-' + instanceId + '" src="/prompt/?instanceId=' + instanceId + '&nonce=' + nonce + '&debug=true&showThanks=false&uneditable=' + uneditable + '" class="appFrame sproutStudyFrame" /></div><div class="sproutstudy-split-frame-content sproutstudy-split-frame-content-narrative sproutstudy-split-frame-content-narrative-' + instanceId + '"><legend>Narrative <span id="sprout-alert-div" class="alert alert-info alert-narrative-saved sprout-forms-saving-alert sprout-forms-saving-alert-portal-dummy hide" data-alert="alert" style="display: none;"><strong><i class="fa fa-save"></i> Narrative Auto-saved</strong></span><span class="label label-info sprout-narrative-save-success" style="margin-left: 5px; margin-top: -5px; display: none;"><i class="fa fa-save"></i> Narrative auto-saved.</span><button class="btn btn-danger sprout-study-narrative-content-save-button sprout-study-narrative-content-save-button-' + instanceId + '" style="display: none;" instanceId="' + instanceId + '"><i class="fa fa-save"></i> Save Narrative Changes</button><button class="btn btn-info btn-mini sprout-study-narrative-content-print-button sprout-study-narrative-content-print-button-' + instanceId + '" style="margin-left: 5px;" instanceId="' + instanceId + '"><i class="fa fa-print"></i> Print</button></legend><div class="sprout-study-narrative-content sprout-study-narrative-content-' + instanceId + '"></div><div class="sprout-study-template-content sprout-study-template-content-' + instanceId + '" style="display: none;" /><div class="sprout-study-template-scratch sprout-study-template-scratch-' + instanceId + '" style="display: none;"/></div></div>';
             var tab = '<li class="sproutstudy-tab-li sproutstudy-tab-form sproutstudy-tab-' + instanceId + '" title="' + title + '" instance="' + instanceId + '"><a href="#/" class="sproutstudy-tab-button"  title="' + title + '" instance="' + instanceId + '">' + title + '<span class="sproutstudy-close-tab" instance="' + instanceId + '"><i class="icon-remove-sign"></i></span></a></li>';
             jQuerySprout("#sproutstudy-tab-container").append(tab);
             jQuerySprout("#sproutStudyFormContent").append(content);
@@ -533,13 +526,37 @@
 
     function deleteTab(instanceId) {
         console.log("deleteTab");
-        var instanceId = jQuerySprout(".sproutstudy-tab-li.active").attr("instance");
-        var form = jQuerySprout(".sproutstudy-tab-li.active").data("form");
 
         var destination = undefined;
+        var form = undefined;
+        var quickClose = false;
+
+
+        var activeTab = jQuerySprout(".sproutstudy-tab-li.active");
+        if (activeTab)
+
+        if (instanceId === undefined || instanceId.length == 0) {
+            quickClose = true;
+            instanceId = jQuerySprout(".sproutstudy-tab-li.active").attr("instance");
+            form = jQuerySprout(".sproutstudy-tab-li.active").data("form");
+        } else {
+            var instanceTab = jQuerySprout('.sproutstudy-tab-' + instanceId);
+            if (instanceTab !== undefined) form = instanceTab.data("form");
+        }
+
         if (form) destination = form.destination;
 
-        if (destination !== undefined && destination == 'HOME') {
+        var tabCount = jQuerySprout(".sproutstudy-tab-li").length;
+
+        console.log("deleteTab.tabCount: " + tabCount);
+        console.log("deleteTab.destination: " + destination);
+        console.log("deleteTab.tabCount: " + tabCount);
+
+        if (destination !== undefined && destination == 'HOME' && tabCount == 3) {
+
+            console.log("deleteTab.position: 1");
+
+
 //            console.log("deletePaneContent 2");
 //            if (!sproutFormsDoneInd) angular.element(jQuerySprout("#studyControllerDiv")).scope().onComposeMessage(form);
 
@@ -548,6 +565,7 @@
             var mutableInd = jQuerySprout("#iframe-" + instanceId).contents().find(".sprout-form-mutable-ind").val();
 
             if (mutableInd == 'true') {
+                console.log("deleteTab.position: 2");
                 jQuerySprout("#modal-wait-title").html("Closing form");
                 jQuerySprout("#modal-wait-message").html("Closing form....please wait...");
                 jQuerySprout('#modal-wait').modal({
@@ -572,6 +590,8 @@
                     angular.element(jQuerySprout("#studyControllerDiv")).scope().enableSearch();
                 });
             } else {
+                console.log("deleteTab.position: 3");
+
                 jQuerySprout(".sproutstudy-tab-li.active").removeClass("active");
                 jQuerySprout("sprout-study-form-narrative-split-frame").hide();
 
@@ -594,11 +614,16 @@
 
 
         } else {
+            console.log("deleteTab.position: 4");
+
             if (instanceId != null && instanceId != 'home') {
+                console.log("deleteTab.position: 5");
 
                 var mutableInd = jQuerySprout("#iframe-" + instanceId).contents().find(".sprout-form-mutable-ind").val();
 
                 if (mutableInd == 'true') {
+                    console.log("deleteTab.position: 6");
+
                     jQuerySprout("#modal-wait-title").html("Closing form");
                     jQuerySprout("#modal-wait-message").html("Closing form....please wait...");
                     jQuerySprout('#modal-wait').modal({
@@ -613,6 +638,12 @@
                         var targetTab = jQuerySprout(".sproutstudy-tab-home");
 
                         jQuerySprout(".sprout-study-form-narrative-split-frame-" + instanceId).remove();
+                        if (activeTab) {
+                            var activeInstanceId = activeTab.attr("instance");
+                            if (activeInstanceId && activeInstanceId.length > 0) {
+                                jQuerySprout(".sprout-study-form-narrative-split-frame-" + activeInstanceId).hide();
+                            }
+                        }
 
                         sourceTab.remove();
                         targetTab.addClass("active");
@@ -622,6 +653,8 @@
                         jQuerySprout('#modal-wait').modal('hide');
                     });
                 } else {
+                    console.log("deleteTab.position: 7");
+
                     jQuerySprout(".sproutstudy-tab-li.active").removeClass("active");
                     jQuerySprout("sprout-study-form-narrative-split-frame").hide();
 
@@ -629,6 +662,12 @@
                     var targetTab = jQuerySprout(".sproutstudy-tab-home");
 
                     jQuerySprout(".sprout-study-form-narrative-split-frame-" + instanceId).remove();
+                    if (activeTab) {
+                        var activeInstanceId = activeTab.attr("instance");
+                        if (activeInstanceId && activeInstanceId.length > 0) {
+                            jQuerySprout(".sprout-study-form-narrative-split-frame-" + activeInstanceId).hide();
+                        }
+                    }
 
                     sourceTab.remove();
                     targetTab.addClass("active");
@@ -642,6 +681,8 @@
 
             }
         }
+
+        console.log("deleteTab.position: 8");
 
         unlockForm(instanceId);
 
@@ -1364,6 +1405,33 @@
 <script type="text/javascript">
     var contextPath = "<%=request.getContextPath()%>";
     var timeoutSeconds = 600;
+
+    var hasActivity = false;
+
+    function tickleIdleTimer() {
+        hasActivity = true;
+    }
+
+    var handleUserEvent = function() {
+        hasActivity = true;
+    }
+
+    setInterval(function () {
+        if (hasActivity) {
+            hasActivity = false;
+            if (typeof parent.tickleIdleTimer === "function") {
+                parent.tickleIdleTimer();
+            } else {
+                $(document).trigger("keydown");
+            }
+        }
+    }, 500);
+
+    jQuerySprout(document).on('mousemove', handleUserEvent);
+    jQuerySprout(document).on('keydown', handleUserEvent);
+    jQuerySprout(document).on('DOMMouseScroll', handleUserEvent);
+    jQuerySprout(document).on('mousewheel', handleUserEvent);
+    jQuerySprout(document).on('mousedown', handleUserEvent);
 
     var keepAlive = function(app) {
         $.idleTimer('keepAlive', {timeout: (timeoutSeconds * 1000)});
