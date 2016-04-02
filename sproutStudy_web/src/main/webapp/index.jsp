@@ -320,6 +320,10 @@
                 throw new Error("Handlerbars Helper 'compare' doesn't know the operator " + operator);
             }
 
+            if (!isNaN(rvalue)) {
+                rvalue = parseInt(rvalue, 10);
+            }
+
             result = operators[operator](lvalue, rvalue);
 
             if (result) {

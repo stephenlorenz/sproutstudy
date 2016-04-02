@@ -1666,6 +1666,9 @@ angular.module('sproutStudyApp')
 
                             if (eventData !== undefined && eventData !== null && eventData.length > 0) {
 
+                                //console.log("*************** Event Data Received ****************");
+                                //console.log("poller.eventData.length: " + eventData.length);
+
                                 $.each(eventData, function (index, formInstanceTO) {
                                     try {
                                         var message = JSON.parse(formInstanceTO);
@@ -1673,6 +1676,9 @@ angular.module('sproutStudyApp')
                                         var instanceId = message.instanceId;
                                         var publicationKey = message.publicationKey;
                                         var lockInd = message.locked;
+                                        var title = message.title;
+
+                                        //console.log("poller.eventData.instanceId: " + instanceId);
 
                                         var identities = message.identities;
 
@@ -1688,7 +1694,7 @@ angular.module('sproutStudyApp')
                                         }
 
                                         if (instanceId !== undefined && publicationKey !== undefined && instanceId !== null && publicationKey !== null && !sproutTransformInd) {
-                                            //console.log("Considering message....");
+                                            //console.log("poller. Considering message....");
 
                                             var inboxRecordIndex = undefined;
                                             var allFormsRecordIndex = undefined;
@@ -1696,14 +1702,19 @@ angular.module('sproutStudyApp')
 
                                             if ($scope.inbox !== undefined) {
                                                 $.each($scope.inbox, function (index, data) {
-                                                    //console.log("inbox.instanceId: " + data.instanceId);
-                                                    if (instanceId == data.instanceId) inboxRecordIndex = index;
+                                                    //console.log("poller.inbox.instanceId: " + data.instanceId);
+                                                    if (instanceId == data.instanceId) {
+                                                        //console.log("poller.inbox.foundMatch (" + data.instanceId + ") at index " + index);
+                                                        inboxRecordIndex = index;
+                                                    }
                                                 });
                                             }
                                             if ($scope.allForms !== undefined) {
                                                 $.each($scope.allForms, function (index, data) {
-                                                    //console.log("allForms.instanceId: " + data.instanceId);
+                                                    //console.log("poller.allForms.instanceId: " + data.instanceId);
                                                     if (instanceId == data.instanceId) {
+                                                        //console.log("poller.allForms.foundMatch (" + data.instanceId + ") at index " + index);
+
                                                         allFormsRecordIndex = index;
 
                                                         //console.log("data.inboxStatus: " + message.inboxStatus + " vs " + data.inboxStatus);
@@ -1717,36 +1728,54 @@ angular.module('sproutStudyApp')
                                                 });
                                             }
 
+                                            //console.log("poller.position: 1");
+
                                             var formIncludeInd = true;
 
                                             $.each(cohortService.getCohort().forms, function (index, tmpForm) {
+                                                //console.log("poller.position: 1.1");
                                                 if (tmpForm.publicationKey == publicationKey) message.title = tmpForm.name;
                                             });
 
+                                            //console.log("poller.position: 2");
+
                                             if ($scope.allFormsFilterForm !== undefined && $scope.allFormsFilterForm.length > 0) {
+
+                                                //console.log("poller.position: 2.1");
+
                                                 for (var i2 = 0; i2 < $scope.allFormsFilterForm.length; i2++) {
-                                                    if ($scope.allFormsFilterForm[i2] == message.title) {
+                                                    //console.log("poller.position: 2.2");
+                                                    if ($scope.allFormsFilterForm[i2] == title) {
+                                                        //console.log("poller.position: 2.3");
                                                         formIncludeInd = false;
                                                     }
                                                 }
                                             }
 
-                                            if (formIncludeInd) $scope.allFormsFilterForm.push(data[i].title);
+                                            //console.log("poller.position: 3");
+
+                                            if (formIncludeInd && title) $scope.allFormsFilterForm.push(title);
+
+                                            //console.log("poller.position: 4");
 
                                             $scope.allFormsFilterForm.sort();
 
-                                            //console.log("inboxRecordIndex: " + inboxRecordIndex);
-                                            //console.log("allFormsRecordIndex: " + allFormsRecordIndex);
-                                            //console.log("allFormsRecordAction: " + allFormsRecordAction);
+                                            //console.log("poller.inboxRecordIndex: " + inboxRecordIndex);
+                                            //console.log("poller.allFormsRecordIndex: " + allFormsRecordIndex);
+                                            //console.log("poller.allFormsRecordAction: " + allFormsRecordAction);
 
                                             var applyInd = false;
 
                                             if (inboxRecordIndex !== undefined) {
+                                                //console.log("poller.inbox.inboxRecordIndex.lockInd: " + lockInd);
                                                 if (lockInd) {
                                                     $scope.inbox[inboxRecordIndex].locked = true;
                                                 } else {
                                                     $scope.inbox[inboxRecordIndex].locked = false;
                                                 }
+
+                                                //console.log("poller.inbox.inboxRecordIndex.$scope.inbox[" + inboxRecordIndex + "].locked: " + $scope.inbox[inboxRecordIndex].locked);
+
                                                 applyInd = true;
                                             }
                                             if (allFormsRecordAction == 'ADD') {
@@ -1768,13 +1797,12 @@ angular.module('sproutStudyApp')
 
                                             //console.log("applying changes...");
                                             $scope.applyIfPossible();
-                                            $scope.getAssignments();
 
-                                            var row = $(".form-instance-id-" + instanceId).closest("tr");
-
-                                            setTimeout(function () {
-                                                highlightRow(row);
-                                            }, 500);
+                                            //var row = $(".form-instance-id-" + instanceId).closest("tr");
+                                            //
+                                            //setTimeout(function () {
+                                            //    highlightRow(row);
+                                            //}, 500);
                                             //$(".form-instance-id-" + instanceId).closest("tr").effect('pulsate');
 
                                         }
@@ -1782,12 +1810,12 @@ angular.module('sproutStudyApp')
                                     } catch (e) {
                                         //console.log("e: " + e);
                                     }
-
                                 });
+                                $scope.getAssignments();
                             }
 
                         } else {
-                            console.log("pollingEvents: throwing out first poll to establish reference point.");
+                            //console.log("pollingEvents: throwing out first poll to establish reference point.");
                         }
 
                     }
