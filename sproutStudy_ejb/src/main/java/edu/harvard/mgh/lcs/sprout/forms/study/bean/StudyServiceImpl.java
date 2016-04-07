@@ -1029,7 +1029,8 @@ public class StudyServiceImpl implements StudyService, SproutStudyConstantServic
             for (FormAttrEntity formAttrEntity : cohortFormEntity.getForm().getFormAttributes()) {
                 if (formAttrEntity.getFormAttr().getCode().equalsIgnoreCase(FormAttr.UNIQUE.toString())) {
                     cohortFormTO.setUnique(true);
-                    break;
+                } else if (formAttrEntity.getFormAttr().getCode().equalsIgnoreCase(FormAttr.AUTOONLY.toString())) {
+                    cohortFormTO.setManual(false);
                 }
             }
         }

@@ -31,7 +31,7 @@ angular.module('sproutStudyApp')
         $scope.allFormsCurrentPage = 1;
         $scope.allFormsPageCount = 1;
         $scope.allFormsMetadata = undefined;
-        $scope.allFormsRowsPerPage = 15;
+        $scope.allFormsRowsPerPage = 30;
         $scope.allFormsOrderBy = "date_of_status";
         $scope.allFormsOrderDirection = "DESC"
         $scope.allFormsFilterFormPublicationKey = null;
@@ -407,21 +407,27 @@ angular.module('sproutStudyApp')
         };
         $scope.allFormsFilter = function (item){
 
-            //console.log("allFormsFilter...");
+            //console.log("allFormsFilter: " + $scope.allFormsFilterStatus);
             //console.log("$scope.targetDate: " + $scope.allFormsFilterTargetDate);
 
             if (item.inboxStatus !== undefined && item.inboxStatus == 'REVOKED') return false;
 
+            if ($scope.allFormsFilterStatus !== undefined && $scope.allFormsFilterStatus !== null) {
+                var tmpStatus = $scope.allFormsFilterStatus.replace(new RegExp(' ', 'g'), '_');
 
-            if ($scope.status !== undefined) {
                 if (item.inboxProxies !== undefined && item.inboxProxies.length > 0) {
+                    //console.log("allFormsFilter.hasInboxProxies");
+
                     var hasMatch = false;
                     $.each(item.inboxProxies, function (index, proxy) {
-                       if (proxy.status == $scope.status.name) hasMatch = true;
+                       if (proxy.status == tmpStatus) hasMatch = true;
                     });
-                    if (!hasMatch) return false;
+                    if (!hasMatch) {
+                        if (item.inboxStatus != tmpStatus) return false;
+                    }
                 } else {
-                    if (item.inboxStatus != $scope.status.name) return false;
+                    //console.log("allFormsFilter.noInboxProxies: " + item.inboxStatus + " vs " + tmpStatus);
+                    if (item.inboxStatus != tmpStatus) return false;
                 }
             }
             if ($scope.allFormsFilterTargetDate !== undefined) {
@@ -454,11 +460,13 @@ angular.module('sproutStudyApp')
                     return false;
                 }
             }
-            if ($scope.assignment !== undefined) {
+
+            if ($scope.allFormsFilterAssignment !== undefined) {
                 if (item.inboxProxies !== undefined && item.inboxProxies.length > 0) {
+
                     var hasMatch = false;
                     $.each(item.inboxProxies, function (index, proxy) {
-                        if (proxy.assignedToDisplayName == $scope.assignment.name) hasMatch = true;
+                        if (proxy.assignedToDisplayName == $scope.allFormsFilterAssignment.name) hasMatch = true;
                     });
                     if (!hasMatch) return false;
                 } else {
@@ -467,6 +475,12 @@ angular.module('sproutStudyApp')
             }
             if ($scope.formFilterRule !== undefined) {
                 if (item.title != $scope.formFilterRule) return false;
+            }
+
+            if ($scope.allFormsFilterLocation !== undefined && $scope.allFormsFilterLocation !== null) {
+                if (item.location != $scope.allFormsFilterLocation) {
+                    return false;
+                }
             }
             return true;
         };

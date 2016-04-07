@@ -813,13 +813,14 @@
 
                 var targetInstanceId = targetTab.attr("instance");
 
-//                console.log("deletePaneContent 3.7");
+//                console.log("deletePaneContent 3.7.targetInstanceId: " + targetInstanceId);
 
                 jQuerySprout(".sprout-study-form-narrative-split-frame-" + targetInstanceId).show();
+                jQuerySprout(".sproutstudy-content-" + targetInstanceId).show();
 
 //                console.log("deletePaneContent 3.8");
 
-                if (targetInstanceId == 'home') jQuerySprout(".sproutstudy-content-" + targetInstanceId).show();
+//                if (targetInstanceId == 'home') jQuerySprout(".sproutstudy-content-" + targetInstanceId).show();
 
 //                console.log("deletePaneContent 3.9");
 
@@ -832,6 +833,7 @@
 //                console.log("deletePaneContent 3.11");
 
             } else {
+//                console.log("deletePaneContent 3.11.1");
                 // demographic form was just submitted
                 instanceId = jQuerySprout(".iframe-demographic-form-content").attr("instanceId");
                 angular.element(jQuerySprout("#studyControllerDiv")).scope().setNewSubject(id, instanceId);

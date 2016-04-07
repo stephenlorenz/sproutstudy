@@ -10,6 +10,7 @@ public class CohortFormTO implements Serializable, Comparable<CohortFormTO> {
     private String publicationKey;
     private String formKey;
     private boolean demographic;
+    private boolean manual = true;
     private boolean unique;
     private boolean active;
     private boolean archive;
@@ -55,6 +56,14 @@ public class CohortFormTO implements Serializable, Comparable<CohortFormTO> {
 
     public void setDemographic(boolean demographic) {
         this.demographic = demographic;
+    }
+
+    public boolean isManual() {
+        return manual;
+    }
+
+    public void setManual(boolean manual) {
+        this.manual = manual;
     }
 
     public boolean isUnique() {
