@@ -4,6 +4,10 @@
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
 	version="3.0">
 
+	<session-config>
+		<session-timeout>1440</session-timeout>
+	</session-config>
+
 	<filter>
 		<filter-name>crossOriginFilter</filter-name>
 		<filter-class>edu.harvard.mgh.lcs.sprout.study.web.filter.CrossOriginFilter</filter-class>

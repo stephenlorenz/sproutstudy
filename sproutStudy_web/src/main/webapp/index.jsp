@@ -1410,7 +1410,7 @@
 <script src="/sproutassets/scripts/idletimer/jquery.idletimeout.js" type="text/javascript"></script>
 <script type="text/javascript">
     var contextPath = "<%=request.getContextPath()%>";
-    var timeoutSeconds = 600;
+    var timeoutSeconds = 3600;
 
     var hasActivity = false;
 

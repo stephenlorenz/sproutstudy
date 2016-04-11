@@ -123,6 +123,17 @@ angular.module('sproutStudyApp')
         });
     };
 
+    $scope.onViewFromServer = function() {
+        console.log("onViewFromServer");
+        //compileTemplate();
+        //$scope.narrativeText = "";
+        //transformService.getNarrativeText({}, $scope.narrative, function(narrativeText) {
+        //    console.log("narrativeText: " + narrativeText);
+        //    $scope.narrativeText = narrativeText;
+        //    $scope.textViewModal = true;
+        //});
+    };
+
     $scope.onCloseTextViewModal = function() {
         $scope.textViewModal = false;
     }

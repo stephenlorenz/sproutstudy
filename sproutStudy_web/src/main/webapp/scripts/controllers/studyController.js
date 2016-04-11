@@ -1668,6 +1668,7 @@ angular.module('sproutStudyApp')
             var poller = function() {
 
                 studyService.getPollEvents({"pollKey": $scope.pollKey}, function (pollData) {
+                    tickleIdleTimer();
 
                     $scope.pollCounter++;
 
