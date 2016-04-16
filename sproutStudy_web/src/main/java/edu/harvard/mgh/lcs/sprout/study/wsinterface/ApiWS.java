@@ -289,6 +289,11 @@ public interface ApiWS {
     public String getNarrativeText(@Context HttpServletRequest request, String narrative) throws InvalidSessionRESTful;
 
     @POST
+    @Path("/secure/getNarrativeServer")
+    @Produces(MediaType.TEXT_HTML)
+    public String getNarrativeServer(@Context HttpServletRequest request, @QueryParam("publicationKey") String publicationKey, @QueryParam("instanceId") String instanceId, String model) throws InvalidSessionRESTful;
+
+    @POST
     @Path("/secure/saveTemplate")
     @Produces(MediaType.APPLICATION_JSON)
     public BooleanTO saveTemplate(@Context HttpServletRequest request, @QueryParam("publicationKey") String publicationKey, @QueryParam("instanceId") String instanceId, @QueryParam("templateKey") String templateKey, @QueryParam("masterInd") boolean masterInd, String template) throws InvalidSessionRESTful;

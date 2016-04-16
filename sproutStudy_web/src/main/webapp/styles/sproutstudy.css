@@ -34,6 +34,12 @@ div.modal-200-600 {
     margin-left: -400px;
 }
 
+div.modal-200-1000 {
+    width: 1000px;
+    min-height: 300px;
+    margin-left: -500px;
+}
+
 div.modal-timeout {
     width: 800px;
     min-height: 150px;
@@ -48,6 +54,13 @@ div.modal-wait {
 
 div.modal-body {
     min-height: 440px;
+}
+
+.compare-background {
+    background-color: #EFEFEF;
+    line-height: 50px;
+    margin-top: 0px;
+    padding-left: 5px;
 }
 
 div.modal-body-short {

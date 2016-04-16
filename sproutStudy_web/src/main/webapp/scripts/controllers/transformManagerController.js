@@ -125,17 +125,30 @@ angular.module('sproutStudyApp')
 
     $scope.onViewFromServer = function() {
         console.log("onViewFromServer");
-        //compileTemplate();
-        //$scope.narrativeText = "";
-        //transformService.getNarrativeText({}, $scope.narrative, function(narrativeText) {
-        //    console.log("narrativeText: " + narrativeText);
-        //    $scope.narrativeText = narrativeText;
-        //    $scope.textViewModal = true;
-        //});
+        var model = angular.element(jQuerySprout("#transformControllerDiv")).scope().getModel();
+
+        //if (typeof model != 'string') {
+        //    json = JSON.stringify(model, undefined, 2);
+        //    console.log("onViewFromServer.model1: " + json);
+        //} else {
+        //    console.log("onViewFromServer.model2: " + model);
+        //}
+        $scope.narrativeHtmlServer = "";
+        transformService.getNarrativeServer({publicationKey: $scope.form.publicationKey, instanceId: null}, model, function(narrativeHtmlServer) {
+            console.log("narrativeHtmlServer: " + narrativeHtmlServer);
+            $scope.narrativeHtmlServer = narrativeHtmlServer;
+            $scope.narrativeHtmlClient = $("#sproutTransformNarrativeContent").html();
+            //$scope.textViewModal = true;
+            $scope.narrativeServerViewModal = true;
+        });
     };
 
     $scope.onCloseTextViewModal = function() {
         $scope.textViewModal = false;
+    }
+
+    $scope.onCloseNarrativeServerViewModal = function() {
+        $scope.narrativeServerViewModal = false;
     }
 
     $scope.setNarrative = function(narrative) {

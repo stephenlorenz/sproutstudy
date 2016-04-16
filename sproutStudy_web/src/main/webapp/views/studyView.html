@@ -183,7 +183,9 @@
                             <table class="table table-condensed table-striped" >
                                 <thead class="inbox">
                                 <tr>
-                                    <th>Subject</th>
+                                    <!--<th>Subject</th>-->
+                                    <th></th>
+                                    <th><span class="sortable" ng-click="allFormsChangeSort('subject')">Subject<i ng-class="subjectSortInd()" ng-style="{'margin-left': mutableFormsSortStyleSubject()}" ></i></span></th>
                                     <th>
                                         <span class="dropdown sprout-dropdown-header">
                                             <span>Forms<span ng-show="allFormsFilterFormTitle != null">:<br/><span class="badge badge-info">{{allFormsFilterFormTitle}}<span ng-click="clearFilterForm()" style="margin-left: 5px;" class="sprout-study-badge-close"><i class="fa fa-times-circle"></i></span></span></span></span>
@@ -250,8 +252,15 @@
                                 <!--<li ng-repeat='item in filtered = (items | filter:filterExpr)'>{{item}}</li>-->
 
                                 <!--<tr ng-repeat="form in allForms | filter: allFormsFilter | orderBy: '-statusDate'" ng-class="{'inbox-row': !form.locked && form.mutable, 'unknown': form.identityFullName == 'Unknown', 'immutable': !form.mutable}"  >-->
-                                <tr ng-repeat="form in allFormsFiltered = (allForms | filter: allFormsFilter)" ng-class="{'inbox-row': !form.locked && form.mutable, 'unknown': form.identityFullName == 'Unknown', 'immutable': !form.mutable}"  >
-                                    <td class="inbox-cell"><i class="fa fa-user sprout-study-badge-close" ng-click="onOpenSubject(form.identityPrimaryId)"></i> <span ng-click="form.locked || !form.mutable || onOpenMutableForm(form)">{{form.identityFullName}} ({{form.identityPrimaryId}})</span></td>
+                                <tr ng-repeat="form in allFormsFiltered = (allForms | filter: allFormsFilter | orderBy: allFormsOrderByNg)" ng-class="{'inbox-row': !form.locked && form.mutable, 'unknown': form.identityFullName == 'Unknown', 'immutable': !form.mutable}" ng-mouseenter="hoverOpen = true" ng-mouseleave="hoverOpen = false"  >
+                                    <!--<td class="inbox-cell"><i class="fa fa-user sprout-study-badge-close" ng-click="onOpenSubject(form.identityPrimaryId)"></i> <span ng-click="form.locked || !form.mutable || onOpenMutableForm(form)">{{form.identityFullName}} ({{form.identityPrimaryId}})</span></td>-->
+
+
+                                    <td style="text-align: center; width: 30px;" class="vert-align">
+                                        <button class="btn btn-mini" ng-class="{'btn-info': hover}" ng-mouseenter="hover = true" ng-mouseleave="hover = false" ng-click="onOpenSubject(form.identityPrimaryId)"><i class="fa fa-user sprout-study-badge-close" ></i></button>
+                                    </td>
+
+                                    <td class="inbox-cell"><span ng-click="form.locked || !form.mutable || onOpenMutableForm(form)">{{form.identityFullName}} ({{form.identityPrimaryId}})</span></td>
                                     <td class="inbox-cell" ng-click="form.locked || !form.mutable || onOpenMutableForm(form)">{{form.title}}</a></td>
                                     <td ng-show="allFormsMetadata.hasInstanceKeys" class="inbox-cell form-instance-id-{{form.instanceId}}" ng-click="form.locked || !form.mutable || onOpenMutableForm(form)">{{form.instanceKey}}</a></td>
                                     <td ng-show="allFormsMetadata.hasLocations" class="inbox-cell form-instance-id-{{form.instanceId}}" ng-click="form.locked || !form.mutable || onOpenMutableForm(form)">{{form.location}}</a></td>
@@ -273,7 +282,7 @@
                                     <td class="inbox-cell" ng-click="form.locked || !form.mutable || onOpenMutableForm(form)" ng-show="allFormsMetadata.hasStudyDates">{{form.targetDate | date:'medium' }}</td>
                                     <td class="inbox-cell" ng-click="onOpenMutableForm(form)" ng-show="!allFormsMetadata.hasStudyDates">{{form.statusDate | date:'medium' }}</td>
                                     <td style="text-align: center; width: 80px;">
-                                        <button class="btn btn-info btn-mini" ng-click="onOpenMutableForm(form)" ng-show="!form.locked && form.mutable"><i class="icon-play icon-white" style="margin-right: 0px;"></i></button>
+                                        <button class="btn btn-info btn-mini" ng-class="{'btn-info-dummy': hoverOpen}" ng-click="onOpenMutableForm(form)" ng-show="!form.locked && form.mutable"><i class="fa fa-play" style="margin-right: 0px;"></i></button>
                                         <span ng-show="form.locked"><i class="fa fa-lock"></i></span>
                                     </td>
                                 </tr>

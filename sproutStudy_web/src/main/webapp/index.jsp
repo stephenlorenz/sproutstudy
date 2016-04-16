@@ -348,6 +348,16 @@
         if (activeTab !== undefined) return activeTab.data(key);
     }
 
+    function saveNarrative(instanceId, callback) {
+        console.log("index.jsp.saveNarrative.instanceId: " + instanceId);
+        if (angular.element(jQuerySprout("#studyControllerDiv")).scope() !== undefined) {
+            angular.element(jQuerySprout("#studyControllerDiv")).scope().saveNarrative(instanceId, function(data) {
+                callback(data);
+            });
+        }
+
+    }
+
     function removeActiveTabData(key) {
         console.log("removeActiveTabData");
         var activeTab = jQuerySprout(".sproutstudy-tab-li.active");
@@ -873,6 +883,23 @@
         scratchText = scratchText.replace(/<!--<handlebar>/g, "").replace(/<\/handlebar>-->/g, "");
 
         return scratchText;
+    }
+
+    function stripNarrativeTextUneditable(instanceId) {
+        if (jQuerySprout(".sprout-study-template-scratch-" + instanceId).length > 0) {
+            var scratch = jQuerySprout(".sprout-study-template-scratch-" + instanceId);
+
+            scratch.html(jQuerySprout(".sprout-study-narrative-content-" + instanceId).html());
+
+            scratch.find('[contenteditable]').contents().unwrap();
+            scratch.find('handlebar').contents().unwrap();
+
+            var scratchText = scratch.html();
+            scratchText = scratchText.replace(/<!--<handlebar>/g, "").replace(/<\/handlebar>-->/g, "");
+
+            return scratchText;
+        }
+        return undefined;
     }
 
 

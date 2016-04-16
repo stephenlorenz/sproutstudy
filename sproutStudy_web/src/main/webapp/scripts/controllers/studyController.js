@@ -14,6 +14,9 @@ angular.module('sproutStudyApp')
         $scope.studyInbox = undefined;
         $scope.searchEnabled = true;
 
+        $scope.allFormsOrderByNg = "";
+        $scope.sortBySubject = false;
+
         $scope.searchReturned = false;
         $scope.searchInprogress = false;
 
@@ -31,7 +34,7 @@ angular.module('sproutStudyApp')
         $scope.allFormsCurrentPage = 1;
         $scope.allFormsPageCount = 1;
         $scope.allFormsMetadata = undefined;
-        $scope.allFormsRowsPerPage = 30;
+        $scope.allFormsRowsPerPage = 40;
         $scope.allFormsOrderBy = "date_of_status";
         $scope.allFormsOrderDirection = "DESC"
         $scope.allFormsFilterFormPublicationKey = null;
@@ -106,6 +109,13 @@ angular.module('sproutStudyApp')
 //            dialogFade: true,
             keyboard: true,
             dialogClass: 'modal modal-200-600'
+        };
+
+        $scope.modalWideOpts = {
+//            backdropFade: true, // These two settings
+//            dialogFade: true,
+            keyboard: true,
+            dialogClass: 'modal modal-200-1000'
         };
 
         $scope.cohort = function() {
@@ -731,8 +741,24 @@ angular.module('sproutStudyApp')
                 }
             }
         };
+        $scope.subjectSortInd = function() {
+            if ($scope.sortBySubject) {
+                if ($scope.allFormsOrderDirection == 'DESC') {
+                    return 'icon-chevron-down';
+                } else {
+                    return 'icon-chevron-up';
+                }
+            }
+        };
         $scope.mutableFormsSortStyle = function(column) {
             if (column == $scope.allFormsOrderBy) {
+                return '7px';
+            } else {
+                return '0px';
+            }
+        };
+        $scope.mutableFormsSortStyleSubject = function() {
+            if ($scope.sortBySubject) {
                 return '7px';
             } else {
                 return '0px';
@@ -751,15 +777,57 @@ angular.module('sproutStudyApp')
         $scope.allFormsChangeSort = function(column) {
             $scope.allFormsCurrentPage = 1;
 
+            $scope.sortBySubject = false;
             var tmpOrderByColumn = null;
 
-            if (column == 'date_of_entry') {
+            if (column == 'subject') {
+                var ascdesc = "";
+                $scope.allFormsOrderDirection = 'ASC';
+                if ($scope.allFormsOrderByNg == 'identityFullName') {
+                    ascdesc = "-";
+                    $scope.allFormsOrderDirection = 'DESC';
+                } else if ($scope.allFormsOrderByNg == '-identityFullName') {
+                    ascdesc = "";
+                    $scope.allFormsOrderDirection = 'ASC';
+                }
+                $scope.allFormsOrderBy = '';
+                $scope.sortBySubject = true;
+                $scope.allFormsOrderByNg = ascdesc + 'identityFullName';
+            } else if (column == 'date_of_entry') {
+                var ascdesc = "";
+                if ($scope.allFormsOrderByNg == 'deliveryDate') {
+                    ascdesc = "-";
+                } else if ($scope.allFormsOrderByNg == '-deliveryDate') {
+                    ascdesc = "";
+                }
+                $scope.allFormsOrderByNg = ascdesc + 'deliveryDate';
                 tmpOrderByColumn = "date_of_entry";
             } else if (column == 'date_of_status') {
+                var ascdesc = "";
+                if ($scope.allFormsOrderByNg == 'statusDate') {
+                    ascdesc = "-";
+                } else if ($scope.allFormsOrderByNg == '-statusDate') {
+                    ascdesc = "";
+                }
+                $scope.allFormsOrderByNg = ascdesc + 'statusDate';
                 tmpOrderByColumn = "date_of_status";
             } else if (column == 'instance_key') {
+                var ascdesc = "";
+                if ($scope.allFormsOrderByNg == 'instanceKey') {
+                    ascdesc = "-";
+                } else if ($scope.allFormsOrderByNg == '-instanceKey') {
+                    ascdesc = "";
+                }
+                $scope.allFormsOrderByNg = ascdesc + 'instanceKey';
                 tmpOrderByColumn = "instance_key";
             } else if (column == 'date_of_target') {
+                var ascdesc = "";
+                if ($scope.allFormsOrderByNg == 'targetDate') {
+                    ascdesc = "-";
+                } else if ($scope.allFormsOrderByNg == '-targetDate') {
+                    ascdesc = "";
+                }
+                $scope.allFormsOrderByNg = ascdesc + 'targetDate';
                 tmpOrderByColumn = "date_of_target";
             }
 
@@ -1465,6 +1533,26 @@ angular.module('sproutStudyApp')
         }
         $scope.collapseAddSubjectButton =  function() {
             $scope.addSubjectButton = "";
+        }
+
+        $scope.saveNarrative = function(instanceId, callback) {
+            if ($scope.hasNarrative) {
+                var narrative = stripNarrativeTextUneditable(instanceId);
+
+                if (narrative && narrative !== null && narrative != "") {
+                    transformService.saveNarrative({instanceId: instanceId, format: "HTML"}, narrative, function(data) {
+                        if (data.value == 'false') {
+                            callback(false);
+                        } else {
+                            callback(true);
+                        }
+                    });
+                } else {
+                    callback(false);
+                }
+            } else {
+                callback(false);
+            }
         }
 
         $scope.searchButton = "  Search";

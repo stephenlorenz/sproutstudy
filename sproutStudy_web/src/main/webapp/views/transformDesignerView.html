@@ -58,7 +58,7 @@
                             <div class="btn-group">
                                 <button class="btn" title="Save" ng-click="onSaveTemplate()" ng-dblclick="toggleAutoSave()" ng-class="{'btn-primary': templateHasChanges && autosave == false, 'btn-success': autosave}"><i class="fa fa-save"></i></button>
                                 <button class="btn" title="View as Text" ng-click="onViewAsText()"><i class="fa fa-file-text"></i></button>
-                                <button class="btn" title="View Server Version" ng-click="onViewFromServer()"><i class="fa fa-files-o"></i></button>
+                                <button class="btn" title="View Server Version" ng-click="onViewFromServer()"><i class="fa fa-external-link"></i></button>
                                 <button class="btn" title="Reload Narrative" ng-click="onReloadNarrative()"><i class="fa fa-refresh"></i></button>
                                 <button class="btn" title="Live Sync" ng-click="onToggleSyncNarrative()" ng-class="{'btn-success': syncNarrative}"><i class="fa fa-arrows-v"></i></button>
                             </div>
@@ -91,6 +91,26 @@
         </div>
         <div class="modal-footer">
             <button class="btn btn-primary cancel" ng-click="onCloseTextViewModal()">Close</button>
+        </div>
+    </div>
+    <div modal="narrativeServerViewModal" close="onCloseNarrativeServerViewModal()" options="modalWideOpts">
+        <div class="modal-header">
+            <h4>Client/Server Narrative Comparison</h4>
+        </div>
+        <div class="modal-body modal-body-short" style="min-height: 450px;">
+            <bg-splitter orientation="horizontal">
+                <bg-pane min-size="50" class="sprout-transform-template-pane-2">
+                    <h4 class="compare-background">Client Narrative</h4>
+                    <div style="" ng-bind-html-unsafe="narrativeHtmlClient"></div>
+                </bg-pane>
+                <bg-pane min-size="50" class="sprout-transform-narrative-pane-2">
+                    <h4 class="compare-background">Server Narrative</h4>
+                    <div style="" ng-bind-html-unsafe="narrativeHtmlServer"></div>
+                </bg-pane>
+            </bg-splitter>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary cancel" ng-click="onCloseNarrativeServerViewModal()">Close</button>
         </div>
     </div>
 

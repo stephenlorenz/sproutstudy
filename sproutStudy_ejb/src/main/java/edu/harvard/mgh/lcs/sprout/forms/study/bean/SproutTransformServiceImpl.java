@@ -220,7 +220,12 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 
             String templateText = null;
 
-			TemplateCloneEntity templateCloneEntity = getTemplateCloneEntities(instanceId);
+			TemplateCloneEntity templateCloneEntity = null;
+
+			if (StringUtils.isFull(instanceId) && !instanceId.equalsIgnoreCase("null")) {
+				templateCloneEntity = getTemplateCloneEntities(instanceId);
+			}
+
 			if (templateCloneEntity != null && StringUtils.isFull(templateCloneEntity.getTemplate())) {
 				templateText = templateCloneEntity.getTemplate();
 			} else {
