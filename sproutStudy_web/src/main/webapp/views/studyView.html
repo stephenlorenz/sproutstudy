@@ -108,7 +108,7 @@
                                 </div>
                                 <div class="form-actions">
                                     <button class="btn" ng-click="closeMessage()">Close</button>
-                                    <button class="btn btn-info" ng-click="onOpenStudyInboxForm(message)"><i class="icon-play icon-white" style="margin-right: 5px;"></i>Open Form</button>
+                                    <button class="btn btn-info" ng-click="onOpenStudyInboxForm(message)"><i class="icon-play icon-white" style="margin-right: 5px;"></i>Open</button>
                                 </div>
 
                             </form>
@@ -244,7 +244,7 @@
                                         </span>
                                     </th>
                                     <th ng-show="!allFormsMetadata.hasStudyDates"><span class="sortable" ng-click="allFormsChangeSort('date_of_status')">Status Date<i ng-class="allFormsSortClass('date_of_status')" ng-style="{'margin-left': mutableFormsSortStyle('date_of_status')}" ></i></span></th>
-                                    <th style="text-align: center; width: 100px;">Open Form</th>
+                                    <th style="text-align: center; width: 50px;">Open</th>
                                 </tr>
                                 </thead>
 
@@ -283,7 +283,10 @@
                                     <td class="inbox-cell" ng-click="onOpenMutableForm(form)" ng-show="!allFormsMetadata.hasStudyDates">{{form.statusDate | date:'medium' }}</td>
                                     <td style="text-align: center; width: 80px;">
                                         <button class="btn btn-info btn-mini" ng-class="{'btn-info-dummy': hoverOpen}" ng-click="onOpenMutableForm(form)" ng-show="!form.locked && form.mutable"><i class="fa fa-play" style="margin-right: 0px;"></i></button>
-                                        <span ng-show="form.locked"><i class="fa fa-lock"></i></span>
+                                        <!--<span ng-show="form.locked"><i class="fa fa-lock"></i></span>-->
+                                        <button ng-show="form.locked && !form.lockedDate" class="btn btn-mini btn-warning" onmouseenter="$(this).tooltip('show')" title="Locked by you"><i class="fa fa-lock" ></i></button>
+                                        <button ng-show="form.locked && form.lockedDate" class="btn btn-mini btn-warning" onmouseenter="$(this).tooltip('show')" title="Locked by {{form.lockedBy[0].id}} on {{form.lockedDate | date:'medium'}}"><i class="fa fa-lock" ></i></button>
+                                        <!--<span ng-show="form.locked" onmouseenter="$(this).tooltip('show')" title="Locked by {{form.lockedBy[0].id}} on {{form.lockedDate | date:'medium'}}"><i class="fa fa-lock"></i></span>-->
                                     </td>
                                 </tr>
                             </table>
@@ -454,7 +457,10 @@
                     <td style="text-align: center; width: 80px;">
                         <button class="btn btn-info btn-mini" ng-click="form.locked || !form.mutable  || onOpenForm(form)" ng-show="!form.locked && form.mutable "><i class="icon-play icon-white" style="margin-right: 0px;"></i></button>
                         <!--<button class="btn btn-info btn-mini" ng-click="onOpenForm(form)" ><i class="icon-play icon-white" style="margin-right: 0px;"></i></button>-->
-                        <span ng-show="form.locked"><i class="fa fa-lock"></i></span>
+                        <!--<span ng-show="form.locked"><i class="fa fa-lock"></i></span>-->
+                        <!--<button ng-show="form.locked" class="btn btn-mini btn-warning" onmouseenter="$(this).tooltip('show')" title="Locked by {{form.lockedBy[0].id}} on {{form.lockedDate | date:'medium'}}"><i class="fa fa-lock" ></i></button>-->
+                        <button ng-show="form.locked && !form.lockedDate" class="btn btn-mini btn-warning" onmouseenter="$(this).tooltip('show')" title="Locked by you"><i class="fa fa-lock" ></i></button>
+                        <button ng-show="form.locked && form.lockedDate" class="btn btn-mini btn-warning" onmouseenter="$(this).tooltip('show')" title="Locked by {{form.lockedBy[0].id}} on {{form.lockedDate | date:'medium'}}"><i class="fa fa-lock" ></i></button>
                     </td>
                 </tr>
             </table>
