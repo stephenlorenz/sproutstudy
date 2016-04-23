@@ -284,8 +284,8 @@
                                     <td style="text-align: center; width: 80px;">
                                         <button class="btn btn-info btn-mini" ng-class="{'btn-info-dummy': hoverOpen}" ng-click="onOpenMutableForm(form)" ng-show="!form.locked && form.mutable"><i class="fa fa-play" style="margin-right: 0px;"></i></button>
                                         <!--<span ng-show="form.locked"><i class="fa fa-lock"></i></span>-->
-                                        <button ng-show="form.locked && !form.lockedDate" class="btn btn-mini btn-warning" onmouseenter="$(this).tooltip('show')" title="Locked by you"><i class="fa fa-lock" ></i></button>
-                                        <button ng-show="form.locked && form.lockedDate" class="btn btn-mini btn-warning" onmouseenter="$(this).tooltip('show')" title="Locked by {{form.lockedBy[0].id}} on {{form.lockedDate | date:'medium'}}"><i class="fa fa-lock" ></i></button>
+                                        <button ng-show="form.locked && !form.lockedDate" ng-class="{'btn-warning': hoverLock}" ng-mouseleave="hoverLock = false" class="btn btn-mini" ng-mouseover="hoverLock = true" onmouseenter="$(this).tooltip('show')" title="Locked by you"><i class="fa fa-lock" ></i></button>
+                                        <button ng-show="form.locked && form.lockedDate" ng-class="{'btn-warning': hoverLock}" ng-mouseleave="hoverLock = false" class="btn btn-mini" ng-mouseover="hoverLock = true" onmouseenter="$(this).tooltip('show')" title="Locked by {{form.lockedBy[0].id}} on {{form.lockedDate | date:'medium'}}"><i class="fa fa-lock" ></i></button>
                                         <!--<span ng-show="form.locked" onmouseenter="$(this).tooltip('show')" title="Locked by {{form.lockedBy[0].id}} on {{form.lockedDate | date:'medium'}}"><i class="fa fa-lock"></i></span>-->
                                     </td>
                                 </tr>
@@ -459,8 +459,8 @@
                         <!--<button class="btn btn-info btn-mini" ng-click="onOpenForm(form)" ><i class="icon-play icon-white" style="margin-right: 0px;"></i></button>-->
                         <!--<span ng-show="form.locked"><i class="fa fa-lock"></i></span>-->
                         <!--<button ng-show="form.locked" class="btn btn-mini btn-warning" onmouseenter="$(this).tooltip('show')" title="Locked by {{form.lockedBy[0].id}} on {{form.lockedDate | date:'medium'}}"><i class="fa fa-lock" ></i></button>-->
-                        <button ng-show="form.locked && !form.lockedDate" class="btn btn-mini btn-warning" onmouseenter="$(this).tooltip('show')" title="Locked by you"><i class="fa fa-lock" ></i></button>
-                        <button ng-show="form.locked && form.lockedDate" class="btn btn-mini btn-warning" onmouseenter="$(this).tooltip('show')" title="Locked by {{form.lockedBy[0].id}} on {{form.lockedDate | date:'medium'}}"><i class="fa fa-lock" ></i></button>
+                        <button ng-show="form.locked && !form.lockedDate" ng-class="{'btn-warning': hoverLock}" ng-mouseleave="hoverLock = false" class="btn btn-mini" ng-mouseover="hoverLock = true" onmouseenter="$(this).tooltip('show')" title="Locked by you"><i class="fa fa-lock" ></i></button>
+                        <button ng-show="form.locked && form.lockedDate" ng-class="{'btn-warning': hoverLock}" ng-mouseleave="hoverLock = false" class="btn btn-mini" ng-mouseover="hoverLock = true" onmouseenter="$(this).tooltip('show')" title="Locked by {{form.lockedBy[0].id}} on {{form.lockedDate | date:'medium'}}"><i class="fa fa-lock" ></i></button>
                     </td>
                 </tr>
             </table>
