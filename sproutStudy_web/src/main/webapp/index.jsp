@@ -1047,7 +1047,7 @@
     }
 
     function sizeAppFrame() {
-        console.log("sizeAppFrame");
+//        console.log("sizeAppFrame");
         var tNavBarHeight = $(".navbar-fixed-top").height();
         var footerHeight = $(".footer").height();
         var wHeight = $(window).height();
@@ -1059,7 +1059,7 @@
     }
 
     function sizeTransformPane() {
-        console.log("sizeTransformPane");
+//        console.log("sizeTransformPane");
 
         var instanceId = jQuerySprout(".sproutstudy-tab-li.active").attr("instance");
 

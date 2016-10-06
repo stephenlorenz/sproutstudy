@@ -417,26 +417,36 @@ angular.module('sproutStudyApp')
         };
         $scope.allFormsFilter = function (item){
 
-            //console.log("allFormsFilter: " + $scope.allFormsFilterStatus);
-            //console.log("$scope.targetDate: " + $scope.allFormsFilterTargetDate);
+            // console.log("allFormsFilter: " + $scope.allFormsFilterStatus);
+            // console.log("$scope.targetDate: " + $scope.allFormsFilterTargetDate);
 
             if (item.inboxStatus !== undefined && item.inboxStatus == 'REVOKED') return false;
 
             if ($scope.allFormsFilterStatus !== undefined && $scope.allFormsFilterStatus !== null) {
                 var tmpStatus = $scope.allFormsFilterStatus.replace(new RegExp(' ', 'g'), '_');
+                var tmpStatusAlt = $scope.allFormsFilterStatus.replace(new RegExp(' ', 'g'), '');
 
                 if (item.inboxProxies !== undefined && item.inboxProxies.length > 0) {
-                    //console.log("allFormsFilter.hasInboxProxies");
+                    // console.log("allFormsFilter.hasInboxProxies");
 
                     var hasMatch = false;
                     $.each(item.inboxProxies, function (index, proxy) {
-                       if (proxy.status == tmpStatus) hasMatch = true;
+
+                        // console.log("proxy.status == tmpStatus: " + proxy.status  + " vs " +  tmpStatus + " || " + $scope.allFormsFilterStatus);
+                       if (proxy.status == tmpStatus || proxy.status == $scope.allFormsFilterStatus) {
+                           // console.log("hasMatch: returning true");
+                           hasMatch = true;
+                       }
                     });
                     if (!hasMatch) {
-                        if (item.inboxStatus != tmpStatus) return false;
+                        if (item.inboxStatus != tmpStatus && item.inboxStatus != tmpStatusAlt) {
+                            // console.log("item.inboxStatus != tmpStatus: " + item.inboxStatus + " vs " +  tmpStatus);
+                            // console.log("!hasMatch: returning false");
+                            return false;
+                        }
                     }
                 } else {
-                    //console.log("allFormsFilter.noInboxProxies: " + item.inboxStatus + " vs " + tmpStatus);
+                    // console.log("allFormsFilter.noInboxProxies: " + item.inboxStatus + " vs " + tmpStatus);
                     if (item.inboxStatus != tmpStatus) return false;
                 }
             }
