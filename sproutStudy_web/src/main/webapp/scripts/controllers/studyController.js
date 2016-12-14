@@ -415,7 +415,7 @@ angular.module('sproutStudyApp')
             }
             return true;
         };
-        $scope.allFormsFilter = function (item){
+    $scope.allFormsFilter = function (item){
 
             // console.log("allFormsFilter: " + $scope.allFormsFilterStatus);
             // console.log("$scope.targetDate: " + $scope.allFormsFilterTargetDate);

@@ -5,6 +5,8 @@ import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.SproutStudyConstantS
 import edu.harvard.mgh.lcs.sprout.forms.study.to.CohortTO;
 import edu.harvard.mgh.lcs.sprout.study.model.study.CohortEntity;
 import edu.harvard.mgh.lcs.sprout.study.model.study.UserEntity;
+import edu.harvard.mgh.lcs.sprout.study.model.study.VAuditCategoryEntity;
+import edu.harvard.mgh.lcs.sprout.study.model.study.VAuditTypeEntity;
 
 public interface AuditService {
     public abstract int info(String message);
@@ -31,4 +33,5 @@ public interface AuditService {
     public abstract int log(AuditType auditType, AuditVerbosity verbosity, String title, String message);
     public abstract int log(int auditId, AuditVerbosity verbosity, String message);
     public int log(UserEntity userEntity, AuditType auditType, AuditVerbosity verbosity, CohortEntity cohortEntity, String title, String message);
+    VAuditTypeEntity getVAuditTypeEntity(String code);
 }

@@ -958,6 +958,7 @@
 
     function formSyncCallback(instanceId, loadingInd) {
         if (angular.element(jQuerySprout("#studyControllerDiv")).scope() !== undefined) {
+            console.log("formSyncCallback");
             setSproutTransformTemplate(null, instanceId);
 
             if (jQuerySprout(".sproutstudy-split-frame-content-narrative-" + instanceId).filter(":visible").length == 0 && !loadingInd) {
@@ -1283,10 +1284,10 @@
             source = $(".sprout-study-template-content-" + instanceId).html();
         } else {
 //            source = source.replace( /\{\{(.*?)\}\}/g, "<!--<handlebar>{{$1}}</handlebar>-->");
-            source = source.replace( /\{\{(\#.*?)\}\}/g, "<!--<handlebar>{{$1}}</handlebar>-->");
-            source = source.replace( /\{\{(\/.*?)\}\}/g, "<!--<handlebar>{{$1}}</handlebar>-->");
-            source = source.replace( /\{\{(?!else)([a-z].*?)\}\}/g, "<handlebar>{{$1}}</handlebar>");
-            source = source.replace( /\{\{else\}\}/g, "<!--<handlebar>{{else}}</handlebar>-->");
+            source = source.replace(/\{\{(\#.*?)\}\}/g, "<!--<handlebar>{{$1}}</handlebar>-->");
+            source = source.replace(/\{\{(\/.*?)\}\}/g, "<!--<handlebar>{{$1}}</handlebar>-->");
+            source = source.replace(/\{\{(?!else)([a-z].*?)\}\}/g, "<handlebar>{{$1}}</handlebar>");
+            source = source.replace(/\{\{else\}\}/g, "<!--<handlebar>{{else}}</handlebar>-->");
 
             jQuerySprout(".sprout-study-template-content-" + instanceId).html(source);
 //            console.log("setSproutTransformTemplate978.new template1: " + jQuerySprout(".sprout-study-template-content-" + instanceId).html());
@@ -1307,82 +1308,88 @@
 //            console.log("setSproutTransformTemplate978.new template2: " + jQuerySprout(".sprout-study-template-content-" + instanceId).html());
         }
 
-        var model = getNarrativeModel(instanceId)
+        console.log("before getNarrativeModel...");
 
-//        console.log("setSproutTransformTemplate978.3: " + $(".sprout-study-template-content-" + instanceId).html());
+        console.log("setSproutTransformTemplate978.3: " + $(".sprout-study-template-content-" + instanceId).html());
 
-        var template = Handlebars.compile($(".sprout-study-template-content-" + instanceId).html());
+        if ($(".sprout-study-template-content-" + instanceId).html() !== undefined) {
 
 
-//        console.log("setSproutTransformTemplate978.template: " + $(".sprout-study-template-content-" + instanceId).html());
+            console.log("inside..... sprout-study-template-content-...");
 
-        try {
-            var narrative = template(model);
+
+            var model = getNarrativeModel(instanceId);
+
+            console.log("setSproutTransformTemplate978.template: " + $(".sprout-study-template-content-" + instanceId).html());
+
+            try {
+                var narrative = template(model);
 
 //            console.log("setSproutTransformTemplate.narrative: " + narrative);
 
-            jQuerySprout("#sproutTransformNarrativeContent").html(narrative);
-            jQuerySprout(".sprout-study-narrative-content-" + instanceId).html(narrative);
+                jQuerySprout("#sproutTransformNarrativeContent").html(narrative);
+                jQuerySprout(".sprout-study-narrative-content-" + instanceId).html(narrative);
 
 
-            if (formCallbackCatalog[instanceId]) {
-                var callbackItem = formCallbackCatalog[instanceId];
-                if (narrative !== undefined && narrative.length > 0) {
-                    callbackItem.narrativeUpdate(escape(narrative));
+                if (formCallbackCatalog[instanceId]) {
+                    var callbackItem = formCallbackCatalog[instanceId];
+                    if (narrative !== undefined && narrative.length > 0) {
+                        callbackItem.narrativeUpdate(escape(narrative));
+                    }
                 }
-            }
 
-            jQuerySprout(".sprout-study-narrative-content-" + instanceId).off('focus blur keyup paste change', '[contenteditable]');
+                jQuerySprout(".sprout-study-narrative-content-" + instanceId).off('focus blur keyup paste change', '[contenteditable]');
 
-            jQuerySprout(".sprout-study-narrative-content-" + instanceId).on('focus', '[contenteditable]', function() {
-                var $this = $(this);
-                $this.data('before', $this.html());
-                return $this;
-            }).on('blur keyup paste', '[contenteditable]', function() {
-                var $this = $(this);
-                if ($this.data('before') !== $this.html()) {
+                jQuerySprout(".sprout-study-narrative-content-" + instanceId).on('focus', '[contenteditable]', function () {
+                    var $this = $(this);
                     $this.data('before', $this.html());
-                    $this.data('changed', true);
-                    $this.trigger('change');
+                    return $this;
+                }).on('blur keyup paste', '[contenteditable]', function () {
+                    var $this = $(this);
+                    if ($this.data('before') !== $this.html()) {
+                        $this.data('before', $this.html());
+                        $this.data('changed', true);
+                        $this.trigger('change');
 //                } else if ($this.data('changed')) {
 //                    jQuerySprout(".sprout-study-narrative-content-save-button-" + instanceId).hide();
 //                    $this.data('changed', false);
-                }
-                return $this;
-            }).on('change', '[contenteditable]', function() {
+                    }
+                    return $this;
+                }).on('change', '[contenteditable]', function () {
 //                jQuerySprout(".sprout-study-narrative-content-save-button-" + instanceId).show();
-                console.log("978: enable save narrative button...");
+                    console.log("978: enable save narrative button...");
 
-                if (angular.element(jQuerySprout("#studyControllerDiv")).scope() !== undefined) {
-                    angular.element(jQuerySprout("#studyControllerDiv")).scope().onHasNarrativeChanges(instanceId);
-                }
-            });
+                    if (angular.element(jQuerySprout("#studyControllerDiv")).scope() !== undefined) {
+                        angular.element(jQuerySprout("#studyControllerDiv")).scope().onHasNarrativeChanges(instanceId);
+                    }
+                });
 
-            jQuerySprout(".sproutstudy-split-frame-content-narrative-" + instanceId).off('click', '.sprout-study-narrative-content-save-button').on('click', '.sprout-study-narrative-content-save-button', function(event) {
-                var instanceId = jQuerySprout(this).attr("instanceId");
-                if (angular.element(jQuerySprout("#studyControllerDiv")).scope() !== undefined) {
-                    angular.element(jQuerySprout("#studyControllerDiv")).scope().onSyncNarrative(function(result, message) {
-                        if (result) {
-                            if (formCallbackCatalog[instanceId]) {
-                                var callbackItem = formCallbackCatalog[instanceId];
-                                callbackItem.resetSignatures();
+                jQuerySprout(".sproutstudy-split-frame-content-narrative-" + instanceId).off('click', '.sprout-study-narrative-content-save-button').on('click', '.sprout-study-narrative-content-save-button', function (event) {
+                    var instanceId = jQuerySprout(this).attr("instanceId");
+                    if (angular.element(jQuerySprout("#studyControllerDiv")).scope() !== undefined) {
+                        angular.element(jQuerySprout("#studyControllerDiv")).scope().onSyncNarrative(function (result, message) {
+                            if (result) {
+                                if (formCallbackCatalog[instanceId]) {
+                                    var callbackItem = formCallbackCatalog[instanceId];
+                                    callbackItem.resetSignatures();
+                                }
+                                jQuerySprout(".sprout-study-narrative-content-save-button-" + instanceId).hide();
+                            } else {
+                                console.log(message);
                             }
-                            jQuerySprout(".sprout-study-narrative-content-save-button-" + instanceId).hide();
-                        } else {
-                            console.log(message);
-                        }
-                    });
-                }
-            });
+                        });
+                    }
+                });
 
-        } catch (exception) {
-            console.log("compileTemplate.exception: " + exception);
+            } catch (exception) {
+                console.log("compileTemplate.exception: " + exception);
+            }
         }
     }
 
     function syncNarrativeTemplate(instanceId) {
 
-//        console.log("syncNarrativeTemplate.before: " + $(".sprout-study-template-content-" + instanceId).html());
+        console.log("765: syncNarrativeTemplate.before: " + $(".sprout-study-template-content-" + instanceId).html());
 
 //        var narrativeParts = getNarrativeParts(instanceId);
 //        if (narrativeParts.length > 0) {
@@ -1394,6 +1401,10 @@
 //        }
 
         $(".sprout-study-narrative-content-" + instanceId).find("[contenteditable]").each(function() {
+
+//            console.log("765: syncNarrativeTemplate: " + $(this).html());
+
+
             $(".sprout-study-template-content-" + instanceId).find("." + $(this).attr("syncKey")).html($(this).html());
         });
 

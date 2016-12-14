@@ -1,9 +1,6 @@
 package edu.harvard.mgh.lcs.sprout.forms.study.bean;
 
-import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.AuditService;
-import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.SecurityService;
-import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.SproutStudyConstantService;
-import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.StudyService;
+import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.*;
 import edu.harvard.mgh.lcs.sprout.forms.study.exception.InvalidAuditTypeCodeException;
 import edu.harvard.mgh.lcs.sprout.forms.study.exception.InvalidAuditVerbosityCodeException;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.CohortTO;
@@ -25,7 +22,7 @@ import java.util.Map;
 
 @Stateless
 @Local(AuditService.class)
-@TransactionManagement(TransactionManagementType.BEAN)
+@TransactionManagement(TransactionManagementType.CONTAINER)
 public class AuditServiceImpl implements AuditService, SproutStudyConstantService {
 
     private static final Logger log = Logger.getLogger(AuditService.class.getName());
@@ -41,6 +38,9 @@ public class AuditServiceImpl implements AuditService, SproutStudyConstantServic
 
     @EJB
     private StudyService studyService;
+
+    @EJB
+    private AuditServiceAux auditServiceAux;
 
     private UserEntity systemUserEntity = null;
 
@@ -162,6 +162,7 @@ public class AuditServiceImpl implements AuditService, SproutStudyConstantServic
 
     private int addAuditMessage(UserEntity userEntity, AuditType auditType, AuditVerbosity verbosity, String title, CohortEntity cohortEntity, String message) {
         try {
+//            VAuditTypeEntity vAuditTypeEntity = auditService.getVAuditTypeEntity(auditType.toString());
             VAuditTypeEntity vAuditTypeEntity = getVAuditTypeEntity(auditType.toString());
             VAuditVerbosityEntity vAuditVerbosityEntity = getVAuditVerbosityEntity(verbosity.toString());
             if (vAuditTypeEntity != null && vAuditVerbosityEntity != null) {
@@ -335,8 +336,8 @@ public class AuditServiceImpl implements AuditService, SproutStudyConstantServic
         throw new InvalidAuditVerbosityCodeException("null");
     }
 
-
-    private VAuditTypeEntity getVAuditTypeEntity(String code) {
+    @Override
+    public VAuditTypeEntity getVAuditTypeEntity(String code) {
         if (auditTypeMap == null) {
             auditTypeMap = new HashMap<String, VAuditTypeEntity>();
             Query query = entityManager.createNamedQuery(VAuditTypeEntity.ALL_AUDIT_TYPES);
@@ -348,12 +349,9 @@ public class AuditServiceImpl implements AuditService, SproutStudyConstantServic
         }
         VAuditTypeEntity vAuditTypeEntity = auditTypeMap.get(code.trim().toUpperCase());
         if (vAuditTypeEntity == null) {
-            vAuditTypeEntity = new VAuditTypeEntity();
-            vAuditTypeEntity.setActivityDate(new Date());
-            vAuditTypeEntity.setCode(code);
-            vAuditTypeEntity.setDescription(String.format("Auto-generated Audit Type: %s", code));
-            vAuditTypeEntity.setCategory(getVAuditCategoryEntity(AuditCategory.APPLICATION));
-            entityManager.persist(vAuditTypeEntity);
+            VAuditCategoryEntity vAuditCategoryEntity = getVAuditCategoryEntity(AuditCategory.APPLICATION);
+//            vAuditTypeEntity = auditService.createVAuditTypeEntity(code.trim().toUpperCase(), vAuditCategoryEntity);
+            vAuditTypeEntity = auditServiceAux.createVAuditTypeEntity(code.trim().toUpperCase(), vAuditCategoryEntity);
             auditTypeMap.put(vAuditTypeEntity.getCode().trim().toUpperCase(), vAuditTypeEntity);
         }
 

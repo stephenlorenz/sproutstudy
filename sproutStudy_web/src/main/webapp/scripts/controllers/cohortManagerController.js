@@ -63,7 +63,7 @@ angular.module('sproutStudyApp')
     };
 
     $scope.onSaveCohort = function() {
-        cohortManagerService.saveCohort({"cohortKey": $scope.cohort.cohortKey, "name": $scope.cohort.name, "description": $scope.cohort.description, "restfulApiUrl": $scope.cohort.attr.restfulApiUrl, "restfulApiUsername": $scope.cohort.attr.restfulApiUsername, "restfulApiPassword": $scope.cohort.attr.restfulApiPassword, "identitySchemaPrimary": $scope.cohort.attr.identitySchemaPrimary}, function(data) {
+        cohortManagerService.saveCohort({"cohortKey": $scope.cohort.cohortKey, "name": $scope.cohort.name, "description": $scope.cohort.description, "restfulApiUrl": $scope.cohort.attr ? $scope.cohort.attr.restfulApiUrl : "", "restfulApiUsername": $scope.cohort.attr ? $scope.cohort.attr.restfulApiUsername : "", "restfulApiPassword": $scope.cohort.attr ? $scope.cohort.attr.restfulApiPassword : "", "identitySchemaPrimary": $scope.cohort.attr ? $scope.cohort.attr.identitySchemaPrimary : ""}, function(data) {
             if (data.value == 'true') {
                 cohortManagerService.setCohort(null);
                 $scope.saveNewCohortMessage = undefined;
