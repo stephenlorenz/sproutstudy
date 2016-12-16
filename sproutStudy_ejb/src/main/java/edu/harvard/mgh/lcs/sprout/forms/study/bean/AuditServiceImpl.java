@@ -30,8 +30,8 @@ public class AuditServiceImpl implements AuditService, SproutStudyConstantServic
     private Map<String, VAuditTypeEntity> auditTypeMap = null;
     private Map<String, VAuditVerbosityEntity> auditVerbosityMap = null;
 
-    @Resource
-    private UserTransaction userTransaction;
+//    @Resource
+//    private UserTransaction userTransaction;
 
     @EJB
     private SecurityService securityService;
@@ -198,7 +198,7 @@ public class AuditServiceImpl implements AuditService, SproutStudyConstantServic
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     private int addAuditMessage(UserEntity userEntity, AuditType auditType, AuditVerbosity verbosity, String title, CohortEntity cohortEntity, String subjectSchema, String subjectId, String message) {
         try {
-            if (userTransaction.getStatus() == Status.STATUS_NO_TRANSACTION) userTransaction.begin();
+//            if (userTransaction.getStatus() == Status.STATUS_NO_TRANSACTION) userTransaction.begin();
             VAuditTypeEntity vAuditTypeEntity = getVAuditTypeEntity(auditType.toString());
             VAuditVerbosityEntity vAuditVerbosityEntity = getVAuditVerbosityEntity(verbosity.toString());
             if (vAuditTypeEntity != null && vAuditVerbosityEntity != null) {
@@ -216,7 +216,7 @@ public class AuditServiceImpl implements AuditService, SproutStudyConstantServic
                 auditMessageEntity.setMessage(message);
                 entityManager.persist(auditMessageEntity);
                 logMessage(verbosity, message);
-                userTransaction.commit();
+//                userTransaction.commit();
 
                 return auditEntity.getId();
             } else {
@@ -226,20 +226,20 @@ public class AuditServiceImpl implements AuditService, SproutStudyConstantServic
             log.error(message, e);
         } catch (InvalidAuditVerbosityCodeException e) {
             log.error(message, e);
-        } catch (SystemException e) {
-            log.error(message, e);
-        } catch (NotSupportedException e) {
-            log.error(message, e);
+//        } catch (SystemException e) {
+//            log.error(message, e);
+//        } catch (NotSupportedException e) {
+//            log.error(message, e);
         } catch (SecurityException e) {
             log.error(message, e);
         } catch (IllegalStateException e) {
             log.error(message, e);
-        } catch (RollbackException e) {
-            log.error(message, e);
-        } catch (HeuristicMixedException e) {
-            log.error(message, e);
-        } catch (HeuristicRollbackException e) {
-            log.error(message, e);
+//        } catch (RollbackException e) {
+//            log.error(message, e);
+//        } catch (HeuristicMixedException e) {
+//            log.error(message, e);
+//        } catch (HeuristicRollbackException e) {
+//            log.error(message, e);
         }
         return 0;
     }
@@ -254,40 +254,40 @@ public class AuditServiceImpl implements AuditService, SproutStudyConstantServic
                 try {
                     VAuditTypeEntity vAuditTypeEntity = getVAuditTypeEntity(AuditType.INFO.toString());
                     if (vAuditTypeEntity != null) {
-                        if (userTransaction.getStatus() == Status.STATUS_NO_TRANSACTION) userTransaction.begin();
+//                        if (userTransaction.getStatus() == Status.STATUS_NO_TRANSACTION) userTransaction.begin();
                         auditEntity = new AuditEntity();
                         auditEntity.setAuditType(vAuditTypeEntity);
                         auditEntity.setTitle(AuditType.INFO.toString());
                         auditEntity.setUser(getSystemUser(SproutStudyConstantService.TEMP_DOMAIN_NAME));
                         entityManager.persist(auditEntity);
-                        userTransaction.commit();
+//                        userTransaction.commit();
                     } else {
                         throw new InvalidAuditTypeCodeException(AuditType.INFO.toString());
                     }
-                } catch (SystemException e) {
-                    log.error(message, e);
-                } catch (NotSupportedException e) {
-                    log.error(message, e);
+//                } catch (SystemException e) {
+//                    log.error(message, e);
+//                } catch (NotSupportedException e) {
+//                    log.error(message, e);
                 } catch (SecurityException e) {
                     log.error(message, e);
                 } catch (IllegalStateException e) {
                     log.error(message, e);
-                } catch (RollbackException e) {
-                    log.error(message, e);
-                } catch (HeuristicMixedException e) {
-                    log.error(message, e);
-                } catch (HeuristicRollbackException e) {
-                    log.error(message, e);
+//                } catch (RollbackException e) {
+//                    log.error(message, e);
+//                } catch (HeuristicMixedException e) {
+//                    log.error(message, e);
+//                } catch (HeuristicRollbackException e) {
+//                    log.error(message, e);
                 }
             }
             if (auditEntity != null && vAuditVerbosityEntity != null) {
-                if (userTransaction.getStatus() == Status.STATUS_NO_TRANSACTION) userTransaction.begin();
+//                if (userTransaction.getStatus() == Status.STATUS_NO_TRANSACTION) userTransaction.begin();
                 AuditMessageEntity auditMessageEntity = new AuditMessageEntity(auditEntity);
                 auditMessageEntity.setVerbosity(vAuditVerbosityEntity);
                 auditMessageEntity.setMessage(message);
                 entityManager.persist(auditMessageEntity);
                 logMessage(auditVerbosity, message);
-                userTransaction.commit();
+//                userTransaction.commit();
                 return auditEntity.getId();
             } else {
                 throw new InvalidAuditVerbosityCodeException(auditVerbosity.toString());
@@ -296,20 +296,20 @@ public class AuditServiceImpl implements AuditService, SproutStudyConstantServic
             log.error(message, e);
         } catch (InvalidAuditVerbosityCodeException e) {
             log.error(message, e);
-        } catch (SystemException e) {
-            log.error(message, e);
-        } catch (NotSupportedException e) {
-            log.error(message, e);
+//        } catch (SystemException e) {
+//            log.error(message, e);
+//        } catch (NotSupportedException e) {
+//            log.error(message, e);
         } catch (SecurityException e) {
             log.error(message, e);
         } catch (IllegalStateException e) {
             log.error(message, e);
-        } catch (RollbackException e) {
-            log.error(message, e);
-        } catch (HeuristicMixedException e) {
-            log.error(message, e);
-        } catch (HeuristicRollbackException e) {
-            log.error(message, e);
+//        } catch (RollbackException e) {
+//            log.error(message, e);
+//        } catch (HeuristicMixedException e) {
+//            log.error(message, e);
+//        } catch (HeuristicRollbackException e) {
+//            log.error(message, e);
         }
         return 0;
     }

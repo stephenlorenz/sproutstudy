@@ -30,7 +30,9 @@ angular.module('sproutStudyApp')
                 });
             },
             syncPatientIdentifiers: function (verifiedIdentifiers, patient, assertions, instanceId, callback) {
-            	
+
+                console.log("syncPatientIdentifiers.1");
+
             	var matchedIdentifiers = patient.identities;
 
                 var params = [];

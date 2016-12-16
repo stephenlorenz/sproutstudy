@@ -721,7 +721,9 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
     @Override
 	@WebMethod(operationName="syncSproutPatientIdentifiers")
     public BooleanTO syncSproutPatientIdentifiers(@Context HttpServletRequest request, @QueryParam("instanceId") String instanceId, @QueryParam("verifiedIdentifier") String[] verifiedIdentifiers, @QueryParam("matchedIdentifier") String[] matchedIdentifiers, @QueryParam("assertion") String[] matchedAssertions) throws InvalidSessionRESTful {
-		return sproutFormsService.syncPatientIdentifiersAndAssertions(instanceId, verifiedIdentifiers, matchedIdentifiers, matchedAssertions) ? new BooleanTO(true) : new BooleanTO(false);
+
+        System.out.println("8885: ApiWSImpl.syncSproutPatientIdentifiers.instanceId: " + instanceId);
+        return sproutFormsService.syncPatientIdentifiersAndAssertions(instanceId, verifiedIdentifiers, matchedIdentifiers, matchedAssertions) ? new BooleanTO(true) : new BooleanTO(false);
 	}
 
     @Override

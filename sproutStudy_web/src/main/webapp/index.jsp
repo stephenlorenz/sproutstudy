@@ -706,6 +706,10 @@
         sproutFormsDoneInd = false;
     }
 
+    function getCohortSubjectSchema() {
+        return angular.element(jQuerySprout("#studyControllerDiv")).scope().getCohortSubjectSchema();
+    }
+
     function printNarrative(instanceId) {
         console.log("printNarrative.instanceId: " + instanceId);
         $('#printFrame').contents().find('html').html($('.sprout-study-narrative-content-' + instanceId).html());
@@ -734,7 +738,7 @@
     }
 
     function deletePaneContentNew(id) {
-        console.log("deletePaneContent")
+        console.log("deletePaneContentNew")
 
         var instanceId = jQuerySprout(".sproutstudy-tab-li.active").attr("instance");
         var form = jQuerySprout(".sproutstudy-tab-li.active").data("form");
@@ -758,7 +762,7 @@
     }
 
     function deletePaneContent(id) {
-//        console.log("deletePaneContent: " + id);
+        console.log("deletePaneContent: " + id);
 
         var instanceId = jQuerySprout(".sproutstudy-tab-li.active").attr("instance");
         var form = jQuerySprout(".sproutstudy-tab-li.active").data("form");
@@ -1308,19 +1312,20 @@
 //            console.log("setSproutTransformTemplate978.new template2: " + jQuerySprout(".sprout-study-template-content-" + instanceId).html());
         }
 
-        console.log("before getNarrativeModel...");
+//        console.log("before getNarrativeModel...");
 
-        console.log("setSproutTransformTemplate978.3: " + $(".sprout-study-template-content-" + instanceId).html());
+//        console.log("setSproutTransformTemplate978.3: " + $(".sprout-study-template-content-" + instanceId).html());
 
         if ($(".sprout-study-template-content-" + instanceId).html() !== undefined) {
 
 
-            console.log("inside..... sprout-study-template-content-...");
-
+//            console.log("inside..... sprout-study-template-content-...");
 
             var model = getNarrativeModel(instanceId);
 
-            console.log("setSproutTransformTemplate978.template: " + $(".sprout-study-template-content-" + instanceId).html());
+            var template = Handlebars.compile($(".sprout-study-template-content-" + instanceId).html());
+
+//            console.log("setSproutTransformTemplate978.template: " + $(".sprout-study-template-content-" + instanceId).html());
 
             try {
                 var narrative = template(model);

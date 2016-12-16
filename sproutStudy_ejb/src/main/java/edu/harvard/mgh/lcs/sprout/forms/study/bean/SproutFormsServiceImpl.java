@@ -1,37 +1,31 @@
 package edu.harvard.mgh.lcs.sprout.forms.study.bean;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.harvard.mgh.lcs.sprout.forms.core.ejb.bean.FormsWebServiceImplService;
 import edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.*;
-import edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.NameValue;
-import edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.FormListMetadataTO;
-import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.*;
+import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.AuditService;
+import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.SproutFormsService;
+import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.SproutStudyConstantService;
+import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.StudyService;
 import edu.harvard.mgh.lcs.sprout.forms.study.beanws.Result;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.BooleanTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.CohortTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.SproutStudyPayloadTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.util.DateUtils;
 import edu.harvard.mgh.lcs.sprout.forms.study.util.StringUtils;
-import edu.harvard.mgh.lcs.sprout.forms.utils.*;
 import edu.harvard.mgh.lcs.sprout.study.model.formSubmission.AssertionEntity;
 import edu.harvard.mgh.lcs.sprout.study.model.formSubmission.SubmissionEntity;
 import edu.harvard.mgh.lcs.sprout.study.model.study.CohortAttrEntity;
 import edu.harvard.mgh.lcs.sprout.study.model.study.CohortEntity;
-import edu.harvard.mgh.lcs.sprout.study.model.study.CohortFormEntity;
 import edu.harvard.mgh.lcs.sprout.study.model.study.FormAttrEntity;
 
 import javax.annotation.PostConstruct;
-import javax.ejb.EJB;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-import javax.ejb.TransactionManagement;
+import javax.ejb.*;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
@@ -205,6 +199,7 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
     }
 
     @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public List<FormInstanceTO> getSproutInbox(String username, CohortTO cohortTO, String[] identityArray, Set<String> publicationKeys) {
 
         if (publicationKeys != null && publicationKeys.size() > 0) {
@@ -931,6 +926,9 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
 
     @Override
     public boolean syncPatientIdentifiersAndAssertions(String instanceId, String[] verifiedIdentifiers, String[] matchedIdentifiers, String[] matchedAssertions) {
+
+        System.out.println("8885: SproutFormsServiceImpl.syncPatientIdentifiersAndAssertions.instanceId: " + instanceId);
+
 
         if (!StringUtils.isEmpty(instanceId) && verifiedIdentifiers != null && verifiedIdentifiers.length > 0) {
             if (formsWebService == null) init();
