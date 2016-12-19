@@ -7,6 +7,11 @@ import com.github.jknack.handlebars.context.FieldValueResolver;
 import com.github.jknack.handlebars.context.JavaBeanValueResolver;
 import com.github.jknack.handlebars.context.MapValueResolver;
 import com.github.jknack.handlebars.context.MethodValueResolver;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.tool.xml.XMLWorkerHelper;
 import edu.harvard.mgh.lcs.sprout.forms.core.to.PublicationInfoTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.SproutFormsService;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.SproutTransformService;
@@ -15,6 +20,7 @@ import edu.harvard.mgh.lcs.sprout.forms.study.to.BooleanTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.TemplateTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.util.StringUtils;
 import edu.harvard.mgh.lcs.sprout.study.model.transform.*;
+import org.apache.ws.security.util.Base64;
 
 import javax.ejb.*;
 import javax.persistence.EntityManager;
@@ -24,6 +30,7 @@ import javax.persistence.Query;
 import javax.xml.transform.*;
 import javax.xml.transform.stream.StreamSource;
 import java.io.*;
+import java.net.URL;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -109,8 +116,6 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 	public BooleanTO saveNarrative(String instanceId, String narrative, String format) {
 		if (StringUtils.isFull(instanceId, narrative, format)) {
 			VNarrativeFormatEntity vNarrativeFormatEntity = getVNarrativeFormatEntity(format);
-
-
 
 			if (vNarrativeFormatEntity != null) {
 				NarrativeEntity narrativeEntity = getNarrative(instanceId);
@@ -285,6 +290,13 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 							sproutTransformService.saveNarrative(instanceId, narrativeMarkdown, "md");
                             LOGGER.fine("==> narrativeMarkdown = " + narrativeMarkdown);
 							return narrativeMarkdown;
+						} else if (format.equalsIgnoreCase("pdf")) {
+							System.out.println("SproutTransformServiceImpl.getNarrative.9");
+                            byte[] narrativePDFArray = transformHtml2PDF(narrative, "");
+							String narrativePDF = Base64.encode(narrativePDFArray);
+							sproutTransformService.saveNarrative(instanceId, narrativePDF, "pdf");
+                            LOGGER.fine("==> narrativePDF = " + narrativePDF);
+							return narrativePDF;
 						}
 					}
 
@@ -355,6 +367,49 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 					System.out.println("\n\n################# Pandoc (http://pandoc.org) does not appear to be installed on this server. Pandoc is required to convert output between formats. #################\n(Source: edu.harvard.mgh.lcs.sprout.forms.study.bean.SproutTransformServiceImpl.transformHtml2RTF)");
 				} else {
 					e.printStackTrace();
+				}
+			}
+		}
+		return null;
+	}
+
+	private byte[] transformHtml2PDF(String narrative, String headerUrl) {
+        System.out.println("SproutTransformServiceImpl.transform");
+		System.out.println("transform: " + "narrative = [" + narrative + "]");
+
+		if (StringUtils.isFull(narrative)) {
+			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+			try {
+				// NOTE: You might be able to support more complex HTML 2 PDF transformations with iText if necessary:
+				// http://developers.itextpdf.com/examples/xml-worker-itext5/html-images
+
+//				OutputStream file = new FileOutputStream(new File("/Users/slorenz/Desktop/HTMLtoPDF.pdf"));
+				Document document = new Document();
+				PdfWriter writer = PdfWriter.getInstance(document, outputStream);
+				writer.setStrictImageSequence(true);
+				document.open();
+
+				if (StringUtils.isFull(headerUrl)) {
+					Image img = Image.getInstance(new URL(headerUrl));
+					img.scaleToFit(300, 200);
+//				document.add(new Paragraph("Sample 1: This is simple image demo."));
+					document.add(img);
+				}
+
+				InputStream is = new ByteArrayInputStream(narrative.getBytes());
+				XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
+				document.close();
+
+				return outputStream.toByteArray();
+			}
+			catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				if (outputStream != null) {
+					try {
+						outputStream.close();
+					} catch (IOException e) {}
 				}
 			}
 		}

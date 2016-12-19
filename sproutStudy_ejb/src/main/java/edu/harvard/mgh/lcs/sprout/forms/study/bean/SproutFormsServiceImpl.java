@@ -250,6 +250,7 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
                                             destination = formDestinationMap.get(publicationKey);
                                             formInstanceTO.setDestination(destination);
                                         } else {
+                                            List<FormAttributeTO> formAttributeTOList = new ArrayList<FormAttributeTO>();
                                             Set<FormAttrEntity> formAttrEntities = studyService.getFormAttributesFromPublicationKey(publicationKey);
                                             if (formAttrEntities != null && formAttrEntities.size() > 0) {
                                                 for (FormAttrEntity formAttrEntity : formAttrEntities) {

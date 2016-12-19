@@ -390,6 +390,8 @@ angular.module('sproutStudyApp')
                             if (proxy.status == $scope.status.value) hasMatch = true;
                         });
                         if (!hasMatch) return false;
+                    } else {
+                        return false;
                     }
                 }
             }
@@ -935,7 +937,7 @@ angular.module('sproutStudyApp')
 
         $scope.getAllForms = function(key) {
 
-            console.log("getAllForms: " + key);
+            // console.log("getAllForms: " + key);
 
             $scope.gettingAllForms = true;
 
@@ -1059,7 +1061,31 @@ angular.module('sproutStudyApp')
 
         $scope.isAdmin = function() {
             return studyService.isAdmin();
-        }
+        };
+
+        $scope.enableFormDeletion = function () {
+            if (cohortService.getCohort()) {
+                var attributes = cohortService.getCohort().attributes;
+                if ($scope.allFormsMetadata) {
+                    if (!$scope.allFormsMetadata.hasStudyDates) {
+                        if (attributes) {
+                            var retVal = true;
+                            $.each(attributes, function(index, attr) {
+                                if (attr.name == 'DISABLE_FORM_DELETION' && attr.value == 'true') {
+                                    retVal = false;
+                                    return false;
+                                }
+                            });
+                            return retVal;
+                        }
+                    } else {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        };
+
 
         $scope.getSubjectInbox = function(params) {
 

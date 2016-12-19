@@ -1,12 +1,8 @@
 package edu.harvard.mgh.lcs.sprout.study.model.transform;
 
-import edu.harvard.mgh.lcs.sprout.study.model.study.UsersRoleEntity;
-
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @Table(schema="dbo", name="v_narrative_format")

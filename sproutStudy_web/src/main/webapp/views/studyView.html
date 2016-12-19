@@ -25,7 +25,7 @@
             <button ng-show="hasNarrative && formLoaded" ng-click="onViewNarrative()" class="btn btn-warning btn-mini" title="View Narrative"><i class="fa fa-circle-o-notch"></i>{{narrativeButton}}</button>
             <button ng-show="hasNarrativeChanges && formLoaded && 1 == 0" ng-click="onSaveNarrativeChanges()" class="btn btn-danger btn-mini" title="Save Narrative"><i class="fa fa-save"></i>{{saveNarrativeButton}}</button>
 
-            <span class="dropdown" >
+            <span class="dropdown" ng-show="(cohort().forms | filter: { demographic: false, manual: true, active: true } | filterUnique:inbox).length > 0">
                 <button ng-click="openDeliverFormModal()" class="dropdown-toggle btn btn-success btn-mini" title="Deliver Form" ng-mouseover="expandNewFormButton()" ng-mouseleave="collapseNewFormButton()"><i class="icon-plus icon-white" style="margin-right: 0px;"></i>{{newFormButton}}</button>
                 <ul class="dropdown-menu pull-right" style="font-size: 12px; text-align: left;">
                         <li ng-repeat="form in cohort().forms | filter: { demographic: false, manual: true, active: true } | filterUnique:inbox | orderBy:name">
@@ -33,7 +33,7 @@
                     </li>
                 </ul>
             </span>
-            <span class="dropdown" >
+            <span class="dropdown" ng-show="(cohort().forms | filter: { demographic: false, manual: true, active: true } | filterUnique:inbox).length > 0" >
                 <button ng-click="openDeliverFormModal()" class="dropdown-toggle btn btn-info btn-mini" title="Send Form" ng-mouseover="expandSendFormButton()" ng-mouseleave="collapseSendFormButton()"><i class="icon-envelope icon-white" style="margin-right: 0px;"></i>{{sendFormButton}}</button>
                 <ul class="dropdown-menu pull-right" style="font-size: 12px; text-align: left;">
                     <li ng-repeat="form in cohort().forms | filter: { demographic: false, manual: true, active: true } | filterUnique:inbox | orderBy:name">
@@ -157,7 +157,8 @@
                                     <td>
                                         <div class="container" style="width: 600px; float: left;">
                                             <div class="span3" style="padding: 0px; margin: 10px;"><h4>{{subject.firstName}} {{subject.lastName}} ({{subject.id}})</h4>
-                                                <div style="color: #6a6a6a; padding-left: 20px;">Gender: {{subject.gender}}</div>
+                                                <div style="color: #6a6a6a; padding-left: 20px;" ng-show="subject.gender && subject.gender != ''">Gender: {{subject.gender}}</div>
+                                                <div style="color: #6a6a6a; padding-left: 20px;" ng-show="subject.email && subject.email != ''">Email: {{subject.email}}</div>
                                                 <div style="color: #6a6a6a; padding-left: 20px;">Date of Birth: {{subject.birthDate | date:'mediumDate'}}</div>
                                             </div>
                                         </div>
@@ -349,9 +350,13 @@
                                         <div class="span2">Id:</div>
                                         <div class="span3">{{subject.id}}</div>
                                     </div>
-                                    <div class="row">
+                                    <div class="row" ng-show="subject.gender && subject.gender != ''">
                                         <div class="span2">Gender:</div>
                                         <div class="span3">{{subject.gender}}</div>
+                                    </div>
+                                    <div class="row" ng-show="subject.email && subject.email != ''">
+                                        <div class="span2">Email:</div>
+                                        <div class="span3">{{subject.email}}</div>
                                     </div>
                                     <div class="row">
                                         <div class="span2">Date of Birth:</div>
@@ -428,7 +433,8 @@
                         </span>
                     </th>
                     <th class="sortable" ng-click="formsChangeSort('statusDate')" ng-show="!allFormsMetadata.hasStudyDates">Status Date<i ng-class="formsSortClass('statusDate')" ng-style="{'margin-left': formsSortStyle('statusDate')}" ></i></th>
-                    <th style="text-align: center; width: 60px;" ng-show="!allFormsMetadata.hasStudyDates">Delete</th>
+                    <!--<th style="text-align: center; width: 60px;" ng-show="!allFormsMetadata.hasStudyDates">Delete</th>-->
+                    <th style="text-align: center; width: 60px;" ng-show="enableFormDeletion()">Delete</th>
                     <th style="text-align: center; width: 60px;">Open</th>
                 </tr>
                 </thead>
@@ -451,7 +457,8 @@
                     </td>
                     <td class="inbox-cell" ng-click="form.locked || !form.mutable  || onOpenForm(form)" ng-show="allFormsMetadata.hasStudyDates">{{form.targetDate | date:'medium' }}</td>
                     <td class="inbox-cell" ng-click="onOpenForm(form)" ng-show="!allFormsMetadata.hasStudyDates">{{form.statusDate | date:'medium' }}</td>
-                    <td style="text-align: center; width: 80px;" ng-show="!allFormsMetadata.hasStudyDates">
+                    <!--<td style="text-align: center; width: 80px;" ng-show="!allFormsMetadata.hasStudyDates">-->
+                    <td style="text-align: center; width: 80px;" ng-show="enableFormDeletion()">
                         <button class="btn btn-warning btn-mini" ng-click="onDeleteSubmission(form)"><i class="icon-trash icon-white" style="margin-right: 0px;"></i></button>
                     </td>
                     <td style="text-align: center; width: 80px;">
