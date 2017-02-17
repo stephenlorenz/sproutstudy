@@ -15,6 +15,7 @@ import com.itextpdf.tool.xml.XMLWorkerHelper;
 import edu.harvard.mgh.lcs.sprout.forms.core.to.PublicationInfoTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.SproutFormsService;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.SproutTransformService;
+import edu.harvard.mgh.lcs.sprout.forms.study.to.ContentTO;
 import edu.harvard.mgh.lcs.sprout.forms.transform.handlebars.Helpers;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.BooleanTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.TemplateTO;
@@ -158,6 +159,54 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 
 	@Override
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	public BooleanTO saveNarrativeWithLocaleAndType(String instanceId, String narrative, String format, String locale, String type) {
+		if (StringUtils.isFull(instanceId, narrative, format)) {
+			VNarrativeFormatEntity vNarrativeFormatEntity = getVNarrativeFormatEntity(format);
+
+			if (vNarrativeFormatEntity != null) {
+				NarrativeEntity narrativeEntity = getNarrative(instanceId);
+				if (narrativeEntity == null) {
+					narrativeEntity = new NarrativeEntity();
+					narrativeEntity.setInstanceId(instanceId);
+					narrativeEntity.setKey(StringUtils.getGuid());
+					narrativeEntity.setActivityDate(new Date());
+					entityManager.persist(narrativeEntity);
+
+					return saveNarrativeFormat(narrative, vNarrativeFormatEntity, narrativeEntity, locale, type);
+				} else {
+					if (narrativeEntity.getFormats() != null && narrativeEntity.getFormats().size() > 0) {
+						NarrativeFormatEntity narrativeFormatEntity = null;
+						for (NarrativeFormatEntity narrativeFormatEntityTmp : narrativeEntity.getFormats()) {
+							if (narrativeFormatEntityTmp.getFormat().getCode().equalsIgnoreCase(format)
+                                    && (narrativeFormatEntityTmp.getLocale() != null && narrativeFormatEntityTmp.getLocale().equalsIgnoreCase(locale) || (narrativeFormatEntityTmp.getLocale() == null && locale == null))
+                                    && (narrativeFormatEntityTmp.getType() != null && narrativeFormatEntityTmp.getType().equalsIgnoreCase(type) || (narrativeFormatEntityTmp.getType() == null && type == null))
+                                    ) {
+								narrativeFormatEntity = narrativeFormatEntityTmp;
+								break;
+							}
+						}
+						if (narrativeFormatEntity != null) {
+							narrativeFormatEntity.setData(narrative.trim());
+							narrativeFormatEntity.setActivityDate(new Date());
+							entityManager.merge(narrativeFormatEntity);
+							return new BooleanTO(true);
+						} else {
+							return saveNarrativeFormat(narrative, vNarrativeFormatEntity, narrativeEntity, locale, type);
+						}
+					} else {
+						return saveNarrativeFormat(narrative, vNarrativeFormatEntity, narrativeEntity, locale, type);
+					}
+				}
+			} else {
+				return new BooleanTO(false, "Invalid format code");
+			}
+
+		}
+		return new BooleanTO(false);
+	}
+
+	@Override
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public String getNarrativeByInstanceId(String instanceId) {
 		return getNarrativeByInstanceId(instanceId, "HTML");
 	}
@@ -165,6 +214,12 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 	@Override
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public String getNarrativeByInstanceId(String instanceId, String format) {
+		return getNarrativeByInstanceId(instanceId, format, null, null);
+	}
+
+	@Override
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	public String getNarrativeByInstanceId(String instanceId, String format, String locale, String type) {
 		if (StringUtils.isEmpty(format)) format = "HTML";
 		NarrativeEntity narrativeEntity = getNarrative(instanceId);
 		if (narrativeEntity != null && narrativeEntity.getFormats() != null) {
@@ -172,7 +227,19 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 			if (narrativeFormatEntitySet != null && narrativeFormatEntitySet.size() > 0) {
 				for (NarrativeFormatEntity narrativeFormatEntity : narrativeFormatEntitySet) {
 					if (narrativeFormatEntity.getFormat().getCode().equalsIgnoreCase(format)) {
-						return narrativeFormatEntity.getData();
+						boolean validMatch = true;
+						if (validMatch && StringUtils.isFull(locale)) {
+							if (StringUtils.isEmpty(narrativeFormatEntity.getLocale()) || !narrativeFormatEntity.getLocale().equalsIgnoreCase(locale)) {
+								validMatch = false;
+							}
+						}
+						if (validMatch && StringUtils.isFull(type)) {
+							if (StringUtils.isEmpty(narrativeFormatEntity.getType()) || !narrativeFormatEntity.getType().equalsIgnoreCase(type)) {
+								validMatch = false;
+							}
+						}
+
+						if (validMatch) return narrativeFormatEntity.getData();
 					}
 				}
 			} else {
@@ -181,7 +248,7 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 					if (narrativeModelEntity != null) {
 						String publicationKey = sproutFormsService.getPublicationKeyFromInstanceId(instanceId);
 						if (StringUtils.isFull(publicationKey)) {
-							String narrative = getNarrative(publicationKey, instanceId, narrativeModelEntity.getModel());
+							String narrative = getNarrative(publicationKey, instanceId, narrativeModelEntity.getModel(), "PDF", locale, type);
 							if (StringUtils.isFull(narrative)) {
 								saveNarrative(instanceId, narrative, "HTML");
 								return narrative;
@@ -203,10 +270,16 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 	@Override
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public String getNarrative(String publicationKey, String instanceId, String jsonData, String format) {
+        return getNarrative(publicationKey, instanceId, jsonData, format, null, null);
+    }
+
+	@Override
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	public String getNarrative(String publicationKey, String instanceId, String jsonData, String format, String locale, String type) {
 
 		System.out.println("***************************************");
 		System.out.println("SproutTransformServiceImpl.getNarrative");
-		System.out.println("publicationKey = [" + publicationKey + "], instanceId = [" + instanceId + "], format = [" + format + "]");
+        System.out.println("publicationKey = [" + publicationKey + "], instanceId = [" + instanceId + "], jsonData = [too large to display], format = [" + format + "], locale = [" + locale + "], type = [" + type + "]");
 
 		if (StringUtils.isFull(publicationKey, instanceId, jsonData)) {
 //			NarrativeEntity narrativeEntity = getNarrative(instanceId);
@@ -221,7 +294,7 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 //				}
 //			}
 
-			System.out.println("SproutTransformServiceImpl.getNarrative.2");
+//			System.out.println("SproutTransformServiceImpl.getNarrative.2");
 
             String templateText = null;
 
@@ -238,14 +311,14 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 				if (templateMasterEntity != null) templateText = templateMasterEntity.getTemplate();
 			}
 
-			System.out.println("SproutTransformServiceImpl.getNarrative.3");
+//			System.out.println("SproutTransformServiceImpl.getNarrative.3");
 
             if (StringUtils.isFull(templateText)) {
 
-				System.out.println("SproutTransformServiceImpl.getNarrative.4");
-
-				System.out.println("templateText = " + templateText);
-				System.out.println("jsonData = " + jsonData);
+//				System.out.println("SproutTransformServiceImpl.getNarrative.4");
+//
+//				System.out.println("templateText = " + templateText);
+//				System.out.println("jsonData = " + jsonData);
 
 				try {
 					Handlebars handlebars = new Handlebars();
@@ -268,33 +341,33 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 							.build();
 					String narrative = template.apply(context);
 
-					System.out.println("SproutTransformServiceImpl.getNarrative.5.narrative = " + narrative);
-					System.out.println("SproutTransformServiceImpl.getNarrative.5: " + format);
+//					System.out.println("SproutTransformServiceImpl.getNarrative.5.narrative = " + narrative);
+//					System.out.println("SproutTransformServiceImpl.getNarrative.5: " + format);
 
-                    sproutTransformService.saveNarrative(instanceId, narrative, "html");
+                    sproutTransformService.saveNarrativeWithLocaleAndType(instanceId, narrative, "html", locale, type);
 
 					saveNarrativeModel(instanceId, jsonData);
 
 					if (StringUtils.isEmpty(format) || format.equalsIgnoreCase("html")) {
-						System.out.println("SproutTransformServiceImpl.getNarrative.6");
+//						System.out.println("SproutTransformServiceImpl.getNarrative.6");
                         return narrative;
 					} else {
 						if (format.equalsIgnoreCase("rtf")) {
-							System.out.println("SproutTransformServiceImpl.getNarrative.7");
+//							System.out.println("SproutTransformServiceImpl.getNarrative.7");
                             String narrativeRtf = transformHtml2RTF(narrative);
-							sproutTransformService.saveNarrative(instanceId, narrativeRtf, "rtf");
+							sproutTransformService.saveNarrativeWithLocaleAndType(instanceId, narrativeRtf, "rtf", locale, type);
 							return narrativeRtf;
 						} else if (format.equalsIgnoreCase("md")) {
-							System.out.println("SproutTransformServiceImpl.getNarrative.8");
+//							System.out.println("SproutTransformServiceImpl.getNarrative.8");
                             String narrativeMarkdown = transformHtml2Markdown(narrative);
-							sproutTransformService.saveNarrative(instanceId, narrativeMarkdown, "md");
+							sproutTransformService.saveNarrativeWithLocaleAndType(instanceId, narrativeMarkdown, "md", locale, type);
                             LOGGER.fine("==> narrativeMarkdown = " + narrativeMarkdown);
 							return narrativeMarkdown;
 						} else if (format.equalsIgnoreCase("pdf")) {
-							System.out.println("SproutTransformServiceImpl.getNarrative.9");
-                            byte[] narrativePDFArray = transformHtml2PDF(narrative, "");
+//							System.out.println("SproutTransformServiceImpl.getNarrative.9");
+                            byte[] narrativePDFArray = transformHtml2PDF(narrative);
 							String narrativePDF = Base64.encode(narrativePDFArray);
-							sproutTransformService.saveNarrative(instanceId, narrativePDF, "pdf");
+							sproutTransformService.saveNarrativeWithLocaleAndType(instanceId, narrativePDF, "pdf", locale, type);
                             LOGGER.fine("==> narrativePDF = " + narrativePDF);
 							return narrativePDF;
 						}
@@ -373,7 +446,8 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 		return null;
 	}
 
-	private byte[] transformHtml2PDF(String narrative, String headerUrl) {
+	@Override
+	public byte[] transformHtml2PDF(String narrative) {
         System.out.println("SproutTransformServiceImpl.transform");
 		System.out.println("transform: " + "narrative = [" + narrative + "]");
 
@@ -390,14 +464,7 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 				writer.setStrictImageSequence(true);
 				document.open();
 
-				if (StringUtils.isFull(headerUrl)) {
-					Image img = Image.getInstance(new URL(headerUrl));
-					img.scaleToFit(300, 200);
-//				document.add(new Paragraph("Sample 1: This is simple image demo."));
-					document.add(img);
-				}
-
-				InputStream is = new ByteArrayInputStream(narrative.getBytes());
+				InputStream is = new ByteArrayInputStream(wrapHtml(narrative).getBytes());
 				XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
 				document.close();
 
@@ -416,11 +483,128 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 		return null;
 	}
 
+	@Override
+	public String transformHtml2PDFAsString(String narrative) {
+        System.out.println("SproutTransformServiceImpl.transform");
+		System.out.println("transform: " + "narrative = [" + narrative + "]");
+
+		if (StringUtils.isFull(narrative)) {
+			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+			try {
+				// NOTE: You might be able to support more complex HTML 2 PDF transformations with iText if necessary:
+				// http://developers.itextpdf.com/examples/xml-worker-itext5/html-images
+
+//				OutputStream file = new FileOutputStream(new File("/Users/slorenz/Desktop/HTMLtoPDF.pdf"));
+				Document document = new Document();
+				PdfWriter writer = PdfWriter.getInstance(document, outputStream);
+				writer.setStrictImageSequence(true);
+				document.open();
+
+				InputStream is = new ByteArrayInputStream(wrapHtml(narrative).getBytes());
+				XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
+				document.close();
+
+				return Base64.encode(outputStream.toByteArray()).toString();
+			}
+			catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				if (outputStream != null) {
+					try {
+						outputStream.close();
+					} catch (IOException e) {}
+				}
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public ContentTO transformHtml2PDFAsContentTO(String narrative) {
+
+		if (StringUtils.isFull(narrative)) {
+			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+			try {
+				// NOTE: You might be able to support more complex HTML 2 PDF transformations with iText if necessary:
+				// http://developers.itextpdf.com/examples/xml-worker-itext5/html-images
+
+//				OutputStream file = new FileOutputStream(new File("/Users/slorenz/Desktop/HTMLtoPDF.pdf"));
+				Document document = new Document();
+				PdfWriter writer = PdfWriter.getInstance(document, outputStream);
+				writer.setStrictImageSequence(true);
+				document.open();
+
+				InputStream is = new ByteArrayInputStream(wrapHtml(narrative).getBytes());
+				XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
+				document.close();
+
+				ContentTO contentTO = new ContentTO();
+				contentTO.setSuccess(true);
+				contentTO.setData(Base64.encode(outputStream.toByteArray()).toString());
+				return contentTO;
+			}
+			catch (Exception e) {
+				e.printStackTrace();
+				ContentTO contentTO = new ContentTO();
+				contentTO.setSuccess(false);
+				contentTO.setMessage(e.getMessage());
+				return contentTO;
+			} finally {
+				if (outputStream != null) {
+					try {
+						outputStream.close();
+					} catch (IOException e) {}
+				}
+			}
+		}
+		return null;
+	}
+
+	private String wrapHtml(String html) {
+		if (StringUtils.isFull(html)) {
+
+//			try {
+//				InputStream in = new ByteArrayInputStream(html.getBytes());
+//				ByteArrayOutputStream out = new ByteArrayOutputStream();
+//
+//				Tidy tidy = new Tidy();
+//				tidy.setShowWarnings(true);
+//				tidy.setXmlTags(true);
+//				tidy.setInputEncoding("UTF-8");
+//				tidy.setOutputEncoding("UTF-8");
+//				tidy.setXHTML(true);
+////				tidy.setMakeClean(true);
+//				org.w3c.dom.Document xmlDoc = tidy.parseDOM(in, out);
+//				tidy.pprint(xmlDoc, out);
+//
+//				html = new String(out.toByteArray());
+//
+//				System.out.println("TestITextHtml2PdfConverter.wrapHtml.html: " + out.toString());
+//
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			}
+
+
+			return String.format("<div>%s</div>", html);
+		}
+		return null;
+	}
+
+
 	private BooleanTO saveNarrativeFormat(String narrative, VNarrativeFormatEntity vNarrativeFormatEntity, NarrativeEntity narrativeEntity) {
+		return saveNarrativeFormat(narrative, vNarrativeFormatEntity, narrativeEntity, null, null);
+	}
+
+	private BooleanTO saveNarrativeFormat(String narrative, VNarrativeFormatEntity vNarrativeFormatEntity, NarrativeEntity narrativeEntity, String locale, String type) {
 		NarrativeFormatEntity narrativeFormatEntity = new NarrativeFormatEntity();
 		narrativeFormatEntity.setNarrative(narrativeEntity);
 		narrativeFormatEntity.setFormat(vNarrativeFormatEntity);
 		narrativeFormatEntity.setData(narrative.trim());
+		narrativeFormatEntity.setLocale(locale);
+		narrativeFormatEntity.setType(type);
 		narrativeFormatEntity.setActivityDate(new Date());
 		entityManager.persist(narrativeFormatEntity);
 		return new BooleanTO(true);

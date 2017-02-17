@@ -86,11 +86,68 @@ angular.module('sproutStudyApp')
         alert($scope.templateError);
     }
 
-    $scope.onReloadModel = function() {
-        $scope.model = getNarrativeModel($scope.instanceId);
-        $scope.modelVerbose = getNarrativeModelVerbose($scope.instanceId);
-        updateSproutTransformModelView($scope.modelVerbose);
-    }
+        $scope.onReloadModel = function () {
+            $scope.model = getNarrativeModel($scope.instanceId);
+            $scope.modelVerbose = getNarrativeModelVerbose($scope.instanceId);
+
+            if ($scope.locale) {
+                $scope.updateLocale();
+            }
+            if ($scope.customAttributes && $scope.customAttributes.length > 0) {
+                $scope.updateCustomAttributes();
+            }
+
+            updateSproutTransformModelView($scope.modelVerbose);
+            $scope.onReloadNarrative();
+        };
+
+        $scope.updateLocale = function () {
+            if ($scope.model && $scope.model.sprout) {
+                $scope.model.sprout.locale = $scope.locale;
+            }
+            if ($scope.modelVerbose && $scope.modelVerbose.sprout) {
+                $scope.modelVerbose.sprout['sprout%locale'] = $scope.locale;
+            }
+        };
+
+        $scope.updateCustomAttributes = function () {
+
+            var customAttributes = {};
+
+            angular.forEach($scope.customAttributes, function(customAttribute) {
+                customAttributes[customAttribute.name] = customAttribute.value;
+            });
+
+            if ($scope.model && $scope.model.sprout) {
+                $scope.model.sprout['custom'] = customAttributes;
+            }
+            if ($scope.modelVerbose && $scope.modelVerbose.sprout) {
+                $scope.modelVerbose.sprout['sprout%custom'] = customAttributes;
+            }
+        };
+
+    $scope.changeLocale = function(locale) {
+        $scope.locale = locale;
+        $scope.onReloadModel();
+    };
+
+    $scope.onCloseCustomAttributeModal = function () {
+        $scope.customAttributeModal = false;
+        $scope.onReloadModel();
+    };
+
+    $scope.onAddCustomAttribute = function () {
+        if (!$scope.customAttributes) $scope.customAttributes = [];
+        $scope.customAttributes.push({})
+    };
+
+    $scope.onDeleteCustomAttribute = function ($index) {
+        $scope.customAttributes.splice([$index],1);
+
+        if ($scope.customAttributes.length == 0) {
+            $scope.customAttributes.push({})
+        }
+    };
 
     $scope.onReloadNarrative = function() {
         compileTemplate();
@@ -117,9 +174,39 @@ angular.module('sproutStudyApp')
         compileTemplate();
         $scope.narrativeText = "";
         transformService.getNarrativeText({}, $scope.narrative, function(narrativeText) {
-            console.log("narrativeText: " + narrativeText);
+            // console.log("narrativeText: " + narrativeText);
             $scope.narrativeText = narrativeText;
             $scope.textViewModal = true;
+        });
+    };
+
+        $scope.waitForModal = function (data) {
+            $timeout(function() {
+                var pdfViewContainer = jQuery('#pdfViewContainer').attr("src");
+
+                if (pdfViewContainer == undefined) {
+                    //Wait some more...
+                    $scope.waitForModal(data);
+                } else {
+                    jQuery('#pdfViewContainer').attr("src", data);
+                }
+            }, 200);
+        };
+
+    $scope.onViewAsPDF = function() {
+        $scope.pdfLoadingError = undefined;
+        $scope.pdfViewModal = true;
+        $scope.pdfLoading = true;
+
+        transformService.getNarrativePDF({}, $scope.narrative, function(content) {
+            $scope.pdfLoading = false;
+
+            if (content && content.success) {
+                $scope.waitForModal("data:application/pdf;base64," + escape(content.data));
+            } else {
+                $scope.pdfLoadingError = content.message;
+            }
+
         });
     };
 
@@ -135,7 +222,7 @@ angular.module('sproutStudyApp')
         //}
         $scope.narrativeHtmlServer = "";
         transformService.getNarrativeServer({publicationKey: $scope.form.publicationKey, instanceId: null}, model, function(narrativeHtmlServer) {
-            console.log("narrativeHtmlServer: " + narrativeHtmlServer);
+            // console.log("narrativeHtmlServer: " + narrativeHtmlServer);
             $scope.narrativeHtmlServer = narrativeHtmlServer;
             $scope.narrativeHtmlClient = $("#sproutTransformNarrativeContent").html();
             //$scope.textViewModal = true;
@@ -143,8 +230,20 @@ angular.module('sproutStudyApp')
         });
     };
 
+    $scope.onOpenCustomAttributeModal = function () {
+        if (!$scope.customAttributes) {
+            $scope.customAttributes = [];
+            $scope.customAttributes.push({})
+        }
+        $scope.customAttributeModal = true;
+    };
+
     $scope.onCloseTextViewModal = function() {
         $scope.textViewModal = false;
+    }
+
+    $scope.onClosePDFViewModal = function() {
+        $scope.pdfViewModal = false;
     }
 
     $scope.onCloseNarrativeServerViewModal = function() {

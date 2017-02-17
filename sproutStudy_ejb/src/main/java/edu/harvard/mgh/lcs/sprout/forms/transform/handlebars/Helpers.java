@@ -52,7 +52,56 @@ public class Helpers {
         return options.isFalsy(result) ? options.inverse() : options.fn();
     }
 
+    public CharSequence locale(String locale, Options options) throws IOException {
 
+        boolean result = false;
+
+        try {
+            ObjectNode model = (ObjectNode) options.context.model();
+            JsonNode localeNode = model.get("sprout").get("locale");
+            String sproutLocale = localeNode.textValue();
+            if (StringUtils.isFull(sproutLocale)) {
+                result = sproutLocale.equalsIgnoreCase(locale);
+            }
+        } catch (Exception e) {
+            System.out.println("Helpers.locale.e.getMessage();: " + e.getMessage());
+        }
+        return options.isFalsy(result) ? options.inverse() : options.fn();
+    }
+
+    public CharSequence en(Options options) throws IOException {
+
+        boolean result = false;
+
+        try {
+            ObjectNode model = (ObjectNode) options.context.model();
+            JsonNode localeNode = model.get("sprout").get("locale");
+            String sproutLocale = localeNode.textValue();
+            if (StringUtils.isFull(sproutLocale)) {
+                result = sproutLocale.equalsIgnoreCase("en");
+            }
+        } catch (Exception e) {
+            System.out.println("Helpers.locale.e.getMessage();: " + e.getMessage());
+        }
+        return options.isFalsy(result) ? options.inverse() : options.fn();
+    }
+
+    public CharSequence es(Options options) throws IOException {
+
+        boolean result = false;
+
+        try {
+            ObjectNode model = (ObjectNode) options.context.model();
+            JsonNode localeNode = model.get("sprout").get("locale");
+            String sproutLocale = localeNode.textValue();
+            if (StringUtils.isFull(sproutLocale)) {
+                result = sproutLocale.equalsIgnoreCase("es");
+            }
+        } catch (Exception e) {
+            System.out.println("Helpers.locale.e.getMessage();: " + e.getMessage());
+        }
+        return options.isFalsy(result) ? options.inverse() : options.fn();
+    }
 
     public CharSequence getNode(Object context, String queryKey, Options options) throws IOException {
 

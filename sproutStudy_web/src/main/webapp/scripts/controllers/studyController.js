@@ -134,6 +134,25 @@ angular.module('sproutStudyApp')
             return cohortService.getMember();
         }
 
+        $scope.columnMap = undefined;
+
+        $scope.initColumns = function () {
+            if (cohortService.getCohort()) {
+                var attributes = cohortService.getCohort().attributes;
+                $.each(attributes, function(index, attr) {
+                    if (attr.name == 'CUSTOM_COLUMN_MAP' && attr.value && attr.value.length > 0) {
+                        try {
+                            $scope.columnMap = JSON.parse(attr.value);
+                        } catch (e) {}
+                    }
+                });
+            }
+        };
+
+
+
+        // if ($scope.cohort() && $scope.cohort().)
+
         $scope.cohorts = null;
 
         $scope.statuses = null;
@@ -617,6 +636,7 @@ angular.module('sproutStudyApp')
             cohortService.setCohort(data);
             $scope.getCohortAuthorizations();
             //$scope.bootWebsockets(data);
+            $scope.initColumns();
             $scope.cohortLoaded = true;
         });
 
@@ -1384,10 +1404,23 @@ angular.module('sproutStudyApp')
         };
 
         $scope.chooseCohort = function(cohort) {
+            $scope.columnMap = undefined;
             $scope.changeCohort();
             cohortService.setCohort(cohort);
             $scope.enableSearch();
+
             studyService.setSessionCohort({cohortId: cohort.id}, function(data) {
+                studyService.getActiveSproutInboxStatuses({}, function(data) {
+                    $scope.activeSproutInboxStatuses = data;
+                });
+
+                studyService.getActiveSproutInboxLocations({}, function(data) {
+                    $scope.activeSproutInboxLocations = data;
+                });
+
+                $scope.getAssignments();
+                $scope.initColumns();
+
                 $scope.getCohortAuthorizations();
                 $scope.getStudyInbox();
                 $scope.getRecentCohortMembers();

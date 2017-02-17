@@ -19,6 +19,11 @@ angular.module('sproutStudyApp')
                     callback(response.data);
                 });
              },
+            getNarrativePDF: function (params, data, callback) {
+                $http.post(networkService.generateUrl("getNarrativePDF", params), data).then(function (response) {
+                    callback(response.data);
+                });
+             },
             getNarrativeServer: function (params, data, callback) {
                 $http.post(networkService.generateUrl("getNarrativeServer", params), data).then(function (response) {
                     callback(response.data);

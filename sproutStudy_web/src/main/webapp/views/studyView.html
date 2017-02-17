@@ -181,10 +181,91 @@
                                 </div>
                             </div>
 
+                            <!--<div class="well">-->
+                                <!--<pre>{{columnMap|json}}</pre>-->
+                            <!--</div>-->
+
                             <table class="table table-condensed table-striped" >
                                 <thead class="inbox">
-                                <tr>
-                                    <!--<th>Subject</th>-->
+                                <tr ng-show="columnMap">
+                                    <th></th>
+
+                                    <th ng-repeat="column in columnMap" ng-show="column.show">
+                                        <span ng-switch="column.code">
+                                            <span ng-switch-when="subject">
+                                                <span class="sortable" ng-click="allFormsChangeSort('subject')">{{column.name}}<i ng-class="subjectSortInd()" ng-style="{'margin-left': mutableFormsSortStyleSubject()}" ></i></span>
+                                            </span>
+                                            <span ng-switch-when="forms">
+                                                <span class="dropdown sprout-dropdown-header">
+                                                    <span>{{column.name}}<span ng-show="allFormsFilterFormTitle != null">:<br/><span class="badge badge-info">{{allFormsFilterFormTitle}}<span ng-click="clearFilterForm()" style="margin-left: 5px;" class="sprout-study-badge-close"><i class="fa fa-times-circle"></i></span></span></span></span>
+                                                    <a class="dropdown-toggle btn btn-mini" style="margin-left: 8px;"><b class="caret"></b></a>
+                                                    <ul class="dropdown-menu">
+                                                        <li><a ng-click="onFilterByFormAll()" prevent-default>ALL FORMS</a></li>
+                                                        <li ng-repeat="form in cohort().forms | filter: { active: true } | orderBy:name">
+                                                            <a ng-click="onFilterByFormAll(form)" prevent-default>{{form.name}}</a>
+                                                        </li>
+                                                    </ul>
+                                                </span>
+                                            </span>
+                                            <span ng-switch-when="formIdentifier">
+                                                <span class="sortable" ng-click="allFormsChangeSort('instance_key')">{{column.name}}<i ng-class="allFormsSortClass('instance_key')" ng-style="{'margin-left': mutableFormsSortStyle('instance_key')}" ></i></span>
+                                            </span>
+                                            <span ng-switch-when="location">
+                                                <span class="dropdown sprout-dropdown-header">
+                                                    <span class="" ng-click="mutableFormsChangeSort('inboxLocation')">{{column.name}}<span ng-show="allFormsFilterLocation != null">:<br/><span class="badge badge-info">{{allFormsFilterLocation}}<span ng-click="clearFilterLocation()" style="margin-left: 5px;" class="sprout-study-badge-close"><i class="fa fa-times-circle"></i></span></span></span><i ng-class="allFormsSortClass('inboxLocation')" ng-style="{'margin-left': mutableFormsSortStyle('inboxLocation')}" ></i></span>
+                                                    <a class="dropdown-toggle btn btn-mini" style="margin-left: 8px;"><b class="caret"></b></a>
+                                                    <ul class="dropdown-menu">
+                                                        <li><a ng-click="onFilterByLocationAll()" ng-show="activeSproutInboxLocations.length > 0" prevent-default>ALL LOCATIONS</a></li>
+                                                        <li ng-repeat="location in activeSproutInboxLocations">
+                                                            <a ng-click="onFilterByLocationAll(location)" prevent-default>{{location.name}}</a>
+                                                        </li>
+                                                    </ul>
+                                                </span>
+                                            </span>
+                                            <span ng-switch-when="deliveryDate">
+                                                <span class="sortable" ng-click="allFormsChangeSort('date_of_entry')">{{column.name}}<i ng-class="allFormsSortClass('date_of_entry')" ng-style="{'margin-left': mutableFormsSortStyle('date_of_entry')}" ></i></span>
+                                            </span>
+                                            <span ng-switch-when="assignments">
+                                                <span class="dropdown sprout-dropdown-header">
+                                                    <span>{{column.name}}<span ng-show="allFormsFilterAssignment != undefined">:<br/><span class="badge badge-info">{{allFormsFilterAssignment.name}}<span ng-click="clearFilterAssignment()" style="margin-left: 5px;" class="sprout-study-badge-close"><i class="fa fa-times-circle"></i></span></span></span></span>
+                                                    <a class="dropdown-toggle btn btn-mini" style="margin-left: 8px;"><b class="caret"></b></a>
+                                                    <ul class="dropdown-menu">
+                                                        <li><a ng-click="onFilterByAssignmentAll()" ng-show="assignments.length > 0" prevent-default>ALL ASSIGNMENTS</a></li>
+                                                        <li ng-repeat="assignment in assignments">
+                                                            <a ng-click="onFilterByAssignmentAll(assignment)" prevent-default>{{assignment.name}}</a>
+                                                        </li>
+                                                    </ul>
+                                                </span>
+                                            </span>
+                                            <span ng-switch-when="status">
+                                                <span class="dropdown sprout-dropdown-header">
+                                                    <span class="" ng-click="mutableFormsChangeSort('inboxStatus')">{{column.name}}<span ng-show="allFormsFilterStatus != null">:<br/><span class="badge badge-info">{{allFormsFilterStatus}}<span ng-click="clearFilterStatus()" style="margin-left: 5px;" class="sprout-study-badge-close"><i class="fa fa-times-circle"></i></span></span></span><i ng-class="allFormsSortClass('inboxStatus')" ng-style="{'margin-left': mutableFormsSortStyle('inboxStatus')}" ></i></span>
+                                                    <a class="dropdown-toggle btn btn-mini" style="margin-left: 8px;"><b class="caret"></b></a>
+                                                    <ul class="dropdown-menu">
+                                                        <li><a ng-click="onFilterByStatusAll()" ng-show="activeSproutInboxStatuses.length > 0" prevent-default>ALL STATUSES</a></li>
+                                                        <li ng-repeat="status in activeSproutInboxStatuses">
+                                                            <a ng-click="onFilterByStatusAll(status)" prevent-default>{{status.name}}</a>
+                                                        </li>
+                                                    </ul>
+                                                </span>
+                                            </span>
+                                            <span ng-switch-when="studyDate">
+                                                <span class="dropdown sprout-dropdown-header">
+                                                    <span class=""><span class="sortable" ng-click="allFormsChangeSort('date_of_target')">{{column.name}}<i ng-class="allFormsSortClass('date_of_target')" ng-style="{'margin-left': mutableFormsSortStyle('date_of_target')}" ></i></span><span ng-show="allFormsFilterTargetDate != null">:<br/><span class="badge badge-info">{{allFormsFilterTargetDate}}<span ng-click="clearFilterTargetDate()" style="margin-left: 5px;" class="sprout-study-badge-close"><i class="fa fa-times-circle"></i></span></span></span></span>
+                                                    <input type="text" class="input-small date datepicker" ng-model="allFormsFilterTargetDateProxy" data-model-date-format="mm/dd/yyyy" data-date-format="mm/dd/yyyy" autoclose="true" style="margin-bottom: 0px; display: none;" bs-datepicker />
+                                                    <button  type="button" class="btn btn-mini" data-toggle="datepicker" style="margin-left: 8px;"><i class="icon-calendar"></i></button>
+                                                </span>
+                                            </span>
+                                            <span ng-switch-when="statusDate">
+                                                <span class="sortable" ng-click="allFormsChangeSort('date_of_status')">{{column.name}}<i ng-class="allFormsSortClass('date_of_status')" ng-style="{'margin-left': mutableFormsSortStyle('date_of_status')}" ></i></span>
+                                            </span>
+                                        </span>
+                                    </th>
+
+
+                                    <th style="text-align: center; width: 50px;">Open</th>
+                                </tr>
+                                <tr ng-show="!columnMap">
                                     <th></th>
                                     <th><span class="sortable" ng-click="allFormsChangeSort('subject')">Subject<i ng-class="subjectSortInd()" ng-style="{'margin-left': mutableFormsSortStyleSubject()}" ></i></span></th>
                                     <th>
@@ -253,7 +334,60 @@
                                 <!--<li ng-repeat='item in filtered = (items | filter:filterExpr)'>{{item}}</li>-->
 
                                 <!--<tr ng-repeat="form in allForms | filter: allFormsFilter | orderBy: '-statusDate'" ng-class="{'inbox-row': !form.locked && form.mutable, 'unknown': form.identityFullName == 'Unknown', 'immutable': !form.mutable}"  >-->
-                                <tr ng-repeat="form in allFormsFiltered = (allForms | filter: allFormsFilter | orderBy: allFormsOrderByNg)" ng-class="{'inbox-row': !form.locked && form.mutable, 'unknown': form.identityFullName == 'Unknown', 'immutable': !form.mutable}" ng-mouseenter="hoverOpen = true" ng-mouseleave="hoverOpen = false"  >
+                                <tr ng-show="columnMap" ng-repeat="form in allFormsFiltered = (allForms | filter: allFormsFilter | orderBy: allFormsOrderByNg)" ng-class="{'inbox-row': !form.locked && form.mutable, 'unknown': form.identityFullName == 'Unknown', 'immutable': !form.mutable}" ng-mouseenter="hoverOpen = true" ng-mouseleave="hoverOpen = false"  >
+                                    <td style="text-align: center; width: 30px;" class="vert-align">
+                                        <button class="btn btn-mini" ng-class="{'btn-info': hover}" ng-mouseenter="hover = true" ng-mouseleave="hover = false" ng-click="onOpenSubject(form.identityPrimaryId)"><i class="fa fa-user sprout-study-badge-close" ></i></button>
+                                    </td>
+
+
+
+                                    <td ng-repeat="column in columnMap" ng-show="column.show" class="inbox-cell" class="form-instance-id-{{form.instanceId}}">
+                                        <span ng-switch="column.code">
+                                            <span ng-switch-when="subject">
+                                                <span ng-click="form.locked || !form.mutable || onOpenMutableForm(form)">{{form.identityFullName}} ({{form.identityPrimaryId}})</span>
+                                            </span>
+                                            <span ng-switch-when="forms">
+                                                <span ng-click="form.locked || !form.mutable || onOpenMutableForm(form)">{{form.title}}</span>
+                                            </span>
+                                            <span ng-switch-when="formIdentifier">
+                                                <span class="form-instance-id-{{form.instanceId}}" ng-click="form.locked || !form.mutable || onOpenMutableForm(form)">{{form.instanceKey}}</span>
+                                            </span>
+                                            <span ng-switch-when="location">
+                                                <span ng-click="form.locked || !form.mutable || onOpenMutableForm(form)">{{form.location}}</span>
+                                            </span>
+                                            <span ng-switch-when="deliveryDate">
+                                                <span ng-click="form.locked || !form.mutable || onOpenMutableForm(form)">{{form.deliveryDate | date:'medium' }}</span>
+                                            </span>
+                                            <span ng-switch-when="assignments">
+                                                <span ng-click="form.locked || !form.mutable || onOpenMutableForm(form)">
+                                                    <ul style="list-style-type: none;" ng-show="form.inboxProxies.length > 0">
+                                                        <li ng-repeat="proxy in form.inboxProxies">{{proxy.assignedToDisplayName}}</li>
+                                                    </ul>
+                                                </span>
+                                            </span>
+                                            <span ng-switch-when="status">
+                                                <span ng-click="form.locked || !form.mutable || onOpenMutableForm(form)">
+                                                    <span style="white-space: nowrap;">{{form.displayStatus}}</span>
+                                                </span>
+                                            </span>
+                                            <span ng-switch-when="studyDate">
+                                                <span ng-click="form.locked || !form.mutable || onOpenMutableForm(form)">{{form.targetDate | date:'medium' }}</span>
+                                            </span>
+                                            <span ng-switch-when="statusDate">
+                                                <span ng-click="onOpenMutableForm(form)">{{form.statusDate | date:'medium' }}</span>
+                                            </span>
+                                        </span>
+                                    </td>
+
+                                    <td style="text-align: center; width: 80px;">
+                                        <button class="btn btn-info btn-mini" ng-class="{'btn-info-dummy': hoverOpen}" ng-click="onOpenMutableForm(form)" ng-show="!form.locked && form.mutable"><i class="fa fa-play" style="margin-right: 0px;"></i></button>
+                                        <!--<span ng-show="form.locked"><i class="fa fa-lock"></i></span>-->
+                                        <button ng-show="form.locked && !form.lockedDate" ng-class="{'btn-warning': hoverLock}" ng-mouseleave="hoverLock = false" class="btn btn-mini" ng-mouseover="hoverLock = true" onmouseenter="$(this).tooltip('show')" title="Locked by you"><i class="fa fa-lock" ></i></button>
+                                        <button ng-show="form.locked && form.lockedDate" ng-class="{'btn-warning': hoverLock}" ng-mouseleave="hoverLock = false" class="btn btn-mini" ng-mouseover="hoverLock = true" onmouseenter="$(this).tooltip('show')" title="Locked by {{form.lockedBy[0].id}} on {{form.lockedDate | date:'medium'}}"><i class="fa fa-lock" ></i></button>
+                                        <!--<span ng-show="form.locked" onmouseenter="$(this).tooltip('show')" title="Locked by {{form.lockedBy[0].id}} on {{form.lockedDate | date:'medium'}}"><i class="fa fa-lock"></i></span>-->
+                                    </td>
+                                </tr>
+                                <tr ng-show="!columnMap" ng-repeat="form in allFormsFiltered = (allForms | filter: allFormsFilter | orderBy: allFormsOrderByNg)" ng-class="{'inbox-row': !form.locked && form.mutable, 'unknown': form.identityFullName == 'Unknown', 'immutable': !form.mutable}" ng-mouseenter="hoverOpen = true" ng-mouseleave="hoverOpen = false"  >
                                     <!--<td class="inbox-cell"><i class="fa fa-user sprout-study-badge-close" ng-click="onOpenSubject(form.identityPrimaryId)"></i> <span ng-click="form.locked || !form.mutable || onOpenMutableForm(form)">{{form.identityFullName}} ({{form.identityPrimaryId}})</span></td>-->
 
 
@@ -262,9 +396,9 @@
                                     </td>
 
                                     <td class="inbox-cell"><span ng-click="form.locked || !form.mutable || onOpenMutableForm(form)">{{form.identityFullName}} ({{form.identityPrimaryId}})</span></td>
-                                    <td class="inbox-cell" ng-click="form.locked || !form.mutable || onOpenMutableForm(form)">{{form.title}}</a></td>
-                                    <td ng-show="allFormsMetadata.hasInstanceKeys" class="inbox-cell form-instance-id-{{form.instanceId}}" ng-click="form.locked || !form.mutable || onOpenMutableForm(form)">{{form.instanceKey}}</a></td>
-                                    <td ng-show="allFormsMetadata.hasLocations" class="inbox-cell form-instance-id-{{form.instanceId}}" ng-click="form.locked || !form.mutable || onOpenMutableForm(form)">{{form.location}}</a></td>
+                                    <td class="inbox-cell" ng-click="form.locked || !form.mutable || onOpenMutableForm(form)">{{form.title}}</td>
+                                    <td ng-show="allFormsMetadata.hasInstanceKeys" class="inbox-cell form-instance-id-{{form.instanceId}}" ng-click="form.locked || !form.mutable || onOpenMutableForm(form)">{{form.instanceKey}}</td>
+                                    <td ng-show="allFormsMetadata.hasLocations" class="inbox-cell form-instance-id-{{form.instanceId}}" ng-click="form.locked || !form.mutable || onOpenMutableForm(form)">{{form.location}}</td>
                                     <td class="inbox-cell" ng-click="form.locked || !form.mutable || onOpenMutableForm(form)">{{form.deliveryDate | date:'medium' }}</td>
 
                                     <td class="inbox-cell" ng-click="form.locked || !form.mutable || onOpenMutableForm(form)" ng-show="assignments.length > 1">

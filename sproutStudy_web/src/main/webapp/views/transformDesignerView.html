@@ -12,6 +12,15 @@
                             <div class="btn-group">
                                 <button class="btn" title="Reload Model" ng-click="onReloadModel()"><i class="fa fa-refresh"></i></button>
                                 <button class="btn" title="Live Sync" ng-click="onToggleSyncModel()" ng-class="{'btn-success': syncModel}"><i class="fa fa-arrows-v"></i></button>
+                                <button class="btn" title="Custom Attributes" ng-click="onOpenCustomAttributeModal()"><i class="fa fa-pencil"></i></button>
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fa fa-language" aria-hidden="true"></i>
+                                    <!--<span class="caret"></span>-->
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a ng-click="changeLocale('en')" class="sproutstudy-tab-button">English</a></li>
+                                    <li><a ng-click="changeLocale('es')" class="sproutstudy-tab-button">Spanish</a></li>
+                                </ul>
                             </div>
                             <div class="btn-group">
                                 <label class="sprout-transform-toolbar-select-label">Model</label>
@@ -58,6 +67,7 @@
                             <div class="btn-group">
                                 <button class="btn" title="Save" ng-click="onSaveTemplate()" ng-dblclick="toggleAutoSave()" ng-class="{'btn-primary': templateHasChanges && autosave == false, 'btn-success': autosave}"><i class="fa fa-save"></i></button>
                                 <button class="btn" title="View as Text" ng-click="onViewAsText()"><i class="fa fa-file-text"></i></button>
+                                <button class="btn" title="View as PDF" ng-click="onViewAsPDF()"><i class="fa fa-file-pdf-o" aria-hidden="true"></i></button>
                                 <button class="btn" title="View Server Version" ng-click="onViewFromServer()"><i class="fa fa-external-link"></i></button>
                                 <button class="btn" title="Reload Narrative" ng-click="onReloadNarrative()"><i class="fa fa-refresh"></i></button>
                                 <button class="btn" title="Live Sync" ng-click="onToggleSyncNarrative()" ng-class="{'btn-success': syncNarrative}"><i class="fa fa-arrows-v"></i></button>
@@ -93,6 +103,30 @@
             <button class="btn btn-primary cancel" ng-click="onCloseTextViewModal()">Close</button>
         </div>
     </div>
+    <div modal="pdfViewModal" close="onClosePDFViewModal()" options="modalSmallOpts">
+        <div class="modal-header">
+            <h4>PDF Viewer</h4>
+        </div>
+        <div class="modal-body">
+
+            <div ng-show="!pdfLoading && !pdfLoadingError">
+                <iframe src="" style="min-width: 750px; min-height: 450px; border: none;" id="pdfViewContainer" >
+                    Loading...please wait...
+                </iframe>
+            </div>
+
+            <div class="alert alert-info" ng-show="pdfLoading">
+                <h4>Loading...please wait...this can take a while...</h4>
+            </div>
+            <div class="alert alert-error" ng-show="pdfLoadingError">
+                <h4>{{pdfLoadingError}}</h4>
+            </div>
+
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary cancel" ng-click="onClosePDFViewModal()">Close</button>
+        </div>
+    </div>
     <div modal="narrativeServerViewModal" close="onCloseNarrativeServerViewModal()" options="modalWideOpts">
         <div class="modal-header">
             <h4>Client/Server Narrative Comparison</h4>
@@ -113,6 +147,30 @@
             <button class="btn btn-primary cancel" ng-click="onCloseNarrativeServerViewModal()">Close</button>
         </div>
     </div>
+    <div modal="customAttributeModal" close="onCloseCustomAttributeModal()" options="modalSmallOpts">
+        <div class="modal-header">
+            <h4>Custom Attributes</h4>
+        </div>
+        <div class="modal-body modal-body-short" style="min-height: 450px;">
+            <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Name</th>
+                    <th>Value</th>
+                    <th>Delete</th>
+                </tr>
+                <tr ng-repeat="customAttribute in customAttributes">
+                    <td><input name="name" ng-model="customAttribute.name"></input></td>
+                    <td><input name="value" ng-model="customAttribute.value"></input></td>
+                    <td><button class="btn btn-danger btn-mini" ng-click="onDeleteCustomAttribute($index)">Delete</button></td>
+                </tr>
+            </table>
+            <button class="btn btn-primary" ng-click="onAddCustomAttribute()">Add</button>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary cancel" ng-click="onCloseCustomAttributeModal()">Close</button>
+        </div>
+    </div>
 
 
 </div>
+

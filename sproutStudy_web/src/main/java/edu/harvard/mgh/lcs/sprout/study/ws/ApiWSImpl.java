@@ -920,6 +920,11 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
     }
 
     @Override
+    public ContentTO getNarrativePDF(HttpServletRequest request, String narrative) throws InvalidSessionRESTful {
+        return transformService.transformHtml2PDFAsContentTO(narrative);
+    }
+
+    @Override
     public String getNarrativeServer(HttpServletRequest request, String publicationKey, String instanceId, String model) throws InvalidSessionRESTful {
         return transformService.getNarrative(publicationKey, instanceId, model);
     }

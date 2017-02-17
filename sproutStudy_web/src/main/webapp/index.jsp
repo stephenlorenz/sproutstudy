@@ -134,6 +134,8 @@
 <script type="text/javascript" src="/sproutassets/scripts/lcs/lcs.js"></script>
 
 <script src="/sproutassets/components/angular/angular.js"></script>
+<%--<script src="assets/components/angular/angular.js"></script>--%>
+<%--<script src="assets/components/angular-route/angular-route.min.js"></script>--%>
 <script src="/sproutassets/components/angular-resource/angular-resource.js"></script>
 <script src="/sproutassets/components/angular-cookies/angular-cookies.js"></script>
 <script src="/sproutassets/components/angular-sanitize/angular-sanitize.js"></script>
@@ -295,7 +297,7 @@
             var operators, result;
 
             if (arguments.length < 3) {
-                throw new Error("Handlerbars Helper 'compare' needs 2 parameters");
+                throw new Error("Handlerbars Helper 'compare' needs 3 parameters");
             }
 
             if (options === undefined) {
@@ -334,6 +336,84 @@
 
         });
 
+        Handlebars.registerHelper('localeLong', function (formLocale, locale, options) {
+            if (arguments.length !== 2) {
+                throw new Error("Handlerbars Helper 'localeLong' needs 2 parameters");
+            }
+
+            if (formLocale == locale) {
+                return options.fn(this);
+            } else {
+                return options.inverse(this);
+            }
+        });
+
+        Handlebars.registerHelper('locale', function (locale, options) {
+
+            if (arguments.length !== 2) {
+                throw new Error("Handlerbars Helper 'locale' only accepts 1 parameter, the locale code (e.g. 'en' or 'es').");
+            }
+
+            if (options !== undefined && options.data !== undefined && options.data.root !== undefined && options.data.root.sprout !== undefined && options.data.root.sprout.locale !== undefined) {
+                var formLocale = options.data.root.sprout.locale;
+
+                var result = formLocale == locale;
+
+                if (result) {
+                    return options.fn(this);
+                } else {
+                    return options.inverse(this);
+                }
+            } else {
+                return options.fn(this);
+            }
+        });
+        Handlebars.registerHelper('en', function (options) {
+
+            if (arguments.length !== 1) {
+                throw new Error("Handlerbars Helper 'en' accepts no parameters.");
+            }
+
+            if (options !== undefined && options.data !== undefined && options.data.root !== undefined && options.data.root.sprout !== undefined && options.data.root.sprout.locale !== undefined) {
+                var formLocale = options.data.root.sprout.locale;
+
+                var result = formLocale == 'en';
+
+                if (result) {
+                    return options.fn(this);
+                } else {
+                    return options.inverse(this);
+                }
+            } else {
+                return options.fn(this);
+            }
+        });
+        Handlebars.registerHelper('es', function (options) {
+
+            if (arguments.length !== 1) {
+                throw new Error("Handlerbars Helper 'es' accepts no parameters.");
+            }
+
+            if (options !== undefined && options.data !== undefined && options.data.root !== undefined && options.data.root.sprout !== undefined && options.data.root.sprout.locale !== undefined) {
+                var formLocale = options.data.root.sprout.locale;
+
+                var result = formLocale == 'es';
+
+                if (result) {
+                    return options.fn(this);
+                } else {
+                    return options.inverse(this);
+                }
+            } else {
+                return options.fn(this);
+            }
+        });
+
+        $(document).on('click', '.dropdown-menu', function(e) {
+            if ($(this).hasClass('keep-open-on-click')) { e.stopPropagation(); }
+        });
+
+
     });
 
     function setActiveTabData(key, value) {
@@ -355,6 +435,19 @@
                 callback(data);
             });
         }
+
+    }
+
+    function setPdfModalContent(content) {
+
+        var iframePdfViewerContainer = document.getElementById("pdfViewContainer");
+
+        console.log("iframePdfViewerContainer: " + iframePdfViewerContainer);
+
+        if (iframePdfViewerContainer != null) {
+            iframePdfViewerContainer.src="data:application/pdf;base64,JVBERi0xLjQKJeLjz9MKMyAwIG9iago8PC9MZW5ndGggMTYzL0ZpbHRlci9GbGF0ZURlY29kZT4+c3RyZWFtCnicbc7BDoIwDAbg+56i3sbB0eFcNo5EiScT445cpowIwaDL9PkFgiaKSQ9N2v9r7yQzZCVBoQRTEoRlopga2jjnkAgwFaFHe721DvbWexvqp4tM02/iFOCS4Zig8D1IOJNviatR2rm27SD3rlz8IIJp8Q/pdbX+KILh9NLj1LhzSEcLCrqxwUFXQVb7cEmBYzyU1rqIZodwfmhryIG8AAhsPooKZW5kc3RyZWFtCmVuZG9iagoxIDAgb2JqCjw8L1BhcmVudCA0IDAgUi9Db250ZW50cyAzIDAgUi9UeXBlL1BhZ2UvUmVzb3VyY2VzPDwvRm9udDw8L0YxIDIgMCBSPj4+Pi9NZWRpYUJveFswIDAgNTk1IDg0Ml0+PgplbmRvYmoKOCAwIG9iago8PC9QYXJlbnQgNyAwIFIvRGVzdFsxIDAgUi9YWVogMjAgNzI0LjU4IDBdL1RpdGxlKFN1YmplY3Q6IEZyZWQgXChEYXRlIG9mIEJpcnRoOiAxMC8xMC8xOTk5XCkpPj4KZW5kb2JqCjcgMCBvYmoKPDwvUGFyZW50IDYgMCBSL0Rlc3RbMSAwIFIvWFlaIDIwIDc2MS4xMiAwXS9UaXRsZShIZWxsbyBGcmVkISkvQ291bnQgMS9MYXN0IDggMCBSL0ZpcnN0IDggMCBSPj4KZW5kb2JqCjYgMCBvYmoKPDwvUGFyZW50IDUgMCBSL0Rlc3RbMSAwIFIvWFlaIDIwIDgwNiAwXS9UaXRsZShTYW1wbGUgTmFycmF0aXZlKS9Db3VudCAyL0xhc3QgNyAwIFIvRmlyc3QgNyAwIFI+PgplbmRvYmoKNSAwIG9iago8PC9UeXBlL091dGxpbmVzL0NvdW50IDMvTGFzdCA2IDAgUi9GaXJzdCA2IDAgUj4+CmVuZG9iagoyIDAgb2JqCjw8L0Jhc2VGb250L0hlbHZldGljYS1Cb2xkL1R5cGUvRm9udC9FbmNvZGluZy9XaW5BbnNpRW5jb2RpbmcvU3VidHlwZS9UeXBlMT4+CmVuZG9iago0IDAgb2JqCjw8L1R5cGUvUGFnZXMvQ291bnQgMS9LaWRzWzEgMCBSXT4+CmVuZG9iago5IDAgb2JqCjw8L1R5cGUvQ2F0YWxvZy9PdXRsaW5lcyA1IDAgUi9QYWdlcyA0IDAgUj4+CmVuZG9iagoxMCAwIG9iago8PC9Qcm9kdWNlcihpVGV4dK4gNS41LjYgqTIwMDAtMjAxNSBpVGV4dCBHcm91cCBOViBcKEFHUEwtdmVyc2lvblwpKS9Nb2REYXRlKEQ6MjAxNjEyMjMxNjQ0MzMtMDUnMDAnKS9DcmVhdGlvbkRhdGUoRDoyMDE2MTIyMzE2NDQzMy0wNScwMCcpPj4KZW5kb2JqCnhyZWYKMCAxMQowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAyNDUgMDAwMDAgbiAKMDAwMDAwMDc1OCAwMDAwMCBuIAowMDAwMDAwMDE1IDAwMDAwIG4gCjAwMDAwMDA4NTEgMDAwMDAgbiAKMDAwMDAwMDY5MyAwMDAwMCBuIAowMDAwMDAwNTgwIDAwMDAwIG4gCjAwMDAwMDA0NjkgMDAwMDAgbiAKMDAwMDAwMDM1NyAwMDAwMCBuIAowMDAwMDAwOTAyIDAwMDAwIG4gCjAwMDAwMDA5NjIgMDAwMDAgbiAKdHJhaWxlcgo8PC9Sb290IDkgMCBSL0lEIFs8MWExM2JkZGZlMzkxNWQwNmQ1OTJlZTc4NTUxNTc4NDc+PDFhMTNiZGRmZTM5MTVkMDZkNTkyZWU3ODU1MTU3ODQ3Pl0vSW5mbyAxMCAwIFIvU2l6ZSAxMT4+CiVpVGV4dC01LjUuNgpzdGFydHhyZWYKMTEyMAolJUVPRgo=";
+        }
+
 
     }
 
@@ -998,7 +1091,7 @@
     }
 
     function clearAllFormTabs() {
-        console.log("clearAllFormTabs");
+//        console.log("clearAllFormTabs");
         jQuerySprout(".sproutstudy-tab-li.active").removeClass("active");
         var homeTab = jQuerySprout(".sproutstudy-tab-home");
         homeTab.addClass("active");
@@ -1153,9 +1246,9 @@
 
         if (typeof model != 'string') {
             json = JSON.stringify(model, undefined, 2);
-            console.log("compileTemplate.model: " + json);
-        } else {
-            console.log("compileTemplate.model: " + model);
+//            console.log("compileTemplate.model: " + json);
+//        } else {
+//            console.log("compileTemplate.model: " + model);
         }
 
 //        console.log("compileTemplate.template: " + source);

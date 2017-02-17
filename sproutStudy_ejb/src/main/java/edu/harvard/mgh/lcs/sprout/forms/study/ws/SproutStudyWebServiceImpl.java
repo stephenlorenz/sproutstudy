@@ -78,6 +78,11 @@ public class SproutStudyWebServiceImpl implements SproutStudyWebService {
         return sproutTransformService.getNarrativeByInstanceId(instanceId, format);
     }
 
+    @Override
+    public String getNarrativeByInstanceIdWithFormatLocaleType(String instanceId, String format, String locale, String type) {
+        return sproutTransformService.getNarrativeByInstanceId(instanceId, format, locale, type);
+    }
+
     public String getNarrative(String publicationKey, String instanceId, String jsonData) {
         return sproutTransformService.getNarrative(publicationKey, instanceId, jsonData);
     }
@@ -85,5 +90,10 @@ public class SproutStudyWebServiceImpl implements SproutStudyWebService {
     @Override
     public String getNarrative(String publicationKey, String instanceId, String jsonData, String format) {
         return sproutTransformService.getNarrative(publicationKey, instanceId, jsonData, format);
+    }
+
+    @Override
+    public String getNarrativeWithLocaleAndType(String publicationKey, String instanceId, String jsonData, String format, String locale, String type) {
+        return sproutTransformService.getNarrative(publicationKey, instanceId, jsonData, format, locale, type);
     }
 }

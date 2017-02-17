@@ -29,6 +29,14 @@ public class NarrativeFormatEntity implements Serializable {
     private VNarrativeFormatEntity format;
 
     @Basic
+    @Column(name="locale")
+    private String locale;
+
+    @Basic
+    @Column(name="type")
+    private String type;
+
+    @Basic
     @Column(name="activity_date", columnDefinition="datetime", nullable=false)
     private Date activityDate = new Date();
 
@@ -62,6 +70,22 @@ public class NarrativeFormatEntity implements Serializable {
 
     public void setFormat(VNarrativeFormatEntity format) {
         this.format = format;
+    }
+
+    public String getLocale() {
+        return locale;
+    }
+
+    public void setLocale(String locale) {
+        this.locale = locale;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public Date getActivityDate() {
