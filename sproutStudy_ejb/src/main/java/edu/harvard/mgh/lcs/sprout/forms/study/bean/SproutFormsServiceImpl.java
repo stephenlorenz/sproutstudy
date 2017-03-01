@@ -708,12 +708,12 @@ public class SproutFormsServiceImpl implements SproutFormsService, SproutStudyCo
                                                 formInstanceTO.setIdentityPrimaryId(result.getId());
                                             } else {
                                                 unknown = false;
-                                                formInstanceTO.setIdentityFirstName("Unknown");
-                                                formInstanceTO.setIdentityLastName("Unknown");
-                                                formInstanceTO.setIdentityFullName("Unknown");
+                                                if (StringUtils.isEmpty(formInstanceTO.getIdentityFirstName())) formInstanceTO.setIdentityFirstName("Unknown");
+                                                if (StringUtils.isEmpty(formInstanceTO.getIdentityLastName())) formInstanceTO.setIdentityLastName("Unknown");
+                                                if (StringUtils.isEmpty(formInstanceTO.getIdentityFullName())) formInstanceTO.setIdentityFullName("Unknown");
                                                 formInstanceTO.setIdentityPrimarySchema(cohortTO.getCohortSubjectSchema());
 //                                                formInstanceTO.setIdentityPrimaryId(subjectIds.toString());
-                                                formInstanceTO.setIdentityPrimaryId("---");
+                                                if (StringUtils.isEmpty(formInstanceTO.getIdentityPrimaryId())) formInstanceTO.setIdentityPrimaryId("---");
                                             }
 //                                            if (subjectIds.length() > 0) subjectIds.append("|");
 //                                            subjectIds.append(identityTO.getId());
