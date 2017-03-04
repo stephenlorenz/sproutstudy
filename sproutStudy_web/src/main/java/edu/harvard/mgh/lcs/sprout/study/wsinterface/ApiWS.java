@@ -101,7 +101,7 @@ public interface ApiWS {
     @GET
     @Path("/secure/applyForNonce")
     @Produces(MediaType.APPLICATION_JSON)
-    public NonceTO applyForNonce(@Context HttpServletRequest request, @QueryParam("instanceId") String instanceId, @QueryParam("subjectName") String subjectName, @QueryParam("subjectId") String subjectId) throws InvalidSessionRESTful;
+    public NonceTO applyForNonce(@Context HttpServletRequest request, @QueryParam("instanceId") String instanceId, @QueryParam("subjectName") String subjectName, @QueryParam("subjectId") String subjectId, @QueryParam("location") String location, @QueryParam("language") String language, @QueryParam("dob") String dob) throws InvalidSessionRESTful;
 
     @GET
     @Path("/secure/getForms")

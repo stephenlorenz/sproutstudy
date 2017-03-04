@@ -84,7 +84,7 @@ public class StudyEmailMDB implements MessageListener {
         if (studyInboxTO != null && studyInboxTO.getRecipient() != null && StringUtils.isFull(studyInboxTO.getRecipient().getUsername(), studyInboxTO.getInstanceId())) {
             if (emailFormBodyTemplate == null) init();
             if (emailFormBodyTemplate != null) {
-                String nonce = sproutFormsService.applyForNonce(studyInboxTO.getRecipient().getUsername(), studyInboxTO.getInstanceId(), studyInboxTO.getSubjectName(), studyInboxTO.getSubjectId());
+                String nonce = sproutFormsService.applyForNonce(studyInboxTO.getRecipient().getUsername(), studyInboxTO.getInstanceId(), studyInboxTO.getSubjectName(), studyInboxTO.getSubjectId(), null, null, null);
                 if (nonce != null) {
                     Map<String, Object> emailFormBodyModel = new HashMap<String, Object>();
 

@@ -667,11 +667,11 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
 
     @Override
     @WebMethod(operationName="applyForNonce")
-    public NonceTO applyForNonce(@Context HttpServletRequest request, @QueryParam("instanceId") String instanceId, @QueryParam("subjectName") String subjectName, @QueryParam("subjectId") String subjectId) throws InvalidSessionRESTful {
+    public NonceTO applyForNonce(@Context HttpServletRequest request, @QueryParam("instanceId") String instanceId, @QueryParam("subjectName") String subjectName, @QueryParam("subjectId") String subjectId, @QueryParam("location") String location, @QueryParam("language") String language, @QueryParam("dob") String dob) throws InvalidSessionRESTful {
         SessionTO sessionTO = getSessionTO(request);
 
         if (sessionTO != null && !StringUtils.isEmpty(instanceId)) {
-            String nonce = sproutFormsService.applyForNonce(sessionTO.getUser(), instanceId, subjectName, subjectId);
+            String nonce = sproutFormsService.applyForNonce(sessionTO.getUser(), instanceId, subjectName, subjectId, location, language, dob);
             if (nonce != null) return new NonceTO(nonce, instanceId);
         }
         return null;

@@ -147,9 +147,29 @@ angular.module('sproutStudyApp')
                     }
                 });
             }
+
+            if ($scope.enableSproutInboxLocationFilter()) {
+                studyService.getActiveSproutInboxLocations({}, function (data) {
+                    $scope.activeSproutInboxLocations = data;
+                });
+            }
+
         };
 
+        $scope.enableSproutInboxLocationFilter = function () {
+            var enableFilter = true;
+            if ($scope.columnMap) {
+                angular.forEach($scope.columnMap, function(column) {
+                    if (enableFilter && column && column.code == 'location') {
+                        if (column.filter !== undefined && column.filter == false) {
+                            enableFilter = false;
+                        }
+                    }
+                });
+            }
 
+            return enableFilter;
+        };
 
         // if ($scope.cohort() && $scope.cohort().)
 
@@ -229,6 +249,13 @@ angular.module('sproutStudyApp')
             $scope.allFormsFilterAssignment = undefined;
             $scope.filterChanged = true;
             $scope.getAllForms(9784);
+        };
+
+        $scope.showFilter = function (column) {
+            if (column) {
+                return typeof column.filter === 'undefined' || (typeof column.filter === 'boolean' && column.filter === true);
+            }
+            return false;
         };
 
         $scope.onResetFilters = function () {
@@ -943,10 +970,6 @@ angular.module('sproutStudyApp')
             $scope.activeSproutInboxStatuses = data;
         });
 
-        studyService.getActiveSproutInboxLocations({}, function(data) {
-            $scope.activeSproutInboxLocations = data;
-        });
-
         $scope.getAssignments = function() {
             studyService.getAssignments({"status": $scope.allFormsFilterStatus, "targetDate": $scope.targetDate}, function(data) {
                 $scope.assignments = data;
@@ -1410,16 +1433,20 @@ angular.module('sproutStudyApp')
             $scope.enableSearch();
 
             studyService.setSessionCohort({cohortId: cohort.id}, function(data) {
+                $scope.activeSproutInboxLocations = undefined;
+                $scope.initColumns();
+
                 studyService.getActiveSproutInboxStatuses({}, function(data) {
                     $scope.activeSproutInboxStatuses = data;
                 });
 
-                studyService.getActiveSproutInboxLocations({}, function(data) {
-                    $scope.activeSproutInboxLocations = data;
-                });
+                // if ($scope.enableSproutInboxLocationFilter()) {
+                //     studyService.getActiveSproutInboxLocations({}, function(data) {
+                //         $scope.activeSproutInboxLocations = data;
+                //     });
+                // }
 
                 $scope.getAssignments();
-                $scope.initColumns();
 
                 $scope.getCohortAuthorizations();
                 $scope.getStudyInbox();
@@ -1434,6 +1461,7 @@ angular.module('sproutStudyApp')
             $scope.recentCohortMembers = undefined;
             $scope.mutableForms = undefined;
             $scope.patientMatches = undefined;
+            $scope.activeSproutInboxLocations = undefined;
         }
 
         $scope.chooseCohortMember = function(subject) {
@@ -1508,7 +1536,18 @@ angular.module('sproutStudyApp')
             $scope.searchEnabled = false;
             $scope.getSubjectInbox();
 
-            formsService.applyForNonce({instanceId: form.instanceId, subjectName: subject.fullName, subjectId: subject.id}, function(data) {
+            console.log("onOpenMutableForm.form");
+            console.dir(form);
+
+
+            formsService.applyForNonce({
+                instanceId: form.instanceId
+                , subjectName: subject.fullName
+                , subjectId: subject.id
+                , location: form.location
+                , language: form.identityLanguage
+                , dob: form.identityDob
+            }, function(data) {
                 var nonce = data.nonce;
 //                var tabTitle = $scope.subject.prettyName + " (" + $scope.subject.id + ") - " + form.title;
 //                var tabTitle = form.title;

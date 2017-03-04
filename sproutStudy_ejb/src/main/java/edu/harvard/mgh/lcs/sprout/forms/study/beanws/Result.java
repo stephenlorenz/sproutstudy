@@ -14,6 +14,7 @@ public class Result implements Serializable {
     private String lastName;
     private String email;
     private String gender;
+    private String language;
     private Date birthDate;
 
     private List<Address> addresses;
@@ -30,6 +31,7 @@ public class Result implements Serializable {
                 ", lastName='" + lastName + '\'' +
                 ", email='" + email + '\'' +
                 ", gender='" + gender + '\'' +
+                ", language='" + language + '\'' +
                 ", birthDate=" + birthDate +
                 ", addresses=" + addresses +
                 ", identities=" + identities +
@@ -98,6 +100,14 @@ public class Result implements Serializable {
 
     public void setGender(String gender) {
         this.gender = gender;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
     }
 
     public Date getBirthDate() {

@@ -211,7 +211,7 @@
                                                 <span class="sortable" ng-click="allFormsChangeSort('instance_key')">{{column.name}}<i ng-class="allFormsSortClass('instance_key')" ng-style="{'margin-left': mutableFormsSortStyle('instance_key')}" ></i></span>
                                             </span>
                                             <span ng-switch-when="location">
-                                                <span class="dropdown sprout-dropdown-header">
+                                                <span class="dropdown sprout-dropdown-header" ng-show="showFilter(column)">
                                                     <span class="" ng-click="mutableFormsChangeSort('inboxLocation')">{{column.name}}<span ng-show="allFormsFilterLocation != null">:<br/><span class="badge badge-info">{{allFormsFilterLocation}}<span ng-click="clearFilterLocation()" style="margin-left: 5px;" class="sprout-study-badge-close"><i class="fa fa-times-circle"></i></span></span></span><i ng-class="allFormsSortClass('inboxLocation')" ng-style="{'margin-left': mutableFormsSortStyle('inboxLocation')}" ></i></span>
                                                     <a class="dropdown-toggle btn btn-mini" style="margin-left: 8px;"><b class="caret"></b></a>
                                                     <ul class="dropdown-menu">
@@ -221,6 +221,10 @@
                                                         </li>
                                                     </ul>
                                                 </span>
+                                                <span class="sortable" ng-show="!showFilter(column)">{{column.name}}</span>
+                                            </span>
+                                            <span ng-switch-when="language">
+                                                <span class="sortable">{{column.name}}</span>
                                             </span>
                                             <span ng-switch-when="deliveryDate">
                                                 <span class="sortable" ng-click="allFormsChangeSort('date_of_entry')">{{column.name}}<i ng-class="allFormsSortClass('date_of_entry')" ng-style="{'margin-left': mutableFormsSortStyle('date_of_entry')}" ></i></span>
@@ -354,6 +358,9 @@
                                             </span>
                                             <span ng-switch-when="location">
                                                 <span ng-click="form.locked || !form.mutable || onOpenMutableForm(form)">{{form.location}}</span>
+                                            </span>
+                                            <span ng-switch-when="language">
+                                                <span ng-click="form.locked || !form.mutable || onOpenMutableForm(form)">{{form.identityLanguage}}</span>
                                             </span>
                                             <span ng-switch-when="deliveryDate">
                                                 <span ng-click="form.locked || !form.mutable || onOpenMutableForm(form)">{{form.deliveryDate | date:'medium' }}</span>

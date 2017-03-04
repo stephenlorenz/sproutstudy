@@ -121,6 +121,7 @@ public class SproutFormsStatusMDB implements MessageListener {
                                             formInstanceTO.setIdentityDob(DateUtils.getXMLGregorianCalendarFromDate(result.getBirthDate()));
                                             formInstanceTO.setIdentityPrimarySchema(cohortTO.getCohortSubjectSchema());
                                             formInstanceTO.setIdentityPrimaryId(result.getId());
+                                            formInstanceTO.setIdentityLanguage(result.getLanguage());
                                             break;
                                         }
 
@@ -131,6 +132,7 @@ public class SproutFormsStatusMDB implements MessageListener {
                                     formInstanceTO.setIdentityFullName("Unknown");
                                     formInstanceTO.setIdentityPrimarySchema(cohortTO.getCohortSubjectSchema());
                                     formInstanceTO.setIdentityPrimaryId(subjectIds.toString());
+                                    formInstanceTO.setIdentityLanguage("English");
                                 }
                             }
                         }
@@ -251,6 +253,7 @@ public class SproutFormsStatusMDB implements MessageListener {
                                             formInstanceTO.setIdentityDob(DateUtils.getXMLGregorianCalendarFromDate(result.getBirthDate()));
                                             formInstanceTO.setIdentityPrimarySchema(cohortTO.getCohortSubjectSchema());
                                             formInstanceTO.setIdentityPrimaryId(result.getId());
+                                            formInstanceTO.setIdentityLanguage(result.getLanguage());
                                             break;
                                         }
 
@@ -261,6 +264,7 @@ public class SproutFormsStatusMDB implements MessageListener {
                                     formInstanceTO.setIdentityFullName("Unknown");
                                     formInstanceTO.setIdentityPrimarySchema(cohortTO.getCohortSubjectSchema());
                                     formInstanceTO.setIdentityPrimaryId(subjectIds.toString());
+                                    formInstanceTO.setIdentityLanguage("English");
                                 }
                             }
                         }
