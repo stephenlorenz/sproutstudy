@@ -274,42 +274,45 @@ angular.module('sproutStudyApp')
         };
 
         $scope.clearFilterForm = function () {
+            $scope.allFormsCurrentPage = 1;
+            $scope.allFormsFilterFormPublicationKey = null;
+            $scope.allFormsFilterFormTitle = null;
             $scope.allFormsFilterForm = null;
             $scope.allFormsFilterFormTitle = null;
             $scope.filterChanged = true;
             $scope.getAllForms(9786);
-        }
+        };
 
         $scope.clearFilterStatus = function () {
             $scope.allFormsFilterStatus = null;
             $scope.filterChanged = true;
             $scope.getAllForms(9787);
-        }
+        };
 
         $scope.clearFilterLocation = function () {
             $scope.allFormsFilterLocation = null;
             $scope.filterChanged = true;
             $scope.getAllForms(9788);
-        }
+        };
 
         $scope.applyIfPossible = function () {
             $timeout(function () {
             });
-        }
+        };
 
         $scope.allFormsFirstPage = function () {
             if ($scope.allFormsCurrentPage > 1) {
                 $scope.allFormsCurrentPage = 1;
                 $scope.getAllForms(9789);
             }
-        }
+        };
 
         $scope.allFormsNextPage = function () {
             if ($scope.allFormsCurrentPage < $scope.allFormsPageCount) {
                 $scope.allFormsCurrentPage++;
                 $scope.getAllForms(97810);
             }
-        }
+        };
 
         $scope.allFormsLastPage = function () {
             if ($scope.allFormsCurrentPage < $scope.allFormsPageCount) {

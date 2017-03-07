@@ -446,7 +446,7 @@
                             </div>
                         </div>
                         <div class="alert alert-info" ng-show="allForms == undefined && demographicFormContent == null && openingForm == false">Loading Forms...</div>
-                        <div class="alert alert-info" ng-show="allForms.length == 0 && demographicFormContent == null && openingForm == false">No forms found.</div>
+                        <div class="alert alert-info" ng-show="allForms.length == 0 && demographicFormContent == null && openingForm == false && allFormsFiltered.length > 0">No forms found.{{allFormsFiltered.length}}</div>
                     </div>
                 </div>
             </div>
