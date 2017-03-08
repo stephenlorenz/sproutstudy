@@ -484,10 +484,17 @@ angular.module('sproutStudyApp')
             if (item.inboxStatus !== undefined && item.inboxStatus == 'REVOKED') return false;
 
             if ($scope.allFormsFilterStatus !== undefined && $scope.allFormsFilterStatus !== null) {
+
+                // console.log("allFormsFilter: 1");
+
                 var tmpStatus = $scope.allFormsFilterStatus.replace(new RegExp(' ', 'g'), '_');
                 var tmpStatusAlt = $scope.allFormsFilterStatus.replace(new RegExp(' ', 'g'), '');
 
+                // console.log("allFormsFilter.item.inboxProxies: " + item.inboxProxies);
+
                 if (item.inboxProxies !== undefined && item.inboxProxies.length > 0) {
+                    // console.log("allFormsFilter: 2");
+                    //
                     // console.log("allFormsFilter.hasInboxProxies");
 
                     var hasMatch = false;
@@ -508,7 +515,7 @@ angular.module('sproutStudyApp')
                     }
                 } else {
                     // console.log("allFormsFilter.noInboxProxies: " + item.inboxStatus + " vs " + tmpStatus);
-                    if (item.inboxStatus != tmpStatus) return false;
+                    if (item.inboxStatus != tmpStatus && item.inboxStatus != tmpStatusAlt) return false;
                 }
             }
             if ($scope.allFormsFilterTargetDate !== undefined) {

@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import java.io.*;
 import java.net.URL;
+import java.nio.charset.Charset;
 
 import com.itextpdf.text.Document;
 import com.itextpdf.text.pdf.PdfWriter;
@@ -39,9 +40,9 @@ public class TestITextHtml2PdfConverter {
 //			document.add(img);
 
 
-			InputStream is = new ByteArrayInputStream(wrapHtml(html).getBytes());
+			InputStream is = new ByteArrayInputStream(wrapHtml(html).getBytes(Charset.forName("UTF-8")));
 //			InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
-			XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
+			XMLWorkerHelper.getInstance().parseXHtml(writer, document, is, Charset.forName("UTF-8"));
 			document.close();
 			file.close();
 		}
@@ -128,7 +129,7 @@ public class TestITextHtml2PdfConverter {
 			"\n" +
 			"<h3>Subject: Fred (Date of Birth: 10/10/1999)</h3>";
 
-	private String html = "<img src=\"https://static-s.aa-cdn.net/img/amazon/30600000033303/c936585ae53213b64a946f4fff17dc35?v=1\"></img>\n" +
+	private String html2 = "<img src=\"https://static-s.aa-cdn.net/img/amazon/30600000033303/c936585ae53213b64a946f4fff17dc35?v=1\"></img>\n" +
 			"<h1>Sample Narrative</h1>\n" +
 			"\n" +
 			"<h2>\n" +

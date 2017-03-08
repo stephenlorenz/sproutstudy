@@ -32,6 +32,8 @@ import javax.xml.transform.*;
 import javax.xml.transform.stream.StreamSource;
 import java.io.*;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -464,8 +466,8 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 				writer.setStrictImageSequence(true);
 				document.open();
 
-				InputStream is = new ByteArrayInputStream(wrapHtml(narrative).getBytes());
-				XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
+				InputStream is = new ByteArrayInputStream(wrapHtml(narrative).getBytes(Charset.forName("UTF-8")));
+				XMLWorkerHelper.getInstance().parseXHtml(writer, document, is, Charset.forName("UTF-8"));
 				document.close();
 
 				return outputStream.toByteArray();
@@ -501,8 +503,8 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 				writer.setStrictImageSequence(true);
 				document.open();
 
-				InputStream is = new ByteArrayInputStream(wrapHtml(narrative).getBytes());
-				XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
+				InputStream is = new ByteArrayInputStream(wrapHtml(narrative).getBytes(Charset.forName("UTF-8")));
+				XMLWorkerHelper.getInstance().parseXHtml(writer, document, is, Charset.forName("UTF-8"));
 				document.close();
 
 				return Base64.encode(outputStream.toByteArray()).toString();
@@ -536,8 +538,8 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 				writer.setStrictImageSequence(true);
 				document.open();
 
-				InputStream is = new ByteArrayInputStream(wrapHtml(narrative).getBytes());
-				XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
+				InputStream is = new ByteArrayInputStream(wrapHtml(narrative).getBytes(Charset.forName("UTF-8")));
+				XMLWorkerHelper.getInstance().parseXHtml(writer, document, is, Charset.forName("UTF-8"));
 				document.close();
 
 				ContentTO contentTO = new ContentTO();
