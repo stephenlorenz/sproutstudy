@@ -179,6 +179,7 @@ angular.module('sproutStudyApp')
         $scope.formFilterRule = undefined;
         $scope.statusesIncomplete = null;
         $scope.allFormsFilterStatus = null;
+        $scope.allFormsFilterStatuses = null;
         $scope.allFormsFilterAssignment = undefined;
         $scope.allFormsFilterTargetDate = undefined;
         $scope.allFormsFilterTargetDateProxy = undefined;
@@ -260,6 +261,7 @@ angular.module('sproutStudyApp')
 
         $scope.onResetFilters = function () {
             $scope.allFormsFilterStatus = null;
+            $scope.allFormsFilterStatuses = null;
             $scope.allFormsFilterAssignment = undefined;
             $scope.allFormsFilterTargetDate = undefined;
             $scope.allFormsFilterTargetDateProxy = undefined;
@@ -285,6 +287,7 @@ angular.module('sproutStudyApp')
 
         $scope.clearFilterStatus = function () {
             $scope.allFormsFilterStatus = null;
+            $scope.allFormsFilterStatuses = null;
             $scope.filterChanged = true;
             $scope.getAllForms(9787);
         };
@@ -329,74 +332,126 @@ angular.module('sproutStudyApp')
         };
 
         $scope.getUserPreferences = function () {
-            studyService.getUserPreferences({}, function (data) {
-                var updatedFilter = false;
-                $.each(data, function (index, preference) {
-                    if (preference.name == 'FORM_FILTER_FORM') {
-                        if (preference.value !== undefined && preference.value !== null && preference.value != 'null' && preference.value != 'undefined' && preference.value != '') {
-                            //$scope.allFormsFilterForm = preference.value;
+            studyService.getActiveSproutInboxStatuses({}, function(data) {
+                $scope.activeSproutInboxStatuses = data;
 
-                            var formParts = preference.value.split(":");
+                studyService.getUserPreferences({}, function (data) {
+                    var updatedFilter = false;
+                    $.each(data, function (index, preference) {
+                        if (preference.name == 'FORM_FILTER_FORM') {
+                            if (preference.value !== undefined && preference.value !== null && preference.value != 'null' && preference.value != 'undefined' && preference.value != '') {
+                                //$scope.allFormsFilterForm = preference.value;
 
-                            if (formParts !== null && formParts.length == 2) {
-                                $scope.allFormsFilterFormPublicationKey = formParts[0];
-                                $scope.allFormsFilterFormTitle = formParts[1];
+                                var formParts = preference.value.split(":");
+
+                                if (formParts !== null && formParts.length == 2) {
+                                    $scope.allFormsFilterFormPublicationKey = formParts[0];
+                                    $scope.allFormsFilterFormTitle = formParts[1];
+                                    updatedFilter = true;
+                                }
+                            }
+                        } else if (preference.name == 'FORM_FILTER_STATUS') {
+                            if (preference.value !== undefined && preference.value !== null && preference.value != 'null' && preference.value != 'undefined' && preference.value != '') {
+                                var statuses = preference.value;
+                                if (statuses) {
+                                    $scope.allFormsFilterStatuses = [];
+                                    if (statuses.indexOf(",") >= 0) {
+                                        var statusesArray = statuses.split(",");
+                                        if (statusesArray && statusesArray.length > 0) {
+                                            if ($scope.activeSproutInboxStatuses && $scope.activeSproutInboxStatuses.length > 0) {
+                                                angular.forEach($scope.activeSproutInboxStatuses, function (statusTmp) {
+                                                    angular.forEach(statusesArray, function (status) {
+
+                                                        var tmpStatus = statusTmp.value.replace(new RegExp(' ', 'g'), '_');
+                                                        var tmpStatusAlt = statusTmp.value.replace(new RegExp(' ', 'g'), '');
+
+                                                        if (status == statusTmp.value || status == tmpStatus || status == tmpStatusAlt) {
+                                                            $scope.allFormsFilterStatuses.push(statusTmp);
+                                                            statusTmp.filter = true;
+                                                            updatedFilter = true;
+                                                        }
+                                                    })
+                                                });
+                                            }
+                                        }
+                                    } else {
+                                        if ($scope.activeSproutInboxStatuses && $scope.activeSproutInboxStatuses.length > 0) {
+                                            angular.forEach($scope.activeSproutInboxStatuses, function (statusTmp) {
+
+                                                var tmpStatus = statusTmp.value.replace(new RegExp(' ', 'g'), '_');
+                                                var tmpStatusAlt = statusTmp.value.replace(new RegExp(' ', 'g'), '');
+
+                                                if (preference.value == statusTmp.value || preference.value == tmpStatus || preference.value == tmpStatusAlt) {
+                                                    $scope.allFormsFilterStatuses.push(statusTmp);
+                                                    statusTmp.filter = true;
+                                                    updatedFilter = true;
+                                                }
+                                            })
+                                        }
+                                    }
+                                }
+                            }
+                        } else if (preference.name == 'FORM_FILTER_LOCATION') {
+                            if (preference.value !== undefined && preference.value !== null && preference.value != 'null' && preference.value != 'undefined' && preference.value != '') {
+                                $scope.allFormsFilterLocation = preference.value;
                                 updatedFilter = true;
                             }
-                        }
-                    } else if (preference.name == 'FORM_FILTER_STATUS') {
-                        if (preference.value !== undefined && preference.value !== null && preference.value != 'null' && preference.value != 'undefined' && preference.value != '') {
-                            $scope.allFormsFilterStatus = preference.value;
-                            updatedFilter = true;
-                        }
-                    } else if (preference.name == 'FORM_FILTER_LOCATION') {
-                        if (preference.value !== undefined && preference.value !== null && preference.value != 'null' && preference.value != 'undefined' && preference.value != '') {
-                            $scope.allFormsFilterLocation = preference.value;
-                            updatedFilter = true;
-                        }
-                    } else if (preference.name == 'FORM_FILTER_ASSIGNED_TO') {
-                        if (preference.value !== undefined && preference.value !== null && preference.value != 'null' && preference.value != 'undefined' && preference.value != '') {
-                            $scope.allFormsFilterAssignment = preference.value;
+                        } else if (preference.name == 'FORM_FILTER_ASSIGNED_TO') {
+                            if (preference.value !== undefined && preference.value !== null && preference.value != 'null' && preference.value != 'undefined' && preference.value != '') {
+                                $scope.allFormsFilterAssignment = preference.value;
 
 
-                            if ($scope.assignments !== null) {
-                                $.each($scope.assignments, function (index, assignment) {
-                                    if (assignment.value == preference.value) {
-                                        $scope.allFormsFilterAssignment = assignment;
-                                    }
-                                });
-                                updatedFilter = true;
-
-                            } else {
-                                studyService.getAssignments({
-                                    "status": $scope.allFormsFilterStatus,
-                                    "targetDate": $scope.targetDate
-                                }, function (assignments) {
-                                    $.each(assignments, function (index, assignment) {
+                                if ($scope.assignments !== null) {
+                                    $.each($scope.assignments, function (index, assignment) {
                                         if (assignment.value == preference.value) {
                                             $scope.allFormsFilterAssignment = assignment;
-                                            $scope.getAllForms(97813);
                                         }
                                     });
-                                });
-                            }
+                                    updatedFilter = true;
 
+                                } else {
+                                    var statuses = [];
+
+                                    if ($scope.allFormsFilterStatuses && $scope.allFormsFilterStatuses.length > 0) {
+                                        angular.forEach($scope.allFormsFilterStatuses, function(status) {
+                                            statuses.push(status.value);
+                                        });
+                                    }
+
+                                    studyService.getAssignments({
+                                        "status": statuses,
+                                        "targetDate": $scope.targetDate
+                                    }, function (assignments) {
+                                        $.each(assignments, function (index, assignment) {
+                                            if (assignment.value == preference.value) {
+                                                $scope.allFormsFilterAssignment = assignment;
+                                                $scope.getAllForms(97813);
+                                            }
+                                        });
+                                    });
+                                }
+
+                            }
+                        } else if (preference.name == 'FORM_FILTER_STUDY_DATE') {
+                            if (preference.value !== undefined && preference.value !== null && preference.value != 'null' && preference.value != 'undefined' && preference.value != '') {
+                                $scope.allFormsFilterTargetDate = preference.value;
+                                updatedFilter = true;
+                            }
+                        } else if (preference.name == 'USER_PREFERENCE_DEFAULT_TAB') {
+                            if (preference.value !== undefined && preference.value !== null && preference.value != 'null' && preference.value != 'undefined' && preference.value != '') {
+                                $scope.defaultTab = preference.value;
+                            }
                         }
-                    } else if (preference.name == 'FORM_FILTER_STUDY_DATE') {
-                        if (preference.value !== undefined && preference.value !== null && preference.value != 'null' && preference.value != 'undefined' && preference.value != '') {
-                            $scope.allFormsFilterTargetDate = preference.value;
-                            updatedFilter = true;
-                        }
-                    } else if (preference.name == 'USER_PREFERENCE_DEFAULT_TAB') {
-                        if (preference.value !== undefined && preference.value !== null && preference.value != 'null' && preference.value != 'undefined' && preference.value != '') {
-                            $scope.defaultTab = preference.value;
-                        }
-                    }
+                    });
+                    //if (updatedFilter) {
+                    $scope.getAllForms(97814);
+                    //}
                 });
-                //if (updatedFilter) {
-                $scope.getAllForms(97814);
-                //}
+
+
             });
+
+
         };
 
         $scope.setInitialTab = function (tab) {
@@ -407,10 +462,19 @@ angular.module('sproutStudyApp')
         $scope.getUserPreferences();
 
         $scope.setSessionFormFilter = function () {
+
+            var statuses = [];
+
+            if ($scope.allFormsFilterStatuses && $scope.allFormsFilterStatuses.length > 0) {
+                angular.forEach($scope.allFormsFilterStatuses, function(status) {
+                    statuses.push(status.value);
+                });
+            }
+
             studyService.setSessionFormFilter({
                 "formFilter": ($scope.allFormsFilterFormPublicationKey !== null && $scope.allFormsFilterForm !== undefined && $scope.allFormsFilterForm.length > 0) ? $scope.allFormsFilterFormPublicationKey + ":" + $scope.allFormsFilterForm : null,
                 "assignmentFilter": $scope.allFormsFilterAssignment !== undefined ? $scope.allFormsFilterAssignment.value : $scope.allFormsFilterAssignment,
-                "statusFilter": $scope.allFormsFilterStatus,
+                "statusFilter": statuses,
                 "locationFilter": $scope.allFormsFilterLocation,
                 "targetDateFilter": $scope.allFormsFilterTargetDate
             }, function (data) {
@@ -483,12 +547,12 @@ angular.module('sproutStudyApp')
 
             if (item.inboxStatus !== undefined && item.inboxStatus == 'REVOKED') return false;
 
-            if ($scope.allFormsFilterStatus !== undefined && $scope.allFormsFilterStatus !== null) {
+            if ($scope.allFormsFilterStatuses !== undefined && $scope.allFormsFilterStatuses !== null && $scope.allFormsFilterStatuses.length > 0) {
 
                 // console.log("allFormsFilter: 1");
 
-                var tmpStatus = $scope.allFormsFilterStatus.replace(new RegExp(' ', 'g'), '_');
-                var tmpStatusAlt = $scope.allFormsFilterStatus.replace(new RegExp(' ', 'g'), '');
+                // var tmpStatus = $scope.allFormsFilterStatus.replace(new RegExp(' ', 'g'), '_');
+                // var tmpStatusAlt = $scope.allFormsFilterStatus.replace(new RegExp(' ', 'g'), '');
 
                 // console.log("allFormsFilter.item.inboxProxies: " + item.inboxProxies);
 
@@ -501,21 +565,59 @@ angular.module('sproutStudyApp')
                     $.each(item.inboxProxies, function (index, proxy) {
 
                         // console.log("proxy.status == tmpStatus: " + proxy.status  + " vs " +  tmpStatus + " || " + $scope.allFormsFilterStatus);
-                        if (proxy.status == tmpStatus || proxy.status == $scope.allFormsFilterStatus) {
-                            // console.log("hasMatch: returning true");
-                            hasMatch = true;
-                        }
+
+                        angular.forEach($scope.allFormsFilterStatuses, function(status) {
+
+                            var tmpStatus = status.value.replace(new RegExp(' ', 'g'), '_');
+                            var tmpStatusxAlt = status.value.replace(new RegExp(' ', 'g'), '');
+
+                            // if (proxy.status == tmpStatus || proxy.status == $scope.allFormsFilterStatus) {
+                            if (proxy.status == tmpStatus || proxy.status == tmpStatusxAlt) {
+                                // console.log("hasMatch: returning true");
+                                hasMatch = true;
+                            }
+
+                        });
+
+
                     });
                     if (!hasMatch) {
-                        if (item.inboxStatus != tmpStatus && item.inboxStatus != tmpStatusAlt) {
-                            // console.log("item.inboxStatus != tmpStatus: " + item.inboxStatus + " vs " +  tmpStatus);
-                            // console.log("!hasMatch: returning false");
-                            return false;
-                        }
+
+                        var hasMatch = false;
+
+                        angular.forEach($scope.allFormsFilterStatuses, function(status) {
+
+                            var tmpStatus = status.value.replace(new RegExp(' ', 'g'), '_');
+                            var tmpStatusAlt = status.value.replace(new RegExp(' ', 'g'), '');
+
+
+                            if (item.inboxStatus == tmpStatus || item.inboxStatus == tmpStatusAlt) {
+                                // console.log("item.inboxStatus != tmpStatus: " + item.inboxStatus + " vs " +  tmpStatus);
+                                // console.log("!hasMatch: returning false");
+                                hasMatch = true;
+                            }
+
+                        });
+                        if (!hasMatch) return false;
+
                     }
                 } else {
                     // console.log("allFormsFilter.noInboxProxies: " + item.inboxStatus + " vs " + tmpStatus);
-                    if (item.inboxStatus != tmpStatus && item.inboxStatus != tmpStatusAlt) return false;
+                    // if (item.inboxStatus != tmpStatus && item.inboxStatus != tmpStatusAlt) return false;
+
+                    var hasMatch = false;
+
+                    angular.forEach($scope.allFormsFilterStatuses, function(status) {
+
+                        var tmpStatus = status.value.replace(new RegExp(' ', 'g'), '_');
+                        var tmpStatusAlt = status.value.replace(new RegExp(' ', 'g'), '');
+
+                        if (item.inboxStatus == tmpStatus || item.inboxStatus == tmpStatusAlt) {
+                            hasMatch = true;
+                        }
+                    });
+                    if (!hasMatch) return false;
+
                 }
             }
             if ($scope.allFormsFilterTargetDate !== undefined) {
@@ -651,6 +753,54 @@ angular.module('sproutStudyApp')
         studyService.getSession({}, function (data) {
             sessionService.setSession(data);
         });
+
+        $scope.removeFilterStatus = function(status) {
+            angular.forEach($scope.activeSproutInboxStatuses, function (activeStatus) {
+                if (activeStatus.value == status.value) {
+                    activeStatus.filter = false;
+                }
+            });
+
+            $scope.rebuildAllStatuses();
+        };
+
+        $scope.statusFilterChanged = false;
+
+        $scope.rebuildAllStatuses = function () {
+            var statuses = undefined;
+
+            angular.forEach($scope.activeSproutInboxStatuses, function (activeStatus) {
+                if (activeStatus.filter) {
+                    if (!statuses) statuses = [];
+                    statuses.push(activeStatus);
+                }
+            });
+
+            $scope.allFormsCurrentPage = 1;
+            if (statuses !== undefined) {
+                $scope.allFormsFilterStatuses = statuses;
+            } else {
+                $scope.allFormsFilterStatuses = undefined;
+            }
+            $scope.filterChanged = true;
+            $scope.getAllForms(97817);
+            $scope.statusFilterChanged = false;
+        };
+
+        $scope.applyStatusFilter = function() {
+            $scope.rebuildAllStatuses();
+        }
+
+        $scope.toggleStatusFilter = function ($event, status) {
+            $event.stopPropagation();
+            angular.forEach($scope.activeSproutInboxStatuses, function (activeStatus) {
+                if (activeStatus.value == status.value) {
+                    activeStatus.filter = !activeStatus.filter;
+                }
+            });
+            $scope.statusFilterChanged = true;
+
+        };
 
 
         $scope.getAuthorizedCohorts = function () {
@@ -944,14 +1094,13 @@ angular.module('sproutStudyApp')
         };
 
         $scope.onFilterByStatusAll = function(status) {
-            $scope.allFormsCurrentPage = 1;
-            if (status !== undefined) {
-                $scope.allFormsFilterStatus = status.name;
-            } else {
-                $scope.allFormsFilterStatus = null;
-            }
-            $scope.filterChanged = true;
-            $scope.getAllForms(97817);
+            angular.forEach($scope.activeSproutInboxStatuses, function (activeStatus) {
+                if (activeStatus.filter) {
+                    activeStatus.filter = false;
+                }
+            });
+
+            $scope.rebuildAllStatuses();
         };
 
         $scope.onFilterByLocationAll = function(location) {
@@ -1000,11 +1149,19 @@ angular.module('sproutStudyApp')
             //    $scope.allFormsPageCount = data;
             //});
 
-            studyService.getAllFormsMetadata({rows: $scope.allFormsRowsPerPage, form: $scope.allFormsFilterFormPublicationKey, status: $scope.allFormsFilterStatus, location: $scope.allFormsFilterLocation, targetDate: $scope.allFormsFilterTargetDate !== undefined && $scope.allFormsFilterTargetDate == 'today' ? $scope.getTodayAsDateString() : $scope.allFormsFilterTargetDate, assignment: $scope.allFormsFilterAssignment !== undefined && $scope.allFormsFilterAssignment.value !== undefined ? $scope.allFormsFilterAssignment.value : null}, function(data) {
+            var statuses = [];
+
+            if ($scope.allFormsFilterStatuses && $scope.allFormsFilterStatuses.length > 0) {
+                angular.forEach($scope.allFormsFilterStatuses, function(status) {
+                   statuses.push(status.value);
+                });
+            }
+
+            studyService.getAllFormsMetadata({rows: $scope.allFormsRowsPerPage, form: $scope.allFormsFilterFormPublicationKey, status: statuses, location: $scope.allFormsFilterLocation, targetDate: $scope.allFormsFilterTargetDate !== undefined && $scope.allFormsFilterTargetDate == 'today' ? $scope.getTodayAsDateString() : $scope.allFormsFilterTargetDate, assignment: $scope.allFormsFilterAssignment !== undefined && $scope.allFormsFilterAssignment.value !== undefined ? $scope.allFormsFilterAssignment.value : null}, function(data) {
                 $scope.allFormsMetadata = data;
                 $scope.allFormsPageCount = data.count;
 
-                studyService.getAllForms({page: $scope.allFormsCurrentPage, rows: $scope.allFormsRowsPerPage, orderBy: $scope.allFormsOrderBy, orderDirection: $scope.allFormsOrderDirection, form: $scope.allFormsFilterFormPublicationKey, status: $scope.allFormsFilterStatus, location: $scope.allFormsFilterLocation, targetDate: $scope.allFormsMetadata.hasStudyDates ? $scope.allFormsFilterTargetDate !== undefined && $scope.allFormsFilterTargetDate == 'today' ? $scope.getTodayAsDateString() : $scope.allFormsFilterTargetDate : null, assignment: $scope.allFormsFilterAssignment !== undefined && $scope.allFormsFilterAssignment.value !== undefined ? $scope.allFormsFilterAssignment.value : null}, function(data) {
+                studyService.getAllForms({page: $scope.allFormsCurrentPage, rows: $scope.allFormsRowsPerPage, orderBy: $scope.allFormsOrderBy, orderDirection: $scope.allFormsOrderDirection, form: $scope.allFormsFilterFormPublicationKey, status: statuses, location: $scope.allFormsFilterLocation, targetDate: $scope.allFormsMetadata.hasStudyDates ? $scope.allFormsFilterTargetDate !== undefined && $scope.allFormsFilterTargetDate == 'today' ? $scope.getTodayAsDateString() : $scope.allFormsFilterTargetDate : null, assignment: $scope.allFormsFilterAssignment !== undefined && $scope.allFormsFilterAssignment.value !== undefined ? $scope.allFormsFilterAssignment.value : null}, function(data) {
 //                $scope.allFormsFilterFormPublicationKey = null;
 
                     $scope.allForms = data;

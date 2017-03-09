@@ -185,6 +185,11 @@
                                 <!--<pre>{{columnMap|json}}</pre>-->
                             <!--</div>-->
 
+                            <!--<div class="well">-->
+                                <!--<h3>statusFilter:</h3>-->
+                                <!--<pre>{{activeSproutInboxStatuses|json}}</pre>-->
+                            <!--</div>-->
+
                             <table class="table table-condensed table-striped" >
                                 <thead class="inbox">
                                 <tr ng-show="columnMap">
@@ -243,14 +248,35 @@
                                             </span>
                                             <span ng-switch-when="status">
                                                 <span class="dropdown sprout-dropdown-header">
-                                                    <span class="" ng-click="mutableFormsChangeSort('inboxStatus')">{{column.name}}<span ng-show="allFormsFilterStatus != null">:<br/><span class="badge badge-info">{{allFormsFilterStatus}}<span ng-click="clearFilterStatus()" style="margin-left: 5px;" class="sprout-study-badge-close"><i class="fa fa-times-circle"></i></span></span></span><i ng-class="allFormsSortClass('inboxStatus')" ng-style="{'margin-left': mutableFormsSortStyle('inboxStatus')}" ></i></span>
+                                                    <span class="" ng-click="mutableFormsChangeSort('inboxStatus')">{{column.name}}<span ng-show="allFormsFilterStatuses">:
+                                                        <span ng-repeat="status in allFormsFilterStatuses">
+                                                            <br/><span class="badge badge-info">{{status.name}}<span ng-click="removeFilterStatus(status)" style="margin-left: 5px;" class="sprout-study-badge-close"><i class="fa fa-times-circle"></i></span></span>
+                                                        </span>
+
+
+
+                                                        </span><i ng-class="allFormsSortClass('inboxStatus')" ng-style="{'margin-left': mutableFormsSortStyle('inboxStatus')}" ></i></span>
                                                     <a class="dropdown-toggle btn btn-mini" style="margin-left: 8px;"><b class="caret"></b></a>
                                                     <ul class="dropdown-menu">
                                                         <li><a ng-click="onFilterByStatusAll()" ng-show="activeSproutInboxStatuses.length > 0" prevent-default>ALL STATUSES</a></li>
+
+
                                                         <li ng-repeat="status in activeSproutInboxStatuses">
-                                                            <a ng-click="onFilterByStatusAll(status)" prevent-default>{{status.name}}</a>
+                                                            <a ng-href="" ng-click="toggleStatusFilter($event, status)" class="small" data-value="status" tabIndex="-1">
+                                                                <i class="fa fa-square-o" aria-hidden="true" ng-show="!status.filter"></i>
+                                                                <i class="fa fa-check-square-o" aria-hidden="true" ng-show="status.filter"></i>
+                                                                &nbsp;{{status.name}}</a>
                                                         </li>
+
+                                                        <!--<li ng-repeat="status in activeSproutInboxStatuses">-->
+                                                            <!--<a ng-click="onFilterByStatusAll(status)" prevent-default>{{status.name}}</a>-->
+                                                        <!--</li>-->
+
+                                                        <button class="btn btn-small" ng-class="{'btn-primary': statusFilterChanged}" style="margin: 15px;" ng-click="applyStatusFilter()" ng-disabled="!statusFilterChanged">Apply Filters</button>
+
                                                     </ul>
+
+
                                                 </span>
                                             </span>
                                             <span ng-switch-when="studyDate">
@@ -312,14 +338,45 @@
                                     </th>
                                     <th>
                                         <span class="dropdown sprout-dropdown-header">
-                                            <span class="" ng-click="mutableFormsChangeSort('inboxStatus')">Status<span ng-show="allFormsFilterStatus != null">:<br/><span class="badge badge-info">{{allFormsFilterStatus}}<span ng-click="clearFilterStatus()" style="margin-left: 5px;" class="sprout-study-badge-close"><i class="fa fa-times-circle"></i></span></span></span><i ng-class="allFormsSortClass('inboxStatus')" ng-style="{'margin-left': mutableFormsSortStyle('inboxStatus')}" ></i></span>
+                                            <span class="" ng-click="mutableFormsChangeSort('inboxStatus')">Status<span
+                                                    ng-show="allFormsFilterStatuses">:
+                                                <span ng-repeat="status in allFormsFilterStatuses">
+                                                    <br/><span class="badge badge-info">{{status.name}}<span
+                                                        ng-click="removeFilterStatus(status)" style="margin-left: 5px;"
+                                                        class="sprout-study-badge-close"><i
+                                                        class="fa fa-times-circle"></i></span></span>
+                                                </span>
+
+
+
+                                                </span><i ng-class="allFormsSortClass('inboxStatus')"
+                                                          ng-style="{'margin-left': mutableFormsSortStyle('inboxStatus')}"></i></span>
                                             <a class="dropdown-toggle btn btn-mini" style="margin-left: 8px;"><b class="caret"></b></a>
                                             <ul class="dropdown-menu">
                                                 <li><a ng-click="onFilterByStatusAll()" ng-show="activeSproutInboxStatuses.length > 0" prevent-default>ALL STATUSES</a></li>
+
+
                                                 <li ng-repeat="status in activeSproutInboxStatuses">
-                                                    <a ng-click="onFilterByStatusAll(status)" prevent-default>{{status.name}}</a>
+                                                    <a ng-href="" ng-click="toggleStatusFilter($event, status)" class="small" data-value="status" tabIndex="-1">
+                                                        <i class="fa fa-square-o" aria-hidden="true" ng-show="!status.filter"></i>
+                                                        <i class="fa fa-check-square-o" aria-hidden="true" ng-show="status.filter"></i>
+                                                        &nbsp;{{status.name}}</a>
                                                 </li>
+
+                                                <!--<li ng-repeat="status in activeSproutInboxStatuses">-->
+                                                <!--<a ng-click="onFilterByStatusAll(status)" prevent-default>{{status.name}}</a>-->
+                                                <!--</li>-->
+
+                                                <button class="btn btn-small" ng-class="{'btn-primary': statusFilterChanged}" style="margin: 15px;" ng-click="applyStatusFilter()" ng-disabled="!statusFilterChanged">Apply Filters</button>
+
                                             </ul>
+
+                                            <!--<ul class="dropdown-menu">-->
+                                                <!--<li><a ng-click="onFilterByStatusAll()" ng-show="activeSproutInboxStatuses.length > 0" prevent-default>ALL STATUSES</a></li>-->
+                                                <!--<li ng-repeat="status in activeSproutInboxStatuses">-->
+                                                    <!--<a ng-click="onFilterByStatusAll(status)" prevent-default>{{status.name}}</a>-->
+                                                <!--</li>-->
+                                            <!--</ul>-->
                                         </span>
                                     </th>
                                     <th ng-show="allFormsMetadata.hasStudyDates || allFormsFilterTargetDate != null">
