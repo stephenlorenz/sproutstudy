@@ -1025,6 +1025,15 @@ angular.module('sproutStudyApp')
                 $scope.allFormsOrderBy = '';
                 $scope.sortBySubject = true;
                 $scope.allFormsOrderByNg = ascdesc + 'identityFullName';
+            } else if (column == 'location') {
+                var ascdesc = "";
+                if ($scope.allFormsOrderByNg == 'location') {
+                    ascdesc = "-";
+                } else if ($scope.allFormsOrderByNg == '-location') {
+                    ascdesc = "";
+                }
+                $scope.allFormsOrderByNg = ascdesc + 'location';
+                tmpOrderByColumn = "location";
             } else if (column == 'date_of_entry') {
                 var ascdesc = "";
                 if ($scope.allFormsOrderByNg == 'deliveryDate') {

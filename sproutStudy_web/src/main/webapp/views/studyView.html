@@ -226,10 +226,10 @@
                                                         </li>
                                                     </ul>
                                                 </span>
-                                                <span class="sortable" ng-show="!showFilter(column)">{{column.name}}</span>
+                                                <span class="sortable" ng-click="allFormsChangeSort('location')" ng-show="!showFilter(column)">{{column.name}}<i ng-class="allFormsSortClass('location')" ng-style="{'margin-left': mutableFormsSortStyle('location')}" ></i></span>
                                             </span>
                                             <span ng-switch-when="language">
-                                                <span class="sortable">{{column.name}}</span>
+                                                <span>{{column.name}}</span>
                                             </span>
                                             <span ng-switch-when="deliveryDate">
                                                 <span class="sortable" ng-click="allFormsChangeSort('date_of_entry')">{{column.name}}<i ng-class="allFormsSortClass('date_of_entry')" ng-style="{'margin-left': mutableFormsSortStyle('date_of_entry')}" ></i></span>
