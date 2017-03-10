@@ -1,27 +1,61 @@
 package edu.harvard.mgh.lcs.sprout.forms.study.bean;
 
-import com.itextpdf.text.Image;
-import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.FontFactory;
+import com.itextpdf.text.html.simpleparser.HTMLWorker;
+import com.itextpdf.text.html.simpleparser.StyleSheet;
+import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.tool.xml.XMLWorkerFontProvider;
+import com.itextpdf.tool.xml.XMLWorkerHelper;
+import com.itextpdf.tool.xml.html.CssAppliers;
+import com.itextpdf.tool.xml.html.CssAppliersImpl;
+import com.itextpdf.tool.xml.html.Tags;
+import com.itextpdf.tool.xml.pipeline.html.HtmlPipelineContext;
 import edu.harvard.mgh.lcs.sprout.forms.study.util.StringUtils;
-import org.bouncycastle.asn1.DERBitString;
 import org.junit.Test;
 
 import java.io.*;
-import java.net.URL;
 import java.nio.charset.Charset;
-
-import com.itextpdf.text.Document;
-import com.itextpdf.text.pdf.PdfWriter;
-import com.itextpdf.tool.xml.XMLWorkerHelper;
-import org.w3c.tidy.Tidy;
 
 public class TestITextHtml2PdfConverter {
 
 	@Test
 	public void test() {
 
+		try {
+			createPdf("/Users/slorenz/Desktop/HTMLtoPDF.pdf");
+			createPdf2("/Users/slorenz/Desktop/HTMLtoPDF2.pdf");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+/*
+	@Test
+	public void test() {
+
 		try
 		{
+
+
+
+
+
+
+//			String s = "Vous êtes d'où?";
+//			System.out.print("\"");
+//			for (int i = 0; i < s.length(); i++) {
+//				char c = s.charAt(i);
+//				if (c > 31 && c < 127)
+//					System.out.print(String.valueOf(c));
+//				else
+//					System.out.print(String.format("\\u%04x", (int)c));
+//			}
+//			System.out.println("\"");
+
+			createPdf("/Users/slorenz/Desktop/HTMLtoPDF2.pdf");
+
 			OutputStream file = new FileOutputStream(new File("/Users/slorenz/Desktop/HTMLtoPDF.pdf"));
 			Document document = new Document();
 			PdfWriter writer = PdfWriter.getInstance(document, file);
@@ -51,6 +85,138 @@ public class TestITextHtml2PdfConverter {
 			e.printStackTrace();
 		}
 
+	}
+*/
+
+	public void createPdf(String fileName) throws IOException, DocumentException {
+		// step 1
+		Document document = new Document();
+		// step 2
+		OutputStream file = new FileOutputStream(new File(fileName));
+		PdfWriter writer = PdfWriter.getInstance(document, file);
+
+		document.open();
+
+		String str = "<html><head>" +
+				"<style>" +
+				"ul {\n" +
+				"   list-style: none;\n" +
+				"   margin-left: 0;\n" +
+				"   padding-left: 1em;\n" +
+				"   text-indent: -1em;\n" +
+				"}" +
+				"</style>" +
+				"" +
+				"" +
+				"" +
+				"</head><body style=\"font-size:12.0pt; font-family:Arial; encoding: Identity-H\">"+
+				"<h1>Pets: \u2713 &#10003; \u2610 \u2611 \u00B6 \u0104.</h1>" +
+				"<ul>" +
+				"<li>\u2713 Cats</li>" +
+				"<li>\u2610 Dogs</li>" +
+				"<li>\u2713 Fish</li>" +
+				"</ul>" +
+				"</body></html>";
+
+		writer.setStrictImageSequence(true);
+//			StringBuilder htmlString = new StringBuilder();
+//			htmlString.append(new String("<html><body> This is HMTL to PDF conversion Example<table border='2' align='center'> "));
+//			htmlString.append(new String("<tr><td>JavaCodeGeeks</td><td><a href='examples.javacodegeeks.com'>JavaCodeGeeks</a> </td></tr>"));
+//			htmlString.append(new String("<tr> <td> Google Here </td> <td><a href='https://www.google.com'>Google</a> </td> </tr></table></body></html>"));
+
+//			Image img = Image.getInstance(new URL("http://deltamultimediaservices.com/wp-content/uploads/2014/10/Medical-Banner.jpg"));
+//			img.scaleToFit(300, 200);
+//			document.add(new Paragraph("Sample 1: This is simple image demo."));
+//			document.add(img);
+
+		FontFactory.register("ufonts.com_arial-unicode-ms.ttf",  "Arial");   // just give a path of arial.ttf
+		StyleSheet css = new StyleSheet();
+		css.loadTagStyle("body", "face", "Arial");
+		css.loadTagStyle("body", "encoding", "Identity-H");
+		css.loadTagStyle("body", "size", "10pt");
+
+//		hw.setStyleSheet(css);
+
+//		System.out.println("TestITextHtml2PdfConverter.createPdf.css: " + css.);
+
+
+		ByteArrayInputStream cis =
+				new ByteArrayInputStream(css.toString().getBytes());
+//		XMLWorkerHelper.getInstance().parseXHtml(writer, document, bis, cis);
+
+		XMLWorkerFontProvider fontProvider = new XMLWorkerFontProvider(XMLWorkerFontProvider.DONTLOOKFORFONTS);
+		fontProvider.register("ufonts.com_arial-unicode-ms.ttf");
+//		fontProvider.register("resources/fonts/Cardo-Bold.ttf");
+//		fontProvider.register("resources/fonts/Cardo-Italic.ttf");
+		CssAppliers cssAppliers = new CssAppliersImpl(fontProvider);
+		HtmlPipelineContext htmlContext = new HtmlPipelineContext(cssAppliers);
+		htmlContext.setTagFactory(Tags.getHtmlTagProcessorFactory());
+
+		InputStream is = new ByteArrayInputStream(wrapHtml(str).getBytes(Charset.forName("UTF-8")));
+//			InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
+		XMLWorkerHelper.getInstance().parseXHtml(writer, document, is, cis, Charset.forName("UTF-8"), fontProvider);
+		document.close();
+		file.close();
+
+	}
+
+	public void createPdf2(String file) throws IOException, DocumentException {
+		// step 1
+		Document document = new Document();
+		// step 2
+		PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(file));
+//		writer.getAcroForm().setNeedAppearances(true);
+		// step 3
+		document.open();
+
+		String str = "<html><head>" +
+				"<style>" +
+				"ul {\n" +
+				"   list-style: none;\n" +
+				"   margin-left: 0;\n" +
+				"   padding-left: 1em;\n" +
+				"   text-indent: -1em;\n" +
+				"}" +
+				"</style>" +
+				"" +
+				"" +
+				"" +
+				"</head><body style=\"font-size:12.0pt; font-family:Arial\">"+
+				"<h1>Pets: \u2713 &#10003; \u2610 \u2611 \u00B6 \u0104.</h1>" +
+				"<ul>" +
+				"<li>\u2713 Cats</li>" +
+				"<li>\u2610 Dogs</li>" +
+				"<li>\u2713 Fish</li>" +
+				"</ul>" +
+				"</body></html>";
+
+		System.out.println("TestITextHtml2PdfConverter.createPdf.str: " + str);
+
+//		XMLWorkerHelper worker = XMLWorkerHelper.getInstance();
+//
+//		CSSResolver cssResolver = new StyleAttrCSSResolver();
+//		CssFile cssFile = XMLWorkerHelper.getCSS(new ByteArrayInputStream(CSS.getBytes()));
+//		cssResolver.addCss(cssFile);
+//
+
+		HTMLWorker hw = new HTMLWorker(document);
+//		FontFactory.register("/Users/slorenz/Desktop/ufonts.com_arial-unicode-ms.ttf",  "Arial");   // just give a path of arial.ttf
+		FontFactory.register("ufonts.com_arial-unicode-ms.ttf",  "Arial");   // just give a path of arial.ttf
+		StyleSheet css = new StyleSheet();
+		css.loadTagStyle("body", "face", "Arial");
+		css.loadTagStyle("body", "encoding", "Identity-H");
+		css.loadTagStyle("body", "size", "10pt");
+
+		hw.setStyleSheet(css);
+
+		hw.parse(new StringReader(str.toString()));
+//		hw.parse(new StringReader(stringBuilder.toString()));
+
+//		InputStream is = new ByteArrayInputStream(str.getBytes("UTF-8"));
+//		worker.parseXHtml(writer, document, is, Charset.forName("UTF-8"), new XMLWorkerFontProvider("resources/fonts/"));
+//		worker.parseXHtml(writer, document, is, Charset.forName("UTF-16"));
+		// step 5
+		document.close();
 	}
 
 	private String wrapHtml(String html) {
@@ -119,7 +285,8 @@ public class TestITextHtml2PdfConverter {
 			"Hello\n" +
 			" Fred!\n" +
 			"</h2>\n" +
-			"\n" +
+			"check: &#10003; \u2713<br/>\n" +
+//			"Vous \u00eates d'o\\u00f9?<br/>\n" +
 			"\n" +
 			"\n" +
 			"\n" +
