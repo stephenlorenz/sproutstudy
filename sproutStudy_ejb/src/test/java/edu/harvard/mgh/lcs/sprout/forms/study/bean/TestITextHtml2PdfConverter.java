@@ -3,14 +3,22 @@ package edu.harvard.mgh.lcs.sprout.forms.study.bean;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.FontFactory;
+import com.itextpdf.text.html.HtmlTags;
 import com.itextpdf.text.html.simpleparser.HTMLWorker;
 import com.itextpdf.text.html.simpleparser.StyleSheet;
 import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.tool.xml.Pipeline;
+import com.itextpdf.tool.xml.XMLWorker;
 import com.itextpdf.tool.xml.XMLWorkerFontProvider;
 import com.itextpdf.tool.xml.XMLWorkerHelper;
 import com.itextpdf.tool.xml.html.CssAppliers;
 import com.itextpdf.tool.xml.html.CssAppliersImpl;
 import com.itextpdf.tool.xml.html.Tags;
+import com.itextpdf.tool.xml.parser.XMLParser;
+import com.itextpdf.tool.xml.pipeline.css.CSSResolver;
+import com.itextpdf.tool.xml.pipeline.css.CssResolverPipeline;
+import com.itextpdf.tool.xml.pipeline.end.PdfWriterPipeline;
+import com.itextpdf.tool.xml.pipeline.html.HtmlPipeline;
 import com.itextpdf.tool.xml.pipeline.html.HtmlPipelineContext;
 import edu.harvard.mgh.lcs.sprout.forms.study.util.StringUtils;
 import org.junit.Test;
@@ -98,18 +106,17 @@ public class TestITextHtml2PdfConverter {
 		document.open();
 
 		String str = "<html><head>" +
-				"<style>" +
-				"ul {\n" +
-				"   list-style: none;\n" +
-				"   margin-left: 0;\n" +
-				"   padding-left: 1em;\n" +
-				"   text-indent: -1em;\n" +
-				"}" +
-				"</style>" +
+//				"<style>" +
+//				"ul {\n" +
+//				"   list-style: none;\n" +
+//				"   margin-left: 0;\n" +
+//				"   padding-left: 1em;\n" +
+//				"   text-indent: -1em;\n" +
+//				"}" +
+//				"</style>" +
 				"" +
-				"" +
-				"" +
-				"</head><body style=\"font-size:12.0pt; font-family:Arial; encoding: Identity-H\">"+
+//				"</head><body style=\"font-size:12.0pt; font-family:Arial; encoding: Identity-H\">"+
+				"</head><body>"+
 				"<h1>Pets: \u2713 &#10003; \u2610 \u2611 \u00B6 \u0104.</h1>" +
 				"<ul>" +
 				"<li>\u2713 Cats</li>" +
@@ -129,32 +136,73 @@ public class TestITextHtml2PdfConverter {
 //			document.add(new Paragraph("Sample 1: This is simple image demo."));
 //			document.add(img);
 
-		FontFactory.register("ufonts.com_arial-unicode-ms.ttf",  "Arial");   // just give a path of arial.ttf
-		StyleSheet css = new StyleSheet();
-		css.loadTagStyle("body", "face", "Arial");
-		css.loadTagStyle("body", "encoding", "Identity-H");
-		css.loadTagStyle("body", "size", "10pt");
+//		FontFactory.register("ufonts.com_arial-unicode-ms.ttf",  "Arial");   // just give a path of arial.ttf
+//		StyleSheet css = new StyleSheet();
+//		css.loadTagStyle("body", "face", "Arial");
+//		css.loadTagStyle("body", "encoding", "Identity-H");
+//		css.loadTagStyle("body", "size", "10pt");
 
 //		hw.setStyleSheet(css);
 
 //		System.out.println("TestITextHtml2PdfConverter.createPdf.css: " + css.);
 
+		String css = "body {" +
+				"    font-size: 12.0pt;" +
+				"    font-family: Arial;" +
+				"    encoding: Identity-H;" +
+				"    face: Arial;" +
+				"    size: 10pt;" +
+				"}";
+
 
 		ByteArrayInputStream cis =
-				new ByteArrayInputStream(css.toString().getBytes());
+				new ByteArrayInputStream(css.getBytes());
 //		XMLWorkerHelper.getInstance().parseXHtml(writer, document, bis, cis);
 
-		XMLWorkerFontProvider fontProvider = new XMLWorkerFontProvider(XMLWorkerFontProvider.DONTLOOKFORFONTS);
-		fontProvider.register("ufonts.com_arial-unicode-ms.ttf");
-//		fontProvider.register("resources/fonts/Cardo-Bold.ttf");
-//		fontProvider.register("resources/fonts/Cardo-Italic.ttf");
+//		XMLWorkerFontProvider fontProvider = new XMLWorkerFontProvider(XMLWorkerFontProvider.DONTLOOKFORFONTS);
+		XMLWorkerFontProvider fontProvider = new XMLWorkerFontProvider();
+		fontProvider.register("ufonts.com_arial-unicode-ms.ttf", "Arial");
+		fontProvider.setUseUnicode(true);
+		fontProvider.defaultEncoding = "Identity-H";
 		CssAppliers cssAppliers = new CssAppliersImpl(fontProvider);
+
+
+//		StyleSheet styles = new StyleSheet();
+//		styles.loadTagStyle(HtmlTags.BODY, HtmlTags.FONTFAMILY, "tahoma");
+//		styles.loadTagStyle(HtmlTags.BODY, HtmlTags.ENCODING, "Identity-H");
+//
+
 		HtmlPipelineContext htmlContext = new HtmlPipelineContext(cssAppliers);
+
+
+
 		htmlContext.setTagFactory(Tags.getHtmlTagProcessorFactory());
 
+
+		CSSResolver cssResolver = XMLWorkerHelper.getInstance().getDefaultCssResolver(true);
+
+
+		Pipeline<?> pipeline =
+
+				new CssResolverPipeline(cssResolver,
+
+						new HtmlPipeline(htmlContext,
+
+								new PdfWriterPipeline(document, writer)));
+
+
+		XMLWorker worker = new XMLWorker(pipeline, true);
+
+		XMLParser p = new XMLParser(worker);
+
 		InputStream is = new ByteArrayInputStream(wrapHtml(str).getBytes(Charset.forName("UTF-8")));
-//			InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
-		XMLWorkerHelper.getInstance().parseXHtml(writer, document, is, cis, Charset.forName("UTF-8"), fontProvider);
+
+//		p.parse(new FileInputStream("/html/loremipsum.html"));
+		p.parse(is, Charset.forName("UTF-8"));
+
+
+
+//		XMLWorkerHelper.getInstance().parseXHtml(writer, document, is, cis, Charset.forName("UTF-8"), fontProvider);
 		document.close();
 		file.close();
 
