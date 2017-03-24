@@ -21,6 +21,7 @@ import com.itextpdf.tool.xml.pipeline.end.PdfWriterPipeline;
 import com.itextpdf.tool.xml.pipeline.html.HtmlPipeline;
 import com.itextpdf.tool.xml.pipeline.html.HtmlPipelineContext;
 import edu.harvard.mgh.lcs.sprout.forms.study.util.StringUtils;
+import org.apache.ws.security.util.Base64;
 import org.junit.Test;
 
 import java.io.*;
@@ -32,8 +33,15 @@ public class TestITextHtml2PdfConverter {
 	public void test() {
 
 		try {
-			createPdf("/Users/slorenz/Desktop/HTMLtoPDF.pdf");
-			createPdf2("/Users/slorenz/Desktop/HTMLtoPDF2.pdf");
+//			createPdf("/Users/slorenz/Desktop/HTMLtoPDF.pdf");
+//			String pdfAsString = transformHtml2PDFAsString(html);
+//			createPdf2("/Users/slorenz/Desktop/HTMLtoPDF2.pdf");
+			createBlankPdf("/Users/slorenz/Desktop/blank.pdf");
+
+//			System.out.println("TestITextHtml2PdfConverter.test.pdfAsString: " + pdfAsString);
+
+
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -96,6 +104,152 @@ public class TestITextHtml2PdfConverter {
 	}
 */
 
+
+	public String transformHtml2PDFAsString(String narrative) {
+//		System.out.println("SproutTransformServiceImpl.transform");
+//		System.out.println("transform: " + "narrative = [" + narrative + "]");
+
+		if (StringUtils.isFull(narrative)) {
+			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+			try {
+				Document document = new Document();
+				PdfWriter writer = PdfWriter.getInstance(document, outputStream);
+				writer.setStrictImageSequence(true);
+				document.open();
+
+//				InputStream is = new ByteArrayInputStream(wrapHtml(narrative).getBytes(Charset.forName("UTF-8")));
+//				XMLWorkerHelper.getInstance().parseXHtml(writer, document, is, Charset.forName("UTF-8"));
+//				document.close();
+
+
+//				String css = "body {" +
+//						"    font-size: 12.0pt;" +
+//						"    font-family: Arial;" +
+//						"    encoding: Identity-H;" +
+//						"    face: Arial;" +
+//						"    size: 10pt;" +
+//						"}";
+
+
+				XMLWorkerFontProvider fontProvider = new XMLWorkerFontProvider();
+				fontProvider.register("ufonts.com_arial-unicode-ms.ttf", "Arial");
+				fontProvider.setUseUnicode(true);
+				fontProvider.defaultEncoding = "Identity-H";
+				CssAppliers cssAppliers = new CssAppliersImpl(fontProvider);
+
+				HtmlPipelineContext htmlContext = new HtmlPipelineContext(cssAppliers);
+				htmlContext.setTagFactory(Tags.getHtmlTagProcessorFactory());
+				CSSResolver cssResolver = XMLWorkerHelper.getInstance().getDefaultCssResolver(true);
+
+
+				Pipeline<?> pipeline =
+
+						new CssResolverPipeline(cssResolver,
+
+								new HtmlPipeline(htmlContext,
+
+										new PdfWriterPipeline(document, writer)));
+
+
+				XMLWorker worker = new XMLWorker(pipeline, true);
+
+				XMLParser p = new XMLParser(worker);
+
+				InputStream is = new ByteArrayInputStream(wrapHtml(narrative).getBytes(Charset.forName("UTF-8")));
+
+//		p.parse(new FileInputStream("/html/loremipsum.html"));
+				p.parse(is, Charset.forName("UTF-8"));
+
+
+
+//		XMLWorkerHelper.getInstance().parseXHtml(writer, document, is, cis, Charset.forName("UTF-8"), fontProvider);
+				document.close();
+
+				String retVal = Base64.encode(outputStream.toByteArray()).toString();
+//				System.out.println("TestITextHtml2PdfConverter.transformHtml2PDFAsString.retVal: " + retVal);
+
+
+				return retVal;
+
+			}
+			catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				if (outputStream != null) {
+					try {
+						outputStream.close();
+					} catch (IOException e) {}
+				}
+			}
+		}
+		return null;
+	}
+
+
+
+	public void createBlankPdf(String fileName) throws IOException, DocumentException {
+		// step 1
+		Document document = new Document();
+		// step 2
+		OutputStream file = new FileOutputStream(new File(fileName));
+		PdfWriter writer = PdfWriter.getInstance(document, file);
+
+		document.open();
+
+		String str = "<html><head>" +
+				"</head><body></body></html>";
+
+
+
+//		XMLWorkerFontProvider fontProvider = new XMLWorkerFontProvider(XMLWorkerFontProvider.DONTLOOKFORFONTS);
+		XMLWorkerFontProvider fontProvider = new XMLWorkerFontProvider();
+		fontProvider.register("ufonts.com_arial-unicode-ms.ttf", "Arial");
+		fontProvider.setUseUnicode(true);
+		fontProvider.defaultEncoding = "Identity-H";
+		CssAppliers cssAppliers = new CssAppliersImpl(fontProvider);
+
+
+//		StyleSheet styles = new StyleSheet();
+//		styles.loadTagStyle(HtmlTags.BODY, HtmlTags.FONTFAMILY, "tahoma");
+//		styles.loadTagStyle(HtmlTags.BODY, HtmlTags.ENCODING, "Identity-H");
+//
+
+		HtmlPipelineContext htmlContext = new HtmlPipelineContext(cssAppliers);
+
+
+
+		htmlContext.setTagFactory(Tags.getHtmlTagProcessorFactory());
+
+
+		CSSResolver cssResolver = XMLWorkerHelper.getInstance().getDefaultCssResolver(true);
+
+
+		Pipeline<?> pipeline =
+
+				new CssResolverPipeline(cssResolver,
+
+						new HtmlPipeline(htmlContext,
+
+								new PdfWriterPipeline(document, writer)));
+
+
+		XMLWorker worker = new XMLWorker(pipeline, true);
+
+		XMLParser p = new XMLParser(worker);
+
+		InputStream is = new ByteArrayInputStream(wrapHtml(str).getBytes(Charset.forName("UTF-8")));
+
+//		p.parse(new FileInputStream("/html/loremipsum.html"));
+		p.parse(is, Charset.forName("UTF-8"));
+
+
+
+//		XMLWorkerHelper.getInstance().parseXHtml(writer, document, is, cis, Charset.forName("UTF-8"), fontProvider);
+		document.close();
+		file.close();
+
+	}
 	public void createPdf(String fileName) throws IOException, DocumentException {
 		// step 1
 		Document document = new Document();
@@ -106,23 +260,17 @@ public class TestITextHtml2PdfConverter {
 		document.open();
 
 		String str = "<html><head>" +
-//				"<style>" +
-//				"ul {\n" +
-//				"   list-style: none;\n" +
-//				"   margin-left: 0;\n" +
-//				"   padding-left: 1em;\n" +
-//				"   text-indent: -1em;\n" +
-//				"}" +
-//				"</style>" +
-				"" +
-//				"</head><body style=\"font-size:12.0pt; font-family:Arial; encoding: Identity-H\">"+
+//				"</head><body style=\"font-size:12.0pt; font-family:Arial\">"+
 				"</head><body>"+
+				"<div style=\"font-size:12.0pt; font-family:Arial\">"+
 				"<h1>Pets: \u2713 &#10003; \u2610 \u2611 \u00B6 \u0104.</h1>" +
 				"<ul>" +
 				"<li>\u2713 Cats</li>" +
 				"<li>\u2610 Dogs</li>" +
 				"<li>\u2713 Fish</li>" +
 				"</ul>" +
+				"\u2713 Cats..." +
+				"</div>" +
 				"</body></html>";
 
 		writer.setStrictImageSequence(true);

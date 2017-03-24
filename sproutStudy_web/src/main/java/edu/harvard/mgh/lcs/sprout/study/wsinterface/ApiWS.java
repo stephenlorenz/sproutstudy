@@ -290,8 +290,8 @@ public interface ApiWS {
 
     @POST
     @Path("/secure/getNarrativePDF")
-    @Produces(MediaType.APPLICATION_JSON)
-    public ContentTO getNarrativePDF(@Context HttpServletRequest request, String narrative) throws InvalidSessionRESTful;
+    @Produces(MediaType.TEXT_HTML)
+    public String getNarrativePDF(@Context HttpServletRequest request, String narrative) throws InvalidSessionRESTful;
 
     @POST
     @Path("/secure/getNarrativeServer")

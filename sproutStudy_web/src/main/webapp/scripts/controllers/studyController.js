@@ -3,7 +3,7 @@
 angular.module('sproutStudyApp')
     .controller('studyController', function ($log, $scope, $filter, $timeout, $window, $websocket, studyService, patientService, formsService, cohortService, sessionService, transformService) {
 
-        $scope.defaultTab = 'inbox';
+        $scope.defaultTab = 'forms';
 
         $scope.cohortLoaded = false;
 
@@ -1401,7 +1401,7 @@ angular.module('sproutStudyApp')
         }
 
         $scope.onSendForm = function(subject, form) {
-            console.log("onSendForm");
+            // console.log("onSendForm");
 
             submittedCallback(1);
 
@@ -1598,7 +1598,7 @@ angular.module('sproutStudyApp')
             $scope.patientMatches = patientService.patientLookup($scope.criteria, $scope.page);
             var patientMatches = patientService.patientLookup($scope.criteria, $scope.page);
             $.each(patientMatches, function(index, data) {
-                console.log("onPatientLookup: " + data.birthdate);
+                // console.log("onPatientLookup: " + data.birthdate);
             });
         };
 
@@ -1700,7 +1700,7 @@ angular.module('sproutStudyApp')
         };
         $scope.onOpenMutableForm = function (form) {
 
-            console.log("onOpenMutableForm...");
+            // console.log("onOpenMutableForm...");
 
             $scope.openingForm = true;
 
@@ -1712,8 +1712,8 @@ angular.module('sproutStudyApp')
             $scope.searchEnabled = false;
             $scope.getSubjectInbox();
 
-            console.log("onOpenMutableForm.form");
-            console.dir(form);
+            // console.log("onOpenMutableForm.form");
+            // console.dir(form);
 
 
             formsService.applyForNonce({
@@ -1942,7 +1942,7 @@ angular.module('sproutStudyApp')
         }
 
         $scope.onSyncNarrative = function(callback) {
-            console.log("onSyncNarrative");
+            // console.log("onSyncNarrative");
             var form = getActiveForm();
             if (form !== undefined) {
                 var publicationKey = form.publicationKey;
@@ -2241,7 +2241,7 @@ angular.module('sproutStudyApp')
         };
 
         $scope.onHasNarrativeChanges = function(instanceId) {
-            console.log("onHasNarrativeChanges");
+            // console.log("onHasNarrativeChanges");
             $scope.hasNarrativeChanges = true;
         };
 
@@ -2256,7 +2256,7 @@ angular.module('sproutStudyApp')
         $timeout(autoSaveNarrative, 1000);
 
         $scope.onSaveNarrativeChanges = function() {
-            console.log("onSaveNarrativeChanges");
+            // console.log("onSaveNarrativeChanges");
 
             var form = getActiveForm();
             if (form !== undefined) {

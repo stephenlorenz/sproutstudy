@@ -1,5 +1,7 @@
 package edu.harvard.mgh.lcs.sprout.study.ws;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.*;
 import edu.harvard.mgh.lcs.sprout.forms.study.beanws.Result;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.*;
@@ -51,6 +53,7 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
 
     private static final Logger LOGGER = Logger.getLogger(ApiWSImpl.class.getName());
 
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public Boolean auth(@QueryParam("username") String username) {
@@ -920,8 +923,14 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
     }
 
     @Override
-    public ContentTO getNarrativePDF(HttpServletRequest request, String narrative) throws InvalidSessionRESTful {
-        return transformService.transformHtml2PDFAsContentTO(narrative);
+    public String getNarrativePDF(HttpServletRequest request, String narrative) throws InvalidSessionRESTful {
+        ContentTO contentTO = transformService.transformHtml2PDFAsContentTO(narrative);
+        try {
+            return objectMapper.writeValueAsString(contentTO);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override

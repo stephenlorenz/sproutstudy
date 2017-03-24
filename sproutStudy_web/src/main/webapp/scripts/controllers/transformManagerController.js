@@ -188,7 +188,9 @@ angular.module('sproutStudyApp')
                     //Wait some more...
                     $scope.waitForModal(data);
                 } else {
-                    jQuery('#pdfViewContainer').attr("src", data);
+                    try {
+                        jQuery('#pdfViewContainer').attr("src", data);
+                    } catch (e) {}
                 }
             }, 200);
         };
@@ -198,20 +200,31 @@ angular.module('sproutStudyApp')
         $scope.pdfViewModal = true;
         $scope.pdfLoading = true;
 
-        transformService.getNarrativePDF({}, $scope.narrative, function(content) {
+        transformService.getNarrativePDF({}, $scope.narrative, function(response) {
             $scope.pdfLoading = false;
 
-            if (content && content.success) {
-                $scope.waitForModal("data:application/pdf;base64," + escape(content.data));
-            } else {
-                $scope.pdfLoadingError = content.message;
+            if (response) {
+
+                var content = response;
+
+                if (typeof response !== 'object') {
+                    content = JSON.parse(response);
+                }
+
+                if (content.success) {
+                    $scope.waitForModal("data:application/pdf;base64," + escape(content.data));
+                } else {
+                    $scope.pdfLoadingError = content.message;
+                }
+
+
             }
 
         });
     };
 
     $scope.onViewFromServer = function() {
-        console.log("onViewFromServer");
+        // console.log("onViewFromServer");
         var model = angular.element(jQuerySprout("#transformControllerDiv")).scope().getModel();
 
         //if (typeof model != 'string') {
