@@ -54,6 +54,14 @@ public class StringUtils {
 		return false;
 	}
 
+	public static boolean isLong(String input) {
+		try {
+			new Long(input);
+			return true;
+		} catch (Exception e) {}
+		return false;
+	}
+
 	public static Integer getInteger(String input) {
 		try {
 			return Integer.parseInt(input);

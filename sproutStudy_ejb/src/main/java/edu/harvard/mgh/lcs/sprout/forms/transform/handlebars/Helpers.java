@@ -8,9 +8,23 @@ import com.sun.crypto.provider.BlowfishKeyGenerator;
 import edu.harvard.mgh.lcs.sprout.forms.study.util.StringUtils;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Iterator;
 
 public class Helpers {
+
+    private static final SimpleDateFormat DATE_FORMAT_SHORT = new SimpleDateFormat("MM/dd/yyyy");
+    private static final SimpleDateFormat DATE_FORMAT_WEEKDAY = new SimpleDateFormat("EEEE, MMM d");
+    private static final SimpleDateFormat DATE_FORMAT_MEDIUM = new SimpleDateFormat("MMM d");
+    private static final SimpleDateFormat DATE_FORMAT_LONG = new SimpleDateFormat("EEEE, MMM d, yyyy");
+
+//    short: "MM/DD/YYYY",
+//    weekday: "dddd, MMM D",
+//    medium: "MMM D",
+//    long: "dddd, MMM D, YYYY"
+//
+
 
     public CharSequence compare(String lvalue, String operator, String rvalue, Options options) throws IOException {
 
@@ -101,6 +115,38 @@ public class Helpers {
             System.out.println("Helpers.locale.e.getMessage();: " + e.getMessage());
         }
         return options.isFalsy(result) ? options.inverse() : options.fn();
+    }
+
+    public CharSequence formatDate(String date, String format, Options options) throws IOException {
+
+//        System.out.println("date = [" + date + "], format = [" + format + "], options = [" + options + "]");
+//        System.out.println("Helpers.formatDate.options: " + options);
+
+        StringBuilder buffer = new StringBuilder();
+
+        try {
+            if (StringUtils.isFull(date, format)) {
+                SimpleDateFormat simpleDateFormat = DATE_FORMAT_LONG;
+
+                if (StringUtils.isLong(date)) {
+                    Date realDate = new Date(new Long(date));
+
+                    if (format.equalsIgnoreCase("short")) {
+                        simpleDateFormat = DATE_FORMAT_SHORT;
+                    } else if (format.equalsIgnoreCase("weekday")) {
+                        simpleDateFormat = DATE_FORMAT_WEEKDAY;
+                    } else if (format.equalsIgnoreCase("medium")) {
+                        simpleDateFormat = DATE_FORMAT_MEDIUM;
+                    } else if (format.equalsIgnoreCase("long")) {
+                        simpleDateFormat = DATE_FORMAT_LONG;
+                    }
+                    return simpleDateFormat.format(realDate);
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Helpers.locale.e.getMessage();: " + e.getMessage());
+        }
+        return date;
     }
 
     public CharSequence getNode(Object context, String queryKey, Options options) throws IOException {

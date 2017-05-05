@@ -163,6 +163,7 @@
 <script src="assets/scripts/external/splitter/js/splitter.js"></script>
 <script src="assets/scripts/external/splitterJQuery/splitter.js"></script>
 <script src="assets/scripts/external/handlebars/handlebars-v3.0.3.js"></script>
+<script src="/sproutapi/assets/scripts/moment/moment.js" type="text/javascript"></script>
 
 <!-- build:js scripts/scripts.js -->
 <script src="scripts/app.js"></script>
@@ -408,6 +409,32 @@
                 return options.fn(this);
             }
         });
+
+        var DateFormats = {
+            short: "MM/DD/YYYY",
+            weekday: "dddd, MMM D",
+            medium: "MMM D",
+            long: "dddd, MMM D, YYYY"
+        };
+
+        // Deprecated since version 0.8.0
+        Handlebars.registerHelper("formatDate", function(datetime, format) {
+            if (moment) {
+                // can use other formats like 'lll' too
+                format = DateFormats[format] || format;
+
+                if (isNaN(datetime)) {
+                    return datetime;
+                }
+
+                var datetimeTime = parseInt(datetime);
+
+                return moment(datetimeTime).format(format);
+            } else {
+                return datetime;
+            }
+        });
+
 
         $(document).on('click', '.dropdown-menu', function(e) {
             if ($(this).hasClass('keep-open-on-click')) { e.stopPropagation(); }
@@ -1269,6 +1296,26 @@
 
     function updateSproutTransformModelView(model) {
 //        console.log("updateSproutTransformModelView");
+
+//        console.log("updateSproutTransformModelView.model: " + model);
+//
+//        if (typeof model === 'string' || model instanceof String) {
+//            var modelTmp = JSON.parse(model);
+//            if (modelTmp && modelTmp.sprout) {
+//                delete modelTmp.sprout['submissionDate'];
+//                delete modelTmp.sprout['sprout%submissionDate'];
+//                modelTmp.sprout['sprout%submissionDate'] = new Date().getTime();
+//            }
+//            model = JSON.stringify(modelTmp);
+//        } else {
+//            if (model && model.sprout) {
+//                delete model.sprout['submissionDate'];
+//                delete model.sprout['sprout%submissionDate'];
+//                model.sprout['sprout%submissionDate'] = new Date().getTime();
+//            }
+//        }
+        
+        
         jQuerySprout("#sproutTransformModelContent").html(syntaxHighlight(model));
         jQuerySprout(".sprout-transform-key").off('dblclick');
         jQuerySprout(".sprout-transform-key").on('dblclick', function() {

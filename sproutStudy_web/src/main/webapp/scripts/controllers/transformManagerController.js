@@ -97,6 +97,8 @@ angular.module('sproutStudyApp')
                 $scope.updateCustomAttributes();
             }
 
+            $scope.updateSubmissionDate();
+
             updateSproutTransformModelView($scope.modelVerbose);
             $scope.onReloadNarrative();
         };
@@ -107,6 +109,15 @@ angular.module('sproutStudyApp')
             }
             if ($scope.modelVerbose && $scope.modelVerbose.sprout) {
                 $scope.modelVerbose.sprout['sprout%locale'] = $scope.locale;
+            }
+        };
+
+        $scope.updateSubmissionDate = function () {
+            if ($scope.model && $scope.model.sprout) {
+                $scope.model.sprout.submissionDate = "" + new Date().getTime();
+            }
+            if ($scope.modelVerbose && $scope.modelVerbose.sprout) {
+                $scope.modelVerbose.sprout['sprout%submissionDate'] = "" + new Date().getTime();
             }
         };
 
