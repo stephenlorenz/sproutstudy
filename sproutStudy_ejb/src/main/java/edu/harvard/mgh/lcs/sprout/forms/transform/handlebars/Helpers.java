@@ -117,6 +117,136 @@ public class Helpers {
         return options.isFalsy(result) ? options.inverse() : options.fn();
     }
 
+        public CharSequence or(String value1, String value2, String value3, String value4, String value5, String value6, String value7, String value8, String value9, String value10, String value11, String value12, String value13, String value14, String value15, String value16, String value17, String value18, String value19, String value20, Options options) throws IOException {
+        boolean result = false;
+
+        try {
+            result = ( new Boolean(value1)
+                    || new Boolean(value2)
+                    || new Boolean(value3)
+                    || new Boolean(value4)
+                    || new Boolean(value5)
+                    || new Boolean(value6)
+                    || new Boolean(value7)
+                    || new Boolean(value8)
+                    || new Boolean(value9)
+                    || new Boolean(value10)
+                    || new Boolean(value11)
+                    || new Boolean(value12)
+                    || new Boolean(value13)
+                    || new Boolean(value14)
+                    || new Boolean(value15)
+                    || new Boolean(value16)
+                    || new Boolean(value17)
+                    || new Boolean(value18)
+                    || new Boolean(value19)
+                    || new Boolean(value20)
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return result ? new String("" + result) : null;
+    }
+    
+    public CharSequence and(String value1, String value2, String value3, String value4, String value5, String value6, String value7, String value8, String value9, String value10, String value11, String value12, String value13, String value14, String value15, String value16, String value17, String value18, String value19, String value20, Options options) throws IOException {
+        boolean result = false;
+
+        try {
+            result = ( new Boolean(value1)
+                    && new Boolean(value2)
+                    && new Boolean((StringUtils.isEmpty(value3) ? "true" : value3))
+                    && new Boolean((StringUtils.isEmpty(value4) ? "true" : value4))
+                    && new Boolean((StringUtils.isEmpty(value5) ? "true" : value5))
+                    && new Boolean((StringUtils.isEmpty(value6) ? "true" : value6))
+                    && new Boolean((StringUtils.isEmpty(value7) ? "true" : value7))
+                    && new Boolean((StringUtils.isEmpty(value8) ? "true" : value8))
+                    && new Boolean((StringUtils.isEmpty(value9) ? "true" : value9))
+                    && new Boolean((StringUtils.isEmpty(value10) ? "true" : value10))
+                    && new Boolean((StringUtils.isEmpty(value11) ? "true" : value11))
+                    && new Boolean((StringUtils.isEmpty(value12) ? "true" : value12))
+                    && new Boolean((StringUtils.isEmpty(value13) ? "true" : value13))
+                    && new Boolean((StringUtils.isEmpty(value14) ? "true" : value14))
+                    && new Boolean((StringUtils.isEmpty(value15) ? "true" : value15))
+                    && new Boolean((StringUtils.isEmpty(value16) ? "true" : value16))
+                    && new Boolean((StringUtils.isEmpty(value17) ? "true" : value17))
+                    && new Boolean((StringUtils.isEmpty(value18) ? "true" : value18))
+                    && new Boolean((StringUtils.isEmpty(value19) ? "true" : value19))
+                    && new Boolean((StringUtils.isEmpty(value20) ? "true" : value20))
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return result ? new String("" + result) : null;
+    }
+
+    public CharSequence eq(String lvalue, String rvalue, Options options) throws IOException {
+        boolean result = false;
+
+        if (StringUtils.isFull(lvalue, rvalue)) {
+            if (StringUtils.isInteger(lvalue) && StringUtils.isInteger(rvalue)) {
+                result = StringUtils.getFloat(lvalue).floatValue() == StringUtils.getFloat(rvalue).floatValue();
+            } else {
+                result = lvalue.equals(rvalue);
+            }
+        }
+        return new String("" + result);
+    }
+
+    public CharSequence ne(String lvalue, String rvalue, Options options) throws IOException {
+        boolean result = false;
+
+        if (StringUtils.isFull(lvalue, rvalue)) {
+            if (StringUtils.isInteger(lvalue) && StringUtils.isInteger(rvalue)) {
+                result = StringUtils.getFloat(lvalue).floatValue() != StringUtils.getFloat(rvalue).floatValue();
+            } else {
+                result = !lvalue.equals(rvalue);
+            }
+        }
+        return new String("" + result);
+    }
+
+    public CharSequence gt(String lvalue, String rvalue, Options options) throws IOException {
+        boolean result = false;
+
+        if (StringUtils.isFull(lvalue, rvalue)) {
+            if (StringUtils.isInteger(lvalue) && StringUtils.isInteger(rvalue))
+                result = StringUtils.getFloat(lvalue).floatValue() > StringUtils.getFloat(rvalue).floatValue();
+        }
+        return new String("" + result);
+    }
+
+    public CharSequence gte(String lvalue, String rvalue, Options options) throws IOException {
+        boolean result = false;
+
+        if (StringUtils.isFull(lvalue, rvalue)) {
+            if (StringUtils.isInteger(lvalue) && StringUtils.isInteger(rvalue))
+                result = StringUtils.getFloat(lvalue).floatValue() >= StringUtils.getFloat(rvalue).floatValue();
+        }
+        return new String("" + result);
+    }
+
+    public CharSequence lt(String lvalue, String rvalue, Options options) throws IOException {
+        boolean result = false;
+
+        if (StringUtils.isFull(lvalue, rvalue)) {
+            if (StringUtils.isInteger(lvalue) && StringUtils.isInteger(rvalue))
+                result = StringUtils.getFloat(lvalue).floatValue() < StringUtils.getFloat(rvalue).floatValue();
+        }
+        return new String("" + result);
+    }
+
+    public CharSequence lte(String lvalue, String rvalue, Options options) throws IOException {
+        boolean result = false;
+
+        if (StringUtils.isFull(lvalue, rvalue)) {
+            if (StringUtils.isInteger(lvalue) && StringUtils.isInteger(rvalue))
+                result = StringUtils.getFloat(lvalue).floatValue() <= StringUtils.getFloat(rvalue).floatValue();
+        }
+        return new String("" + result);
+    }
+
     public CharSequence formatDate(String date, String format, Options options) throws IOException {
 
 //        System.out.println("date = [" + date + "], format = [" + format + "], options = [" + options + "]");
