@@ -460,10 +460,12 @@
                 var foundFalse = false;
                 if (arguments) {
                     for (var i = 0; i < arguments.length; i++) {
-                        if (arguments[i] === true) {
-                            foundTrue = true;
-                        } else {
-                            foundFalse = true;
+                        if(typeof(arguments[i]) === "boolean"){
+                            if (arguments[i] === true) {
+                                foundTrue = true;
+                            } else {
+                                foundFalse = true;
+                            }
                         }
                     }
                 }
@@ -473,7 +475,9 @@
                 var result = false;
                 if (arguments) {
                     for (var i = 0; i < arguments.length; i++) {
-                        if (arguments[i] === true) result = true;
+                        if(typeof(arguments[i]) === "boolean"){
+                            if (arguments[i] === true) result = true;
+                        }
                     }
                 }
                 return result;
