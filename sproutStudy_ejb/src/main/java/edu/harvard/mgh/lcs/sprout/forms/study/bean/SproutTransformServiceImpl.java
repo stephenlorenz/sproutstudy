@@ -7,21 +7,14 @@ import com.github.jknack.handlebars.context.FieldValueResolver;
 import com.github.jknack.handlebars.context.JavaBeanValueResolver;
 import com.github.jknack.handlebars.context.MapValueResolver;
 import com.github.jknack.handlebars.context.MethodValueResolver;
-import com.itextpdf.text.Document;
-import com.itextpdf.text.pdf.PdfWriter;
-import com.itextpdf.tool.xml.Pipeline;
-import com.itextpdf.tool.xml.XMLWorker;
-import com.itextpdf.tool.xml.XMLWorkerFontProvider;
-import com.itextpdf.tool.xml.XMLWorkerHelper;
-import com.itextpdf.tool.xml.html.CssAppliers;
-import com.itextpdf.tool.xml.html.CssAppliersImpl;
-import com.itextpdf.tool.xml.html.Tags;
-import com.itextpdf.tool.xml.parser.XMLParser;
-import com.itextpdf.tool.xml.pipeline.css.CSSResolver;
-import com.itextpdf.tool.xml.pipeline.css.CssResolverPipeline;
-import com.itextpdf.tool.xml.pipeline.end.PdfWriterPipeline;
-import com.itextpdf.tool.xml.pipeline.html.HtmlPipeline;
-import com.itextpdf.tool.xml.pipeline.html.HtmlPipelineContext;
+
+import com.lowagie.text.pdf.BaseFont;
+import org.xhtmlrenderer.layout.SharedContext;
+import org.xhtmlrenderer.pdf.ITextOutputDevice;
+import org.xhtmlrenderer.pdf.ITextRenderer;
+import org.xhtmlrenderer.pdf.ITextUserAgent;
+import org.xhtmlrenderer.resource.XMLResource;
+import org.w3c.dom.Document;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.SproutFormsService;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.SproutTransformService;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.BooleanTO;
@@ -39,7 +32,6 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import java.io.*;
-import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -464,43 +456,63 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 
 			try {
 				// NOTE: You might be able to support more complex HTML 2 PDF transformations with iText if necessary:
-				// http://developers.itextpdf.com/examples/xml-worker-itext5/html-images
+				// http://developers.lowagie.com/examples/xml-worker-itext5/html-images
 
-//				OutputStream file = new FileOutputStream(new File("/Users/slorenz/Desktop/HTMLtoPDF.pdf"));
-				Document document = new Document();
-				PdfWriter writer = PdfWriter.getInstance(document, outputStream);
-				writer.setStrictImageSequence(true);
+////				OutputStream file = new FileOutputStream(new File("/Users/slorenz/Desktop/HTMLtoPDF.pdf"));
+//				Document document = new Document();
+//				PdfWriter writer = PdfWriter.getInstance(document, outputStream);
+//				writer.setStrictImageSequence(true);
+//
+//				XMLWorkerFontProvider fontProvider = new XMLWorkerFontProvider();
+//				fontProvider.register("ufonts.com_arial-unicode-ms.ttf", "Arial");
+//				fontProvider.setUseUnicode(true);
+//				fontProvider.defaultEncoding = "Identity-H";
+//				CssAppliers cssAppliers = new CssAppliersImpl(fontProvider);
+//
+//				HtmlPipelineContext htmlContext = new HtmlPipelineContext(cssAppliers);
+//				htmlContext.setTagFactory(Tags.getHtmlTagProcessorFactory());
+//				CSSResolver cssResolver = XMLWorkerHelper.getInstance().getDefaultCssResolver(true);
+//
+//
+//				Pipeline<?> pipeline =
+//
+//						new CssResolverPipeline(cssResolver,
+//
+//								new HtmlPipeline(htmlContext,
+//
+//										new PdfWriterPipeline(document, writer)));
+//
+//
+//				XMLWorker worker = new XMLWorker(pipeline, true);
+//
+//				XMLParser p = new XMLParser(worker);
+//
+//				document.open();
+//
+//				InputStream is = new ByteArrayInputStream(wrapHtml(narrative).getBytes(Charset.forName("UTF-8")));
+//				p.parse(is, Charset.forName("UTF-8"));
+//				XMLWorkerHelper.getInstance().parseXHtml(writer, document, is, Charset.forName("UTF-8"));
+//				document.close();
 
-				XMLWorkerFontProvider fontProvider = new XMLWorkerFontProvider();
-				fontProvider.register("ufonts.com_arial-unicode-ms.ttf", "Arial");
-				fontProvider.setUseUnicode(true);
-				fontProvider.defaultEncoding = "Identity-H";
-				CssAppliers cssAppliers = new CssAppliersImpl(fontProvider);
-
-				HtmlPipelineContext htmlContext = new HtmlPipelineContext(cssAppliers);
-				htmlContext.setTagFactory(Tags.getHtmlTagProcessorFactory());
-				CSSResolver cssResolver = XMLWorkerHelper.getInstance().getDefaultCssResolver(true);
 
 
-				Pipeline<?> pipeline =
 
-						new CssResolverPipeline(cssResolver,
+				ITextRenderer renderer = new ITextRenderer();
+				ResourceLoaderUserAgent callback = new ResourceLoaderUserAgent(renderer.getOutputDevice());
+				callback.setSharedContext(renderer.getSharedContext());
+				renderer.getSharedContext ().setUserAgentCallback(callback);
+				renderer.getFontResolver().addFont("ufonts.com_arial-unicode-ms.ttf", BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
+				SharedContext scontext=renderer.getSharedContext();
+				scontext.setDotsPerPixel(12);
 
-								new HtmlPipeline(htmlContext,
+				Document doc = XMLResource.load(new ByteArrayInputStream(wrapHtml(narrative).getBytes("UTF-8"))).getDocument();
 
-										new PdfWriterPipeline(document, writer)));
+				renderer.setDocument(doc, "");
+				renderer.layout();
+				renderer.createPDF(outputStream);
 
+				outputStream.close();
 
-				XMLWorker worker = new XMLWorker(pipeline, true);
-
-				XMLParser p = new XMLParser(worker);
-
-				document.open();
-
-				InputStream is = new ByteArrayInputStream(wrapHtml(narrative).getBytes(Charset.forName("UTF-8")));
-				p.parse(is, Charset.forName("UTF-8"));
-				XMLWorkerHelper.getInstance().parseXHtml(writer, document, is, Charset.forName("UTF-8"));
-				document.close();
 
 				return outputStream.toByteArray();
 			}
@@ -517,6 +529,12 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 		return null;
 	}
 
+	private static class ResourceLoaderUserAgent extends ITextUserAgent {
+		public ResourceLoaderUserAgent(ITextOutputDevice outputDevice) {
+			super(outputDevice);
+		}
+	}
+
 //	@Override
 //	public String transformHtml2PDFAsString(String narrative) {
 //        System.out.println("SproutTransformServiceImpl.transform");
@@ -527,7 +545,7 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 //
 //			try {
 //				// NOTE: You might be able to support more complex HTML 2 PDF transformations with iText if necessary:
-//				// http://developers.itextpdf.com/examples/xml-worker-itext5/html-images
+//				// http://developers.lowagie.com/examples/xml-worker-itext5/html-images
 //
 ////				OutputStream file = new FileOutputStream(new File("/Users/slorenz/Desktop/HTMLtoPDF.pdf"));
 //				Document document = new Document();
@@ -580,65 +598,62 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
 			try {
-				Document document = new Document();
-				PdfWriter writer = PdfWriter.getInstance(document, outputStream);
-				writer.setStrictImageSequence(true);
-				document.open();
-
+//				Document document = new Document();
+//				PdfWriter writer = PdfWriter.getInstance(document, outputStream);
+//				writer.setStrictImageSequence(true);
+//				document.open();
+//
+//				XMLWorkerFontProvider fontProvider = new XMLWorkerFontProvider();
+//				fontProvider.register("ufonts.com_arial-unicode-ms.ttf", "Arial");
+//				fontProvider.setUseUnicode(true);
+//				fontProvider.defaultEncoding = "Identity-H";
+//				CssAppliers cssAppliers = new CssAppliersImpl(fontProvider);
+//
+//				HtmlPipelineContext htmlContext = new HtmlPipelineContext(cssAppliers);
+//				htmlContext.setTagFactory(Tags.getHtmlTagProcessorFactory());
+//				CSSResolver cssResolver = XMLWorkerHelper.getInstance().getDefaultCssResolver(true);
+//
+//
+//				Pipeline<?> pipeline =
+//
+//						new CssResolverPipeline(cssResolver,
+//
+//								new HtmlPipeline(htmlContext,
+//
+//										new PdfWriterPipeline(document, writer)));
+//
+//
+//				XMLWorker worker = new XMLWorker(pipeline, true);
+//
+//				XMLParser p = new XMLParser(worker);
 //				InputStream is = new ByteArrayInputStream(wrapHtml(narrative).getBytes(Charset.forName("UTF-8")));
-//				XMLWorkerHelper.getInstance().parseXHtml(writer, document, is, Charset.forName("UTF-8"));
+//
+//				p.parse(is, Charset.forName("UTF-8"));
+//
+//
+//
 //				document.close();
-
-
-//				String css = "body {" +
-//						"    font-size: 12.0pt;" +
-//						"    font-family: Arial;" +
-//						"    encoding: Identity-H;" +
-//						"    face: Arial;" +
-//						"    size: 10pt;" +
-//						"}";
-
-
-				XMLWorkerFontProvider fontProvider = new XMLWorkerFontProvider();
-				fontProvider.register("ufonts.com_arial-unicode-ms.ttf", "Arial");
-				fontProvider.setUseUnicode(true);
-				fontProvider.defaultEncoding = "Identity-H";
-				CssAppliers cssAppliers = new CssAppliersImpl(fontProvider);
-
-				HtmlPipelineContext htmlContext = new HtmlPipelineContext(cssAppliers);
-				htmlContext.setTagFactory(Tags.getHtmlTagProcessorFactory());
-				CSSResolver cssResolver = XMLWorkerHelper.getInstance().getDefaultCssResolver(true);
-
-
-				Pipeline<?> pipeline =
-
-						new CssResolverPipeline(cssResolver,
-
-								new HtmlPipeline(htmlContext,
-
-										new PdfWriterPipeline(document, writer)));
-
-
-				XMLWorker worker = new XMLWorker(pipeline, true);
-
-				XMLParser p = new XMLParser(worker);
-
-				InputStream is = new ByteArrayInputStream(wrapHtml(narrative).getBytes(Charset.forName("UTF-8")));
-
-//		p.parse(new FileInputStream("/html/loremipsum.html"));
-				p.parse(is, Charset.forName("UTF-8"));
-
-
-
-//		XMLWorkerHelper.getInstance().parseXHtml(writer, document, is, cis, Charset.forName("UTF-8"), fontProvider);
-				document.close();
-
-				String retVal = Base64.encode(outputStream.toByteArray()).toString();
+//
+//				String retVal = Base64.encode(outputStream.toByteArray()).toString();
 //				System.out.println("TestITextHtml2PdfConverter.transformHtml2PDFAsString.retVal: " + retVal);
 
+				ITextRenderer renderer = new ITextRenderer();
+				ResourceLoaderUserAgent callback = new ResourceLoaderUserAgent(renderer.getOutputDevice());
+				callback.setSharedContext(renderer.getSharedContext());
+				renderer.getSharedContext ().setUserAgentCallback(callback);
+				renderer.getFontResolver().addFont("ufonts.com_arial-unicode-ms.ttf", BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
+				SharedContext scontext=renderer.getSharedContext();
+				scontext.setDotsPerPixel(12);
 
-				return retVal;
+				Document doc = XMLResource.load(new ByteArrayInputStream(wrapHtml(narrative).getBytes("UTF-8"))).getDocument();
 
+				renderer.setDocument(doc, "");
+				renderer.layout();
+				renderer.createPDF(outputStream);
+
+				outputStream.close();
+
+				return Base64.encode(outputStream.toByteArray()).toString();
 			}
 			catch (Exception e) {
 				e.printStackTrace();
@@ -665,7 +680,7 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 //
 //			try {
 //				// NOTE: You might be able to support more complex HTML 2 PDF transformations with iText if necessary:
-//				// http://developers.itextpdf.com/examples/xml-worker-itext5/html-images
+//				// http://developers.lowagie.com/examples/xml-worker-itext5/html-images
 //
 ////				OutputStream file = new FileOutputStream(new File("/Users/slorenz/Desktop/HTMLtoPDF.pdf"));
 //				Document document = new Document();
@@ -742,11 +757,10 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 //			}
 
 
-			return String.format("<div style=\"font-size:12.0pt; font-family:Arial\">%s</div>", html);
+			return String.format("<div style=\"font-size:12.0pt; font-family: Arial Unicode MS\">%s</div>", html);
 		}
 		return null;
 	}
-
 
 	private BooleanTO saveNarrativeFormat(String narrative, VNarrativeFormatEntity vNarrativeFormatEntity, NarrativeEntity narrativeEntity) {
 		return saveNarrativeFormat(narrative, vNarrativeFormatEntity, narrativeEntity, null, null);
