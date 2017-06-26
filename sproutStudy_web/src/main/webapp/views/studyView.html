@@ -283,7 +283,7 @@
                                             <span ng-switch-when="studyDate">
                                                 <span class="dropdown sprout-dropdown-header">
                                                     <span class=""><span class="sortable" ng-click="allFormsChangeSort('date_of_target')">{{column.name}}<i ng-class="allFormsSortClass('date_of_target')" ng-style="{'margin-left': mutableFormsSortStyle('date_of_target')}" ></i></span><span ng-show="allFormsFilterTargetDate != null">:<br/><span class="badge badge-info">{{allFormsFilterTargetDate}}<span ng-click="clearFilterTargetDate()" style="margin-left: 5px;" class="sprout-study-badge-close"><i class="fa fa-times-circle"></i></span></span></span></span>
-                                                    <input type="text" class="input-small date datepicker" ng-model="allFormsFilterTargetDateProxy" data-model-date-format="mm/dd/yyyy" data-date-format="mm/dd/yyyy" autoclose="true" style="margin-bottom: 0px; display: none;" bs-datepicker />
+                                                    <input type="text" class="input-small date datepicker" ng-change="applyAllFormsFilterTargetDateProxy(allFormsFilterTargetDateProxy)" ng-model="allFormsFilterTargetDateProxy" data-model-date-format="mm/dd/yyyy" data-date-format="mm/dd/yyyy" autoclose="true" style="margin-bottom: 0px; display: none;" bs-datepicker />
                                                     <button  type="button" class="btn btn-mini" data-toggle="datepicker" style="margin-left: 8px;"><i class="icon-calendar"></i></button>
                                                 </span>
                                             </span>
@@ -383,7 +383,7 @@
                                     <th ng-show="allFormsMetadata.hasStudyDates || allFormsFilterTargetDate != null">
                                         <span class="dropdown sprout-dropdown-header">
                                             <span class=""><span class="sortable" ng-click="allFormsChangeSort('date_of_target')">Study Date<i ng-class="allFormsSortClass('date_of_target')" ng-style="{'margin-left': mutableFormsSortStyle('date_of_target')}" ></i></span><span ng-show="allFormsFilterTargetDate != null">:<br/><span class="badge badge-info">{{allFormsFilterTargetDate}}<span ng-click="clearFilterTargetDate()" style="margin-left: 5px;" class="sprout-study-badge-close"><i class="fa fa-times-circle"></i></span></span></span></span>
-                                            <input type="text" class="input-small date datepicker" ng-model="allFormsFilterTargetDateProxy" data-model-date-format="mm/dd/yyyy" data-date-format="mm/dd/yyyy" autoclose="true" style="margin-bottom: 0px; display: none;" bs-datepicker />
+                                            <input type="text" class="input-small date datepicker" ng-change="applyAllFormsFilterTargetDateProxy(allFormsFilterTargetDateProxy)" ng-model="allFormsFilterTargetDateProxy" data-model-date-format="mm/dd/yyyy" data-date-format="mm/dd/yyyy" autoclose="true" style="margin-bottom: 0px; display: none;" bs-datepicker />
                                             <button  type="button" class="btn btn-mini" data-toggle="datepicker" style="margin-left: 8px;"><i class="icon-calendar"></i></button>
                                         </span>
                                     </th>
@@ -627,7 +627,7 @@
                     <th ng-show="allFormsMetadata.hasStudyDates">
                         <span class="dropdown sprout-dropdown-header">
                             <span class="">Study Date<span ng-show="targetDate != null">:<br/><span class="badge badge-info">{{targetDate}}<span ng-click="clearTargetDate()" style="margin-left: 5px;" class="sprout-study-badge-close"><i class="fa fa-times-circle"></i></span></span></span></span>
-                            <input type="text" class="input-small date datepicker" ng-model="targetDateProxy" data-model-date-format="mm/dd/yyyy" data-date-format="mm/dd/yyyy" autoclose="true" style="margin-bottom: 0px; display: none;" bs-datepicker />
+                            <input type="text" class="input-small date datepicker" ng-change="setTargetDateLive(targetDateProxy)" ng-model="targetDateProxy" data-model-date-format="mm/dd/yyyy" data-date-format="mm/dd/yyyy" autoclose="true" style="margin-bottom: 0px; display: none;" bs-datepicker />
                             <button  type="button" class="btn btn-mini" data-toggle="datepicker" style="margin-left: 8px;"><i class="icon-calendar"></i></button>
                         </span>
                     </th>

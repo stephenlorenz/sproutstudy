@@ -185,14 +185,6 @@ angular.module('sproutStudyApp')
         $scope.allFormsFilterTargetDateProxy = undefined;
         $scope.allFormsFilterForm = null;
 
-        $scope.$watch('allFormsFilterTargetDateProxy', function () {
-            $scope.applyAllFormsFilterTargetDateProxy();
-        });
-
-        $scope.$watch('targetDateProxy', function () {
-            $scope.setTargetDate();
-        });
-
         $scope.getTodayAsDateString = function () {
             var tmpDate = new Date();
             var year = tmpDate.getFullYear();
@@ -204,9 +196,16 @@ angular.module('sproutStudyApp')
             return month + '/' + day + '/' + year;
         }
 
-        $scope.applyAllFormsFilterTargetDateProxy = function () {
+        $scope.applyAllFormsFilterTargetDateProxy = function (allFormsFilterTargetDateProxy) {
+
+            if (allFormsFilterTargetDateProxy) {
+                $scope.allFormsFilterTargetDateProxy = allFormsFilterTargetDateProxy;
+            }
+
+            // console.log("applyAllFormsFilterTargetDateProxy");
+
             if ($scope.allForms !== undefined) {
-                //console.log("allFormsFilterTargetDateProxy changed: " + $scope.allFormsFilterTargetDateProxy);
+                // console.log("allFormsFilterTargetDateProxy changed: " + $scope.allFormsFilterTargetDateProxy);
                 if ($scope.allFormsFilterTargetDateProxy !== undefined) {
                     var year = $scope.allFormsFilterTargetDateProxy.getFullYear();
                     var month = (1 + $scope.allFormsFilterTargetDateProxy.getMonth()).toString();
@@ -723,6 +722,49 @@ angular.module('sproutStudyApp')
                     }
                 }
             }
+        };
+
+        $scope.setTargetDateLive = function (targetDate) {
+
+            //console.log("setTargetDate");
+
+            if (targetDate) {
+                $scope.targetDate = targetDate;
+            }
+
+            if ($scope.targetDateProxy !== undefined) {
+                var year = $scope.targetDateProxy.getFullYear();
+                var month = (1 + $scope.targetDateProxy.getMonth()).toString();
+                month = month.length > 1 ? month : '0' + month;
+                var day = $scope.targetDateProxy.getDate().toString();
+                day = day.length > 1 ? day : '0' + day;
+
+                $scope.targetDate = month + '/' + day + '/' + year;
+
+                //console.log("$scope.targetDate: " + $scope.targetDate);
+
+                //var tmpDate = new Date();
+                //var year = tmpDate.getFullYear();
+                //var month = (1 + tmpDate.getMonth()).toString();
+                //month = month.length > 1 ? month : '0' + month;
+                //var day = tmpDate.getDate().toString();
+                //day = day.length > 1 ? day : '0' + day;
+                //
+                //var tmpDateString = month + '/' + day + '/' + year;
+                //
+                //if (tmpDateString == $scope.targetDate) {
+                //    $scope.targetDate = 'today';
+                //}
+                $scope.filterChanged = true;
+
+            } else {
+                if (targetDate !== undefined) {
+                    $scope.filterChanged = true;
+                    $scope.targetDate = undefined;
+                    console.log("$scope.targetDate set to undefined 1");
+                }
+            }
+
         }
         $scope.onFilterByStatus = function (status) {
             if (status !== undefined) {
@@ -2282,6 +2324,14 @@ angular.module('sproutStudyApp')
                 }
             }
         }
+
+        // $scope.$watch('allFormsFilterTargetDateProxy', function () {
+        //     $scope.applyAllFormsFilterTargetDateProxy();
+        // }, true);
+
+        // $scope.$watch('targetDateProxy', function () {
+        //     $scope.setTargetDate();
+        // });
 
         //$scope.bootWebsockets = function (cohort) {
         //    if (cohort !== undefined && cohort.websocketURL !== undefined && cohort.websocketURL !== null && cohort.websocketURL.length > 0) {
