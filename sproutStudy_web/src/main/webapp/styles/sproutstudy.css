@@ -2,6 +2,13 @@ div.container-sproutstudy {
     min-width: 1024px;
 }
 
+/* override for the horizontal ipad views */
+@media (min-width: 766px) and (max-width: 770px) { 
+    div.container-sproutstudy {
+        min-width: 768px;
+    }
+}
+
 tr.appointment {cursor: pointer; color: blue; text-decoration: underline;}
 tr.appointment:hover {background-color: #efefef;}
 
