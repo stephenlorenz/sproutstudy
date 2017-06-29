@@ -202,18 +202,33 @@ angular.module('sproutStudyApp')
                 $scope.allFormsFilterTargetDateProxy = allFormsFilterTargetDateProxy;
             }
 
-            // console.log("applyAllFormsFilterTargetDateProxy");
+            console.log("applyAllFormsFilterTargetDateProxy");
 
             if ($scope.allForms !== undefined) {
-                // console.log("allFormsFilterTargetDateProxy changed: " + $scope.allFormsFilterTargetDateProxy);
+                // alert("allFormsFilterTargetDateProxy changed: " + $scope.allFormsFilterTargetDateProxy);
                 if ($scope.allFormsFilterTargetDateProxy !== undefined) {
-                    var year = $scope.allFormsFilterTargetDateProxy.getFullYear();
-                    var month = (1 + $scope.allFormsFilterTargetDateProxy.getMonth()).toString();
-                    month = month.length > 1 ? month : '0' + month;
-                    var day = $scope.allFormsFilterTargetDateProxy.getDate().toString();
-                    day = day.length > 1 ? day : '0' + day;
 
-                    $scope.allFormsFilterTargetDate = month + '/' + day + '/' + year;
+
+                    var timezoneOffset = $scope.allFormsFilterTargetDateProxy.getTimezoneOffset();
+                    var timeHours = $scope.allFormsFilterTargetDateProxy.getHours();
+
+                    var targetDate = moment($scope.allFormsFilterTargetDateProxy);
+
+                    if (timeHours != 0) {
+                        targetDate = moment($scope.allFormsFilterTargetDateProxy).add(timezoneOffset, 'minutes');
+                    }
+
+                    $scope.allFormsFilterTargetDate = targetDate.format("MM/DD/YYYY");
+
+                    // var year = $scope.allFormsFilterTargetDateProxy.getFullYear();
+                    // var month = (1 + $scope.allFormsFilterTargetDateProxy.getMonth()).toString();
+                    // month = month.length > 1 ? month : '0' + month;
+                    // var day = $scope.allFormsFilterTargetDateProxy.getDate().toString();
+                    // day = day.length > 1 ? day : '0' + day;
+                    // $scope.allFormsFilterTargetDate = month + '/' + day + '/' + year;
+                    // $scope.allFormsFilterTargetDate = targetDateStr;
+
+                    // alert(targetDateStr + " vs " + $scope.allFormsFilterTargetDate + " ==> " + timezoneOffset + " (" + timeHours + ")");
 
                     var tmpDate = new Date();
                     var year = tmpDate.getFullYear();
