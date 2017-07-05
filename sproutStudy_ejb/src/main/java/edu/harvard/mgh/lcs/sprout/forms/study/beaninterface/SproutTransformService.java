@@ -7,7 +7,7 @@ import edu.harvard.mgh.lcs.sprout.forms.study.to.TemplateTO;
 public interface SproutTransformService {
 	String getTemplate(String publicationKey, String instanceId);
 	TemplateTO getTemplateTO(String publicationKey, String instanceId);
-	BooleanTO saveTemplate(String publicationKey, String instanceId, String template, String templateKey, boolean masterInd);
+	BooleanTO saveTemplate(String publicationKey, String instanceId, String template, String templateKey, boolean masterInd, String translations);
 	BooleanTO saveNarrative(String instanceId, String narrative, String format);
 	String getNarrativeByInstanceId(String instanceId);
 	String getNarrativeByInstanceId(String instanceId, String format);

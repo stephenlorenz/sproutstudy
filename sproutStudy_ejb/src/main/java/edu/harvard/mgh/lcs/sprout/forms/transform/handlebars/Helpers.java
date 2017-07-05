@@ -279,6 +279,37 @@ public class Helpers {
         return date;
     }
 
+    public CharSequence i18n(String key, Options options) throws IOException {
+//        System.out.println("Helpers.i18n");
+//        System.out.println("key = [" + key + "], options = [" + options + "]");
+
+        try {
+            ObjectNode model = (ObjectNode) options.context.model();
+
+            JsonNode localeNode = model.get("sprout").get("locale");
+            String sproutLocale = "en";
+
+            if (localeNode != null) sproutLocale = localeNode.textValue();
+
+            JsonNode translationsNode = model.get("translations");
+
+            if (translationsNode != null) {
+                JsonNode translationNode = translationsNode.get(key);
+                if (translationNode != null) {
+                    JsonNode locale = translationNode.get(sproutLocale);
+                    if (locale != null) {
+                        return locale.textValue();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Helpers.locale.e.getMessage();: " + e.getMessage());
+        }
+
+        return "";
+
+    }
+
     public CharSequence getNode(Object context, String queryKey, Options options) throws IOException {
 
 //        System.out.println("Helpers.getNode");

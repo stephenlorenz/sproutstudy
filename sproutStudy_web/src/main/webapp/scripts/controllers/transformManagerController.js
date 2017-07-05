@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('sproutStudyApp')
-    .controller('transformManagerController', function ($scope, $timeout, $location, $routeParams, $window, formManagerService, studyService, formsService, cohortService, transformService) {
+    .controller('transformManagerController', function ($scope, $timeout, $compile, $location, $routeParams, $window, formManagerService, studyService, formsService, cohortService, transformService) {
 
     $scope.managedForms = undefined;
     $scope.instanceId = undefined;
@@ -96,6 +96,9 @@ angular.module('sproutStudyApp')
             if ($scope.customAttributes && $scope.customAttributes.length > 0) {
                 $scope.updateCustomAttributes();
             }
+            if ($scope.translations && $scope.translations.length > 0) {
+                $scope.updateTranslations();
+            }
 
             $scope.updateSubmissionDate();
 
@@ -137,6 +140,51 @@ angular.module('sproutStudyApp')
             }
         };
 
+        $scope.updateTranslations = function () {
+            if ($scope.translations && $scope.translations.length > 0) {
+                var translations = {};
+
+                angular.forEach($scope.translations, function(translation) {
+                    var locales = {};
+                    angular.forEach(translation.locales, function(locale) {
+                        locales[locale.locale.key] = locale.message;
+                    });
+                    translations[translation.key] = locales;
+                });
+
+                if ($scope.model && $scope.model.sprout) {
+                    $scope.model['translations'] = translations;
+                }
+                if ($scope.modelVerbose && $scope.modelVerbose.sprout) {
+                    $scope.modelVerbose['translations'] = translations;
+                }
+            } else if ($scope.model.sprout.translations) {
+                delete $scope.model.translations;
+            }
+        };
+        // $scope.updateTranslations = function () {
+        //     if ($scope.translations && $scope.translations.length > 0) {
+        //         var translations = {};
+        //
+        //         angular.forEach($scope.translations, function(translation) {
+        //             var locales = {};
+        //             angular.forEach(translation.locales, function(locale) {
+        //                 locales[locale.locale.key] = locale.message;
+        //             });
+        //             translations[translation.key] = locales;
+        //         });
+        //
+        //         if ($scope.model && $scope.model.sprout) {
+        //             $scope.model.sprout['translations'] = translations;
+        //         }
+        //         if ($scope.modelVerbose && $scope.modelVerbose.sprout) {
+        //             $scope.modelVerbose.sprout['sprout%translations'] = translations;
+        //         }
+        //     } else if ($scope.model.sprout.translations) {
+        //         delete $scope.model.sprout.translations;
+        //     }
+        // };
+
     $scope.changeLocale = function(locale) {
         $scope.locale = locale;
         $scope.onReloadModel();
@@ -147,10 +195,153 @@ angular.module('sproutStudyApp')
         $scope.onReloadModel();
     };
 
+    $scope.onCloseTranslationsModal = function () {
+        $scope.translationsModal = false;
+        $scope.onSaveTemplate();
+        $scope.onReloadModel();
+    };
+
     $scope.onAddCustomAttribute = function () {
         if (!$scope.customAttributes) $scope.customAttributes = [];
         $scope.customAttributes.push({})
     };
+
+        $scope.onOpenTranslationsModal = function () {
+            if (!$scope.translations) {
+                $scope.translations = [];
+                // $scope.translations.push({})
+            }
+            $scope.translationsModal = true;
+            $scope.translationsFilter = undefined;
+        };
+
+        $scope.onAddTranslation = function () {
+            if (!$scope.translations) $scope.translations = [];
+
+            var translation = {};
+            translation.key = "";
+
+            var locales = [];
+            locales.push({"locale": {"key": "en", "name": "English"}, "message": ""});
+            locales.push({"locale": {"key": "es", "name": "Spanish"}, "message": ""});
+            translation.locales = locales;
+
+            $scope.translations.push(translation);
+            $scope.translationsFilter = undefined;
+
+            // var objDiv = document.getElementById("translationsModalMapper");
+            // objDiv.scrollTop = objDiv.scrollHeight;
+
+
+            $('#translationsModalMapper').stop().animate({
+                scrollTop: $('#translationsModalMapper')[0].scrollHeight
+            }, 800);
+        };
+
+        $scope.onDeleteTranslation = function ($index) {
+            $scope.translations.splice($index, 1);
+        };
+
+        $scope.onExportTranslations = function () {
+            if ($scope.translations) {
+
+                var data = [["Key", "English", "Español"]];
+                angular.forEach($scope.translations, function (translation) {
+                    var row = [];
+                    row.push(translation.key);
+                    var en = "";
+                    var es = "";
+                    angular.forEach(translation.locales, function(locale) {
+                        var quotesInd = locale.message.indexOf("\"") >= 0;
+                        var message = (quotesInd ? "\"" : "") + locale.message.replace(/"/g, "\"\"") + (quotesInd ? "\"" : "");
+                        if (locale.locale.key === 'en') en = message;
+                        if (locale.locale.key === 'es') es = message;
+                    });
+
+                    row.push(en);
+                    row.push(es);
+                    data.push(row);
+                });
+
+                var csvContent = "data:text/csv;charset=utf-8,";
+                data.forEach(function(infoArray, index){
+                    var dataString = infoArray.join(",");
+                    csvContent += index < data.length ? dataString+ "\n" : dataString;
+                });
+
+                var encodedUri = encodeURI(csvContent);
+                var link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", "SproutTranslations.csv");
+                document.body.appendChild(link); // Required for FF
+
+                link.click();
+            }
+        };
+
+        function loadHandler(event) {
+            var csv = event.target.result;
+            processTranslationsImportData(csv);
+        }
+
+        function processTranslationsImportData(csv) {
+            var allTextLines = csv.split(/\r\n|\n/);
+            var lines = [];
+            while (allTextLines.length) {
+                lines.push(allTextLines.shift().split(','));
+            }
+            // console.log(lines);
+
+            if (lines && lines.length > 0) {
+                var translations = [];
+
+                var rowCounter = 0;
+
+                angular.forEach(lines, function(row) {
+
+                    if (rowCounter++ > 0 && Array.isArray(row)) {
+                        var key = row[0];
+
+                        var en = row[1];
+                        var es = row[2];
+
+                        if (row[1] && row[1].indexOf('"') === 0) {
+                            en = row[1].substring(1, row[1].length - 1).replace(/\"\"/g, '\"');
+                        }
+                        if (row[2] && row[2].indexOf('"') === 0) {
+                            es = row[2].substring(1, row[2].length - 1).replace(/\"\"/g, '\"');
+                        }
+
+                        if (key) {
+                            var translation = {};
+                            translation.key = key;
+
+                            var locales = [];
+                            locales.push({"locale": {"key": "en", "name": "English"}, "message": en});
+                            locales.push({"locale": {"key": "es", "name": "Spanish"}, "message": es});
+                            translation.locales = locales;
+
+                            translations.push(translation);
+                        }
+                    }
+                });
+
+                $scope.translations = translations;
+                $scope.onSaveTemplate();
+            }
+
+        }
+
+        function errorHandler(evt) {
+            if(evt.target.error.name == "NotReadableError") {
+                alert("Error: invalid CSV file.");
+            }
+        }
+
+        $scope.onImportTranslations = function () {
+            // console.log("onImportTranslations");
+            $("#csvFileInput").click();
+        };
 
     $scope.onDeleteCustomAttribute = function ($index) {
         $scope.customAttributes.splice([$index],1);
@@ -162,24 +353,24 @@ angular.module('sproutStudyApp')
 
     $scope.onReloadNarrative = function() {
         compileTemplate();
-    }
+    };
 
     $scope.onToggleSyncNarrative = function() {
         $scope.syncNarrative = !$scope.syncNarrative;
         if ($scope.syncNarrative) $scope.onReloadNarrative();
-    }
+    };
 
     $scope.onToggleSyncModel = function() {
         $scope.syncModel = !$scope.syncModel;
         if ($scope.syncModel) $scope.onReloadModel();
-    }
+    };
 
     $scope.onSyncModel = function() {
         if ($scope.syncModel) {
             $scope.onReloadModel();
             if ($scope.syncNarrative) $scope.onReloadNarrative();
         }
-    }
+    };
 
     $scope.onViewAsText = function() {
         compileTemplate();
@@ -191,20 +382,20 @@ angular.module('sproutStudyApp')
         });
     };
 
-        $scope.waitForModal = function (data) {
-            $timeout(function() {
-                var pdfViewContainer = jQuery('#pdfViewContainer').attr("src");
+    $scope.waitForModal = function (data) {
+        $timeout(function() {
+            var pdfViewContainer = jQuery('#pdfViewContainer').attr("src");
 
-                if (pdfViewContainer == undefined) {
-                    //Wait some more...
-                    $scope.waitForModal(data);
-                } else {
-                    try {
-                        jQuery('#pdfViewContainer').attr("src", data);
-                    } catch (e) {}
-                }
-            }, 200);
-        };
+            if (pdfViewContainer == undefined) {
+                //Wait some more...
+                $scope.waitForModal(data);
+            } else {
+                try {
+                    jQuery('#pdfViewContainer').attr("src", data);
+                } catch (e) {}
+            }
+        }, 200);
+    };
 
     $scope.onViewAsPDF = function() {
         $scope.pdfLoadingError = undefined;
@@ -262,6 +453,7 @@ angular.module('sproutStudyApp')
         $scope.customAttributeModal = true;
     };
 
+
     $scope.onCloseTextViewModal = function() {
         $scope.textViewModal = false;
     }
@@ -281,7 +473,12 @@ angular.module('sproutStudyApp')
     $scope.onSaveTemplate = function() {
         $scope.aceCursorPosition = $scope.editor.getCursorPosition();
         $scope.getTemplateFromEditor();
-        transformService.saveTemplate({publicationKey: $scope.form.publicationKey, instanceId: null, templateKey: $scope.templateKey, masterInd: true}, $scope.template, function(data) {
+
+        var model = {};
+        model.template = $scope.template;
+        model.translations = JSON.stringify($scope.translations);
+
+        transformService.saveTemplate({publicationKey: $scope.form.publicationKey, instanceId: null, templateKey: $scope.templateKey, masterInd: true}, model, function(data) {
             if (data.value == 'false') {
                 alert("Failed to save narrative template.");
             } else {
@@ -293,7 +490,7 @@ angular.module('sproutStudyApp')
                 $scope.focusOnEditor();
             }
         });
-    }
+    };
 
     $scope.focusOnEditor = function() {
         if ($scope.aceCursorPosition !== undefined) {
@@ -311,6 +508,10 @@ angular.module('sproutStudyApp')
         transformService.getTemplate({publicationKey: publicationKey, instanceId: null}, function(data) {
             $scope.templateKey = data.key;
             $scope.template = data.template;
+
+            if (data.translations && typeof data.translations === 'string') {
+                $scope.translations = JSON.parse(data.translations);
+            }
         });
     }
 
@@ -446,7 +647,13 @@ angular.module('sproutStudyApp')
         var triggerAutosave = function() {
             if ($scope.autosave && $scope.templateHasChanges) {
                 $scope.getTemplateFromEditor();
-                transformService.saveTemplate({publicationKey: $scope.form.publicationKey, instanceId: null, templateKey: $scope.templateKey, masterInd: true}, $scope.template, function(data) {
+
+
+                var model = {};
+                model.template = $scope.template;
+                model.translations = JSON.stringify($scope.translations);
+
+                transformService.saveTemplate({publicationKey: $scope.form.publicationKey, instanceId: null, templateKey: $scope.templateKey, masterInd: true}, model, function(data) {
                     if (data.value == 'false') {
                         alert("Failed to save narrative template.");
                     } else {
@@ -461,8 +668,33 @@ angular.module('sproutStudyApp')
 
 
             }
-        }
+        };
 
         var autosaveIntervalID = window.setInterval(triggerAutosave, 1500);
+
+        $scope.getFile = function () {
+            var reader = new FileReader();
+            // Handle errors load
+            reader.onload = loadHandler;
+            reader.onerror = errorHandler;
+            // Read file into memory as UTF-8
+            reader.readAsText($scope.file);
+        };
+
+}).directive("ngFileSelect",function(){
+
+    return {
+        link: function($scope,el){
+
+            el.bind("change", function(e){
+
+                $scope.file = (e.srcElement || e.target).files[0];
+                $scope.getFile();
+            })
+
+        }
+
+    }
+
 
 });

@@ -20,6 +20,8 @@
                                 <ul class="dropdown-menu">
                                     <li><a ng-click="changeLocale('en')" class="sproutstudy-tab-button">English</a></li>
                                     <li><a ng-click="changeLocale('es')" class="sproutstudy-tab-button">Spanish</a></li>
+                                    <li class="divider"></li>
+                                    <li><a ng-click="onOpenTranslationsModal()" class="sproutstudy-tab-button">Translations</a></li>
                                 </ul>
                             </div>
                             <div class="btn-group">
@@ -169,6 +171,46 @@
         </div>
         <div class="modal-footer">
             <button class="btn btn-primary cancel" ng-click="onCloseCustomAttributeModal()">Close</button>
+        </div>
+    </div>
+    <div modal="translationsModal" close="onCloseTranslationsModal()" options="modalSmallOpts">
+        <div class="modal-header">
+            <h4>Translations
+                <span style="float: right"><input name="translationsFilter" placeholder="filter..." ng-model="translationsFilter"></input></span>
+            </h4>
+        </div>
+        <div class="modal-body modal-body-short" id="translationsModalMapper" style="min-height: 450px;">
+            <table class="table table-bordered table-striped">
+                <tr>
+                    <th style="width: 216px;">Key</th>
+                    <th style="width: 100%;">Value</th>
+                </tr>
+                <tr ng-repeat="translation in translations|filter: translationsFilter">
+                    <td style="width: 216px;">
+                        <input name="name" ng-model="translation.key"></input>
+                        <br/><i class="fa fa-trash-o" aria-hidden="true" style="cursor: pointer;" ng-click="onDeleteTranslation($index)"></i>
+                    </td>
+                    <td>
+                        <div ng-repeat="locale in translation.locales">
+                            <h5>{{locale.locale.name}}</h5>
+                            <textarea name="localeValue" ng-model="locale.message" style="width: 95%"></textarea>
+                        </div>
+                    </td>
+                </div>
+            </table>
+        </div>
+        <div class="modal-footer">
+            <span style="float: left">
+                <button class="btn btn-primary" style="width: 100px;" ng-click="onAddTranslation()">Add</button>
+                <div class="btn-group">
+                    <button class="btn btn-default" ng-disabled="!translations" ng-click="onExportTranslations()" title="Export"><i class="fa fa-download" aria-hidden="true"></i></button>
+                    <button class="btn btn-default" ng-click="onImportTranslations()" title="Import"><i class="fa fa-upload" aria-hidden="true"></i></button>
+                </div>
+            </span>
+            <span style="position: absolute; left: -10000px;">
+                <input type="file" id="csvFileInput" ng-file-select="onFileSelect($files)" >
+            </span>
+            <button class="btn btn-primary cancel" ng-click="onCloseTranslationsModal()">Close</button>
         </div>
     </div>
 

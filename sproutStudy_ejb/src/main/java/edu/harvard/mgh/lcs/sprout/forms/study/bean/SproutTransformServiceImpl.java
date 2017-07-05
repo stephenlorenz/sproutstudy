@@ -64,11 +64,13 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 				if (templateMasterEntity != null) {
 					templateTO.setKey(templateMasterEntity.getKey());
 					templateTO.setTemplate(templateMasterEntity.getTemplate());
+					templateTO.setTranslations(templateMasterEntity.getTranslations());
 					return templateTO;
 				}
 			} else {
 				templateTO.setKey(templateCloneEntity.getKey());
 				templateTO.setTemplate(templateCloneEntity.getTemplate());
+				templateTO.setTranslations(templateCloneEntity.getTranslations());
 				return templateTO;
 			}
 		} else if (StringUtils.isFull(publicationKey)) {
@@ -76,6 +78,7 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 			if (templateMasterEntity != null) {
 				templateTO.setKey(templateMasterEntity.getKey());
 				templateTO.setTemplate(templateMasterEntity.getTemplate());
+				templateTO.setTranslations(templateMasterEntity.getTranslations());
 				return templateTO;
 			}
 		}
@@ -816,7 +819,7 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 
 	@Override
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public BooleanTO saveTemplate(String publicationKey, String instanceId, String template, String templateKey, boolean masterInd) {
+	public BooleanTO saveTemplate(String publicationKey, String instanceId, String template, String templateKey, boolean masterInd, String translations) {
 		if (StringUtils.isFull(instanceId) && !instanceId.equalsIgnoreCase("null")) {
 			TemplateCloneEntity templateCloneEntity = getTemplateCloneEntities(instanceId);
 			if (templateCloneEntity == null && StringUtils.isFull(publicationKey)) {
@@ -826,6 +829,7 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 					templateCloneEntityNew.setInstanceId(instanceId);
 					templateCloneEntityNew.setKey(StringUtils.getGuid());
 					templateCloneEntityNew.setTemplate(template);
+					templateCloneEntityNew.setTranslations(translations);
 					templateCloneEntityNew.setActive(true);
 					templateCloneEntityNew.setMasterTemplate(templateMasterEntity);
 					templateCloneEntityNew.setActivityDate(new Date());
@@ -841,6 +845,7 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 				templateCloneEntityNew.setInstanceId(instanceId);
 				templateCloneEntityNew.setKey(StringUtils.getGuid());
 				templateCloneEntityNew.setTemplate(template);
+				templateCloneEntityNew.setTranslations(translations);
 				templateCloneEntityNew.setActive(true);
 				templateCloneEntityNew.setMasterTemplate(templateCloneEntity.getMasterTemplate());
 				templateCloneEntityNew.setActivityDate(new Date());
@@ -855,6 +860,7 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 //			if (templateMasterEntity != null && templateMasterEntity.getKey().equals(templateKey)) {
 			if (templateMasterEntity != null) {
 				templateMasterEntity.setTemplate(template);
+				templateMasterEntity.setTranslations(translations);
 				templateMasterEntity.setActivityDate(new Date());
 				entityManager.merge(templateMasterEntity);
 				return new BooleanTO(true);
@@ -862,6 +868,7 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 				templateMasterEntity = new TemplateMasterEntity();
 				templateMasterEntity.setPublicationKey(publicationKey);
 				templateMasterEntity.setTemplate(template);
+				templateMasterEntity.setTranslations(translations);
 				templateMasterEntity.setKey(StringUtils.getGuid());
 				templateMasterEntity.setActive(true);
 				templateMasterEntity.setActivityDate(new Date());

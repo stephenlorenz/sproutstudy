@@ -435,6 +435,36 @@
             }
         });
 
+        Handlebars.registerHelper("i18n", function(code, messages, options) {
+
+
+//            console.log("option: " + options);
+//            console.dir(options);
+//
+//            console.log("messages: " + messages);
+//            console.dir(messages);
+
+            if (options.data.root && options.data.root.sprout && options.data.root.translations) {
+
+                var formLocale = "en";
+
+                if (options.data.root.sprout.locale) {
+                    formLocale = options.data.root.sprout.locale;
+                }
+
+//                console.log("i10n.code: " + code);
+//                console.log("i10n.formLocale: " + formLocale);
+
+                if (formLocale && options.data.root.translations[code]) {
+                    var translation = options.data.root.translations[code];
+                    if (translation[formLocale]) {
+                        return translation[formLocale];
+                    }
+                }
+
+            }
+        });
+
         Handlebars.registerHelper({
             eq: function (v1, v2) {
                 return v1 === v2;

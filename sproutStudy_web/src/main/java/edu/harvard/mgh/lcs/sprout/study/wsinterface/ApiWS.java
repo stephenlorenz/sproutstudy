@@ -301,7 +301,9 @@ public interface ApiWS {
     @POST
     @Path("/secure/saveTemplate")
     @Produces(MediaType.APPLICATION_JSON)
-    public BooleanTO saveTemplate(@Context HttpServletRequest request, @QueryParam("publicationKey") String publicationKey, @QueryParam("instanceId") String instanceId, @QueryParam("templateKey") String templateKey, @QueryParam("masterInd") boolean masterInd, String template) throws InvalidSessionRESTful;
+    @Consumes(MediaType.APPLICATION_JSON)
+    public BooleanTO saveTemplate(@Context HttpServletRequest request, @QueryParam("publicationKey") String publicationKey, @QueryParam("instanceId") String instanceId, @QueryParam("templateKey") String templateKey, @QueryParam("masterInd") boolean masterInd, TemplateTO templateTO) throws InvalidSessionRESTful;
+//    public BooleanTO saveTemplate(@Context HttpServletRequest request, @QueryParam("publicationKey") String publicationKey, @QueryParam("instanceId") String instanceId, @QueryParam("templateKey") String templateKey, @QueryParam("masterInd") boolean masterInd, String template) throws InvalidSessionRESTful;
 //    public BooleanTO saveTemplate(@Context HttpServletRequest request, @QueryParam("publicationKey") String publicationKey, @QueryParam("instanceId") String instanceId, @QueryParam("template") String template, @QueryParam("templateKey") String templateKey, @QueryParam("masterInd") boolean masterInd) throws InvalidSessionRESTful;
 
     @POST

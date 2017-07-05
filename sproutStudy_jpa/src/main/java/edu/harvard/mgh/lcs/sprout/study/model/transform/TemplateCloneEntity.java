@@ -36,6 +36,10 @@ public class TemplateCloneEntity implements Serializable {
     private String key;
 
     @Basic
+    @Column(name="translations")
+    private String translations;
+
+    @Basic
     @Column(name="active_ind")
     private Boolean active;
 
@@ -81,6 +85,14 @@ public class TemplateCloneEntity implements Serializable {
 
     public void setKey(String key) {
         this.key = key;
+    }
+
+    public String getTranslations() {
+        return translations;
+    }
+
+    public void setTranslations(String translations) {
+        this.translations = translations;
     }
 
     public Boolean isActive() {
