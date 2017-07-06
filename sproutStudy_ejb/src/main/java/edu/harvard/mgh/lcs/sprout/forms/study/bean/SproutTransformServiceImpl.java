@@ -1,7 +1,10 @@
 package edu.harvard.mgh.lcs.sprout.forms.study.bean;
 
+import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.jknack.handlebars.*;
 import com.github.jknack.handlebars.context.FieldValueResolver;
 import com.github.jknack.handlebars.context.JavaBeanValueResolver;
@@ -33,6 +36,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import java.io.*;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -52,6 +56,10 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 	private SproutFormsService sproutFormsService;
 
     private static final Logger LOGGER = Logger.getLogger(SproutTransformServiceImpl.class.getName());
+
+	JsonFactory factory = new JsonFactory();
+
+	ObjectMapper objectMapper = new ObjectMapper(factory);
 
 	@Override
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
@@ -300,6 +308,7 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 //			System.out.println("SproutTransformServiceImpl.getNarrative.2");
 
             String templateText = null;
+            String translationsText = null;
 
 			TemplateCloneEntity templateCloneEntity = null;
 
@@ -309,9 +318,13 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 
 			if (templateCloneEntity != null && StringUtils.isFull(templateCloneEntity.getTemplate())) {
 				templateText = templateCloneEntity.getTemplate();
+				translationsText = templateCloneEntity.getTranslations();
 			} else {
 				TemplateMasterEntity templateMasterEntity = getTemplateMasterEntity(publicationKey);
-				if (templateMasterEntity != null) templateText = templateMasterEntity.getTemplate();
+				if (templateMasterEntity != null) {
+					templateText = templateMasterEntity.getTemplate();
+					translationsText = templateMasterEntity.getTranslations();
+				}
 			}
 
 //			System.out.println("SproutTransformServiceImpl.getNarrative.3");
@@ -331,6 +344,58 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 					Template template = handlebars.compileInline(templateText);
 
 					JsonNode jsonNode = new ObjectMapper().readValue(jsonData, JsonNode.class);
+
+//					System.out.println("SproutTransformServiceImpl.getNarrative.translationsText: " + translationsText);
+
+					if (StringUtils.isFull(translationsText)) {
+						try {
+
+							ObjectNode newTranslationNodes = new ObjectMapper().createObjectNode();
+
+							JsonNode translationNodes = new ObjectMapper().readValue(translationsText, JsonNode.class);
+							if (translationNodes != null) {
+								Iterator<JsonNode> translations = translationNodes.elements();
+
+								if (translations != null) {
+									while (translations.hasNext()) {
+										JsonNode translation = translations.next();
+
+//										System.out.println("TestTranslationsTransform.test.translation: " + translation);
+
+										String key = translation.get("key").textValue();
+
+//										System.out.println("TestTranslationsTransform.test.key: " + key);
+
+										JsonNode localesNode = translation.get("locales");
+
+										Iterator<JsonNode> locales = localesNode.elements();
+
+										ObjectNode localeNodes = new ObjectMapper().createObjectNode();
+
+										if (locales != null) {
+											while (locales.hasNext()) {
+												JsonNode localeTmp = locales.next();
+
+												String localeKey = localeTmp.get("locale").get("key").textValue();
+												String localeMessage = localeTmp.get("message").textValue();
+
+//												System.out.println(localeKey + ": " + localeMessage);
+
+												localeNodes.put(localeKey, localeMessage);
+											}
+											newTranslationNodes.put(key, localeNodes);
+										}
+									}
+								}
+
+//								System.out.println("TestTranslationsTransform.test.newTranslationNodes: " + newTranslationNodes);
+								((ObjectNode) jsonNode).put("translations", newTranslationNodes);
+							}
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+
 					handlebars.registerHelper("json", Jackson2Helper.INSTANCE);
 
 					Context context = Context

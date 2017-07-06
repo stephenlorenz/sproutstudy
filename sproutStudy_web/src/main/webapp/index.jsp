@@ -435,7 +435,7 @@
             }
         });
 
-        Handlebars.registerHelper("i18n", function(code, messages, options) {
+        Handlebars.registerHelper("i18n", function(code, options) {
 
 
 //            console.log("option: " + options);
@@ -452,13 +452,14 @@
                     formLocale = options.data.root.sprout.locale;
                 }
 
-//                console.log("i10n.code: " + code);
-//                console.log("i10n.formLocale: " + formLocale);
+                console.log("i10n.code: " + code);
+                console.log("i10n.formLocale: " + formLocale);
 
                 if (formLocale && options.data.root.translations[code]) {
                     var translation = options.data.root.translations[code];
                     if (translation[formLocale]) {
-                        return translation[formLocale];
+                        var template = Handlebars.compile(translation[formLocale]);
+                        return template(this);
                     }
                 }
 

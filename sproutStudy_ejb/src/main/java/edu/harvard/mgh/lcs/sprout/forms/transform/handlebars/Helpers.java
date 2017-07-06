@@ -3,8 +3,9 @@ package edu.harvard.mgh.lcs.sprout.forms.transform.handlebars;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.jknack.handlebars.Context;
+import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Options;
-import com.sun.crypto.provider.BlowfishKeyGenerator;
+import com.github.jknack.handlebars.Template;
 import edu.harvard.mgh.lcs.sprout.forms.study.util.StringUtils;
 
 import java.io.IOException;
@@ -24,7 +25,7 @@ public class Helpers {
 //    medium: "MMM D",
 //    long: "dddd, MMM D, YYYY"
 //
-
+    private Handlebars handlebars = new Handlebars();
 
     public CharSequence compare(String lvalue, String operator, String rvalue, Options options) throws IOException {
 
@@ -298,7 +299,9 @@ public class Helpers {
                 if (translationNode != null) {
                     JsonNode locale = translationNode.get(sproutLocale);
                     if (locale != null) {
-                        return locale.textValue();
+                        String message = locale.textValue();
+                        Template template = handlebars.compileInline(message);
+                        return template.apply(options.context);
                     }
                 }
             }

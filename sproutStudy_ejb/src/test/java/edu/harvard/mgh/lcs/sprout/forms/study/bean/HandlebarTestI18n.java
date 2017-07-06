@@ -33,9 +33,865 @@ public class HandlebarTestI18n {
 
 			handlebars.registerHelpers(new Helpers());
 
-
-
-			String json = " {\"sprout\":{\"locale\": \"es\", \"userId\":\"3861812@mgh\",\"inboxId\":\"995\",\"instanceId\":\"9BBC4C66-A985-41D3-9FBF-3467663E4DB7\",\"currentStep\":\"step21\",\"currentInput\":\"36091\",\"validationStatus\":\"\",\"initStep\":\"step21\",\"initInput\":\"initialized\",\"submissionDate\":\"February 26, 2016 2:15 PM\",\"expirationDate\":\"\",\"lockKey\":\"ACDCAC96-1A2D-401C-8A45-2E233405F8A0\"},\"form\":{\"id\":\"398\",\"version\":\"39\",\"mode\":\"AUTOSAVE\"},\"frm_nuclear_cardiolo_1\":{\"procedure_name1\":\"STRESS TEST EXERCISE\",\"aborted\":\"\",\"order_no\":\"200017\",\"procedure_code\":\"STRESS100\",\"pt_name_grid\":[{\"patient_last_name\":\"Oe-test\"},{\"patent_first_name\":\"George\"},{\"patient_middle_initial\":\"\"}],\"mrn\":\"3861812\",\"epic_dob\":\"19350101\",\"dob\":\"01/01/1935\",\"age\":\"81\",\"gender\":{\"name\":\"Male\",\"value\":\"M\"},\"height\":\"60\",\"weight\":\"130\",\"weight_kg\":\"59.0\",\"bsa\":\"1.6\",\"bmi\":\"25\",\"in_out\":{\"name\":\"Inpatient\",\"value\":\"in\"},\"pt_location_grid\":[{\"patient_location\":{\"name\":\"\",\"value\":\"\"}},{\"floor\":\"\"},{\"lab\":{\"name\":\"\",\"value\":\"\"}}],\"fund_number\":\"\",\"stress_start_time\":\"\",\"ordering_md_first\":\"HENRY\",\"ordering_md_last\":\"GEWIRTZ\",\"ordering_md\":\"HENRY GEWIRTZ\",\"rendering_provider\":{\"name\":\"\",\"value\":\"\"},\"billing_provider\":{\"name\":\"\",\"value\":null},\"staff_nuclear_cardiologist\":{\"name\":\"Ahmed Tawakol, MD\",\"value\":\"at018\"},\"staff_radiologist\":{\"name\":\"\",\"value\":\"\"},\"add_rnmd\":\"\",\"stress_tester\":\"\",\"nuclear_tech\":\"\",\"typed_by\":\"\",\"purpose_grid\":[{\"p_arrhythmia\":{\"name\":\"Assess arryhthmia\",\"value\":\"1\"}},{\"p_angio\":{\"name\":\"Angiographic correlation\",\"value\":\"1\"}},{\"p_baseline\":{\"name\":\"Baseline exercise\",\"value\":\"\"}},{\"p_chemo\":{\"name\":\"Chemotherapy\",\"value\":\"\"}},{\"p_chest_pain\":{\"name\":\"Chest pain\",\"value\":\"\"}},{\"p_diagnosis_ischemia\":{\"name\":\"Diagnosis of ischemia\",\"value\":\"\"}},{\"p_functional\":{\"name\":\"Evaluate functional capacity\",\"value\":\"\"}},{\"p_evaluate_ischemia\":{\"name\":\"Evaluate ischemia\",\"value\":\"\"}},{\"p_lvfunction\":{\"name\":\"Evaluate LV function\",\"value\":\"\"}},{\"p_multiple_risks\":{\"name\":\"Evaluate multiple risks\",\"value\":\"\"}},{\"p_fup_cabg\":{\"name\":\"Follow-up CABG\",\"value\":\"\"}},{\"p_fup_mi\":{\"name\":\"Follow-up MI\",\"value\":\"\"}},{\"p_fup_ptca\":{\"name\":\"Follow-up PTCA/Stent\",\"value\":\"\"}},{\"p_fup_preop\":{\"name\":\"Preop (non-cardiac)\",\"value\":\"\"}},{\"p_research\":{\"name\":\"Research\",\"value\":\"\"}},{\"p_screening\":{\"name\":\"Screening\",\"value\":\"\"}},{\"p_qtc\":{\"name\":\"Assess QTc, rest and stress\",\"value\":\"\"}},{\"p_viability\":{\"name\":\"Assess viability\",\"value\":\"\"}}],\"risk_factors_composite\":[{\"rf_diabetes\":{\"name\":\"Diabetes\",\"value\":\"1\"}},{\"rf_dyslipidemia\":{\"name\":\"Dyslipidemia\",\"value\":\"\"}},{\"rf_hypertension\":{\"name\":\"Hypertension\",\"value\":\"\"}},{\"rf_family_history\":{\"name\":\"Family History\",\"value\":\"\"}},{\"rf_smoking_past\":{\"name\":\"Smoking, past\",\"value\":\"\"}},{\"rf_smoking_pres\":{\"name\":\"Smoking, present\",\"value\":\"\"}},{\"rf_coronary_ca\":{\"name\":\"Coronary calcium\",\"value\":\"1\"}},{\"rf_hscrp\":{\"name\":\"Elevated hsCRP\",\"value\":\"\"}},{\"rf_menopause\":{\"name\":\"Menopause\",\"value\":\"\"}},{\"rf_obesity\":{\"name\":\"Obesity\",\"value\":\"\"}}],\"history_composite\":[{\"hx_mi_current\":{\"name\":\"MI, current\",\"value\":\"\"}},{\"hx_mi_old\":{\"name\":\"MI, old\",\"value\":\"\"}},{\"hx_cp_atypical\":{\"name\":\"CP, atypical\",\"value\":\"\"}},{\"hx_cp_typical\":{\"name\":\"CP, typical\",\"value\":\"\"}},{\"hx_angina_atypical\":{\"name\":\"Atypical angina\",\"value\":\"\"}},{\"hx_angina_typical\":{\"name\":\"Typical angina\",\"value\":\"\"}},{\"hx_dyspnea\":{\"name\":\"Dyspnea\",\"value\":\"\"}},{\"hx_lung_disease\":{\"name\":\"Lung disease\",\"value\":\"\"}},{\"hx_chf\":{\"name\":\"CHF\",\"value\":\"\"}},{\"hx_palpitations\":{\"name\":\"Palpitations\",\"value\":\"\"}},{\"hx_dizzy\":{\"name\":\"Lightheaded/dizzy\",\"value\":\"\"}},{\"hx_substance_abuse\":{\"name\":\"Substance abuse\",\"value\":\"\"}},{\"hx_syncope\":{\"name\":\"Syncope\",\"value\":\"\"}},{\"hx_presyncope\":{\"name\":\"Pre-syncope\",\"value\":\"\"}},{\"hx_arrhythmia\":{\"name\":\"Arrhythmia\",\"value\":\"\"}},{\"hx_pvd\":{\"name\":\"PVD/Carotid disease\",\"value\":\"\"}},{\"hx_device\":{\"name\":\"Implantable device\",\"value\":\"\"}},{\"hx_fatigue\":{\"name\":\"Fatigue\",\"value\":\"\"}},{\"hx_cerebro_disease\":{\"name\":\"Cerebrovascular disease\",\"value\":\"\"}},{\"hx_thrombolysis\":{\"name\":\"Thrombolysis\",\"value\":\"\"}},{\"hx_valve_disease\":{\"name\":\"Valvular abnormalities\",\"value\":\"\"}},{\"hx_kidney_disease\":{\"name\":\"Kidney disease\",\"value\":\"\"}},{\"hx_other_cardiac_disease\":{\"name\":\"Other heart disease\",\"value\":\"\"}},{\"hx_cancer\":{\"name\":\"Cancer\",\"value\":\"\"}},{\"hx_etoh\":{\"name\":\"ETOH\",\"value\":\"\"}},{\"hx_seizures\":{\"name\":\"Seizures\",\"value\":\"\"}},{\"hx_viagra\":{\"name\":\"Viagra\",\"value\":\"\"}},{\"hx_viagra_last_dose\":\"\"}],\"cath\":{\"name\":\"Cath\",\"value\":\"\"},\"cath_composite\":[{\"cath_date\":\"\"},{\"cath_norm\":{\"name\":\"Normal Cors\",\"value\":\"\"}},{\"cath_cad\":{\"name\":\"CAD\",\"value\":\"\"}},{\"cath_lad\":{\"name\":\"LAD\",\"value\":\"\"}},{\"cath_cx\":{\"name\":\"Cx\",\"value\":\"\"}},{\"cath_rca\":{\"name\":\"RCA\",\"value\":\"\"}},{\"cath_lm\":{\"name\":\"LM\",\"value\":\"\"}}],\"cabg\":{\"name\":\"CABG\",\"value\":\"\"},\"cabg_composite\":[{\"cabg_date\":\"\"},{\"cabg_lad\":{\"name\":\"LAD\",\"value\":\"\"}},{\"cabg_cx\":{\"name\":\"Cx\",\"value\":\"\"}},{\"cabg_rca\":{\"name\":\"RCA\",\"value\":\"\"}},{\"cabg_lm\":{\"name\":\"LM\",\"value\":\"\"}}],\"ptca\":{\"name\":\"PTCA/Stent\",\"value\":\"\"},\"ptca_composite\":[{\"ptca_date\":\"\"},{\"ptca_lad\":{\"name\":\"LAD\",\"value\":\"\"}},{\"ptca_cx\":{\"name\":\"Cx\",\"value\":\"\"}},{\"ptca_rca\":{\"name\":\"RCA\",\"value\":\"\"}},{\"ptca_lm\":{\"name\":\"LM\",\"value\":\"\"}}],\"primary_dx\":{\"name\":\"Abnormal CV study\",\"value\":\"abcv\"},\"secondary_dx\":{\"name\":\"\",\"value\":\"\"},\"other_dx\":\"\",\"medications\":{\"name\":\"No\",\"value\":\"0\"},\"min_medication_name\":\"\",\"min_medication_code\":\"\",\"medication_code\":\"\",\"medications_other\":\"\",\"pain_in_other\":\"\",\"pain_refer_composite\":[{\"pain_to_note\":{\"name\":\"Progress note\",\"value\":\"\"}},{\"pain_to_chart\":{\"name\":\"Medication records\",\"value\":\"\"}},{\"pain_to_flow\":{\"name\":\"Flow chart\",\"value\":\"\"}}],\"pain_perf_by\":\"\",\"pain_location\":{\"name\":\"\",\"value\":\"\"},\"pain_comment\":\"\",\"pain_ref_composite\":[{\"pain_ref_pcp\":{\"name\":\"PCP\",\"value\":\"\"}},{\"pain_ref_ed\":{\"name\":\"ED\",\"value\":\"\"}},{\"pain_ref_other\":{\"name\":\"Other\",\"value\":\"\"}}],\"pain_meds\":{\"name\":\"Medication\",\"value\":\"\"},\"pain_treat_other\":\"\",\"pain_reasses_composite\":[{\"pain_reasses_des\":{\"name\":\"Desired\",\"value\":\"\"}},{\"pain_reasses_unded\":{\"name\":\"Undesired\",\"value\":\"\"}},{\"pain_reasses_early\":{\"name\":\"Too early\",\"value\":\"\"}}],\"pain_reasses_comment\":\"\",\"procedure_name\":\"STRESS TEST EXERCISE\",\"order_date_epic\":\"20150805103411\",\"order_date\":\"Aug 5, 2015\",\"order_time\":\"10:34 am\",\"accession_number\":\"T100017\",\"procedure\":\"procNIETT\",\"procedure_type\":{\"name\":\"Standard Bruce\",\"value\":\"2\"},\"gbps_dose\":\"\",\"rest_dose\":\"\",\"stress_dose\":\"\",\"rest_perf_dose\":\"\",\"fdg_dose\":\"\",\"insulin\":{\"name\":\"Insulin\",\"value\":\"\"},\"units\":\"\",\"max_dose\":{\"name\":\"\",\"value\":\"\"},\"max_dose_frac\":\"0\",\"time_max_dose_min\":\"\",\"time_max_dose_sec\":\"\",\"max_dose_min_dec\":\"0.00\",\"max_dose_calc\":\"0\",\"dob_cum_dose_calc\":\"0\",\"dipyridamole_dose_calc\":\"33\",\"atropine_dose\":\"\",\"iv_aminophylline\":\"\",\"procedural_comment\":\"\",\"restonly_hr\":\"\",\"restonly_bp_grid\":[{\"restonly_sbp\":\"\"},{\"restonly_dbp\":\"\"}],\"restonly_comment\":\"\",\"ecg_rhythm_grid\":[{\"ecg_nsr\":{\"name\":\"NSR\",\"value\":\"1\"}},{\"ecg_ap\":{\"name\":\"A-Paced\",\"value\":\"1\"}},{\"ecg_vp\":{\"name\":\"V-Paced\",\"value\":\"\"}},{\"ecg_avp\":{\"name\":\"AV-Paced\",\"value\":\"\"}},{\"ecg_apc\":{\"name\":\"APCs\",\"value\":\"1\"}},{\"ecg_pvc\":{\"name\":\"PVCs\",\"value\":\"\"}},{\"ecg_afib\":{\"name\":\"AFib\",\"value\":\"\"}},{\"ecg_atfl\":{\"name\":\"Atrial Flutter\",\"value\":\"\"}},{\"ecg_svt\":{\"name\":\"SVT\",\"value\":\"\"}},{\"ecg_aivr\":{\"name\":\"AIVR\",\"value\":\"\"}},{\"ecg_ab\":{\"name\":\"Sinus Bradycardia\",\"value\":\"\"}},{\"ecg_1avb\":{\"name\":\"1degree AVB\",\"value\":\"\"}},{\"ecg_m1\":{\"name\":\"Mobitz I\",\"value\":\"\"}},{\"ecg_m2\":{\"name\":\"Mobitz II\",\"value\":\"\"}}],\"ecg_other_grid\":[{\"ecg_twnl\":{\"name\":\"TWNL\",\"value\":\"\"}},{\"ecg_imi\":{\"name\":\"IMI\",\"value\":\"\"}},{\"ecg_ami\":{\"name\":\"AMI\",\"value\":\"\"}},{\"ecg_tpmi\":{\"name\":\"TPMI\",\"value\":\"\"}},{\"ecg_latmi\":{\"name\":\"LatMI\",\"value\":\"\"}},{\"ecg_asmi\":{\"name\":\"ASMI\",\"value\":\"\"}},{\"ecg_ipmi\":{\"name\":\"IPMI\",\"value\":\"\"}},{\"ecg_lbbb\":{\"name\":\"LBBB\",\"value\":\"\"}},{\"ecg_rbbb\":{\"name\":\"RBBB\",\"value\":\"\"}},{\"ecg_ivcd\":{\"name\":\"IVCD\",\"value\":\"\"}},{\"ecg_lvh\":{\"name\":\"LVH\",\"value\":\"\"}},{\"ecg_rvh\":{\"name\":\"RVH\",\"value\":\"\"}},{\"ecg_bvh\":{\"name\":\"BVH\",\"value\":\"\"}},{\"ecg_lae\":{\"name\":\"LAE\",\"value\":\"\"}},{\"ecg_rae\":{\"name\":\"RAE\",\"value\":\"\"}},{\"ecg_bae\":{\"name\":\"BAE\",\"value\":\"\"}},{\"ecg_qwaves\":{\"name\":\"Q waves\",\"value\":\"\"}},{\"ecg_sttwa\":{\"name\":\"ST-T wave abnormalities\",\"value\":\"\"}},{\"ecg_prwp\":{\"name\":\"PRWP\",\"value\":\"\"}},{\"ecg_lph\":{\"name\":\"LPH\",\"value\":\"\"}},{\"ecg_lahb\":{\"name\":\"LAHB\",\"value\":\"\"}},{\"ecg_twi\":{\"name\":\"T wave inversions\",\"value\":\"\"}},{\"ecg_lad\":{\"name\":\"LAD\",\"value\":\"\"}},{\"ecg_rad\":{\"name\":\"RAD\",\"value\":\"\"}}],\"ecg_comments\":\"\",\"max_st_change_calc\":\"\",\"stress_ecg_comments\":\"\",\"arrhythmias\":{\"name\":\"No Arrhythmia\",\"value\":\"\"},\"arrhythmia_apc_occ\":{\"name\":\"Occasional\",\"value\":\"\"},\"arrhythmia_apc_frequent\":{\"name\":\"Frequent\",\"value\":\"\"},\"arrhythmia_vpc_occ\":{\"name\":\"Occasional\",\"value\":\"\"},\"arrhythmia_vpc_frequent\":{\"name\":\"Frequent\",\"value\":\"\"},\"arrhythmia_vt_sust\":{\"name\":\"Sustained (greater than 30 secs)\",\"value\":\"\"},\"arrhythmia_vt_non\":{\"name\":\"Non-sustained (less than 30 secs)\",\"value\":\"\"},\"arrhythmia_beats\":\"\",\"arrhythmia_rate\":\"\",\"arrhythmia_vea_coup\":{\"name\":\"Couplets\",\"value\":\"\"},\"arrhythmia_vea_bitri\":{\"name\":\"Bi/Tri Gemini\",\"value\":\"\"},\"resting_hr\":\"\",\"resting_bp_grid\":[{\"resting_sbp\":\"\"},{\"resting_dbp\":\"\"}],\"peak_hr\":\"\",\"peak_bp_grid\":[{\"peak_sbp\":\"\"},{\"peak_dbp\":\"\"}],\"min_bp_grid\":[{\"minimum_sbp\":\"\"},{\"minimum_dbp\":\"\"}],\"mphr\":\"0\",\"injection_time\":\"\",\"stress_chest_pain_composite\":[{\"cp_no\":{\"name\":\"Did not occur\",\"value\":\"\"}},{\"cp_yes\":{\"name\":\"Occurred\",\"value\":\"\"}},{\"cp_same\":{\"name\":\"Same as presenting pain\",\"value\":\"\"}},{\"cp_different\":{\"name\":\"Different from presenting pain\",\"value\":\"\"}},{\"cp_angina\":{\"name\":\"c/w angina\",\"value\":\"\"}},{\"cp_tng\":{\"name\":\"Required TNG\",\"value\":\"\"}},{\"cp_no_tng\":{\"name\":\"Did not require TNG\",\"value\":\"\"}}],\"angina_index\":\"0\",\"cp_onset_min\":\"\",\"cp_onset_sec\":\"\",\"cp_onset_hr\":\"\",\"cp_bp_grid\":[{\"cp_onset_sbp\":\"\"},{\"cp_onset_dbp\":\"\"}],\"peak_double\":\"0\",\"mets\":{\"name\":\"7\",\"value\":\"7\"},\"total_exercise_time_min\":\"\",\"total_exercise_time_sec\":\"\",\"total_exercise_time\":\"0\",\"treadmill_grade\":\"\",\"speed\":\"\",\"end_point_composite\":[{\"ep_arrhythmia\":{\"name\":\"Arrhythmia\",\"value\":\"\"}},{\"ep_chest_pain\":{\"name\":\"Chest pain\",\"value\":\"\"}},{\"ep_claudication\":{\"name\":\"Claudication\",\"value\":\"\"}},{\"ep_completed_protocol\":{\"name\":\"Completed protocol\",\"value\":\"\"}},{\"ep_dyspnea\":{\"name\":\"Dyspnea\",\"value\":\"\"}},{\"ep_fall_bp\":{\"name\":\"Fall in blood pressure\",\"value\":\"\"}},{\"ep_fatigue\":{\"name\":\"Fatigue\",\"value\":\"\"}},{\"ep_leg_fatigue\":{\"name\":\"Leg fatigue\",\"value\":\"\"}},{\"ep_lightheaded\":{\"name\":\"Lightheaded\",\"value\":\"\"}},{\"ep_refusal\":{\"name\":\"Refusal\",\"value\":\"\"}},{\"ep_st_elev\":{\"name\":\"ST elevation\",\"value\":\"\"}},{\"ep_st_dep\":{\"name\":\"ST depression\",\"value\":\"\"}},{\"ep_syncope\":{\"name\":\"Syncope\",\"value\":\"\"}},{\"ep_htn\":{\"name\":\"Hypertension\",\"value\":\"\"}},{\"ep_other\":{\"name\":\"Other\",\"value\":\"\"}},{\"ep_other_detail\":\"\"}],\"stress_data_comments\":\"\",\"procedural_notes\":\"\",\"include_report\":{\"name\":\"Include in report\",\"value\":\"\"},\"interpretation\":{\"name\":\"uninterpretable for ischemia due to entricular pacing\",\"value\":\"un1\"},\"stress_conclusion_req_comment\":\"\",\"stress_conclusion_comment\":\"\",\"calc_duke\":{\"name\":\"Yes, override criterion\",\"value\":\"2\"},\"duke_score\":\"0\",\"estimated_mortality\":\"1.4\",\"lv_ef\":\"\",\"ef_unobtain\":{\"name\":\"EF unobtainable (requires comment)\",\"value\":\"\"},\"lv_normal\":{\"name\":\"Rest LV size normal\",\"value\":\"\"},\"ef_unobtain_comment\":\"\",\"ef_comment\":\"\",\"lv_dilation_rest\":{\"name\":\"\",\"value\":\"\"},\"lv_dilation_stress\":{\"name\":\"\",\"value\":\"\"},\"rv_dilation\":{\"name\":\"\",\"value\":\"\"},\"extra_card\":{\"name\":\"\",\"value\":\"\"},\"imaging_comment\":\"\",\"lv_ef2\":\"\",\"ef_unobtain2\":{\"name\":\"EF unobtainable (requires comment)\",\"value\":\"\"},\"lv_normal2\":{\"name\":\"Rest LV size normal\",\"value\":\"\"},\"ef_unobtain_comment2\":\"\",\"ef_comment2\":\"\",\"non_cardiac_results\":{\"name\":\"\",\"value\":\"\"},\"non_cardiac_comment\":\"\",\"lv_dilation_rest2\":{\"name\":\"\",\"value\":\"\"},\"lv_dilation_stress2\":{\"name\":\"\",\"value\":\"\"},\"rv_dilation2\":{\"name\":\"\",\"value\":\"\"},\"extra_card2\":{\"name\":\"\",\"value\":\"\"},\"imaging_comment2\":\"\",\"all_wnl\":{\"name\":\"\",\"value\":\"\"},\"equivocal\":{\"name\":\"\",\"value\":\"\"},\"lvef\":\"\",\"ef_unobtain_gbps\":{\"name\":\"EF Unobtainable\",\"value\":\"\"},\"ra_wnl\":{\"name\":\"\",\"value\":\"\"},\"ra_grid\":[{\"ra_mild\":{\"name\":\"Enlarged mild\",\"value\":\"\"}},{\"ra_mod\":{\"name\":\"Enlarged moderate\",\"value\":\"\"}},{\"ra_sev\":{\"name\":\"Enlarged severe\",\"value\":\"\"}},{\"ra_akinetic\":{\"name\":\"Akinetic\",\"value\":\"\"}}],\"rv_wnl\":{\"name\":\"\",\"value\":\"\"},\"rv_grid\":[{\"rv_mild\":{\"name\":\"Enlarged mild\",\"value\":\"\"}},{\"rv_mod\":{\"name\":\"Enlarged moderate\",\"value\":\"\"}},{\"rv_sev\":{\"name\":\"Enlarged severe\",\"value\":\"\"}},{\"rv_asyn_ant\":{\"name\":\"Asynergy ant\",\"value\":\"\"}},{\"rv_asyn_inf\":{\"name\":\"Asynergy inf\",\"value\":\"\"}},{\"rv_asyn_sept\":{\"name\":\"Asynergy sept\",\"value\":\"\"}},{\"rv_asyn_lat\":{\"name\":\"Asynergy lat\",\"value\":\"\"}},{\"rv_asyn_glo\":{\"name\":\"Asynergy global\",\"value\":\"\"}}],\"pa_wnl\":{\"name\":\"\",\"value\":\"\"},\"pa_grid\":[{\"pa_mild\":{\"name\":\"Enlarged mild\",\"value\":\"\"}},{\"pa_mod\":{\"name\":\"Enlarged moderate\",\"value\":\"\"}},{\"pa_sev\":{\"name\":\"Enlarged severe\",\"value\":\"\"}}],\"la_wnl\":{\"name\":\"\",\"value\":\"\"},\"la_grid\":[{\"la_mild\":{\"name\":\"Enlarged mild\",\"value\":\"\"}},{\"la_mod\":{\"name\":\"Enlarged moderate\",\"value\":\"\"}},{\"la_sev\":{\"name\":\"Enlarged severe\",\"value\":\"\"}},{\"la_akinetic\":{\"name\":\"Akinetic\",\"value\":\"\"}}],\"lv_wnl\":{\"name\":\"\",\"value\":\"\"},\"lv_grid\":[{\"lv_mild\":{\"name\":\"Enlarged mild\",\"value\":\"\"}},{\"lv_mod\":{\"name\":\"Enlarged moderate\",\"value\":\"\"}},{\"lv_sev\":{\"name\":\"Enlarged severe\",\"value\":\"\"}},{\"lv_asyn_ant\":{\"name\":\"Asynergy ant\",\"value\":\"\"}},{\"lv_asyn_inf\":{\"name\":\"Asynergy inf\",\"value\":\"\"}},{\"lv_asyn_sept\":{\"name\":\"Asynergy sept\",\"value\":\"\"}},{\"lv_asyn_lat\":{\"name\":\"Asynergy lat\",\"value\":\"\"}},{\"lv_asyn_glo\":{\"name\":\"Asynergy global\",\"value\":\"\"}}],\"ao_wnl\":{\"name\":\"\",\"value\":\"\"},\"ao_grid\":[{\"ao_mild\":{\"name\":\"Enlarged mild\",\"value\":\"\"}},{\"ao_mod\":{\"name\":\"Enlarged moderate\",\"value\":\"\"}},{\"ao_sev\":{\"name\":\"Enlarged severe\",\"value\":\"\"}}],\"gbps_comment\":\"\",\"conclusion_template\":{\"name\":\"Ischemia\",\"value\":\"ischem\"},\"conc_ischem_size\":{\"name\":\"small\",\"value\":\"1\"},\"conc_ischem_change\":{\"name\":\"reversible\",\"value\":\"2\"},\"conc_ischem_zone\":{\"name\":\"anterior septal\",\"value\":\"1\"},\"conc_ischem_indicates\":{\"name\":\"\",\"value\":\"\"},\"conc_infarct_zone\":{\"name\":\"\",\"value\":\"\"},\"conc_infarct_prior\":{\"name\":\"\",\"value\":\"\"},\"conc_infarct_severity\":{\"name\":\"\",\"value\":\"\"},\"conc_same_comp\":\"\",\"conc_same_test\":{\"name\":\"\",\"value\":\"\"},\"conc_same_diff\":{\"name\":\"\",\"value\":\"\"},\"conc_worse_comp\":\"\",\"conc_worse_test\":{\"name\":\"\",\"value\":\"\"},\"conc_worse_zone\":{\"name\":\"\",\"value\":\"\"},\"conc_worse_diff\":{\"name\":\"\",\"value\":\"\"},\"conc_better_comp\":\"\",\"conc_better_test\":{\"name\":\"\",\"value\":\"\"},\"conc_better_zone\":{\"name\":\"\",\"value\":\"\"},\"conc_better_status\":{\"name\":\"\",\"value\":\"\"},\"conc_better_diff\":{\"name\":\"\",\"value\":\"\"},\"conc_mild_zone\":{\"name\":\"\",\"value\":\"\"},\"conc_further_comments\":\"\",\"critical_result\":{\"name\":\"No\",\"value\":\"0\"},\"event_date\":\"\",\"event_time\":\"\",\"critical_results_composite\":[{\"st_elevation\":{\"name\":\"ST elevation\",\"value\":\"\"}},{\"vt_vf\":{\"name\":\"VT/VF\",\"value\":\"\"}},{\"ant_ischemia_scan\":{\"name\":\"Anterior ischemia on scan; Suspect severe LAD or left main disease\",\"value\":\"\"}},{\"pos_ecg_scan\":{\"name\":\"Markedly positive ECG + scan ischemia\",\"value\":\"\"}},{\"pos_ecg_clinical\":{\"name\":\"Markedly positive ECG + clinical ischemia\",\"value\":\"\"}}],\"critical_result_comment\":\"\",\"md_name\":\"\",\"md_name2\":\"\",\"md_name3\":\"\",\"md_notified_date\":\"\",\"md_notified_time\":\"\",\"critical_result_notification_comment\":\"\",\"critical_result_verification\":{\"name\":\"The entire critical test result, including the patient's full name and medical record number, was read back by the receiving individual(s) and verified that the test result was correct.\",\"value\":\"\"},\"ready_for_review\":{\"name\":\"Technical portion completed. Ready for Reader review.\",\"value\":\"1\"},\"staff_card_signature_token\":\"eyJwcmluY2lwYWwiOiJhdDAxOCIsInRva2VuIjoiNUVFRURDRDEtODk1MS00MDJELTkxQkItNUQyNEMxNUQzQkFDIiwiZGF0ZVRpbWUiOiIwMi8yNi8yMDE2IDE6MTYgUE0iLCJtYXNrIjo4fQ==\",\"staff_card_signature_uid\":\"at018\",\"staff_card_signature_dateTime\":\"02/26/2016 1:16 PM\",\"staff_rad_signature_token\":\"\",\"staff_rad_signature_uid\":\"\",\"staff_rad_signature_dateTime\":\"\",\"narrative_placeholder\":\"\",\"action_taken\":{\"value\":\"Office\"}}, \"translations\": {\n" +
+			String json = "{\n" +
+					"  \"sprout\": {\n" +
+					"    \"userId\": \"1@sprouttransform\",\n" +
+					"    \"inboxId\": \"2464\",\n" +
+					"    \"instanceId\": \"2B718B77-8F70-45E2-A71A-7D89215833FB\",\n" +
+					"    \"currentStep\": \"step0\",\n" +
+					"    \"currentInput\": \"39294\",\n" +
+					"    \"validationStatus\": \"\",\n" +
+					"    \"initStep\": \"step0\",\n" +
+					"    \"initInput\": \"initialized\",\n" +
+					"    \"submissionDate\": \"1499362893974\",\n" +
+					"    \"expirationDate\": \"\",\n" +
+					"    \"lockKey\": \"2BA5EA4D-50FC-47D1-8A67-D320258CD726\",\n" +
+					"    \"locale\": \"es\"\n" +
+					"  },\n" +
+					"  \"form\": {\n" +
+					"    \"id\": \"1438\",\n" +
+					"    \"version\": \"1\",\n" +
+					"    \"mode\": \"\"\n" +
+					"  },\n" +
+					"  \"pcori_dsp_interventi\": {\n" +
+					"    \"first_name\": \"Stephen\",\n" +
+					"    \"pt_dob\": \"__/__/____\",\n" +
+					"    \"pt_age\": \"NaN\",\n" +
+					"    \"ds_dx1\": {\n" +
+					"      \"name\": \"Trisomy 21\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"ds_dx2\": {\n" +
+					"      \"name\": \"Mosaic Down syndrome\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"ds_dx3\": {\n" +
+					"      \"name\": \"Translocation Down syndrome\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"ds_dx4\": {\n" +
+					"      \"name\": \"Not Sure\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"comment_1\": \"\",\n" +
+					"    \"fever\": {\n" +
+					"      \"name\": \"Fever that hasn't gone away in at least five days\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"weight_gain\": {\n" +
+					"      \"name\": \"Weight gain\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"weight_loss\": {\n" +
+					"      \"name\": \"Undesired weight loss\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"limp\": {\n" +
+					"      \"name\": \"New limp\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"increasing_fatigue\": {\n" +
+					"      \"name\": \"Increasing fatigue\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"concerns_about_vision\": {\n" +
+					"      \"name\": \"Concerns about vision\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"involuntary_eye_movements\": {\n" +
+					"      \"name\": \"Involuntary eye movements\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"ear_infection\": {\n" +
+					"      \"name\": \"Chronic ear infection(s)\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"hearing_loss\": {\n" +
+					"      \"name\": \"Hearing loss\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"runny_nose\": {\n" +
+					"      \"name\": \"Frequent runny nose\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"sinus_problems\": {\n" +
+					"      \"name\": \"Sinus problems\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"gum_problems\": {\n" +
+					"      \"name\": \"Gum problems\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"cavities\": {\n" +
+					"      \"name\": \"Cavities\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"brushing\": {\n" +
+					"      \"name\": \"Difficulty brushing teeth\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"flossing\": {\n" +
+					"      \"name\": \"Difficulty flossing\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"murmur\": {\n" +
+					"      \"name\": \"A new murmur noticed by a doctor\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"poor_exercise_tolerance\": {\n" +
+					"      \"name\": \"Becoming increasingly tired after exercise\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"stool\": {\n" +
+					"      \"name\": \"Bulky or foul-smelling stools\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"vomiting\": {\n" +
+					"      \"name\": \"Vomiting\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"nausea\": {\n" +
+					"      \"name\": \"Nausea\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"reflux\": {\n" +
+					"      \"name\": \"Heartburn\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"constipation\": {\n" +
+					"      \"name\": \"Constipation\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"diarrhea\": {\n" +
+					"      \"name\": \"Diarrhea\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"flatulence\": {\n" +
+					"      \"name\": \"Passing gas\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"bloating\": {\n" +
+					"      \"name\": \"Bloating\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"frequent_urination\": {\n" +
+					"      \"name\": \"Frequent urination\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"toilet_training\": {\n" +
+					"      \"name\": \"Difficulty toilet training\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"cryptorchidism\": {\n" +
+					"      \"name\": \"Testes that have not come down into the scrotum (the sac of skin underneath the penis)\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"accidents_urine\": {\n" +
+					"      \"name\": \"New accidents with urine\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"accidents_stool\": {\n" +
+					"      \"name\": \"New accidents with stool\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"irregular_menstruation\": {\n" +
+					"      \"name\": \"Irregular periods\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"menstrual_cramps\": {\n" +
+					"      \"name\": \"Severe cramps\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"ocp\": {\n" +
+					"      \"name\": \"Questions about birth control pills\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"sex_active\": {\n" +
+					"      \"name\": \"Questions about dating or social boundaries\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"concerns_puberty\": {\n" +
+					"      \"name\": \"Concerns about body development (puberty)\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"masturbation\": {\n" +
+					"      \"name\": \"Concerns or questions about masturbation\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"dry_skin\": {\n" +
+					"      \"name\": \"Dry skin\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"vitiligo\": {\n" +
+					"      \"name\": \"Areas of skin that have turned white or lost their color (Vitiligo)\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"eczema\": {\n" +
+					"      \"name\": \"Eczema\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"hair_loss\": {\n" +
+					"      \"name\": \"Hair loss\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"hidradenitis\": {\n" +
+					"      \"name\": \"Skin boils under armpits and groins\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"itching\": {\n" +
+					"      \"name\": \"Itching\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"torticollis\": {\n" +
+					"      \"name\": \"Abnormal twisting of the neck\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"joint_stiffness\": {\n" +
+					"      \"name\": \"Joint stiffness\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"joint_pain\": {\n" +
+					"      \"name\": \"Joint pain\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"joint_swelling\": {\n" +
+					"      \"name\": \"Joint swelling\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"joint_redness\": {\n" +
+					"      \"name\": \"Joint redness\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"new_weakness\": {\n" +
+					"      \"name\": \"New weakness in one or more limbs\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"excessive_thirst\": {\n" +
+					"      \"name\": \"Excessive thirst\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"too_hot\": {\n" +
+					"      \"name\": \"Feeling too hot\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"too_cold\": {\n" +
+					"      \"name\": \"Feeling too cold\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"delayed_puberty\": {\n" +
+					"      \"name\": \"Delayed puberty\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"poor_growth\": {\n" +
+					"      \"name\": \"Poor growth\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"seasonal_allergies\": {\n" +
+					"      \"name\": \"Seasonal allergies\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"infantile_spasms\": {\n" +
+					"      \"name\": \"Abnormal facial grimaces\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"infantile_spasms2\": {\n" +
+					"      \"name\": \"Jerking of arms or legs\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"infantile_spasms3\": {\n" +
+					"      \"name\": \"Staring episodes\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"seizures\": {\n" +
+					"      \"name\": \"Seizures\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"ability_change\": {\n" +
+					"      \"name\": \"Not able to do things as he or she used to\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"snore\": {\n" +
+					"      \"name\": \"Snoring\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"gasp_sleep\": {\n" +
+					"      \"name\": \"Gasping, snorting, chokingduring sleep\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"mouth_open\": {\n" +
+					"      \"name\": \"Breathing with open mouth during sleep\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"sleep_walk\": {\n" +
+					"      \"name\": \"Night terrors, sleep walk, sleep talk\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"wet_bed\": {\n" +
+					"      \"name\": \"Wetting the bed\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"multiple_pillows\": {\n" +
+					"      \"name\": \"Sleeping on multiple pillows\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"positions\": {\n" +
+					"      \"name\": \"Sleeping in strange positions\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"refresh_after_sleep\": {\n" +
+					"      \"name\": \"Not refreshed despite adequate sleep\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"fall_asleep_short_drive\": {\n" +
+					"      \"name\": \"Falling asleep in car on short drive\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"asleep_school\": {\n" +
+					"      \"name\": \"Falling asleep/nap at school\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"comment_2\": \"\",\n" +
+					"    \"sad_depression\": {\n" +
+					"      \"name\": \"Sad, downcast unhappy\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"lack_interest_activities\": {\n" +
+					"      \"name\": \"Lack of interest in activites\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"cries_easily\": {\n" +
+					"      \"name\": \"Cries easily for no reason\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"moves_slow\": {\n" +
+					"      \"name\": \"Moves slowly\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"lose_skills\": {\n" +
+					"      \"name\": \"Loss of previously learned skills\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"eat\": {\n" +
+					"      \"name\": \"Eating too much or eating too little\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"sleep\": {\n" +
+					"      \"name\": \"Trouble falling or staying asleep\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"tense_anxiety\": {\n" +
+					"      \"name\": \"Tense, anxious, worries\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"alone_distress\": {\n" +
+					"      \"name\": \"Distressed about being alone\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"distress_separate\": {\n" +
+					"      \"name\": \"Distress when separated from familiar person\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"refuses_school\": {\n" +
+					"      \"name\": \"Refuses to go to school or activity\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"ritualistic_behaviors_ocd\": {\n" +
+					"      \"name\": \"Ritualistic compulsive behaviors (e.g., checking things/cleaning/grooming)\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"obsessive_thoughts\": {\n" +
+					"      \"name\": \"Gets obsessed with idea or activity\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"aloof_asd\": {\n" +
+					"      \"name\": \"Aloof, in his or her own world\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"do_own\": {\n" +
+					"      \"name\": \"Prefers to do things on his/her own\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"not_respond_feelings\": {\n" +
+					"      \"name\": \"Doesn't respond to others' feelings\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"arranges_objects\": {\n" +
+					"      \"name\": \"Arranges objects in a strict order\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"upset_changes_routine\": {\n" +
+					"      \"name\": \"Gets upset over small changes in routine\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"repetitive_activity\": {\n" +
+					"      \"name\": \"Flicks, taps, twirls objects repeatedly\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"talk_self\": {\n" +
+					"      \"name\": \"Talks to self or imaginary people\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"avoids_eye\": {\n" +
+					"      \"name\": \"Avoids eye contact\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"sensory_objects\": {\n" +
+					"      \"name\": \"Smells, tastes or licks objects\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"hyperactivity_adhd\": {\n" +
+					"      \"name\": \"Overactive, restless, unable to sit still\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"inattention\": {\n" +
+					"      \"name\": \"Inattention\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"impulsivity\": {\n" +
+					"      \"name\": \"Impulsive, acts without thinking\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"distracted\": {\n" +
+					"      \"name\": \"Easily distracted\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"uncooperative\": {\n" +
+					"      \"name\": \"Uncooperative, disobeys\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"temper_meltdowns_irritability\": {\n" +
+					"      \"name\": \"Temper tantrums or outburst or meltdowns\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"throws_objects\": {\n" +
+					"      \"name\": \"Throws or breaks objects\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"hits_self\": {\n" +
+					"      \"name\": \"Hits self\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"bites_self\": {\n" +
+					"      \"name\": \"Bites self\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"injures_self\": {\n" +
+					"      \"name\": \"Hurts himself/herself on purpose (e.g. hitting head, biting hands)\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"bangs_head\": {\n" +
+					"      \"name\": \"Bangs head\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"irritable\": {\n" +
+					"      \"name\": \"Is irritable\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"hits_others\": {\n" +
+					"      \"name\": \"Kicks or hits others\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"mood_swings\": {\n" +
+					"      \"name\": \"Mood changes rapidly for no reason\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"unreal_happy\": {\n" +
+					"      \"name\": \"Unrealistically happy\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"aggression\": {\n" +
+					"      \"name\": \"Aggression\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"property_destruction\": {\n" +
+					"      \"name\": \"Property destruction\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"forgetful\": {\n" +
+					"      \"name\": \"Forgetful\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"situation_fear\": {\n" +
+					"      \"name\": \"Fear particular situations (e.g. dark, animals)\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"stereotypic_movements\": {\n" +
+					"      \"name\": \"Stereotypic motor movements (e.g., hand flapping)\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"chews_parts\": {\n" +
+					"      \"name\": \"Chews body parts\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"comment_3\": \"\",\n" +
+					"    \"comment_4\": \"\",\n" +
+					"    \"keratoconus\": {\n" +
+					"      \"name\": \"Keratoconus\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"strabismus\": {\n" +
+					"      \"name\": \"Strabismus\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"astigmatism\": {\n" +
+					"      \"name\": \"Astigmatism\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"nystagmus\": {\n" +
+					"      \"name\": \"Nystagmus\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"cataracts\": {\n" +
+					"      \"name\": \"Cataracts\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"pmh_hearing\": {\n" +
+					"      \"name\": \"Hearing loss\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"pmh_otitis\": {\n" +
+					"      \"name\": \"Chronic ear infections\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"asd\": {\n" +
+					"      \"name\": \"Atrial Septal Defect\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"vsd\": {\n" +
+					"      \"name\": \"Ventricular Septal Defect\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"avsd\": {\n" +
+					"      \"name\": \"Atrioventricular septal defect\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"pda\": {\n" +
+					"      \"name\": \"Patent Ductus Arteriosus\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"tof\": {\n" +
+					"      \"name\": \"Tetralogy of Fallot\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"arrythmia\": {\n" +
+					"      \"name\": \"Arrythmia\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"hyperlipidemia\": {\n" +
+					"      \"name\": \"High cholesterol\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"pneumonia\": {\n" +
+					"      \"name\": \"Pneumonias\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"osa\": {\n" +
+					"      \"name\": \"Obstructive Sleep Apnea\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"asthma\": {\n" +
+					"      \"name\": \"Asthma\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"constipation2\": {\n" +
+					"      \"name\": \"Chronic constipation\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"duodenal_atresia\": {\n" +
+					"      \"name\": \"Duodenal atresia\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"gerd1\": {\n" +
+					"      \"name\": \"Gastroesophageal reflux disease\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"aspiration1\": {\n" +
+					"      \"name\": \"Aspiration\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"celiacd\": {\n" +
+					"      \"name\": \"Celiac disease\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"hirshsprung\": {\n" +
+					"      \"name\": \"Hirschsprung Disease\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"pmh_lactose\": {\n" +
+					"      \"name\": \"Lactose intolerance\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"pmh_aus\": {\n" +
+					"      \"name\": \"Imperforate anus\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"pmh_tef\": {\n" +
+					"      \"name\": \"Transesophageal fistula\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"pmh_obesity\": {\n" +
+					"      \"name\": \"Overweight/obesity\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"pmh_seizures\": {\n" +
+					"      \"name\": \"Seizures\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"pmh_dementia\": {\n" +
+					"      \"name\": \"Dementia (Alzheimer's disease)\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"pmh_autism\": {\n" +
+					"      \"name\": \"Autism Spectrum Disorder (ASD)\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"pmh_hypotonia\": {\n" +
+					"      \"name\": \"Hypotonia (poor muscle tone)\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"pmh_eczema\": {\n" +
+					"      \"name\": \"Eczema\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"pmh_fissured_tongue\": {\n" +
+					"      \"name\": \"Fissured tongue\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"pmh_folliculitis\": {\n" +
+					"      \"name\": \"Folliculitis\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"pmh_hidraedenitis\": {\n" +
+					"      \"name\": \"Hidradenitis Suppurativa (skin boils)\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"pmh_seborrheicdermatitits\": {\n" +
+					"      \"name\": \"Seborrheic dermatitis\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"pmh_xerosis\": {\n" +
+					"      \"name\": \"Xerosis\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"pmh_toenailfungus\": {\n" +
+					"      \"name\": \"Onchyomycosis\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"pmh_hair_loss\": {\n" +
+					"      \"name\": \"Alopecia areata\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"pmh_scoliosis\": {\n" +
+					"      \"name\": \"Scoliosis\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"pmh_aai\": {\n" +
+					"      \"name\": \"Atlantoaxial instability\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"pmh_arthritis\": {\n" +
+					"      \"name\": \"Arthritis\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"pmh_osteoporosis\": {\n" +
+					"      \"name\": \"Osteoporosis\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"pmh_hypothyroidism\": {\n" +
+					"      \"name\": \"Hypothyroidism\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"pmh_hyperthyroidism\": {\n" +
+					"      \"name\": \"Hyperthyroidism\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"pmh_hashimotos\": {\n" +
+					"      \"name\": \"Hashimoto's thyroiditis\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"pmh_graves\": {\n" +
+					"      \"name\": \"Graves disease\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"pmh_diabetes\": {\n" +
+					"      \"name\": \"Diabetes mellitus\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"pmh_all\": {\n" +
+					"      \"name\": \"Acute Lymphoblastic Leukemia (ALL)\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"pmh_aml\": {\n" +
+					"      \"name\": \"Acute Myelogenous Leukemia (AML)\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"pmh_tmpd\": {\n" +
+					"      \"name\": \"Transient myeloproliferative disorder\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"pmh_anemia\": {\n" +
+					"      \"name\": \"Anemia\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"pmh_depression\": {\n" +
+					"      \"name\": \"Depression\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"pmh_anxiety\": {\n" +
+					"      \"name\": \"Anxiety\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"pmh_ocd\": {\n" +
+					"      \"name\": \"Obsessive Compulsive Disorder (OCD)\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"pmh_adhd\": {\n" +
+					"      \"name\": \"Attention deficit hyperactvity disorder (ADHD)\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"pmh_ptsd\": {\n" +
+					"      \"name\": \"Post-traumatic stress disorder (PTSD)\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"comment_pmh\": \"\",\n" +
+					"    \"comment_imm\": \"\",\n" +
+					"    \"fruit\": {\n" +
+					"      \"name\": \"Lack of fruit or vegetable intake\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"fiber\": {\n" +
+					"      \"name\": \"Too little fiber\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"fluids\": {\n" +
+					"      \"name\": \"Not enough fluids\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"breastfeed\": {\n" +
+					"      \"name\": \"Difficulty bottle or breast feeding\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"beh1\": {\n" +
+					"      \"name\": \"Pace of eating\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"beh2\": {\n" +
+					"      \"name\": \"Meal-time duration\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"beh3\": {\n" +
+					"      \"name\": \"Selectiveness of foods\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"beh4\": {\n" +
+					"      \"name\": \"Rigid sensory preferences\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"beh5\": {\n" +
+					"      \"name\": \"Refusal to eat\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"beh6\": {\n" +
+					"      \"name\": \"Binge eating\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"beh7\": {\n" +
+					"      \"name\": \"Excessive snacking\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"conc_pockets\": {\n" +
+					"      \"name\": \"Stephen pockets food, meaning he/she leaves food in his/her mouth and does not swallow right away.\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"conc_chew\": {\n" +
+					"      \"name\": \"Stephen does not chew his/her food well\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"conc_toofast\": {\n" +
+					"      \"name\": \"Stephen eats too fast or puts too much food in his/her mouth at one time.\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"conc_cough\": {\n" +
+					"      \"name\": \"Stephen coughs when he/she eats solid food\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"conc_texture\": {\n" +
+					"      \"name\": \"Stephen is particular with the texture of certain foods\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"comment_5\": \"\",\n" +
+					"    \"sign_language\": {\n" +
+					"      \"name\": \"Using sign language to communicate\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"speech_communication\": {\n" +
+					"      \"name\": \"Speech and communication skills\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"gross_motor\": {\n" +
+					"      \"name\": \"Gross motor skills\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"fine_motor\": {\n" +
+					"      \"name\": \"Fine motor skills\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"math\": {\n" +
+					"      \"name\": \"Math skills\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"reading\": {\n" +
+					"      \"name\": \"Reading skills\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"apraxia\": {\n" +
+					"      \"name\": \"Apraxia\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"aac_devices\": {\n" +
+					"      \"name\": \"Augmentative and alternative communication devices\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"aba_therapy\": {\n" +
+					"      \"name\": \"Applied Behavioral Analysis (ABA) Therapy\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"comment_schools\": \"\",\n" +
+					"    \"ark\": {\n" +
+					"      \"name\": \"The Arc\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"bestbuds\": {\n" +
+					"      \"name\": \"Best Buddies\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"dsconnect\": {\n" +
+					"      \"name\": \"DS-Connect®\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"gdfs\": {\n" +
+					"      \"name\": \"The Global Down Syndrome Foundation\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"lumind\": {\n" +
+					"      \"name\": \"LuMind Research Down Syndrome Foundation\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"ndsc\": {\n" +
+					"      \"name\": \"National Down Syndrome Congress (NDSC)\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"ndss\": {\n" +
+					"      \"name\": \"National Down Syndrome Society (NDSS)\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"specialolympics\": {\n" +
+					"      \"name\": \"Special Olympics\",\n" +
+					"      \"value\": \"\"\n" +
+					"    },\n" +
+					"    \"comment_community\": \"\"\n" +
+					"  },\n" +
+					"  \"translations\": {\n" +
 					"    \"test\": {\n" +
 					"      \"en\": \"\\\"This is a test.\\\"\",\n" +
 					"      \"es\": \"Esta es una prueba\"\n" +
@@ -63,8 +919,25 @@ public class HandlebarTestI18n {
 					"    \"lamp\": {\n" +
 					"      \"en\": \"lamp\",\n" +
 					"      \"es\": \"lampara\"\n" +
+					"    },\n" +
+					"    \"train\": {\n" +
+					"      \"en\": \"train\",\n" +
+					"      \"es\": \"tren\"\n" +
+					"    },\n" +
+					"    \"car\": {\n" +
+					"      \"en\": \"cat\",\n" +
+					"      \"es\": \"coche\"\n" +
+					"    },\n" +
+					"    \"new\": {\n" +
+					"      \"en\": \"new\",\n" +
+					"      \"es\": \"noticias\"\n" +
+					"    },\n" +
+					"    \"hello\": {\n" +
+					"      \"en\": \"Hello {{pcori_dsp_interventi.first_name}},\",\n" +
+					"      \"es\": \"Hola {{pcori_dsp_interventi.first_name}},\"\n" +
 					"    }\n" +
-					"  }}";
+					"  }\n" +
+					"}";
 			JsonNode jsonNode = new ObjectMapper().readValue(json, JsonNode.class);
 //			Handlebars handlebars = new Handlebars();
 			handlebars.registerHelper("json", Jackson2Helper.INSTANCE);
@@ -125,13 +998,17 @@ public class HandlebarTestI18n {
 	private void init() {
 
 
-		template.append("{{#i18n \"test\" i18n}}This is a test.{{/i18n}}...\n" +
-				"!\n" +
+		template.append("{{#i18n \"hello\"}}Hello {{pcori_dsp_interventi.first_name}}{{/i18n}}\n" +
+				"<br/><br/>\n" +
+				"\n" +
+				"{{#i18n \"test\"}}This is a test.{{/i18n}}...\n" +
 				"\n" +
 				"<br/>\n" +
-				"<strong>Cat:</strong> {{#i18n \"cat\" i18n}}cat{{/i18n}}...\n" +
+				"<strong>Cat:</strong> {{#i18n \"cat\"}}cat{{/i18n}}...\n" +
 				"<br/>\n" +
-				"<strong>Cow:</strong> {{#i18n \"cow\" i18n}}cow{{/i18n}}...");
+				"<strong>Cow:</strong> {{#i18n \"cow\"}}cow{{/i18n}}...\n" +
+				"<br/>\n" +
+				"<strong>Train:</strong> {{#i18n \"train\"}}train{{/i18n}}...");
 
 	}
 }
