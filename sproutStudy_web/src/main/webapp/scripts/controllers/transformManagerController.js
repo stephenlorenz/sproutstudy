@@ -31,6 +31,18 @@ angular.module('sproutStudyApp')
     $scope.model = "";
     $scope.template = "";
 
+    $scope.reloadNarrativeQueue = false;
+
+        $scope.checkReloadNarrativeQueue = function () {
+            // console.log("checkReloadNarrativeQueue");
+            if ($scope.reloadNarrativeQueue) {
+                $scope.onReloadNarrative();
+                $scope.reloadNarrativeQueue = false;
+            }
+            $timeout(function() {$scope.checkReloadNarrativeQueue()}, 1000);
+        };
+
+        $timeout(function() {$scope.checkReloadNarrativeQueue()}, 1);
 
         $scope.modalSmallOpts = {
 //            backdropFade: true, // These two settings
@@ -103,7 +115,8 @@ angular.module('sproutStudyApp')
             $scope.updateSubmissionDate();
 
             updateSproutTransformModelView($scope.modelVerbose);
-            $scope.onReloadNarrative();
+            // $scope.onReloadNarrative();
+            $scope.reloadNarrativeQueue = true;
         };
 
         $scope.updateLocale = function () {
@@ -357,7 +370,10 @@ angular.module('sproutStudyApp')
 
     $scope.onToggleSyncNarrative = function() {
         $scope.syncNarrative = !$scope.syncNarrative;
-        if ($scope.syncNarrative) $scope.onReloadNarrative();
+        if ($scope.syncNarrative) {
+            // $scope.onReloadNarrative();
+            $scope.reloadNarrativeQueue = true;
+        }
     };
 
     $scope.onToggleSyncModel = function() {
@@ -368,7 +384,10 @@ angular.module('sproutStudyApp')
     $scope.onSyncModel = function() {
         if ($scope.syncModel) {
             $scope.onReloadModel();
-            if ($scope.syncNarrative) $scope.onReloadNarrative();
+            if ($scope.syncNarrative) {
+                // $scope.onReloadNarrative();
+                $scope.reloadNarrativeQueue = true;
+            }
         }
     };
 
@@ -587,7 +606,10 @@ angular.module('sproutStudyApp')
             $scope.templateHasChanges = true;
 
             $scope.templateSavedSuccessfully = false;
-            if ($scope.syncNarrative) $scope.onReloadNarrative();
+            if ($scope.syncNarrative) {
+                // $scope.onReloadNarrative();
+                $scope.reloadNarrativeQueue = true;
+            }
         });
 
         _editor.commands.on("afterExec", function(e){
