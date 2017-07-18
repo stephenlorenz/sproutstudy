@@ -265,7 +265,8 @@ angular.module('sproutStudyApp')
                     var en = "";
                     var es = "";
                     angular.forEach(translation.locales, function(locale) {
-                        var quotesInd = locale.message.indexOf("\"") >= 0;
+                        var quotesInd = locale.message.indexOf("\"") >= 0 || locale.message.indexOf(",") >= 0;
+                        // var quotesInd = true;
                         var message = (quotesInd ? "\"" : "") + locale.message.replace(/"/g, "\"\"") + (quotesInd ? "\"" : "");
                         if (locale.locale.key === 'en') en = message;
                         if (locale.locale.key === 'es') es = message;
@@ -297,20 +298,49 @@ angular.module('sproutStudyApp')
             processTranslationsImportData(csv);
         }
 
-        function processTranslationsImportData(csv) {
-            var allTextLines = csv.split(/\r\n|\n/);
-            var lines = [];
-            while (allTextLines.length) {
-                lines.push(allTextLines.shift().split(','));
-            }
-            // console.log(lines);
+        function parseCSV(str) {
+            var arr = [];
+            var quote = false;  // true means we're inside a quoted field
 
-            if (lines && lines.length > 0) {
+            var col, c;
+
+            // iterate over each character, keep track of current row and column (of the returned array)
+            for (var row = col = c = 0; c < str.length; c++) {
+                var cc = str[c], nc = str[c+1];        // current character, next character
+                arr[row] = arr[row] || [];             // create a new row if necessary
+                arr[row][col] = arr[row][col] || '';   // create a new column (start with empty string) if necessary
+
+                // If the current character is a quotation mark, and we're inside a
+                // quoted field, and the next character is also a quotation mark,
+                // add a quotation mark to the current column and skip the next character
+                if (cc == '"' && quote && nc == '"') { arr[row][col] += cc; ++c; continue; }
+
+                // If it's just one quotation mark, begin/end quoted field
+                if (cc == '"') { quote = !quote; continue; }
+
+                // If it's a comma and we're not in a quoted field, move on to the next column
+                if (cc == ',' && !quote) { ++col; continue; }
+
+                // If it's a newline and we're not in a quoted field, move on to the next
+                // row and move to column 0 of that new row
+                if (cc == '\n' && !quote) { ++row; col = 0; continue; }
+
+                // Otherwise, append the current character to the current column
+                arr[row][col] += cc;
+            }
+            return arr;
+        }
+
+        function processTranslationsImportData(csv) {
+
+            var translationArray = parseCSV(csv);
+
+            if (translationArray && translationArray.length > 0) {
                 var translations = [];
 
                 var rowCounter = 0;
 
-                angular.forEach(lines, function(row) {
+                angular.forEach(translationArray, function(row) {
 
                     if (rowCounter++ > 0 && Array.isArray(row)) {
                         var key = row[0];
@@ -318,12 +348,12 @@ angular.module('sproutStudyApp')
                         var en = row[1];
                         var es = row[2];
 
-                        if (row[1] && row[1].indexOf('"') === 0) {
-                            en = row[1].substring(1, row[1].length - 1).replace(/\"\"/g, '\"');
-                        }
-                        if (row[2] && row[2].indexOf('"') === 0) {
-                            es = row[2].substring(1, row[2].length - 1).replace(/\"\"/g, '\"');
-                        }
+                        // if (row[1] && row[1].indexOf('"') === 0) {
+                        //     en = row[1].substring(1, row[1].length - 1).replace(/\"\"/g, '\"');
+                        // }
+                        // if (row[2] && row[2].indexOf('"') === 0) {
+                        //     es = row[2].substring(1, row[2].length - 1).replace(/\"\"/g, '\"');
+                        // }
 
                         if (key) {
                             var translation = {};
@@ -344,6 +374,53 @@ angular.module('sproutStudyApp')
             }
 
         }
+        // function processTranslationsImportData(csv) {
+        //     var allTextLines = csv.split(/\r\n|\n/);
+        //     var lines = [];
+        //     while (allTextLines.length) {
+        //         lines.push(allTextLines.shift().split(','));
+        //     }
+        //     // console.log(lines);
+        //
+        //     if (lines && lines.length > 0) {
+        //         var translations = [];
+        //
+        //         var rowCounter = 0;
+        //
+        //         angular.forEach(lines, function(row) {
+        //
+        //             if (rowCounter++ > 0 && Array.isArray(row)) {
+        //                 var key = row[0];
+        //
+        //                 var en = row[1];
+        //                 var es = row[2];
+        //
+        //                 if (row[1] && row[1].indexOf('"') === 0) {
+        //                     en = row[1].substring(1, row[1].length - 1).replace(/\"\"/g, '\"');
+        //                 }
+        //                 if (row[2] && row[2].indexOf('"') === 0) {
+        //                     es = row[2].substring(1, row[2].length - 1).replace(/\"\"/g, '\"');
+        //                 }
+        //
+        //                 if (key) {
+        //                     var translation = {};
+        //                     translation.key = key;
+        //
+        //                     var locales = [];
+        //                     locales.push({"locale": {"key": "en", "name": "English"}, "message": en});
+        //                     locales.push({"locale": {"key": "es", "name": "Spanish"}, "message": es});
+        //                     translation.locales = locales;
+        //
+        //                     translations.push(translation);
+        //                 }
+        //             }
+        //         });
+        //
+        //         $scope.translations = translations;
+        //         $scope.onSaveTemplate();
+        //     }
+        //
+        // }
 
         function errorHandler(evt) {
             if(evt.target.error.name == "NotReadableError") {
