@@ -3,21 +3,12 @@ package edu.harvard.mgh.lcs.sprout.forms.study.bean;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.jknack.handlebars.*;
 import com.github.jknack.handlebars.context.FieldValueResolver;
 import com.github.jknack.handlebars.context.JavaBeanValueResolver;
 import com.github.jknack.handlebars.context.MapValueResolver;
 import com.github.jknack.handlebars.context.MethodValueResolver;
-
-import com.lowagie.text.pdf.BaseFont;
-import org.xhtmlrenderer.layout.SharedContext;
-import org.xhtmlrenderer.pdf.ITextOutputDevice;
-import org.xhtmlrenderer.pdf.ITextRenderer;
-import org.xhtmlrenderer.pdf.ITextUserAgent;
-import org.xhtmlrenderer.resource.XMLResource;
-import org.w3c.dom.Document;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.SproutFormsService;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.SproutTransformService;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.BooleanTO;
@@ -26,6 +17,7 @@ import edu.harvard.mgh.lcs.sprout.forms.study.to.TemplateTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.util.StringUtils;
 import edu.harvard.mgh.lcs.sprout.forms.transform.handlebars.Helpers;
 import edu.harvard.mgh.lcs.sprout.study.model.transform.*;
+import okhttp3.*;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.ws.security.util.Base64;
 
@@ -60,6 +52,9 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 	JsonFactory factory = new JsonFactory();
 
 	ObjectMapper objectMapper = new ObjectMapper(factory);
+
+	OkHttpClient okHttpClient = new OkHttpClient();
+
 
 	@Override
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
@@ -520,260 +515,25 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 		System.out.println("transform: " + "narrative = [" + narrative + "]");
 
 		if (StringUtils.isFull(narrative)) {
-			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
-			try {
-				// NOTE: You might be able to support more complex HTML 2 PDF transformations with iText if necessary:
-				// http://developers.lowagie.com/examples/xml-worker-itext5/html-images
-
-////				OutputStream file = new FileOutputStream(new File("/Users/slorenz/Desktop/HTMLtoPDF.pdf"));
-//				Document document = new Document();
-//				PdfWriter writer = PdfWriter.getInstance(document, outputStream);
-//				writer.setStrictImageSequence(true);
-//
-//				XMLWorkerFontProvider fontProvider = new XMLWorkerFontProvider();
-//				fontProvider.register("ufonts.com_arial-unicode-ms.ttf", "Arial");
-//				fontProvider.setUseUnicode(true);
-//				fontProvider.defaultEncoding = "Identity-H";
-//				CssAppliers cssAppliers = new CssAppliersImpl(fontProvider);
-//
-//				HtmlPipelineContext htmlContext = new HtmlPipelineContext(cssAppliers);
-//				htmlContext.setTagFactory(Tags.getHtmlTagProcessorFactory());
-//				CSSResolver cssResolver = XMLWorkerHelper.getInstance().getDefaultCssResolver(true);
-//
-//
-//				Pipeline<?> pipeline =
-//
-//						new CssResolverPipeline(cssResolver,
-//
-//								new HtmlPipeline(htmlContext,
-//
-//										new PdfWriterPipeline(document, writer)));
-//
-//
-//				XMLWorker worker = new XMLWorker(pipeline, true);
-//
-//				XMLParser p = new XMLParser(worker);
-//
-//				document.open();
-//
-//				InputStream is = new ByteArrayInputStream(wrapHtml(narrative).getBytes(Charset.forName("UTF-8")));
-//				p.parse(is, Charset.forName("UTF-8"));
-//				XMLWorkerHelper.getInstance().parseXHtml(writer, document, is, Charset.forName("UTF-8"));
-//				document.close();
-
-
-
-
-				ITextRenderer renderer = new ITextRenderer();
-				ResourceLoaderUserAgent callback = new ResourceLoaderUserAgent(renderer.getOutputDevice());
-				callback.setSharedContext(renderer.getSharedContext());
-				renderer.getSharedContext ().setUserAgentCallback(callback);
-				renderer.getFontResolver().addFont("ufonts.com_arial-unicode-ms.ttf", BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
-				SharedContext scontext=renderer.getSharedContext();
-				scontext.setDotsPerPixel(12);
-
-				Document doc = XMLResource.load(new ByteArrayInputStream(wrapHtml(narrative).getBytes("UTF-8"))).getDocument();
-
-				renderer.setDocument(doc, "");
-				renderer.layout();
-				renderer.createPDF(outputStream);
-
-				outputStream.close();
-
-
-				return outputStream.toByteArray();
-			}
-			catch (Exception e) {
-				e.printStackTrace();
-			} finally {
-				if (outputStream != null) {
-					try {
-						outputStream.close();
-					} catch (IOException e) {}
-				}
-			}
+			byte[] pdf = callSproutHtmlToPdf(narrative);
+			if (pdf != null) return pdf;
 		}
 		return null;
 	}
-
-	private static class ResourceLoaderUserAgent extends ITextUserAgent {
-		public ResourceLoaderUserAgent(ITextOutputDevice outputDevice) {
-			super(outputDevice);
-		}
-	}
-
-//	@Override
-//	public String transformHtml2PDFAsString(String narrative) {
-//        System.out.println("SproutTransformServiceImpl.transform");
-//		System.out.println("transform: " + "narrative = [" + narrative + "]");
-//
-//		if (StringUtils.isFull(narrative)) {
-//			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-//
-//			try {
-//				// NOTE: You might be able to support more complex HTML 2 PDF transformations with iText if necessary:
-//				// http://developers.lowagie.com/examples/xml-worker-itext5/html-images
-//
-////				OutputStream file = new FileOutputStream(new File("/Users/slorenz/Desktop/HTMLtoPDF.pdf"));
-//				Document document = new Document();
-//				PdfWriter writer = PdfWriter.getInstance(document, outputStream);
-//				writer.setStrictImageSequence(true);
-//				document.open();
-//
-//				InputStream is = new ByteArrayInputStream(wrapHtml(narrative).getBytes(Charset.forName("UTF-8")));
-//				XMLWorkerHelper.getInstance().parseXHtml(writer, document, is, Charset.forName("UTF-8"));
-//				document.close();
-//
-//				return Base64.encode(outputStream.toByteArray()).toString();
-//			}
-//			catch (Exception e) {
-//				e.printStackTrace();
-//			} finally {
-//				if (outputStream != null) {
-//					try {
-//						outputStream.close();
-//					} catch (IOException e) {}
-//				}
-//			}
-//		}
-//		return null;
-//	}
 
 	@Override
 	public String transformHtml2PDFAsString(String narrative) {
-//		System.out.println("SproutTransformServiceImpl.transformHtml2PDFAsString.narrative (before): " + narrative);
-//		System.out.println("transform: " + "narrative = [" + narrative + "]");
 
-		narrative = StringEscapeUtils.unescapeHtml(narrative);
-
-//		System.out.println("SproutTransformServiceImpl.transformHtml2PDFAsString.narrative (after 1): " + narrative);
-
-//		narrative = "<html><head>" +
-//				"</head><body style=\"font-size:12.0pt; font-family:Arial\">"+
-//				"<h1>Pets: \u2713 &#10003; \u2610 \u2611 \u00B6 \u0104.</h1>" +
-//				"<ul>" +
-//				"<li>\u2713 Cats</li>" +
-//				"<li>\u2610 Dogs</li>" +
-//				"<li>\u2713 Fish</li>" +
-//				"</ul>" +
-//				"\u2713 Cats" +
-//				"</body></html>";
-
-//		System.out.println("SproutTransformServiceImpl.transformHtml2PDFAsString.narrative (after 2): " + narrative);
+//		narrative = StringEscapeUtils.unescapeHtml(narrative);
 
 		if (StringUtils.isFull(narrative)) {
-			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
-			try {
-//				Document document = new Document();
-//				PdfWriter writer = PdfWriter.getInstance(document, outputStream);
-//				writer.setStrictImageSequence(true);
-//				document.open();
-//
-//				XMLWorkerFontProvider fontProvider = new XMLWorkerFontProvider();
-//				fontProvider.register("ufonts.com_arial-unicode-ms.ttf", "Arial");
-//				fontProvider.setUseUnicode(true);
-//				fontProvider.defaultEncoding = "Identity-H";
-//				CssAppliers cssAppliers = new CssAppliersImpl(fontProvider);
-//
-//				HtmlPipelineContext htmlContext = new HtmlPipelineContext(cssAppliers);
-//				htmlContext.setTagFactory(Tags.getHtmlTagProcessorFactory());
-//				CSSResolver cssResolver = XMLWorkerHelper.getInstance().getDefaultCssResolver(true);
-//
-//
-//				Pipeline<?> pipeline =
-//
-//						new CssResolverPipeline(cssResolver,
-//
-//								new HtmlPipeline(htmlContext,
-//
-//										new PdfWriterPipeline(document, writer)));
-//
-//
-//				XMLWorker worker = new XMLWorker(pipeline, true);
-//
-//				XMLParser p = new XMLParser(worker);
-//				InputStream is = new ByteArrayInputStream(wrapHtml(narrative).getBytes(Charset.forName("UTF-8")));
-//
-//				p.parse(is, Charset.forName("UTF-8"));
-//
-//
-//
-//				document.close();
-//
-//				String retVal = Base64.encode(outputStream.toByteArray()).toString();
-//				System.out.println("TestITextHtml2PdfConverter.transformHtml2PDFAsString.retVal: " + retVal);
-
-				ITextRenderer renderer = new ITextRenderer();
-				ResourceLoaderUserAgent callback = new ResourceLoaderUserAgent(renderer.getOutputDevice());
-				callback.setSharedContext(renderer.getSharedContext());
-				renderer.getSharedContext ().setUserAgentCallback(callback);
-				renderer.getFontResolver().addFont("ufonts.com_arial-unicode-ms.ttf", BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
-				SharedContext scontext=renderer.getSharedContext();
-				scontext.setDotsPerPixel(12);
-
-				Document doc = XMLResource.load(new ByteArrayInputStream(wrapHtml(narrative).getBytes("UTF-8"))).getDocument();
-
-				renderer.setDocument(doc, "");
-				renderer.layout();
-				renderer.createPDF(outputStream);
-
-				outputStream.close();
-
-				return Base64.encode(outputStream.toByteArray()).toString();
-			}
-			catch (Exception e) {
-				e.printStackTrace();
-			} finally {
-				if (outputStream != null) {
-					try {
-						outputStream.close();
-					} catch (IOException e) {}
-				}
+			byte[] pdf = callSproutHtmlToPdf(narrative);
+			if (pdf != null) {
+				return Base64.encode(pdf).toString();
 			}
 		}
 		return null;
 	}
-
-
-
-//	@Override
-//	public String transformHtml2PDFAsString(String narrative) {
-//        System.out.println("SproutTransformServiceImpl.transform");
-//		System.out.println("transform: " + "narrative = [" + narrative + "]");
-//
-//		if (StringUtils.isFull(narrative)) {
-//			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-//
-//			try {
-//				// NOTE: You might be able to support more complex HTML 2 PDF transformations with iText if necessary:
-//				// http://developers.lowagie.com/examples/xml-worker-itext5/html-images
-//
-////				OutputStream file = new FileOutputStream(new File("/Users/slorenz/Desktop/HTMLtoPDF.pdf"));
-//				Document document = new Document();
-//				PdfWriter writer = PdfWriter.getInstance(document, outputStream);
-//				writer.setStrictImageSequence(true);
-//				document.open();
-//
-//				InputStream is = new ByteArrayInputStream(wrapHtml(narrative).getBytes(Charset.forName("UTF-8")));
-//				XMLWorkerHelper.getInstance().parseXHtml(writer, document, is, Charset.forName("UTF-8"));
-//				document.close();
-//
-//				return Base64.encode(outputStream.toByteArray()).toString();
-//			}
-//			catch (Exception e) {
-//				e.printStackTrace();
-//			} finally {
-//				if (outputStream != null) {
-//					try {
-//						outputStream.close();
-//					} catch (IOException e) {}
-//				}
-//			}
-//		}
-//		return null;
-//	}
 
 	@Override
 	public ContentTO transformHtml2PDFAsContentTO(String narrative) {
@@ -799,32 +559,30 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 		return null;
 	}
 
+	private byte[] callSproutHtmlToPdf(String html) {
+		try {
+
+			System.out.println("SproutTransformServiceImpl.callSproutHtmlToPdf.html: " + html);
+
+
+			MediaType TEXT = MediaType.parse("text/plain; charset=utf-8");
+			RequestBody body = RequestBody.create(TEXT, html);
+			Request request = new Request.Builder()
+					.url(System.getProperty("edu.harvard.mgh.lcs.sprout.util.sprouthtmltopdf.url", "http://localhost:9494/convert"))
+					.post(body)
+					.build();
+			Response response = okHttpClient.newCall(request).execute();
+			return response.body().bytes();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 	private String wrapHtml(String html) {
 		if (StringUtils.isFull(html)) {
 
-//			try {
-//				InputStream in = new ByteArrayInputStream(html.getBytes());
-//				ByteArrayOutputStream out = new ByteArrayOutputStream();
-//
-//				Tidy tidy = new Tidy();
-//				tidy.setShowWarnings(true);
-//				tidy.setXmlTags(true);
-//				tidy.setInputEncoding("UTF-8");
-//				tidy.setOutputEncoding("UTF-8");
-//				tidy.setXHTML(true);
-////				tidy.setMakeClean(true);
-//				org.w3c.dom.Document xmlDoc = tidy.parseDOM(in, out);
-//				tidy.pprint(xmlDoc, out);
-//
-//				html = new String(out.toByteArray());
-//
-//				System.out.println("TestITextHtml2PdfConverter.wrapHtml.html: " + out.toString());
-//
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//			}
-
-
+//			return String.format("<div style=\"font-size:12.0pt;\">%s</div>", html);
 			return String.format("<div style=\"font-size:12.0pt; font-family: Arial Unicode MS\">%s</div>", html);
 		}
 		return null;

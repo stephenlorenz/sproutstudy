@@ -59,7 +59,18 @@
 					<defaultLibBundleDir>lib</defaultLibBundleDir>
                     <version>6</version>
 					<modules>
-
+						<!--<jarModule>-->
+							<!--<groupId>xalan</groupId>-->
+							<!--<artifactId>xalan</artifactId>-->
+							<!--<bundleDir>lib</bundleDir>-->
+							<!--<bundleFileName>xalan.jar</bundleFileName>-->
+						<!--</jarModule>-->
+						<!--<jarModule>-->
+							<!--<groupId>xalan</groupId>-->
+							<!--<artifactId>serializer</artifactId>-->
+							<!--<bundleDir>lib</bundleDir>-->
+							<!--<bundleFileName>serializer.jar</bundleFileName>-->
+						<!--</jarModule>-->
 						<ejbModule>
 							<groupId>${project.groupId}</groupId>
 							<artifactId>sproutStudy_ejb</artifactId>
@@ -121,5 +132,17 @@
 			<artifactId>sproutStudy_web</artifactId>
 			<type>war</type>
 		</dependency>
+		<!--<dependency>-->
+			<!--<groupId>xalan</groupId>-->
+			<!--<artifactId>xalan</artifactId>-->
+			<!--<version>2.7.2</version>-->
+			<!--<scope>runtime</scope>-->
+		<!--</dependency>-->
+		<!--<dependency>-->
+			<!--<groupId>xalan</groupId>-->
+			<!--<artifactId>serializer</artifactId>-->
+			<!--<version>2.7.2</version>-->
+			<!--<scope>runtime</scope>-->
+		<!--</dependency>-->
 	</dependencies>
 </project>
