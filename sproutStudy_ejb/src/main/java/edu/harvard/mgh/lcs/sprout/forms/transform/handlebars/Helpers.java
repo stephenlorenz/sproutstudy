@@ -1,6 +1,7 @@
 package edu.harvard.mgh.lcs.sprout.forms.transform.handlebars;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.jknack.handlebars.Context;
 import com.github.jknack.handlebars.Handlebars;
@@ -72,11 +73,14 @@ public class Helpers {
         boolean result = false;
 
         try {
-            ObjectNode model = (ObjectNode) options.context.model();
-            JsonNode localeNode = model.get("sprout").get("locale");
-            String sproutLocale = localeNode.textValue();
-            if (StringUtils.isFull(sproutLocale)) {
-                result = sproutLocale.equalsIgnoreCase(locale);
+            ObjectNode model = getModel(options);
+
+            if (model != null) {
+                JsonNode localeNode = model.get("sprout").get("locale");
+                String sproutLocale = localeNode.textValue();
+                if (StringUtils.isFull(sproutLocale)) {
+                    result = sproutLocale.equalsIgnoreCase(locale);
+                }
             }
         } catch (Exception e) {
             System.out.println("Helpers.locale.e.getMessage();: " + e.getMessage());
@@ -89,11 +93,14 @@ public class Helpers {
         boolean result = false;
 
         try {
-            ObjectNode model = (ObjectNode) options.context.model();
-            JsonNode localeNode = model.get("sprout").get("locale");
-            String sproutLocale = localeNode.textValue();
-            if (StringUtils.isFull(sproutLocale)) {
-                result = sproutLocale.equalsIgnoreCase("en");
+            ObjectNode model = getModel(options);
+
+            if (model != null) {
+                JsonNode localeNode = model.get("sprout").get("locale");
+                String sproutLocale = localeNode.textValue();
+                if (StringUtils.isFull(sproutLocale)) {
+                    result = sproutLocale.equalsIgnoreCase("en");
+                }
             }
         } catch (Exception e) {
             System.out.println("Helpers.locale.e.getMessage();: " + e.getMessage());
@@ -106,11 +113,14 @@ public class Helpers {
         boolean result = false;
 
         try {
-            ObjectNode model = (ObjectNode) options.context.model();
-            JsonNode localeNode = model.get("sprout").get("locale");
-            String sproutLocale = localeNode.textValue();
-            if (StringUtils.isFull(sproutLocale)) {
-                result = sproutLocale.equalsIgnoreCase("es");
+            ObjectNode model = getModel(options);
+
+            if (model != null) {
+                JsonNode localeNode = model.get("sprout").get("locale");
+                String sproutLocale = localeNode.textValue();
+                if (StringUtils.isFull(sproutLocale)) {
+                    result = sproutLocale.equalsIgnoreCase("es");
+                }
             }
         } catch (Exception e) {
             System.out.println("Helpers.locale.e.getMessage();: " + e.getMessage());
@@ -285,24 +295,31 @@ public class Helpers {
 //        System.out.println("key = [" + key + "], options = [" + options + "]");
 
         try {
-            ObjectNode model = (ObjectNode) options.context.model();
+            if (options.context != null) {
+                ObjectNode model = null;
 
-            JsonNode localeNode = model.get("sprout").get("locale");
-            String sproutLocale = "en";
+                model = getModel(options);
 
-            if (localeNode != null) sproutLocale = localeNode.textValue();
+                if (model != null) {
+                    JsonNode localeNode = model.get("sprout").get("locale");
+                    String sproutLocale = "en";
 
-            JsonNode translationsNode = model.get("translations");
+                    if (localeNode != null) sproutLocale = localeNode.textValue();
 
-            if (translationsNode != null) {
-                JsonNode translationNode = translationsNode.get(key);
-                if (translationNode != null) {
-                    JsonNode locale = translationNode.get(sproutLocale);
-                    if (locale != null) {
-                        String message = locale.textValue();
-                        Template template = handlebars.compileInline(message);
-                        return template.apply(options.context);
+                    JsonNode translationsNode = model.get("translations");
+
+                    if (translationsNode != null) {
+                        JsonNode translationNode = translationsNode.get(key);
+                        if (translationNode != null) {
+                            JsonNode locale = translationNode.get(sproutLocale);
+                            if (locale != null) {
+                                String message = locale.textValue();
+                                Template template = handlebars.compileInline(message);
+                                return template.apply(options.context);
+                            }
+                        }
                     }
+
                 }
             }
         } catch (Exception e) {
@@ -311,6 +328,16 @@ public class Helpers {
 
         return "";
 
+    }
+
+    private ObjectNode getModel(Options options) {
+        ObjectNode model;
+        if (options.context.parent() != null) {
+            model = (ObjectNode) options.context.parent().model();
+        } else {
+            model = (ObjectNode) options.context.model();
+        }
+        return model;
     }
 
     public CharSequence getNode(Object context, String queryKey, Options options) throws IOException {

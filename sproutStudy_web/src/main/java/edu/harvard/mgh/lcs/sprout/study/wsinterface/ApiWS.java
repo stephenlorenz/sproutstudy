@@ -10,6 +10,7 @@ import edu.harvard.mgh.lcs.sprout.forms.study.exception.UnauthorizedActionExcept
 import edu.harvard.mgh.lcs.sprout.forms.study.to.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -291,7 +292,7 @@ public interface ApiWS {
     @POST
     @Path("/secure/getNarrativePDF")
     @Produces(MediaType.TEXT_HTML)
-    public String getNarrativePDF(@Context HttpServletRequest request, String narrative) throws InvalidSessionRESTful;
+    public String getNarrativePDF(@Context HttpServletRequest request, @Context HttpServletResponse response, String narrative) throws InvalidSessionRESTful;
 
     @POST
     @Path("/secure/getNarrativeServer")

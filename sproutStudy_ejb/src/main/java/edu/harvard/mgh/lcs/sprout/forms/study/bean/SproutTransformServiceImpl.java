@@ -11,6 +11,7 @@ import com.github.jknack.handlebars.context.MapValueResolver;
 import com.github.jknack.handlebars.context.MethodValueResolver;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.SproutFormsService;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.SproutTransformService;
+import edu.harvard.mgh.lcs.sprout.forms.study.exception.HtmlToPdfException;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.BooleanTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.ContentTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.TemplateTO;
@@ -254,10 +255,14 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 					if (narrativeModelEntity != null) {
 						String publicationKey = sproutFormsService.getPublicationKeyFromInstanceId(instanceId);
 						if (StringUtils.isFull(publicationKey)) {
-							String narrative = getNarrative(publicationKey, instanceId, narrativeModelEntity.getModel(), "PDF", locale, type);
-							if (StringUtils.isFull(narrative)) {
-								saveNarrative(instanceId, narrative, "HTML");
-								return narrative;
+							try {
+								String narrative = getNarrative(publicationKey, instanceId, narrativeModelEntity.getModel(), "PDF", locale, type);
+								if (StringUtils.isFull(narrative)) {
+									saveNarrative(instanceId, narrative, "HTML");
+									return narrative;
+								}
+							} catch (Exception e) {
+								return e.getMessage();
 							}
 						}
 					}
@@ -515,14 +520,19 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 		System.out.println("transform: " + "narrative = [" + narrative + "]");
 
 		if (StringUtils.isFull(narrative)) {
-			byte[] pdf = callSproutHtmlToPdf(narrative);
+			byte[] pdf = null;
+			try {
+				pdf = callSproutHtmlToPdf(narrative);
+			} catch (HtmlToPdfException e) {
+				pdf = e.getMessage().getBytes();
+			}
 			if (pdf != null) return pdf;
 		}
 		return null;
 	}
 
 	@Override
-	public String transformHtml2PDFAsString(String narrative) {
+	public String transformHtml2PDFAsString(String narrative) throws HtmlToPdfException {
 
 //		narrative = StringEscapeUtils.unescapeHtml(narrative);
 
@@ -536,7 +546,7 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 	}
 
 	@Override
-	public ContentTO transformHtml2PDFAsContentTO(String narrative) {
+	public ContentTO transformHtml2PDFAsContentTO(String narrative) throws HtmlToPdfException {
 
 		if (StringUtils.isFull(narrative)) {
 			try {
@@ -559,7 +569,7 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 		return null;
 	}
 
-	private byte[] callSproutHtmlToPdf(String html) {
+	private byte[] callSproutHtmlToPdf(String html) throws HtmlToPdfException {
 		try {
 
 			System.out.println("SproutTransformServiceImpl.callSproutHtmlToPdf.html: " + html);
@@ -572,8 +582,22 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 					.post(body)
 					.build();
 			Response response = okHttpClient.newCall(request).execute();
-			return response.body().bytes();
-		} catch (Exception e) {
+
+
+			String exception = response.header("Exception");
+			String exceptionLine = response.header("ExceptionLine");
+
+			if (StringUtils.isFull(exception)) {
+				if (StringUtils.isFull(exceptionLine)) {
+					throw new HtmlToPdfException(String.format("ERROR: %s<div class='well well-sm'><textarea readonly='readonly' style='width: 100%%; height: 100px;'>%s</textarea></div>", exception, exceptionLine));
+				} else {
+					throw new HtmlToPdfException(exception);
+				}
+
+			} else {
+				return response.body().bytes();
+			}
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return null;

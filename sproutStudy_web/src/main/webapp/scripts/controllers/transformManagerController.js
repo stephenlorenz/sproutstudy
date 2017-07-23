@@ -503,6 +503,10 @@ angular.module('sproutStudyApp')
 
             if (response) {
 
+
+                console.log("response: " + response);
+                console.dir(response);
+
                 var content = response;
 
                 if (typeof response !== 'object') {

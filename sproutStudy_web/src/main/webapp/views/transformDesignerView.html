@@ -122,7 +122,7 @@
                 <h4>Loading...please wait...this can take a while...</h4>
             </div>
             <div class="alert alert-error" ng-show="pdfLoadingError">
-                <h4>{{pdfLoadingError}}</h4>
+                <h4 ng-bind-html-unsafe="pdfLoadingError"></h4>
             </div>
 
         </div>

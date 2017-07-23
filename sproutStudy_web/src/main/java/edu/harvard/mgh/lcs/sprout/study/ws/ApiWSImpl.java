@@ -6,6 +6,7 @@ import edu.harvard.mgh.lcs.sprout.forms.core.ejb.beaninterface.*;
 import edu.harvard.mgh.lcs.sprout.forms.study.beanws.Result;
 import edu.harvard.mgh.lcs.sprout.forms.study.beaninterface.*;
 import edu.harvard.mgh.lcs.sprout.forms.study.exception.DuplicateCohortListKeyException;
+import edu.harvard.mgh.lcs.sprout.forms.study.exception.HtmlToPdfException;
 import edu.harvard.mgh.lcs.sprout.forms.study.exception.InvalidSessionRESTful;
 import edu.harvard.mgh.lcs.sprout.forms.study.exception.UnauthorizedActionException;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.*;
@@ -21,6 +22,7 @@ import javax.ejb.EJB;
 import javax.inject.Named;
 import javax.jws.WebMethod;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.QueryParam;
@@ -923,12 +925,15 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
     }
 
     @Override
-    public String getNarrativePDF(HttpServletRequest request, String narrative) throws InvalidSessionRESTful {
-        ContentTO contentTO = transformService.transformHtml2PDFAsContentTO(narrative);
+    public String getNarrativePDF(HttpServletRequest request, HttpServletResponse response, String narrative) throws InvalidSessionRESTful {
         try {
+            ContentTO contentTO = transformService.transformHtml2PDFAsContentTO(narrative);
             return objectMapper.writeValueAsString(contentTO);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
+        } catch (HtmlToPdfException e) {
+            response.setHeader("Exception", e.getMessage());
+            return e.getMessage();
         }
         return null;
     }

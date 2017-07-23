@@ -1,5 +1,6 @@
 package edu.harvard.mgh.lcs.sprout.forms.study.beaninterface;
 
+import edu.harvard.mgh.lcs.sprout.forms.study.exception.HtmlToPdfException;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.BooleanTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.ContentTO;
 import edu.harvard.mgh.lcs.sprout.forms.study.to.TemplateTO;
@@ -17,9 +18,9 @@ public interface SproutTransformService {
 	void saveNarrativeModel(String instanceId, String model);
 	String transformHtml2Markdown(String narrative, String lineSeparator);
 	String transformHtml2Markdown(String narrative);
-	byte[] transformHtml2PDF(String narrative);
-	String transformHtml2PDFAsString(String narrative);
-	ContentTO transformHtml2PDFAsContentTO(String narrative);
+	byte[] transformHtml2PDF(String narrative) throws HtmlToPdfException;
+	String transformHtml2PDFAsString(String narrative) throws HtmlToPdfException;
+	ContentTO transformHtml2PDFAsContentTO(String narrative) throws HtmlToPdfException;
 	BooleanTO saveNarrativeWithLocaleAndType(String instanceId, String narrative, String format, String locale, String type);
 	String getNarrativeByInstanceId(String instanceId, String format, String locale, String type);
 }
