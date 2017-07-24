@@ -54,7 +54,7 @@ public class StudyEmailMDB implements MessageListener {
                 int auditId = auditService.log(studyInboxTO.getSender().getUsername(), SproutStudyConstantService.AuditType.PUBLISH_FORM_EMAIL_QUEUE, SproutStudyConstantService.AuditVerbosity.INFO, "Sending Form Email", studyInboxTO.getCohortTO(), studyInboxTO.getCohortTO().getCohortSubjectSchema(), studyInboxTO.getSubjectId(), String.format("Sending Form Email for instance, %s, from %s (%s) to %s (%s).", studyInboxTO.getInstanceId(), studyInboxTO.getSender().getFullName(), studyInboxTO.getSender().getUsername(), studyInboxTO.getRecipient().getFullName(), studyInboxTO.getRecipient().getUsername()));
 
                 Properties props = new Properties();
-                props.put("mail.smtp.host", System.getProperty("mail.smtp.host.partners", "phsmgout.partners.org"));
+                props.put("mail.smtp.host", System.getProperty("mail.smtp.host.partners", "smtp.partners.org"));
 
                 Session session = Session.getDefaultInstance(props, null);
 
