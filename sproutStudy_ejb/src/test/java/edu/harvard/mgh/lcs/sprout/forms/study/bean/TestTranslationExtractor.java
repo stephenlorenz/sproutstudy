@@ -21,7 +21,8 @@ public class TestTranslationExtractor {
 
 	PrintWriter printWriter = null;
 
-	Pattern regex = Pattern.compile("^[^A-z0-9!{{!(!'!\"]*");
+	Pattern regexPrefix = Pattern.compile("^[^A-z0-9!{{!(!'!\"]*");
+	Pattern regexSuffix = Pattern.compile("[ \\t]+$");
 
 	Map<String, String> codeMap = new HashMap<String, String>();
 
@@ -41,50 +42,15 @@ public class TestTranslationExtractor {
 		Elements body = document.getElementsByTag("body");
 
 //		Elements elements = document.body().select("h1,h2,h3,h4,h5,p,div.well,strong,span.hidden-print,span.visible-print-inline,span.skip");
-		Elements elements = document.body().select("h1,h2,h3,h4,h5,p,a,div.well,strong,span.hidden-print,span.visible-print-inline");
+//		Elements elements = document.body().select("h1,h2,h3,h4,h5,p,a,div.well,strong,span.hidden-print,span.visible-print-inline");
+		Elements elements = document.body().select("h1,h2,h3,h4,h5,p,a,div.well,span.hidden-print,span.visible-print-inline");
 
 		for (Element element : elements) {
 //			if (StringUtils.isFull(element.ownText()) && element.ownText().length() > 1) {
 //			System.out.println("***********************************************");
 
-			for (Node node : element.childNodes()) {
-				if (node instanceof TextNode) {
-					TextNode textNode = (TextNode) node;
-					String text = textNode.text();
 
-					if (StringUtils.isFull(text)) {
-
-						String prefix = null;
-						String suffix = null;
-
-						Matcher regexMatcher = regex.matcher(text);
-						if (regexMatcher.find()) {
-							prefix = regexMatcher.group();
-							suffix = text.substring(prefix.length());
-						}
-
-						if (StringUtils.isFull(prefix)) {
-							System.out.println("TestTranslationExtractor.test.prefix: " + prefix + "   suffix: " + suffix);
-						}
-
-
-						if (StringUtils.isFull(suffix)) {
-							String guid = StringUtils.getGuid();
-
-							if (codeMap.containsKey(suffix)) {
-								guid = codeMap.get(suffix);
-							} else {
-								codeMap.put(suffix, guid);
-								printMessage(guid, suffix);
-							}
-
-							textNode.text(String.format("%s{{#i18n \"%s\"}}%s{{/i18n}}", prefix, guid, suffix));
-						}
-					}
-				} else {
-//					System.out.println("TestTranslationExtractor.test.node.getClass().getName(): " + node.getClass().getName());
-				}
-			}
+			processElement(element);
 		}
 
 
@@ -101,6 +67,83 @@ public class TestTranslationExtractor {
 			e.printStackTrace();
 		}
 
+	}
+
+	private void processElement(Element element) {
+		for (Node node : element.childNodes()) {
+            if (node instanceof TextNode) {
+                TextNode textNode = (TextNode) node;
+                String text = textNode.text();
+
+                if (StringUtils.isFull(text) && text.indexOf("i18n") < 0) {
+
+
+//					System.out.println("TestTranslationExtractor.processElement.text : " + (!text.startsWith("{{#i18n")) + " ==> " + text);
+
+					boolean extractInd = true;
+
+					String prefix = null;
+					String suffix = null;
+                    String content = text;
+
+                    Matcher regexMatcherPrefix = regexPrefix.matcher(text);
+                    if (regexMatcherPrefix.find()) {
+                        prefix = regexMatcherPrefix.group();
+						content = text.substring(prefix.length());
+                    }
+
+                    Matcher regexMatcherSuffix = regexSuffix.matcher(content);
+                    if (regexMatcherSuffix.find()) {
+                        suffix = regexMatcherSuffix.group();
+						if ((content.length() - suffix.length()) > 0) {
+							content = content.substring(0, content.length() - suffix.length());
+						} else {
+							extractInd = false;
+						}
+                    }
+
+                    boolean hasText = false;
+
+					Pattern regexText = Pattern.compile("[a-zA-Z]");
+					Matcher regexMatcherText = regexText.matcher(content);
+					if (regexMatcherText.find()) {
+						hasText = true;
+					}
+
+
+//						if (StringUtils.isFull(prefix)) {
+//							System.out.println("TestTranslationExtractor.test.prefix: " + prefix + "   suffix: " + suffix);
+//						}
+
+
+                    if (extractInd && hasText && StringUtils.isFull(content)) {
+                        String guid = StringUtils.getGuid();
+
+//                        if (codeMap.containsKey(content)) {
+//                            guid = codeMap.get(content);
+//                        } else {
+//                            codeMap.put(content, guid);
+                            printMessage(guid, content);
+//                        }
+
+                        textNode.text(String.format("%s{{#i18n \"%s\"}}%s{{/i18n}}%s", prefix, guid, content, suffix));
+                    } else {
+//						System.out.println("skipping: " + content);
+					}
+                }
+            } else if (node instanceof Element) {
+            	Element elementTmp = (Element) node;
+
+
+				if (!elementTmp.tagName().equalsIgnoreCase("skip")) {
+//					System.out.println("TestTranslationExtractor.processElement.elementTmp.tagName(): " + elementTmp.tagName());
+					processElement((Element) node);
+				}
+            } else {
+
+                System.out.println("TestTranslationExtractor.test.node.getClass().getName(): " + node.getClass().getName());
+            }
+        }
 	}
 
 	private String extractSkipTags(String input) {

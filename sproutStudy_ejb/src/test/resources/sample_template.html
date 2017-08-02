@@ -104,17 +104,18 @@
 
 </head>
 
-<!-- CAREGIVER SECTION -->
-<!-- CAREGIVER SECTION -->
-<!-- CAREGIVER SECTION -->
-
 <body>
+
+<!-- CAREGIVER SECTION -->
+<!-- CAREGIVER SECTION -->
+<!-- CAREGIVER SECTION -->
 
 {{#compare sprout.custom.mode "==" "caregiver"}}
 
+
 <div class="caregiver-wrapper">
 
-    <h1>Personalized Checklist for {{pcori_dsp_interventi.first_name}}'s Caregiver</h1>
+    <h1>{{#i18n "caregiver_checklist"}}Personalized Checklist for {{pcori_dsp_interventi.first_name}}'s Caregiver{{/i18n}}</h1>
 
     <p>Your responses from Down Syndrome Clinic to You (DSC2U) were used to create this personalized checklist for {{pcori_dsp_interventi.first_name}}.  <span class="hidden-print">Click on "<strong class="why">Why?</strong>" after each recommendation if you are interested in knowing  why this suggestion was made for {{pcori_dsp_interventi.first_name}}. All explanations will appear automatically when you download a copy of this plan.</span> <span class="visible-print-inline">The "Why"  after each recommendation will explain why this suggestion was made for {{pcori_dsp_interventi.first_name}}.</span></p>
 
@@ -156,8 +157,8 @@
         <tr>
             <td class="td-checkbox">{{#i18n "checkmark"}}{{/i18n}}</td>
             <td>
-                <p><strong>Audiogram/hearing test.</strong> {{pcori_dsp_interventi.first_name}} is due for a hearing test. <a href="http://www.massgeneral.org/children/print/downsyndrome-hearing-loss-children-down-syndrome.pdf" target="_blank">More information on hearing loss and Down syndrome. {{#i18n "linkout"}}{{/i18n}}</a> <a href="https://meeting.childrens.harvard.edu/p433sdirm5d/?proto=true" target="_blank">Evaluation and treatment options [video]. {{#i18n "linkout"}}{{/i18n}}</a> <span class="why">{{#i18n "why"}}{{/i18n}}</span></p>
-                <div class="well"><span class="why-print">{{#i18n "why"}}{{/i18n}}</span> Up to 75 of every 100 Individuals with Down syndrome have hearing loss; the American Academy of Pediatrics recommends all individuals between the ages of 1 and 21 have an annual audiogram. You indicated that {{pcori_dsp_interventi.first_name}} did not have an audiogram within the past year.</div>
+                <p><strong>{{#i18n "audio1"}}Audiogram/hearing test.{{/i18n}}</strong> {{#i18n "audio2"}}{{pcori_dsp_interventi.first_name}} is due for a hearing test. {{/i18n}}<a href="http://www.massgeneral.org/children/print/downsyndrome-hearing-loss-children-down-syndrome.pdf" target="_blank">{{#i18n "audio3"}}More information on hearing loss and Down syndrome.{{/i18n}} {{#i18n "linkout"}}{{/i18n}}</a> <a href="https://meeting.childrens.harvard.edu/p433sdirm5d/?proto=true" target="_blank">{{#i18n "audio4"}}Evaluation and treatment options [video].{{/i18n}} {{#i18n "linkout"}}{{/i18n}}</a> <span class="why">{{#i18n "why"}}{{/i18n}}</span></p>
+                <div class="well"><span class="why-print">{{#i18n "why"}}{{/i18n}}</span> {{#i18n "audio5"}}Up to 75 of every 100 Individuals with Down syndrome have hearing loss; the American Academy of Pediatrics recommends all individuals between the ages of 1 and 21 have an annual audiogram. You indicated that {{pcori_dsp_interventi.first_name}} did not have an audiogram within the past year.{{/i18n}}</div>
             </td>
         </tr>
     </table>
@@ -2009,7 +2010,7 @@
         <tr>
             <td class="td-checkbox">{{#i18n "checkmark"}}{{/i18n}}</td>
             <td>
-                <p><strong>Dental visit.</strong> {{pcori_dsp_interventi.first_name}} is due for a dental visit.  <a href="http://www.ndss.org/Resources/Health-Care/Associated-Conditions/Dental-Issues-Down-Syndrome/" target="_blank">Regular dental care is important for all people with Down syndrome. {{#i18n "linkout"}}{{/i18n}}</a> <a href="https://www.autismspeaks.org/sites/default/files/documents/dentalguide.pdf" target="_blank">Here is a resource on dental health for people with autism. {{#i18n "linkout"}}{{/i18n}}  <a href="http://www.ndss.org/Global/oral_health_webinar.pdf" target="_blank">Here is another resource on dental care in people with Down syndrome. {{#i18n "linkout"}}{{/i18n}}</a> <a href="http://www.massgeneral.org/children/print/down-syndrome-dentist-visit.pdf" target="_blank">Please see this handout for how to prepare for a dental visit. {{#i18n "linkout"}}{{/i18n}}</a>  <a href="https://www.amazon.com/Smiles-for-Grace/dp/0983623619" target="_blank">And, a book for {{pcori_dsp_interventi.first_name}} to read as they prepare for their visit. {{#i18n "linkout"}}{{/i18n}}</a>  And, here is a <a href="https://meeting.childrens.harvard.edu/p1hvnwkzc27/?proto=true" target="_blank">Webinar [Video] {{#i18n "linkout"}}{{/i18n}}</a> in case orthodontic care is needed. <span class="why">{{#i18n "why"}}{{/i18n}}</span></p>
+                <p><strong>Dental visit.</strong> {{pcori_dsp_interventi.first_name}} is due for a dental visit.  <a href="http://www.ndss.org/Resources/Health-Care/Associated-Conditions/Dental-Issues-Down-Syndrome/" target="_blank">Regular dental care is important for all people with Down syndrome. {{#i18n "linkout"}}{{/i18n}}</a> <a href="https://www.autismspeaks.org/sites/default/files/documents/dentalguide.pdf" target="_blank">Here is a resource on dental health for people with autism. {{#i18n "linkout"}}{{/i18n}}</a>  <a href="http://www.ndss.org/Global/oral_health_webinar.pdf" target="_blank">Here is another resource on dental care in people with Down syndrome. {{#i18n "linkout"}}{{/i18n}}</a> <a href="http://www.massgeneral.org/children/print/down-syndrome-dentist-visit.pdf" target="_blank">Please see this handout for how to prepare for a dental visit. {{#i18n "linkout"}}{{/i18n}}</a>  <a href="https://www.amazon.com/Smiles-for-Grace/dp/0983623619" target="_blank">And, a book for {{pcori_dsp_interventi.first_name}} to read as they prepare for their visit. {{#i18n "linkout"}}{{/i18n}}</a>  And, here is a <a href="https://meeting.childrens.harvard.edu/p1hvnwkzc27/?proto=true" target="_blank">Webinar [Video] {{#i18n "linkout"}}{{/i18n}}</a> in case orthodontic care is needed. <span class="why">{{#i18n "why"}}{{/i18n}}</span></p>
                 <div class="well"><span class="why-print">{{#i18n "why"}}{{/i18n}}</span> You indicated on the intake that {{pcori_dsp_interventi.first_name}} has not seen a dentist in the past 6 months, and also has a diagnosis of Autism-Spectrum Disorder.</div>
             </td>
         </tr>
@@ -2023,7 +2024,7 @@
         <tr>
             <td class="td-checkbox">{{#i18n "checkmark"}}{{/i18n}}</td>
             <td>
-                <p><strong>Dental visit.</strong> {{pcori_dsp_interventi.first_name}} might be due for a dental visit.  <a href="http://www.ndss.org/Resources/Health-Care/Associated-Conditions/Dental-Issues-Down-Syndrome/" target="_blank">Regular dental care is important for all people with Down syndrome. {{#i18n "linkout"}}{{/i18n}}</a> <a href="https://www.autismspeaks.org/sites/default/files/documents/dentalguide.pdf" target="_blank">Here is a resource on dental health for people with autism. {{#i18n "linkout"}}{{/i18n}}  <a href="http://www.ndss.org/Global/oral_health_webinar.pdf" target="_blank">Here is another resource on dental care in people with Down syndrome. {{#i18n "linkout"}}{{/i18n}}</a> <a href="http://www.massgeneral.org/children/print/down-syndrome-dentist-visit.pdf" target="_blank">Please see this handout for how to prepare for a dental visit. {{#i18n "linkout"}}{{/i18n}}</a>  <a href="https://www.amazon.com/Smiles-for-Grace/dp/0983623619" target="_blank">And, a book for {{pcori_dsp_interventi.first_name}} to read as they prepare for their visit. {{#i18n "linkout"}}{{/i18n}}</a>  And, here is a <a href="https://meeting.childrens.harvard.edu/p1hvnwkzc27/?proto=true" target="_blank">Webinar [Video] {{#i18n "linkout"}}{{/i18n}}</a> in case orthodontic care is needed. <span class="why">{{#i18n "why"}}{{/i18n}}</span></p>
+                <p><strong>Dental visit.</strong> {{pcori_dsp_interventi.first_name}} might be due for a dental visit.  <a href="http://www.ndss.org/Resources/Health-Care/Associated-Conditions/Dental-Issues-Down-Syndrome/" target="_blank">Regular dental care is important for all people with Down syndrome. {{#i18n "linkout"}}{{/i18n}}</a> <a href="https://www.autismspeaks.org/sites/default/files/documents/dentalguide.pdf" target="_blank">Here is a resource on dental health for people with autism. {{#i18n "linkout"}}{{/i18n}}</a>  <a href="http://www.ndss.org/Global/oral_health_webinar.pdf" target="_blank">Here is another resource on dental care in people with Down syndrome. {{#i18n "linkout"}}{{/i18n}}</a> <a href="http://www.massgeneral.org/children/print/down-syndrome-dentist-visit.pdf" target="_blank">Please see this handout for how to prepare for a dental visit. {{#i18n "linkout"}}{{/i18n}}</a>  <a href="https://www.amazon.com/Smiles-for-Grace/dp/0983623619" target="_blank">And, a book for {{pcori_dsp_interventi.first_name}} to read as they prepare for their visit. {{#i18n "linkout"}}{{/i18n}}</a>  And, here is a <a href="https://meeting.childrens.harvard.edu/p1hvnwkzc27/?proto=true" target="_blank">Webinar [Video] {{#i18n "linkout"}}{{/i18n}}</a> in case orthodontic care is needed. <span class="why">{{#i18n "why"}}{{/i18n}}</span></p>
                 <div class="well"><span class="why-print">{{#i18n "why"}}{{/i18n}}</span> You indicated on the intake that you are unsure if {{pcori_dsp_interventi.first_name}} has seen a dentist in the past 6 months,  and also has a diagnosis of Autism-Spectrum Disorder.</div>
             </td>
         </tr>
@@ -7293,7 +7294,7 @@
         <tr>
             <td class="td-checkbox">&#x25cf;</td>
             <td>
-                <p>{{pcori_dsp_interventi.first_name}}’s caregiver would like for {{pcori_dsp_interventi.first_name}} to be able to sleep 7 to 8 hours per night./p>
+                <p>{{pcori_dsp_interventi.first_name}}’s caregiver would like for {{pcori_dsp_interventi.first_name}} to be able to sleep 7 to 8 hours per night.</p>
             </td>
         </tr>
     </table>
