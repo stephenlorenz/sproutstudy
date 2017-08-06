@@ -12,7 +12,10 @@ angular.module('sproutStudyApp')
             saveTemplate: function (params, data, callback) {
                 $http.post(networkService.generateUrl("saveTemplate", params), data).then(function (response) {
                     callback(response.data);
-                });
+                }, function errorCallback(response) {
+                    response.value = 'false';
+                    callback(response);
+                })
              },
             getNarrativeText: function (params, data, callback) {
                 $http.post(networkService.generateUrl("getNarrativeText", params), data).then(function (response) {
