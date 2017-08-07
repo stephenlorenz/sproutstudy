@@ -768,8 +768,6 @@ angular.module('sproutStudyApp')
 
                     }
                 });
-
-
             }
         };
 

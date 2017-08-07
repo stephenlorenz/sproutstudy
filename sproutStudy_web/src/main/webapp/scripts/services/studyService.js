@@ -36,151 +36,211 @@ angular.module('sproutStudyApp')
             getAdmin: function (params, callback) {
                 $http.get(networkService.generateUrl("isAdmin", params)).then(function (response) {
                     callback(response.data);
+                }, function errorCallback(response) {
+                    alert("ERROR: " + response.status + ": studyService.getAdmin. Please contact your system administrator.");
                 });
             },
             getManager: function (params, callback) {
                 $http.get(networkService.generateUrl("isManager", params)).then(function (response) {
                     callback(response.data);
+                }, function errorCallback(response) {
+                    alert("ERROR: " + response.status + ": studyService.getManager. Please contact your system administrator.");
                 });
             },
             getAuthorizedCohorts: function (params, callback) {
                 $http.get(networkService.generateUrl("getAuthorizedCohorts", params)).then(function (response) {
                     callback(response.data);
+                }, function errorCallback(response) {
+                    alert("ERROR: " + response.status + ": studyService.getAuthorizedCohorts. Please contact your system administrator.");
                 });
             },
             findCohortMember: function (params, callback) {
                 $http.get(networkService.generateUrl("findCohortMember", params)).then(function (response) {
                     callback(response.data);
+                }, function errorCallback(response) {
+                    alert("ERROR: " + response.status + ": studyService.findCohortMember. Please contact your system administrator.");
                 });
             },
             getRecentCohortMembers: function (params, callback) {
                 $http.get(networkService.generateUrl("getRecentCohortMembers", params)).then(function (response) {
                     callback(response.data);
+                }, function errorCallback(response) {
+                    alert("ERROR: " + response.status + ": studyService.getRecentCohortMembers. Please contact your system administrator.");
                 });
             },
             getCohortByKey: function (params, callback) {
                 $http.get(networkService.generateUrl("getCohortByKey", params)).then(function (response) {
                     callback(response.data);
+                }, function errorCallback(response) {
+                    alert("ERROR: " + response.status + ": studyService.getCohortByKey. Please contact your system administrator.");
                 });
             },
             getMutableForms: function (params, callback) {
                 $http.get(networkService.generateUrl("getMutableForms", params)).then(function (response) {
                     callback(response.data);
+                }, function errorCallback(response) {
+                    alert("ERROR: " + response.status + ": studyService.getMutableForms. Please contact your system administrator.");
                 });
             },
             getActiveSproutInboxStatuses: function (params, callback) {
                 $http.get(networkService.generateUrl("getActiveSproutInboxStatuses", params)).then(function (response) {
                     callback(response.data);
+                }, function errorCallback(response) {
+                    alert("ERROR: " + response.status + ": studyService.getActiveSproutInboxStatuses. Please contact your system administrator.");
                 });
             },
             getActiveSproutInboxLocations: function (params, callback) {
                 $http.get(networkService.generateUrl("getActiveSproutInboxLocations", params)).then(function (response) {
                     callback(response.data);
+                }, function errorCallback(response) {
+                    alert("ERROR: " + response.status + ": studyService.getActiveSproutInboxLocations. Please contact your system administrator.");
                 });
             },
             getAssignments: function (params, callback) {
                 $http.get(networkService.generateUrl("getAssignments", params)).then(function (response) {
                     callback(response.data);
+                }, function errorCallback(response) {
+                    alert("ERROR: " + response.status + ": studyService.getAssignments. Please contact your system administrator.");
                 });
             },
             getAllForms: function (params, callback) {
                 $http.get(networkService.generateUrl("getAllForms", params)).then(function (response) {
                     callback(response.data);
+                }, function errorCallback(response) {
+                    alert("ERROR: " + response.status + ": studyService.getAllForms. Please contact your system administrator.");
                 });
             },
             getAllFormsPageCount: function (params, callback) {
                 $http.get(networkService.generateUrl("getAllFormsPageCount", params)).then(function (response) {
                     callback(response.data);
+                }, function errorCallback(response) {
+                    alert("ERROR: " + response.status + ": studyService.getAllFormsPageCount. Please contact your system administrator.");
                 });
             },
             getAllFormsMetadata: function (params, callback) {
                 $http.get(networkService.generateUrl("getAllFormsMetadata", params)).then(function (response) {
                     callback(response.data);
+                }, function errorCallback(response) {
+                    alert("ERROR: " + response.status + ": studyService.getAllFormsMetadata. Please contact your system administrator.");
                 });
             },
             getCohortAuthorizations: function (params, callback) {
                 $http.get(networkService.generateUrl("getCohortAuthorizations", params)).then(function (response) {
                     callback(response.data);
+                }, function errorCallback(response) {
+                    alert("ERROR: " + response.status + ": studyService.getCohortAuthorizations. Please contact your system administrator.");
                 });
             },
             getStudyInbox: function (params, callback) {
                 $http.get(networkService.generateUrl("getStudyInbox", params)).then(function (response) {
                     callback(response.data);
+                }, function errorCallback(response) {
+                    alert("ERROR: " + response.status + ": studyService.getStudyInbox. Please contact your system administrator.");
                 });
             },
             unlock: function (params, callback) {
                 $http.get(networkService.generateUrl("unlock", params)).then(function (response) {
                     callback(response.data);
+                }, function errorCallback(response) {
+                    alert("ERROR: " + response.status + ": studyService.unlock. Please contact your system administrator.");
                 });
             },
             deleteInboxMessage: function (params, callback) {
                 $http.get(networkService.generateUrl("deleteInboxMessage", params)).then(function (response) {
                     callback(response.data);
+                }, function errorCallback(response) {
+                    alert("ERROR: " + response.status + ": studyService.deleteInboxMessage. Please contact your system administrator.");
                 });
             },
             markInboxMessageAsRead: function (params, callback) {
                 $http.get(networkService.generateUrl("markInboxMessageAsRead", params)).then(function (response) {
                     callback(response.data);
+                }, function errorCallback(response) {
+                    alert("ERROR: " + response.status + ": studyService.markInboxMessageAsRead. Please contact your system administrator.");
                 });
             },
             changeInboxMessageStatus: function (params, callback) {
                 $http.get(networkService.generateUrl("changeInboxMessageStatus", params)).then(function (response) {
                     callback(response.data);
+                }, function errorCallback(response) {
+                    alert("ERROR: " + response.status + ": studyService.changeInboxMessageStatus. Please contact your system administrator.");
                 });
             },
             sendMessage: function (params, callback) {
                 $http.get(networkService.generateUrl("sendMessage", params)).then(function (response) {
                     callback(response.data);
+                }, function errorCallback(response) {
+                    alert("ERROR: " + response.status + ": studyService.sendMessage. Please contact your system administrator.");
                 });
             },
             getLastSelectedCohort: function (params, callback) {
                 $http.get(networkService.generateUrl("getLastSelectedCohort", params)).then(function (response) {
                     callback(response.data);
+                }, function errorCallback(response) {
+                    alert("ERROR: " + response.status + ": studyService.getLastSelectedCohort. Please contact your system administrator.");
                 });
             },
             deleteSubmission: function (params, callback) {
                 $http.get(networkService.generateUrl("deleteSubmission", params)).then(function (response) {
                     callback(response.data);
+                }, function errorCallback(response) {
+                    alert("ERROR: " + response.status + ": studyService.deleteSubmission. Please contact your system administrator.");
                 });
             },
             setSessionCohort: function (params, callback) {
                 $http.get(networkService.generateUrl("setSessionCohort", params)).then(function (response) {
                     callback(response.data);
+                }, function errorCallback(response) {
+                    alert("ERROR: " + response.status + ": studyService.setSessionCohort. Please contact your system administrator.");
                 });
             },
             setSessionFormFilter: function (params, callback) {
                 $http.get(networkService.generateUrl("setSessionFormFilter", params)).then(function (response) {
                     callback(response.data);
+                }, function errorCallback(response) {
+                    alert("ERROR: " + response.status + ": studyService.setSessionFormFilter. Please contact your system administrator.");
                 });
             },
             getUserPreferences: function (params, callback) {
                 $http.get(networkService.generateUrl("getUserPreferences", params)).then(function (response) {
                     callback(response.data);
+                }, function errorCallback(response) {
+                    alert("ERROR: " + response.status + ": studyService.getUserPreferences. Please contact your system administrator.");
                 });
             },
             setDefaultTab: function (params, callback) {
                 $http.get(networkService.generateUrl("setDefaultTab", params)).then(function (response) {
                     callback(response.data);
+                }, function errorCallback(response) {
+                    alert("ERROR: " + response.status + ": studyService.setDefaultTab. Please contact your system administrator.");
                 });
             },
             getPatientInbox: function (params, callback) {
                 $http.get(networkService.generateUrl("getPatientInbox", params)).then(function (response) {
                     callback(response.data);
+                }, function errorCallback(response) {
+                    alert("ERROR: " + response.status + ": studyService.getPatientInbox. Please contact your system administrator.");
                 });
             },
             getPollEvents: function (params, callback) {
                 $http.get(networkService.generateUrl("getPollEvents", params)).then(function (response) {
                     callback(response.data);
+                }, function errorCallback(response) {
+                    console.error("ERROR: " + response.status + ": studyService.getPollEvents. Please contact your system administrator.");
                 });
             },
             getSession: function (params, callback) {
                 $http.get(networkService.generateUrl("getSession", params)).then(function (response) {
                     callback(response.data);
+                }, function errorCallback(response) {
+                    alert("ERROR: " + response.status + ": studyService.getSession. Please contact your system administrator.");
                 });
             },
             mrnIHealthSpace: function (params, callback) {
                 $http.get(networkService.generateUrl("mrnIHealthSpace", params)).then(function (response) {
                     callback(response.data);
+                }, function errorCallback(response) {
+                    alert("ERROR: " + response.status + ": studyService.mrnIHealthSpace. Please contact your system administrator.");
                 });
             },
             patientLookup: function (params, page) {
@@ -192,7 +252,7 @@ angular.module('sproutStudyApp')
             },
             syncPatientIdentifiers: function (verifiedIdentifiers, patient, assertions, instanceId, callback) {
 
-                console.log("8885: studyService.syncPatientIdentifiers");
+                // console.log("8885: studyService.syncPatientIdentifiers");
             	
             	var matchedIdentifiers = patient.identities;
 

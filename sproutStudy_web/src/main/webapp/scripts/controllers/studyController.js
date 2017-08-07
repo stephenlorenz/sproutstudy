@@ -2017,10 +2017,10 @@ angular.module('sproutStudyApp')
 
                     //transformService.saveTemplate({publicationKey: publicationKey, instanceId: instanceId, templateKey: null, masterInd: false}, syncNarrativeTemplate(instanceId), function(data) {
                     transformService.saveTemplate({publicationKey: publicationKey, instanceId: instanceId, templateKey: null, masterInd: false}, templateTO, function(data) {
-//                     transformService.saveTemplate({publicationKey: publicationKey, instanceId: instanceId, templateKey: null, masterInd: false}, template, function(data) {
+                    // transformService.saveTemplate({publicationKey: publicationKey, instanceId: instanceId, templateKey: null, masterInd: false}, template, function(data) {
 
                         if (data.value == 'false') {
-                            alert("Failed to save narrative template. Please contact your system administrator.");
+                            // alert("Failed to save narrative template. Please contact your system administrator.");
                             callback(false, "Failed to save narrative template.");
                         } else {
                             transformService.saveNarrative({instanceId: instanceId, format: "HTML"}, narrative, function(data) {
