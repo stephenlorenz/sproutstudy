@@ -77,7 +77,7 @@ public class TestLinkRedirectProxy {
 			String href = element.attr("href");
 			System.out.println(href);
 
-			if (StringUtils.isFull(href) && !href.startsWith("/sproutlink/redirect")) {
+			if (StringUtils.isFull(href) && !href.startsWith("/sproutlink/redirect") && href.indexOf("mailto") < 0) {
 				String newURL = String.format("/sproutlink/redirect/pcoridsp?url=%s&token={{sprout.instanceId}}", encodeUrl(href));
 				element.attr("href", newURL);
 			}
@@ -98,7 +98,7 @@ public class TestLinkRedirectProxy {
 
 
 	private void printTemplate(String template) throws IOException {
-		PrintWriter printWriterBody = new PrintWriter(new FileWriter("/Users/slorenz/Desktop/template.html"));
+		PrintWriter printWriterBody = new PrintWriter(new FileWriter("/Users/slorenz/Desktop/templateLinks.html"));
 
 		if (printWriterBody != null) {
 			printWriterBody.write(template);
@@ -109,7 +109,8 @@ public class TestLinkRedirectProxy {
 	@Before
 	public void init() throws IOException {
 
-		InputStream is = new FileInputStream("/Users/slorenz/workspace/sproutStudy/sproutStudy/sproutStudy_ejb/src/test/resources/sample_template.html");
+		InputStream is = new FileInputStream("/Users/slorenz/Desktop/template.html");
+//		InputStream is = new FileInputStream("/Users/slorenz/workspace/sproutStudy/sproutStudy/sproutStudy_ejb/src/test/resources/sample_template.html");
 		BufferedReader buf = new BufferedReader(new InputStreamReader(is));
 		String line = buf.readLine();
 		StringBuilder sb = new StringBuilder();
