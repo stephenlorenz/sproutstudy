@@ -331,10 +331,10 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 
             if (StringUtils.isFull(templateText)) {
 
-//				System.out.println("SproutTransformServiceImpl.getNarrative.4");
+//				System.out.println("978: SproutTransformServiceImpl.getNarrative.4");
 //
-//				System.out.println("templateText = " + templateText);
-//				System.out.println("jsonData = " + jsonData);
+//				System.out.println("978: templateText = " + templateText);
+//				System.out.println("978: jsonData = " + jsonData);
 
 				try {
 					Handlebars handlebars = new Handlebars();
@@ -345,7 +345,7 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 
 					JsonNode jsonNode = new ObjectMapper().readValue(jsonData, JsonNode.class);
 
-//					System.out.println("SproutTransformServiceImpl.getNarrative.translationsText: " + translationsText);
+//					System.out.println("978: SproutTransformServiceImpl.getNarrative.translationsText: " + translationsText);
 
 					if (StringUtils.isFull(translationsText)) {
 						try {
@@ -356,45 +356,101 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 							if (translationNodes != null) {
 								Iterator<JsonNode> translations = translationNodes.elements();
 
+//								System.out.println("978: before");
+
 								if (translations != null) {
 									while (translations.hasNext()) {
+//										System.out.println("978: 1");
+
 										JsonNode translation = translations.next();
 
+//										System.out.println("978: 2");
 //										System.out.println("TestTranslationsTransform.test.translation: " + translation);
 
-										String key = translation.get("key").textValue();
+										if (translation != null && translation.get("key") != null) {
+//											System.out.println("978: 3");
 
-//										System.out.println("TestTranslationsTransform.test.key: " + key);
+											String key = translation.get("key").textValue();
 
-										JsonNode localesNode = translation.get("locales");
+//											System.out.println("978: 4");
 
-										Iterator<JsonNode> locales = localesNode.elements();
+//											System.out.println("TestTranslationsTransform.test.key: " + key);
 
-										ObjectNode localeNodes = new ObjectMapper().createObjectNode();
+//											System.out.println("978: 5");
 
-										if (locales != null) {
-											while (locales.hasNext()) {
-												JsonNode localeTmp = locales.next();
+											JsonNode localesNode = translation.get("locales");
 
-												String localeKey = localeTmp.get("locale").get("key").textValue();
-												String localeMessage = localeTmp.get("message").textValue();
+//											System.out.println("978: 6");
 
-//												System.out.println(localeKey + ": " + localeMessage);
+											Iterator<JsonNode> locales = localesNode.elements();
 
-												localeNodes.put(localeKey, localeMessage);
+//											System.out.println("978: 7");
+
+											ObjectNode localeNodes = new ObjectMapper().createObjectNode();
+
+//											System.out.println("978: 8");
+
+											if (locales != null) {
+
+//												System.out.println("978: 9");
+
+												while (locales.hasNext()) {
+
+//													System.out.println("978: 10");
+
+													JsonNode localeTmp = locales.next();
+
+//													System.out.println("978: 11");
+
+													if (localeTmp != null && localeTmp.get("locale") != null && localeTmp.get("locale").get("key") != null && localeTmp.get("message") != null) {
+
+//														System.out.println("978: 12");
+
+														String localeKey = localeTmp.get("locale").get("key").textValue();
+														String localeMessage = localeTmp.get("message").textValue();
+
+//												System.out.println("363: " + localeKey + ": " + localeMessage);
+
+//														System.out.println("978: 13");
+
+														localeNodes.put(localeKey, localeMessage);
+													}
+												}
+
+//												System.out.println("978: 14");
+
+//												System.out.println("978: SproutTransformServiceImpl.getNarrative.localeNodes: " + key + " :: " + localeNodes);
+
+												newTranslationNodes.put(key, localeNodes);
+
+//												System.out.println("978: 15");
+
 											}
-											newTranslationNodes.put(key, localeNodes);
+
+//											System.out.println("978: 16");
+
 										}
+
+//										System.out.println("978: 17");
+
 									}
+
+//									System.out.println("978: 18");
+
 								}
 
-//								System.out.println("TestTranslationsTransform.test.newTranslationNodes: " + newTranslationNodes);
+//								System.out.println("978: after");
+
+//								System.out.println("978: TestTranslationsTransform.test.newTranslationNodes: " + newTranslationNodes);
 								((ObjectNode) jsonNode).put("translations", newTranslationNodes);
 							}
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
 					}
+
+					System.out.println("SproutTransformServiceImpl.getNarrative.jsonNode: " + jsonNode);
+
 
 					handlebars.registerHelper("json", Jackson2Helper.INSTANCE);
 
@@ -516,8 +572,8 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 
 	@Override
 	public byte[] transformHtml2PDF(String narrative) {
-        System.out.println("SproutTransformServiceImpl.transform");
-		System.out.println("transform: " + "narrative = [" + narrative + "]");
+        System.out.println("SproutTransformServiceImpl.transformHtml2PDF");
+//		System.out.println("transform: " + "narrative = [" + narrative + "]");
 
 		if (StringUtils.isFull(narrative)) {
 			byte[] pdf = null;

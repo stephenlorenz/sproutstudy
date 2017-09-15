@@ -41,7 +41,7 @@ public interface ApiWS {
 
     @GET
     @Path("/secure/findCohortMember")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces("application/json;charset=UTF-8")
     public List<Result> findCohortMember(@Context HttpServletRequest request, @QueryParam("cohortQueryURL") String cohortQueryURL, @QueryParam("query") String query) throws InvalidSessionRESTful;
 
     @GET
