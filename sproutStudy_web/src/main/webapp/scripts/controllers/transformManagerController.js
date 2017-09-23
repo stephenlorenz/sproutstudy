@@ -265,11 +265,13 @@ angular.module('sproutStudyApp')
                     var en = "";
                     var es = "";
                     angular.forEach(translation.locales, function(locale) {
-                        var quotesInd = locale.message.indexOf("\"") >= 0 || locale.message.indexOf(",") >= 0;
-                        // var quotesInd = true;
-                        var message = (quotesInd ? "\"" : "") + locale.message.replace(/"/g, "\"\"") + (quotesInd ? "\"" : "");
-                        if (locale.locale.key === 'en') en = message;
-                        if (locale.locale.key === 'es') es = message;
+                        if (locale.message) {
+                            var quotesInd = locale.message.indexOf("\"") >= 0 || locale.message.indexOf(",") >= 0;
+                            // var quotesInd = true;
+                            var message = (quotesInd ? "\"" : "") + locale.message.replace(/"/g, "\"\"") + (quotesInd ? "\"" : "");
+                            if (locale.locale.key === 'en') en = message;
+                            if (locale.locale.key === 'es') es = message;
+                        }
                     });
 
                     row.push(en);
