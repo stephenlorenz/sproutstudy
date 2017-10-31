@@ -208,13 +208,24 @@ public class Helpers {
     public CharSequence ne(String lvalue, String rvalue, Options options) throws IOException {
         boolean result = false;
 
-        if (StringUtils.isFull(lvalue, rvalue)) {
+        if (lvalue == null) return "true";
+
+//        System.out.println("Helpers.ne.options: " + options);
+//        System.out.println("********************************** ");
+//        System.out.println("Helpers.ne.lvalue: " + lvalue);
+//        System.out.println("Helpers.ne.rvalue: " + rvalue);
+
+//        if (StringUtils.isFull(lvalue, rvalue)) {
+        if (StringUtils.isFull(rvalue)) {
             if (StringUtils.isInteger(lvalue) && StringUtils.isInteger(rvalue)) {
                 result = StringUtils.getFloat(lvalue).floatValue() != StringUtils.getFloat(rvalue).floatValue();
             } else {
                 result = !lvalue.equals(rvalue);
             }
         }
+
+//        System.out.println("Helpers.ne.result: " + result);
+
         return new String("" + result);
     }
 
