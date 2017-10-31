@@ -32,6 +32,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 @Stateless
@@ -54,7 +55,10 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 
 	ObjectMapper objectMapper = new ObjectMapper(factory);
 
-	OkHttpClient okHttpClient = new OkHttpClient();
+	OkHttpClient okHttpClient = new OkHttpClient.Builder()
+			.connectTimeout(100, TimeUnit.SECONDS)
+                .writeTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(20, TimeUnit.SECONDS).build();
 
 
 	@Override

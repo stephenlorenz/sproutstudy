@@ -104,8 +104,7 @@
                         <li><a ng-href="#/cohorts" ng-click="onClearForms()" class="sproutstudy-tab-button" ng-show="isCohortManager()">Cohort Admin</a></li>
                         <li><a ng-href="#/forms" ng-click="onClearForms()" class="sproutstudy-tab-button" ng-show="isManagerOfCohort() || isAdmin()  ">Form Admin</a></li>
                         <li><a ng-href="#/lists" ng-click="onClearForms()" class="sproutstudy-tab-button" ng-show="isManagerOfCohort() || isAdmin()  ">List Admin</a></li>
-                        <li class="sprout-study-subapp-option"><a ng-href="#/feedback" class="sproutstudy-tab-button">Feedback</a></li>
-                        <li><a id="btn_logout" href="logout">Logout</a></li>
+                        <li class="sprout-study-subapp-option"><a ng-href="#/feedback" class="sproutstudy-tab-button">Feedback</a></li<li><a id="btn_logout" href="logout">Logout</a></li>
                     <%--<li><a href="#/settings">Account Settings</a></li>--%>
                     </ul>
                 </li>
