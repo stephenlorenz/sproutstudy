@@ -56,7 +56,7 @@ public class HandlebarTestWeirdConditional {
 			String output = template2.apply(context);
 
 
-			System.out.println(output);
+//			System.out.println(output);
 
 
 			FileUtils.writeStringToFile(new File("/Users/slorenz/Desktop/output.html"), output, Charset.defaultCharset());

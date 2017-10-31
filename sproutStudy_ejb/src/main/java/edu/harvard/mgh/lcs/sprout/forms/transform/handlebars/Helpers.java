@@ -294,11 +294,15 @@ public class Helpers {
 //        System.out.println("Helpers.i18n");
 //        System.out.println("key = [" + key + "], options = [" + options + "]");
 
+//        if (key.equalsIgnoreCase("ED728071-02CD-466B-8BDD-C2A0E57BA361")) {
+//            System.out.println("stop here");
+//        }
+
         try {
             if (options.context != null) {
                 ObjectNode model = null;
 
-                model = getModel(options);
+                model = getModel(options.context);
 
                 if (model != null) {
                     JsonNode localeNode = model.get("sprout").get("locale");
@@ -328,6 +332,18 @@ public class Helpers {
 
         return "";
 
+    }
+
+    private ObjectNode getModel(Context context) {
+        if (context != null) {
+            if (context.model() instanceof ObjectNode) {
+                return (ObjectNode) context.model();
+            } else {
+                return getModel(context.parent());
+            }
+        } else {
+            return null;
+        }
     }
 
     private ObjectNode getModel(Options options) {

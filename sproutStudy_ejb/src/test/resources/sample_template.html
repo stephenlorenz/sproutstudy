@@ -7059,16 +7059,20 @@
         </tbody></table>
     {{/if}}
 
+    
     {{#if (or
     (eq pcori_dsp_interventi.ophtho_1y.value "1")
     (eq pcori_dsp_interventi.ophtho_2y.value "1")
     (eq pcori_dsp_interventi.ophtho_3y.value "1")
     (eq pcori_dsp_interventi.ophtho_2yadult.value "1")
     )}}
+
     {{#if (and
     (eq pcori_dsp_interventi.concerns_about_vision.value "1")
     (eq pcori_dsp_interventi.keratoconus.value "1")
     )}}
+
+
     <table class="table-checklist">
         <tbody><tr>
             <td class="td-checkbox">{{#i18n "checkmark"}}{{/i18n}}</td>
@@ -17659,6 +17663,7 @@
     {{/if}}
     {{/if}}
 
+    <h2>before1</h2>
     {{#if (or
     (eq pcori_dsp_interventi.ophtho_1y.value "1")
     (eq pcori_dsp_interventi.ophtho_2y.value "1")
@@ -17677,6 +17682,7 @@
         </tbody></table>
     {{/if}}
     {{/if}}
+    <h2>after1</h2>
 
     {{#if (or
     (eq pcori_dsp_interventi.ophtho_1y.value "1")
