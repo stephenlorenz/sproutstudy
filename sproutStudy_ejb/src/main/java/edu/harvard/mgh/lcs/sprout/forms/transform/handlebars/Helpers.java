@@ -35,6 +35,12 @@ public class Helpers {
 
         boolean result = false;
 
+        if (rvalue == null) { // This means the left value was empty and causes the parameters to shift; fix this by reassigning variables
+            rvalue = operator;
+            operator = lvalue;
+            lvalue = "";
+        }
+
         if (StringUtils.isFull(operator) && lvalue != null && rvalue != null) {
             if (operator.equals("=") || operator.equals("==") || operator.equals("===")) {
                 if (StringUtils.isInteger(lvalue) && StringUtils.isInteger(rvalue)) {
@@ -63,7 +69,7 @@ public class Helpers {
             }
         }
 
-//        System.out.println("Helpers.compare.result: " + result);
+        System.out.println("Helpers.compare.result: " + result);
 
         return options.isFalsy(result) ? options.inverse() : options.fn();
     }
@@ -199,6 +205,10 @@ public class Helpers {
             if (StringUtils.isInteger(lvalue) && StringUtils.isInteger(rvalue)) {
                 result = StringUtils.getFloat(lvalue).floatValue() == StringUtils.getFloat(rvalue).floatValue();
             } else {
+                result = lvalue.equals(rvalue);
+            }
+        } else {
+            if (lvalue != null && rvalue != null) {
                 result = lvalue.equals(rvalue);
             }
         }

@@ -4000,10 +4000,18 @@
     {{/compare}}
     {{/compare}}
 
+    <h2>begin thyroid</h2>
+    <h3>pcori_dsp_interventi.thyroid_test.value: {{pcori_dsp_interventi.thyroid_test.value}}</h3>
+    <h3>pcori_dsp_interventi.hidden_hypothyroid: {{pcori_dsp_interventi.hidden_hypothyroid}}</h3>
+    <h3>pcori_dsp_interventi.pmh_hashimotos.value: {{pcori_dsp_interventi.pmh_hashimotos.value}}</h3>
+    <h3>pcori_dsp_interventi.pmh_hypothyroidism.value: {{pcori_dsp_interventi.pmh_hypothyroidism.value}}</h3>
     {{#compare pcori_dsp_interventi.thyroid_test.value "==" "1"}}
-    {{#compare pcori_dsp_interventi.hidden_hypothyroid "==" "1"}}
+    {{#compare pcori_dsp_interventi.hidden_hypothyroid "==" "0"}}
     {{#compare pcori_dsp_interventi.pmh_hashimotos.value "!=" "1"}}
     {{#compare pcori_dsp_interventi.pmh_hypothyroidism.value "!=" "1"}}
+
+    <h2>inside thyroid</h2>
+
     <table class="table-checklist">
         <tbody><tr>
             <td class="td-checkbox">{{#i18n "checkmark"}}{{/i18n}}</td>
@@ -5680,6 +5688,24 @@
     {{/compare}}
 
     <h2>begin1</h2>
+
+
+{{#if (and
+    (eq dsc2umark.ophtho_2y.value "1")
+    (eq dsc2umark.concerns_about_vision.value "1")
+    (eq dsc2umark.keratoconus.value "")
+    (eq dsc2umark.cataracts.value "")
+    (eq dsc2umark.strabismus.value "")
+    (eq dsc2umark.nystagmus.value "")
+    (eq dsc2umark.astigmatism.value "")
+    )}}
+    <h1>see me</h1>
+    {{/if}}
+
+
+
+
+
     {{#compare pcori_dsp_interventi.pt_age ">" "12"}}
 
     <h3>yo1</h3>
