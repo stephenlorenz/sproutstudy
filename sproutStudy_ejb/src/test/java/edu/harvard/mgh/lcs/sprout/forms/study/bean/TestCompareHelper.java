@@ -1,13 +1,10 @@
 package edu.harvard.mgh.lcs.sprout.forms.study.bean;
 
-import com.github.jknack.handlebars.Options;
 import edu.harvard.mgh.lcs.sprout.forms.study.util.StringUtils;
-import edu.harvard.mgh.lcs.sprout.forms.transform.handlebars.Helpers;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.security.SecureRandom;
 
 

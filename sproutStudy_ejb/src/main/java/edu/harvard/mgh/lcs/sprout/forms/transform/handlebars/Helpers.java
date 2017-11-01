@@ -69,7 +69,7 @@ public class Helpers {
             }
         }
 
-        System.out.println("Helpers.compare.result: " + result);
+//        System.out.println("Helpers.compare.result: " + result);
 
         return options.isFalsy(result) ? options.inverse() : options.fn();
     }
@@ -211,6 +211,9 @@ public class Helpers {
             if (lvalue != null && rvalue != null) {
                 result = lvalue.equals(rvalue);
             }
+            if (lvalue == null && rvalue == null) {
+                result = true;
+            }
         }
         return new String("" + result);
     }
@@ -218,7 +221,8 @@ public class Helpers {
     public CharSequence ne(String lvalue, String rvalue, Options options) throws IOException {
         boolean result = false;
 
-        if (lvalue == null) return "true";
+        if (lvalue == null && rvalue != null) return "true";
+        if (lvalue != null && rvalue == null) return "true";
 
 //        System.out.println("Helpers.ne.options: " + options);
 //        System.out.println("********************************** ");
