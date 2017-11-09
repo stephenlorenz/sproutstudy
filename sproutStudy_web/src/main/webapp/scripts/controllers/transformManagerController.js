@@ -20,6 +20,7 @@ angular.module('sproutStudyApp')
     $scope.aceCursorPosition = undefined;
 
     $scope.formLoaded = false;
+    $scope.templateLoaded = false;
 
         $scope.autosave = true;
 
@@ -225,7 +226,52 @@ angular.module('sproutStudyApp')
                 // $scope.translations.push({})
             }
             $scope.translationsModal = true;
+            $scope.translationsModalMode = 'list';
             $scope.translationsFilter = undefined;
+            $scope.translationsPage = [];
+            $scope.translationsPageNumber = 0;
+
+
+            $scope.fillTranslationPage();
+
+        };
+
+        $scope.nextTranslationPage = function () {
+            $scope.translationsPageNumber++;
+            $scope.fillTranslationPage();
+
+        };
+
+        $scope.previousTranslationPage = function () {
+            $scope.translationsPageNumber--;
+            $scope.fillTranslationPage();
+
+        };
+
+        $scope.fillTranslationPage = function () {
+            var itemsPerPage = 10;
+
+            var startNumber = $scope.translationsPageNumber * itemsPerPage;
+            var endNumber = startNumber + itemsPerPage;
+
+            if ($scope.translations && $scope.translations.length > 0) {
+                var counter = 0;
+                angular.forEach($scope.translations, function (translation) {
+                    var countMe = true;
+                    if ($scope.translationsFilter && $scope.translationsFilter.length > 0) {
+                        if (JSON.stringify(translation).toLowerCase().indexOf($scope.translationsFilter.toLowerCase()) < 0) countMe = false;
+                    }
+
+                    if (countMe) {
+                        if (counter >= startNumber && counter < endNumber) {
+                            $scope.translationsPage.push(translation);
+                        }
+                        counter++
+                    }
+
+                });
+            }
+
         };
 
         $scope.onAddTranslation = function () {
@@ -240,6 +286,7 @@ angular.module('sproutStudyApp')
             translation.locales = locales;
 
             $scope.translations.push(translation);
+            $scope.translationsPage.push(translation);
             $scope.translationsFilter = undefined;
 
             // var objDiv = document.getElementById("translationsModalMapper");
@@ -251,8 +298,22 @@ angular.module('sproutStudyApp')
             }, 800);
         };
 
-        $scope.onDeleteTranslation = function ($index) {
+        $scope.onDeleteTranslation = function ($index, translation) {
+
+            // console.log("onDeleteTranslation");
+            // console.dir(translation);
+            
             $scope.translations.splice($index, 1);
+            // $scope.translations.push(translation);
+            $scope.translationsPage.splice($index, 1);
+
+        };
+
+        $scope.filterTranslationList = function () {
+            // console.log("filterTranslationList.translationsFilter: " + $scope.translationsFilter);
+            $scope.translationsPageNumber = 0;
+            $scope.translationsPage = [];
+            $scope.fillTranslationPage();
         };
 
         $scope.onExportTranslations = function () {
@@ -325,7 +386,7 @@ angular.module('sproutStudyApp')
 
                 // If it's a newline and we're not in a quoted field, move on to the next
                 // row and move to column 0 of that new row
-                if (cc == '\n' && !quote) { ++row; col = 0; continue; }
+                if ((cc == '\n' || cc == '\r') && !quote) { ++row; col = 0; continue; }
 
                 // Otherwise, append the current character to the current column
                 arr[row][col] += cc;
@@ -334,6 +395,8 @@ angular.module('sproutStudyApp')
         }
 
         function processTranslationsImportData(csv) {
+
+            $scope.translationsModalMode = 'importing';
 
             var translationArray = parseCSV(csv);
 
@@ -350,12 +413,22 @@ angular.module('sproutStudyApp')
                         var en = row[1];
                         var es = row[2];
 
+
+                        // console.log("*****************");
+                        // console.log("es1: [" + es + "]");
+                        // console.log("es1.length: " + es.length);
+                        // es.replace(new RegExp('\\r', 'g'), '')
+                        // console.log("es2: " + es.length);
+                        //
                         // if (row[1] && row[1].indexOf('"') === 0) {
                         //     en = row[1].substring(1, row[1].length - 1).replace(/\"\"/g, '\"');
                         // }
                         // if (row[2] && row[2].indexOf('"') === 0) {
                         //     es = row[2].substring(1, row[2].length - 1).replace(/\"\"/g, '\"');
                         // }
+
+                        // es = 'test123';
+
 
                         if (key) {
                             var translation = {};
@@ -373,7 +446,13 @@ angular.module('sproutStudyApp')
 
                 $scope.translations = translations;
                 $scope.onSaveTemplate();
+
+                $scope.translationsFilter = undefined;
+                $scope.filterTranslationList();
+
             }
+
+            $scope.translationsModalMode = 'list';
 
         }
         // function processTranslationsImportData(csv) {
@@ -432,6 +511,7 @@ angular.module('sproutStudyApp')
 
         $scope.onImportTranslations = function () {
             // console.log("onImportTranslations");
+            $scope.translationsModalMode = 'importPrompt';
             $("#csvFileInput").click();
         };
 
@@ -613,9 +693,12 @@ angular.module('sproutStudyApp')
 
             if (data.translations && typeof data.translations === 'string') {
                 $scope.translations = JSON.parse(data.translations);
+                $scope.onReloadModel();
             }
+
+            $scope.templateLoaded = true;
         });
-    }
+    };
 
     $scope.onDeliverForm = function(subject, form) {
         $scope.deliveringInd = true;

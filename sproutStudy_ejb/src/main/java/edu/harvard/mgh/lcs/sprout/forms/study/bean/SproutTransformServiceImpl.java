@@ -73,6 +73,10 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 					templateTO.setKey(templateMasterEntity.getKey());
 					templateTO.setTemplate(templateMasterEntity.getTemplate());
 					templateTO.setTranslations(templateMasterEntity.getTranslations());
+
+
+//					System.out.println("SproutTransformServiceImpl.getTemplateTO.templateMasterEntity.getTranslations() 1: " + templateMasterEntity.getTranslations());
+
 					return templateTO;
 				}
 			} else {
@@ -87,6 +91,9 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 				templateTO.setKey(templateMasterEntity.getKey());
 				templateTO.setTemplate(templateMasterEntity.getTemplate());
 				templateTO.setTranslations(templateMasterEntity.getTranslations());
+
+//				System.out.println("SproutTransformServiceImpl.getTemplateTO.templateMasterEntity.getTranslations() 2: " + templateMasterEntity.getTranslations());
+
 				return templateTO;
 			}
 		}
@@ -327,6 +334,9 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 				TemplateMasterEntity templateMasterEntity = getTemplateMasterEntity(publicationKey);
 				if (templateMasterEntity != null) {
 					templateText = templateMasterEntity.getTemplate();
+
+//					System.out.println("SproutTransformServiceImpl.getNarrative.templateMasterEntity.getTranslations() 0: " + templateMasterEntity.getTranslations());
+
 					translationsText = templateMasterEntity.getTranslations();
 				}
 			}
@@ -413,7 +423,7 @@ public class SproutTransformServiceImpl implements SproutTransformService {
 														String localeKey = localeTmp.get("locale").get("key").textValue();
 														String localeMessage = localeTmp.get("message").textValue();
 
-//												System.out.println("363: " + localeKey + ": " + localeMessage);
+												System.out.println("363: " + localeKey + ": " + localeMessage);
 
 //														System.out.println("978: 13");
 

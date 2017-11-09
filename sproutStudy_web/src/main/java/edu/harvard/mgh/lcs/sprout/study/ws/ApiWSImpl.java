@@ -939,8 +939,16 @@ public class ApiWSImpl extends Application implements ApiWS, SproutStudyConstant
     }
 
     @Override
-    public String getNarrativeServer(HttpServletRequest request, String publicationKey, String instanceId, String model) throws InvalidSessionRESTful {
-        return transformService.getNarrative(publicationKey, instanceId, model);
+    public NarrativeTO getNarrativeServer(HttpServletRequest request, String publicationKey, String instanceId, String model) throws InvalidSessionRESTful {
+        String narrative = transformService.getNarrative(publicationKey, instanceId, model);
+
+
+//        System.out.println("ApiWSImpl.getNarrativeServer.narrative: " + narrative);
+
+        NarrativeTO narrativeTO = new NarrativeTO();
+        narrativeTO.setContent(narrative);
+
+        return narrativeTO;
     }
 
     @Override

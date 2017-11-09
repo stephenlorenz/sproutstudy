@@ -7,7 +7,7 @@
                     <div id="sproutTransformFormContent" class="sprout-transform-drag-dimme"/>
                 </bg-pane>
                 <bg-pane min-size="50" class="sprout-transform-model-pane">
-                    <div ng-show="formLoaded">
+                    <div ng-show="formLoaded && templateLoaded">
                         <div class="sprout-transform-model-toolbar">
                             <div class="btn-group">
                                 <button class="btn" title="Reload Model" ng-click="onReloadModel()"><i class="fa fa-refresh"></i></button>
@@ -30,8 +30,8 @@
                         </div>
                         <pre id="sproutTransformModelContent" class="sprout-transform-model-content"/>
                     </div>
-                    <div style="line-height: 300px; text-align: center;" ng-show="formLoaded == false">
-                        <span class="badge badge-info sprout-form-loading"><i class="fa fa-refresh fa-spin sprout-form-loading"></i><span class="sprout-form-loading-message">Loading form...please wait...</span></span>
+                    <div style="line-height: 300px; text-align: center;" ng-show="formLoaded == false || templateLoaded == false">
+                        <span class="badge badge-info sprout-form-loading"><i class="fa fa-refresh fa-spin sprout-form-loading"></i><span class="sprout-form-loading-message">Loading form and template...please wait...</span></span>
                     </div>
                 </bg-pane>
             </bg-splitter>
@@ -39,10 +39,10 @@
         <bg-pane min-size="150">
             <bg-splitter orientation="vertical">
                 <bg-pane min-size="50" class="sprout-transform-template-pane">
-                    <div style="line-height: 300px; text-align: center;" ng-show="formLoaded == false">
-                        <span class="badge badge-info sprout-form-loading"><i class="fa fa-refresh fa-spin sprout-form-loading"></i><span class="sprout-form-loading-message">Loading form...please wait...</span></span>
+                    <div style="line-height: 300px; text-align: center;" ng-show="formLoaded == false || templateLoaded == false;">
+                        <span class="badge badge-info sprout-form-loading"><i class="fa fa-refresh fa-spin sprout-form-loading"></i><span class="sprout-form-loading-message">Loading form and template...please wait...</span></span>
                     </div>
-                    <div ng-show="formLoaded">
+                    <div ng-show="formLoaded && templateLoaded">
                         <div class="sprout-transform-template-editor" ng-model="template" ui-ace="{
                         advanced: {
                             enableSnippets: true,
@@ -61,10 +61,10 @@
 
                 </bg-pane>
                 <bg-pane min-size="50" class="sprout-transform-narrative-pane">
-                    <div style="line-height: 300px; text-align: center;" ng-show="formLoaded == false">
-                        <span class="badge badge-info sprout-form-loading"><i class="fa fa-refresh fa-spin sprout-form-loading"></i><span class="sprout-form-loading-message">Loading form...please wait...</span></span>
+                    <div style="line-height: 300px; text-align: center;" ng-show="formLoaded == false || templateLoaded == false">
+                        <span class="badge badge-info sprout-form-loading"><i class="fa fa-refresh fa-spin sprout-form-loading"></i><span class="sprout-form-loading-message">Loading form and template...please wait...</span></span>
                     </div>
-                    <div ng-show="formLoaded">
+                    <div ng-show="formLoaded && templateLoaded">
                         <div class="sprout-transform-template-toolbar">
                             <div class="btn-group">
                                 <button class="btn" title="Save" ng-click="onSaveTemplate()" ng-dblclick="toggleAutoSave()" ng-class="{'btn-primary': templateHasChanges && autosave == false, 'btn-success': autosave}"><i class="fa fa-save"></i></button>
@@ -176,28 +176,45 @@
     <div modal="translationsModal" close="onCloseTranslationsModal()" options="modalSmallOpts">
         <div class="modal-header">
             <h4>Translations
-                <span style="float: right"><input name="translationsFilter" placeholder="filter..." ng-model="translationsFilter"></input></span>
+                <span style="float: right"><input name="translationsFilter" placeholder="filter..." ng-change="filterTranslationList()" ng-model="translationsFilter"></input></span>
             </h4>
         </div>
         <div class="modal-body modal-body-short" id="translationsModalMapper" style="min-height: 450px;">
-            <table class="table table-bordered table-striped">
-                <tr>
-                    <th style="width: 216px;">Key</th>
-                    <th style="width: 100%;">Value</th>
-                </tr>
-                <tr ng-repeat="translation in translations|filter: translationsFilter">
-                    <td style="width: 216px;">
-                        <input name="name" ng-model="translation.key"></input>
-                        <br/><i class="fa fa-trash-o" aria-hidden="true" style="cursor: pointer;" ng-click="onDeleteTranslation($index)"></i>
-                    </td>
-                    <td>
-                        <div ng-repeat="locale in translation.locales">
-                            <h5>{{locale.locale.name}}</h5>
-                            <textarea name="localeValue" ng-model="locale.message" style="width: 95%"></textarea>
-                        </div>
-                    </td>
-                </div>
-            </table>
+
+
+            <div ng-show="translationsModalMode == 'importPrompt'" class="alert alert-info">
+                Importing...please wait...
+            </div>
+
+            <div ng-show="translationsModalMode == 'list'" >
+
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th style="width: 216px;">Key</th>
+                        <th style="width: 100%;">Value</th>
+                    </tr>
+                    <!--<tr ng-repeat="translation in translationsPage|filter: translationsFilter">-->
+                    <tr ng-repeat="translation in translationsPage">
+                        <td style="width: 216px;">
+                            <input name="name" ng-model="translation.key"></input>
+                            <br/><i class="fa fa-trash-o" aria-hidden="true" style="cursor: pointer;" ng-click="onDeleteTranslation($index, translation)"></i>
+                        </td>
+                        <td>
+                            <div ng-repeat="locale in translation.locales">
+                                <h5>{{locale.locale.name}}</h5>
+                                <textarea name="localeValue" ng-model="locale.message" style="width: 95%"></textarea>
+                            </div>
+                        </td>
+
+                </table>
+
+                <button class="btn btn-primary" ng-click="nextTranslationPage()">More...</button>
+                <!--<div class="btn-group">-->
+                    <!--<button class="btn btn-primary" ng-click="previousTranslationPage()">< Previous Page</button>-->
+                    <!--<button class="btn btn-primary" ng-click="nextTranslationPage()">Next Page ></button>-->
+                <!--</div>-->
+
+            </div>
         </div>
         <div class="modal-footer">
             <span style="float: left">

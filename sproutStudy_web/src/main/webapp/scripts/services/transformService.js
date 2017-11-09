@@ -43,7 +43,7 @@ angular.module('sproutStudyApp')
              },
             getNarrativeServer: function (params, data, callback) {
                 $http.post(networkService.generateUrl("getNarrativeServer", params), data).then(function (response) {
-                    callback(response.data);
+                    callback(response.data.content);
                 }, function errorCallback(response) {
                     alert("ERROR: " + response.status + ": transformService.getNarrativeServer. Please contact your system administrator.\n\nFailed to retrieve narrative server.");
                     response.value = 'false';
