@@ -1993,7 +1993,7 @@
 
 <div id="sproutStudyFormContent" />
 
-<div id="sproutTransformTemplate" style="display: none;" />
+<div id="sproutTransformTemplate" style="visibility: hidden; position:absolute;" />
 
 <iframe id="printFrame" src="about:blank" height="0" width="0" style="border: 0px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;" >
 </iframe>

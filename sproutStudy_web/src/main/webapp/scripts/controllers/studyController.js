@@ -32,6 +32,9 @@ angular.module('sproutStudyApp')
         $scope.deletingMessage = false;
 
         $scope.allFormsCurrentPage = 1;
+
+        if (sessionStorage.getItem("allFormsCurrentPage")) $scope.allFormsCurrentPage = sessionStorage.getItem("allFormsCurrentPage");
+
         $scope.allFormsPageCount = 1;
         $scope.allFormsMetadata = undefined;
         $scope.allFormsRowsPerPage = 40;
@@ -320,6 +323,7 @@ angular.module('sproutStudyApp')
         $scope.allFormsFirstPage = function () {
             if ($scope.allFormsCurrentPage > 1) {
                 $scope.allFormsCurrentPage = 1;
+                sessionStorage.setItem('allFormsCurrentPage', $scope.allFormsCurrentPage);
                 $scope.getAllForms(9789);
             }
         };
@@ -327,6 +331,7 @@ angular.module('sproutStudyApp')
         $scope.allFormsNextPage = function () {
             if ($scope.allFormsCurrentPage < $scope.allFormsPageCount) {
                 $scope.allFormsCurrentPage++;
+                sessionStorage.setItem('allFormsCurrentPage', $scope.allFormsCurrentPage);
                 $scope.getAllForms(97810);
             }
         };
@@ -334,6 +339,7 @@ angular.module('sproutStudyApp')
         $scope.allFormsLastPage = function () {
             if ($scope.allFormsCurrentPage < $scope.allFormsPageCount) {
                 $scope.allFormsCurrentPage = $scope.allFormsPageCount;
+                sessionStorage.setItem('allFormsCurrentPage', $scope.allFormsCurrentPage);
                 $scope.getAllForms(97811);
             }
         }
@@ -341,6 +347,7 @@ angular.module('sproutStudyApp')
         $scope.allFormsPreviousPage = function () {
             if ($scope.allFormsCurrentPage > 1) {
                 $scope.allFormsCurrentPage--;
+                sessionStorage.setItem('allFormsCurrentPage', $scope.allFormsCurrentPage);
                 $scope.getAllForms(97812);
             }
         };
